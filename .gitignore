@@ -1,0 +1,12 @@
+*.class
+*.jar
+*.zip
+*.rar
+*.tar.gz
+
+.gradle/
+.idea/
+build/
+gradle/
+
+src/test/
