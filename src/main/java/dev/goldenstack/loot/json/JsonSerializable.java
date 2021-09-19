@@ -23,7 +23,7 @@ public interface JsonSerializable<T> {
     void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException;
 
     /**
-     * @return This JsonSerializable's NamespacedID. If you're adding this yourself, try to make it unique so it
+     * Returns this JsonSerializable's NamespacedID. If you're adding this yourself, try to make it unique so it
      * doesn't mess with anything else.
      */
     @NotNull NamespaceID getKey();
