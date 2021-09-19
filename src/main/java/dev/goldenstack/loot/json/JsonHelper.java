@@ -54,6 +54,10 @@ public class JsonHelper {
         return "Expected boolean for key \""+key+"\" but found other value (number, object, array, string, etc)!";
     }
 
+    public static @NotNull String notNumberMessage(@NotNull String key){
+        return "Expected number for key \""+key+"\" but found other value (boolean, object, array, string, etc)!";
+    }
+
     /**
      * @return The error message, for {@code JsonParseException}s, when an element was not a JsonPrimitive and a valid
      * {@code NamespaceID} but should have been.
@@ -168,6 +172,24 @@ public class JsonHelper {
             throw new JsonParseException(notBooleanMessage(key));
         }
     }
+
+    /**
+     * Throws a JsonParseException if the element is not a JsonPrimitive that is a number
+     * @param element A not-null JsonElement
+     * @param key The key (for creating the error message)
+     * @return The element as a Number
+     * @throws JsonParseException if the element was not a JsonPrimitive that is a number
+     */
+    public static @NotNull Number getNumber(@NotNull JsonElement element, @NotNull String key) throws JsonParseException {
+        final JsonPrimitive primitive = assureJsonPrimitive(element, key);
+        if (primitive.isNumber()){
+            return primitive.getAsNumber();
+        } else {
+            throw new JsonParseException(notNumberMessage(key));
+        }
+    }
+
+
 
     /**
      * Throws a JsonParseException if the element is not a JsonPrimitive that is a boolean
