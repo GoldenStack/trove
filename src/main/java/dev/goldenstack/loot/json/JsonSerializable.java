@@ -2,6 +2,7 @@ package dev.goldenstack.loot.json;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,9 +21,8 @@ public interface JsonSerializable<T> {
     void serialize(@NotNull JsonObject object) throws JsonParseException;
 
     /**
-     * @return This LootJsonSerializable's deserializer. Typically, returning {@code null} will not break the code
-     * unless it has been added to a {@link JsonSerializationManager} and somewhere in the code the method
-     * {@link JsonSerializationManager#serialize(JsonSerializable)} is run.
+     * @return This JsonSerializable's NamespacedID. If you're adding this yourself, try to make it unique so it
+     * doesn't mess with anything else.
      */
-    @NotNull JsonDeserializable<? extends JsonSerializable<T>> getDeserializer();
+    @NotNull NamespaceID getKey();
 }

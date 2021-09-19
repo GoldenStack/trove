@@ -21,10 +21,4 @@ public interface JsonDeserializable<T extends JsonSerializable<?>> {
      * @throws JsonParseException if any errors occur
      */
     @NotNull T deserialize(@NotNull JsonObject json) throws JsonParseException;
-
-    /**
-     * @return This LootJsonDeserializable's NamespacedID. If you're adding this yourself, try to make it unique so it
-     * doesn't mess with anything else.
-     */
-    @NotNull NamespaceID getKey();
 }
