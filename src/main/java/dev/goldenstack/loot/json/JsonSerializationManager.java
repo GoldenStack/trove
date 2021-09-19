@@ -20,7 +20,7 @@ import static dev.goldenstack.loot.json.JsonHelper.notJsonObjectMessage;
  * Manages serialization and deserialization for groups of serializable classes.
  * @param <T> Something that is {@link JsonSerializable}
  */
-public class JsonSerializationManager <T extends JsonSerializable<?>>{
+public class JsonSerializationManager <T extends JsonSerializable<?>> {
 
     private final @NotNull String elementName;
     private final Map<String, JsonDeserializable<T>> registry;
@@ -126,7 +126,7 @@ public class JsonSerializationManager <T extends JsonSerializable<?>>{
          * Sets the {@code elementName} for instances created from this builder.
          */
         @Contract("_ -> this")
-        public @NotNull JsonSerializationManager.Builder<T> elementName(@NotNull String elementName){
+        public @NotNull Builder<T> elementName(@NotNull String elementName){
             this.elementName = elementName;
             return this;
         }
@@ -136,7 +136,7 @@ public class JsonSerializationManager <T extends JsonSerializable<?>>{
          * when true.
          */
         @Contract("_ -> this")
-        public @NotNull JsonSerializationManager.Builder<T> useConcurrentHashMap(boolean useConcurrentHashMap){
+        public @NotNull Builder<T> useConcurrentHashMap(boolean useConcurrentHashMap){
             this.useConcurrentHashMap = useConcurrentHashMap;
             return this;
         }
@@ -147,7 +147,7 @@ public class JsonSerializationManager <T extends JsonSerializable<?>>{
          * handled.
          */
         @Contract("_ -> this")
-        public @NotNull JsonSerializationManager.Builder<T> defaultDeserializer(@NotNull BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer){
+        public @NotNull Builder<T> defaultDeserializer(@NotNull BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer){
             this.defaultDeserializer = defaultDeserializer;
             return this;
         }
