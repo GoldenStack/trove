@@ -157,6 +157,10 @@ public class LootContext {
         this.luck = luck;
     }
 
+    public static @NotNull Builder builder(){
+        return new Builder();
+    }
+
     /**
      * Utility class for building LootContext instances
      */
@@ -166,6 +170,8 @@ public class LootContext {
         private int looting = 0;
         private float luck = 0;
         private Random random = null;
+
+        private Builder(){}
 
         /**
          * Sets the position of this builder
