@@ -12,7 +12,9 @@ public class LootTableLoader {
     private final @NotNull JsonSerializationManager<NumberProvider> numberProviderManager;
     private LootTableLoader(@NotNull Builder builder){
         JsonSerializationManager.Builder<NumberProvider> numberProviderBuilder = JsonSerializationManager.builder();
-        builder.numberProviderBuilder.accept(numberProviderBuilder);
+        if (builder.numberProviderBuilder != null){
+            builder.numberProviderBuilder.accept(numberProviderBuilder);
+        }
         this.numberProviderManager = numberProviderBuilder.owner(this).build();
     }
 
