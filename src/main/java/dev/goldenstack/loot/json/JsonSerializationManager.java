@@ -3,6 +3,7 @@ package dev.goldenstack.loot.json;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import dev.goldenstack.loot.LootTableLoader;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -25,11 +26,14 @@ public class JsonSerializationManager <T extends JsonSerializable<?>> {
     private final @NotNull String elementName;
     private final Map<String, JsonDeserializable<T>> registry;
     private final BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer;
+    private final LootTableLoader owner;
     private JsonSerializationManager(boolean useConcurrentHashMap, @NotNull String elementName,
-                                     BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer){
+                                     BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer,
+                                     @NotNull LootTableLoader owner){
         this.registry = useConcurrentHashMap ? new ConcurrentHashMap<>() : new HashMap<>();
         this.elementName = elementName;
         this.defaultDeserializer = defaultDeserializer;
+        this.owner = owner;
     }
 
     /**
@@ -67,7 +71,7 @@ public class JsonSerializationManager <T extends JsonSerializable<?>> {
     public @NotNull JsonObject serialize(@NotNull T t) throws JsonParseException{
         JsonObject object = new JsonObject();
         object.addProperty(this.elementName, t.getKey().asString());
-        t.serialize(object);
+        t.serialize(object, this.owner);
         return object;
     }
 
@@ -89,7 +93,7 @@ public class JsonSerializationManager <T extends JsonSerializable<?>> {
                 String type = rawElement.getAsString();
                 JsonDeserializable<T> t = this.registry.get(type);
                 if (t != null){
-                    return t.deserialize(object);
+                    return t.deserialize(object, this.owner);
                 }
                 throw new JsonParseException("Could not find deserializer for type \"" + type + "\"!");
             }
@@ -119,6 +123,7 @@ public class JsonSerializationManager <T extends JsonSerializable<?>> {
 
         private String elementName = null;
         private BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer = null;
+        private LootTableLoader owner;
 
         private Builder(){}
 
@@ -153,11 +158,22 @@ public class JsonSerializationManager <T extends JsonSerializable<?>> {
         }
 
         /**
+         * Sets the {@code owner} for instances created with this builder.<br>
+         * The owner allows objects that are being deserialized to deserialize other objects that they need to.
+         */
+        @Contract("_ -> this")
+        public @NotNull Builder<T> owner(@NotNull LootTableLoader owner){
+            this.owner = owner;
+            return this;
+        }
+
+        /**
          * Builds a {@code JsonSerializationManager} instance from this builder.
          */
         public JsonSerializationManager<T> build(){
-            Objects.requireNonNull(elementName, "This builder cannot have a null elementName!");
-            return new JsonSerializationManager<>(this.useConcurrentHashMap, this.elementName, this.defaultDeserializer);
+            Objects.requireNonNull(elementName, "This builder must have an elementName!");
+            Objects.requireNonNull(owner, "This builder must have an owner!");
+            return new JsonSerializationManager<>(this.useConcurrentHashMap, this.elementName, this.defaultDeserializer, this.owner);
         }
     }
 }
