@@ -27,6 +27,13 @@ public class ConstantNumber implements NumberProvider {
     }
 
     /**
+     * Returns the value that this instance contains
+     */
+    public double value(){
+        return value;
+    }
+
+    /**
      * {@inheritDoc}<br>
      * For {@code ConstantNumber}s, the value should never change.
      */

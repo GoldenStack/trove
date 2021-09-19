@@ -30,6 +30,20 @@ public class UniformNumber implements NumberProvider {
     }
 
     /**
+     * Returns the minimum value that is used
+     */
+    public @NotNull NumberProvider min(){
+        return min;
+    }
+
+    /**
+     * Returns the maximum value that is used
+     */
+    public @NotNull NumberProvider max(){
+        return max;
+    }
+
+    /**
      * {@inheritDoc}<br>
      * For {@code UniformNumber}s, it's a uniform value between the minimum and the maximum.
      */

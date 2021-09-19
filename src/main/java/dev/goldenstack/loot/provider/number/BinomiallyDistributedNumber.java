@@ -30,6 +30,20 @@ public class BinomiallyDistributedNumber implements NumberProvider {
     }
 
     /**
+     * Returns the value that this instance uses to calculate the number of trials
+     */
+    public @NotNull NumberProvider trials(){
+        return this.trials;
+    }
+
+    /**
+     * Returns the value that this instance uses to calculate the probability of success
+     */
+    public @NotNull NumberProvider probability(){
+        return this.probability;
+    }
+
+    /**
      * {@inheritDoc}<br>
      * Generates an integer via binomial distribution with {@link #trials} trials and {@link #probability} probability.
      */
