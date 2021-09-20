@@ -1,5 +1,6 @@
 package dev.goldenstack.loot.provider.number;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.LootTableLoader;
@@ -8,6 +9,8 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
+
+import static dev.goldenstack.loot.json.JsonHelper.*;
 
 /**
  * Represents a {@code NumberProvider} that generates binomially distributed numbers based on the {@code trials} and
@@ -75,8 +78,8 @@ public class BinomiallyDistributedNumber implements NumberProvider {
      */
     @Override
     public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
-        object.add("n", loader.getNumberProviderManager().serialize(this.trials));
-        object.add("p", loader.getNumberProviderManager().serialize(this.probability));
+        object.add("trials", loader.getNumberProviderManager().serialize(this.trials));
+        object.add("probability", loader.getNumberProviderManager().serialize(this.probability));
     }
 
     /**
@@ -110,9 +113,35 @@ public class BinomiallyDistributedNumber implements NumberProvider {
      * Static method to deserialize a {@code JsonObject} to a {@code BinomiallyDistributedNumber}
      */
     public static @NotNull NumberProvider deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
-        return new BinomiallyDistributedNumber(
-                loader.getNumberProviderManager().deserialize(json.get("n"), "n"),
-                loader.getNumberProviderManager().deserialize(json.get("p"), "p")
-        );
+        NumberProvider trials, probability;
+        // Try keys "trials" and "probability" first, then try the deprecated "n" and "p" that default Minecraft uses.
+
+        // Look for the trials key, if it doesn't exist, look for the "n" key. If neither exist, fallback with key "trials"
+        JsonElement rawTrials = json.get("trials");
+        if (!isNull(rawTrials)){
+            trials = loader.getNumberProviderManager().deserialize(rawTrials, "trials");
+        } else {
+            JsonElement rawN = json.get("n");
+            if (isNull(rawN)){
+                // This will call the default deserializer 100% of the time
+                trials = loader.getNumberProviderManager().deserialize(rawTrials, "trials");
+            } else {
+                trials = loader.getNumberProviderManager().deserialize(rawN, "n");
+            }
+        }
+
+        JsonElement rawProbability = json.get("probability");
+        if (!isNull(rawProbability)) {
+            probability = loader.getNumberProviderManager().deserialize(rawProbability, "probability");
+        } else {
+            JsonElement rawP = json.get("p");
+            if (isNull(rawP)){
+                // This will call the default deserializer 100% of the time
+                probability = loader.getNumberProviderManager().deserialize(rawProbability, "probability");
+            } else {
+                probability = loader.getNumberProviderManager().deserialize(rawP, "p");
+            }
+        }
+        return new BinomiallyDistributedNumber(trials, probability);
     }
 }
