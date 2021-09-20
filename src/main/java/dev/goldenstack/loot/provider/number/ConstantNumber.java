@@ -1,12 +1,15 @@
 package dev.goldenstack.loot.provider.number;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.LootTableLoader;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
+import dev.goldenstack.loot.json.JsonSerializationManager;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a {@code NumberProvider} that is a constant value.
@@ -81,5 +84,12 @@ public class ConstantNumber implements NumberProvider {
      */
     public static @NotNull NumberProvider deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
         return new ConstantNumber(JsonHelper.getNumber(json.get("value"), "value").doubleValue());
+    }
+
+    public static @Nullable NumberProvider defaultDeserializer(@Nullable JsonElement element, @NotNull JsonSerializationManager<NumberProvider> manager){
+        if (element == null || !element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()){
+            return null;
+        }
+        return new ConstantNumber(element.getAsNumber().doubleValue());
     }
 }
