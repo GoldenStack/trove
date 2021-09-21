@@ -106,7 +106,7 @@ public class BinomiallyDistributedNumber implements NumberProvider {
 
     @Override
     public int hashCode() {
-        return trials.hashCode() * 31 + probability.hashCode();
+        return (trials.hashCode() * 31 + probability.hashCode()) * 47;
     }
 
     /**

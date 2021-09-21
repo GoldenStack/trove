@@ -97,7 +97,7 @@ public class UniformNumber implements NumberProvider {
 
     @Override
     public int hashCode() {
-        return min.hashCode() * 31 + max.hashCode();
+        return (min.hashCode() * 31 + max.hashCode()) * 53;
     }
 
     /**
