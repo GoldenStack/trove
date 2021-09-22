@@ -27,4 +27,11 @@ public interface JsonSerializable<T> {
      * doesn't mess with anything else.
      */
     @NotNull NamespaceID getKey();
+
+    /**
+     * Returns this JsonSerializable's deserializer. The purpose of this is to reduce map lookups for
+     * {@link JsonSerializationManager} and to allow deserialization for things that aren't registered in a
+     * JsonSerializationManager.
+     */
+    @NotNull JsonDeserializable<? extends JsonSerializable<T>> getDeserializer();
 }

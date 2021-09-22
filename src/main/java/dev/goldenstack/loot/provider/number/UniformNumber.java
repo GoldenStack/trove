@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.LootTableLoader;
 import dev.goldenstack.loot.context.LootContext;
+import dev.goldenstack.loot.json.JsonDeserializable;
+import dev.goldenstack.loot.json.JsonSerializable;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
@@ -80,6 +82,11 @@ public class UniformNumber implements NumberProvider {
     @Override
     public @NotNull NamespaceID getKey() {
         return KEY;
+    }
+
+    @Override
+    public @NotNull JsonDeserializable<? extends JsonSerializable<NumberProvider>> getDeserializer() {
+        return UniformNumber::deserialize;
     }
 
     @Override

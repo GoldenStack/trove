@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.LootTableLoader;
 import dev.goldenstack.loot.context.LootContext;
+import dev.goldenstack.loot.json.JsonDeserializable;
 import dev.goldenstack.loot.json.JsonHelper;
 import dev.goldenstack.loot.json.JsonSerializationManager;
 import net.minestom.server.utils.NamespaceID;
@@ -60,6 +61,11 @@ public class ConstantNumber implements NumberProvider {
     @Override
     public @NotNull NamespaceID getKey() {
         return KEY;
+    }
+
+    @Override
+    public @NotNull JsonDeserializable<NumberProvider> getDeserializer() {
+        return ConstantNumber::deserialize;
     }
 
     @Override
