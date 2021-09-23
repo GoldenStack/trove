@@ -63,7 +63,7 @@ public class LootTableLoader {
          * Sets the builder that is used for creating the {@link #getNumberProviderManager()}
          */
         @Contract("_ -> this")
-        @NotNull Builder numberProviderBuilder(@NotNull Consumer<JsonSerializationManager.Builder<NumberProvider>> numberProviderBuilder){
+        public @NotNull Builder numberProviderBuilder(@NotNull Consumer<JsonSerializationManager.Builder<NumberProvider>> numberProviderBuilder){
             this.numberProviderBuilder = numberProviderBuilder;
             return this;
         }
@@ -72,7 +72,7 @@ public class LootTableLoader {
          * Sets the builder that is used for creating the {@link #getLootConditionManager()} ()}
          */
         @Contract("_ -> this")
-        @NotNull Builder lootConditionBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootCondition>> lootConditionBuilder){
+        public @NotNull Builder lootConditionBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootCondition>> lootConditionBuilder){
             this.lootConditionBuilder = lootConditionBuilder;
             return this;
         }
