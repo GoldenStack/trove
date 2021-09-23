@@ -6,14 +6,14 @@ import dev.goldenstack.loot.LootTableLoader;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents a deserializer that can deserialize a specific class that extends {@link JsonSerializable}.
+ * Represents a deserializer that can deserialize a specific class that extends {@link LootSerializer}.
  * <p>
  *     <b>Please do not extend this class.</b> Instead, use a method reference.
  * </p>
- * @param <T> Something that is {@link JsonSerializable}
+ * @param <T> Something that is {@link LootSerializer}
  */
 @FunctionalInterface
-public interface JsonDeserializable<T extends JsonSerializable<?>> {
+public interface LootDeserializer<T extends LootSerializer<?>> {
 
     /**
      * Deserializes the provided JsonObject. If this instance has been registered to a {@link JsonSerializationManager}

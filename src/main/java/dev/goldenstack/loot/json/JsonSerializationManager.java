@@ -19,12 +19,12 @@ import static dev.goldenstack.loot.json.JsonHelper.notJsonObjectMessage;
 
 /**
  * Manages serialization and deserialization for groups of serializable classes.
- * @param <T> Something that is {@link JsonSerializable}
+ * @param <T> Something that is a {@link LootSerializer}
  */
-public class JsonSerializationManager <T extends JsonSerializable<?>> {
+public class JsonSerializationManager <T extends LootSerializer<?>> {
 
     private final @NotNull String elementName;
-    private final Map<String, JsonDeserializable<T>> registry;
+    private final Map<String, LootDeserializer<T>> registry;
     private final BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer;
     private final LootTableLoader owner;
     private JsonSerializationManager(boolean useConcurrentHashMap, @NotNull String elementName,
@@ -41,16 +41,16 @@ public class JsonSerializationManager <T extends JsonSerializable<?>> {
      * @param key The key
      * @param value The value
      */
-    public void register(@NotNull NamespaceID key, @NotNull JsonDeserializable<T> value){
+    public void register(@NotNull NamespaceID key, @NotNull LootDeserializer<T> value){
         this.registry.put(key.asString(), value);
     }
 
     /**
-     * Attempts to find a {@link JsonDeserializable} based on the provided NamespacedID
+     * Attempts to find a {@link LootDeserializer} based on the provided NamespacedID
      * @param key The key to search for
      * @return The deserializer that was found, or null if none was found.
      */
-    public @Nullable JsonDeserializable<T> find(@NotNull NamespaceID key){
+    public @Nullable LootDeserializer<T> find(@NotNull NamespaceID key){
         return this.registry.get(key.asString());
     }
 
@@ -91,7 +91,7 @@ public class JsonSerializationManager <T extends JsonSerializable<?>> {
             JsonElement rawElement = object.get(elementName);
             if (rawElement != null && rawElement.isJsonPrimitive() && rawElement.getAsJsonPrimitive().isString()){
                 String type = rawElement.getAsString();
-                JsonDeserializable<T> t = this.registry.get(type);
+                LootDeserializer<T> t = this.registry.get(type);
                 if (t != null){
                     return t.deserialize(object, this.owner);
                 }
@@ -110,7 +110,7 @@ public class JsonSerializationManager <T extends JsonSerializable<?>> {
     /**
      * Creates a new {@link Builder}
      */
-    public static @NotNull <T extends JsonSerializable<?>> Builder<T> builder(){
+    public static @NotNull <T extends LootSerializer<?>> Builder<T> builder(){
         return new Builder<>();
     }
 
@@ -118,7 +118,7 @@ public class JsonSerializationManager <T extends JsonSerializable<?>> {
     /**
      * Utility class for building JsonSerializationManager instances
      */
-    public static class Builder <T extends JsonSerializable<?>> {
+    public static class Builder <T extends LootSerializer<?>> {
         private boolean useConcurrentHashMap;
 
         private String elementName = null;

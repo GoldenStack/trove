@@ -5,8 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.LootTableLoader;
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.json.JsonDeserializable;
-import dev.goldenstack.loot.json.JsonSerializable;
+import dev.goldenstack.loot.json.LootDeserializer;
+import dev.goldenstack.loot.json.LootSerializer;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
@@ -94,7 +94,7 @@ public class BinomiallyDistributedNumber implements NumberProvider {
     }
 
     @Override
-    public @NotNull JsonDeserializable<? extends JsonSerializable<NumberProvider>> getDeserializer() {
+    public @NotNull LootDeserializer<? extends LootSerializer<NumberProvider>> getDeserializer() {
         return BinomiallyDistributedNumber::deserialize;
     }
 
