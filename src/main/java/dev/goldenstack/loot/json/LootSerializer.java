@@ -23,13 +23,13 @@ public interface LootSerializer<T> {
     void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException;
 
     /**
-     * Returns this JsonSerializable's NamespacedID. If you're adding this yourself, try to make it unique so it
+     * Returns this LootSerializer's NamespacedID. If you're adding this yourself, try to make it unique so it
      * doesn't mess with anything else.
      */
     @NotNull NamespaceID getKey();
 
     /**
-     * Returns this JsonSerializable's deserializer. The purpose of this is to reduce map lookups for
+     * Returns this LootSerializer's deserializer. The purpose of this is to reduce map lookups for
      * {@link JsonSerializationManager} and to allow deserialization for things that aren't registered in a
      * JsonSerializationManager.
      */
