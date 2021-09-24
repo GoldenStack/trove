@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.provider.number;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.LootTableLoader;
@@ -10,11 +9,8 @@ import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.LootSerializer;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
-
-import static dev.goldenstack.loot.json.JsonHelper.*;
 
 /**
  * Represents a {@code NumberProvider} that generates binomially distributed numbers based on the {@code trials} and

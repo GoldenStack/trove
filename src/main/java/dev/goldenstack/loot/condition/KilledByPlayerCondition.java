@@ -6,13 +6,10 @@ import dev.goldenstack.loot.LootTableLoader;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.LootSerializer;
-import dev.goldenstack.loot.provider.number.NumberProvider;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 /**
  * Represents a {@code LootCondition} that returns true if the provided LootContext has a killer and the killer is a

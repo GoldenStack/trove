@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents a deserializer that can deserialize a specific class that extends {@link LootSerializer}.
  * <p>
- *     <b>Please do not extend this class.</b> Instead, use a method reference.
+ *     <b>Please do not directly extend this class.</b> Instead, use a method reference.
  * </p>
  * @param <T> Something that is {@link LootSerializer}
  */
