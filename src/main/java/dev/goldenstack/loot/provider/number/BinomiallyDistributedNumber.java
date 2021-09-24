@@ -5,10 +5,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.LootTableLoader;
 import dev.goldenstack.loot.context.LootContext;
+import dev.goldenstack.loot.json.JsonHelper;
 import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.LootSerializer;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
@@ -120,35 +122,9 @@ public class BinomiallyDistributedNumber implements NumberProvider {
      * Static method to deserialize a {@code JsonObject} to a {@code BinomiallyDistributedNumber}
      */
     public static @NotNull NumberProvider deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
-        NumberProvider trials, probability;
-        // Try keys "trials" and "probability" first, then try the deprecated "n" and "p" that default Minecraft uses.
-
-        // Look for the trials key, if it doesn't exist, look for the "n" key. If neither exist, fallback with key "trials"
-        JsonElement rawTrials = json.get("trials");
-        if (!isNull(rawTrials)){
-            trials = loader.getNumberProviderManager().deserialize(rawTrials, "trials");
-        } else {
-            JsonElement rawN = json.get("n");
-            if (isNull(rawN)){
-                // This will call the default deserializer 100% of the time
-                trials = loader.getNumberProviderManager().deserialize(rawTrials, "trials");
-            } else {
-                trials = loader.getNumberProviderManager().deserialize(rawN, "n");
-            }
-        }
-
-        JsonElement rawProbability = json.get("probability");
-        if (!isNull(rawProbability)) {
-            probability = loader.getNumberProviderManager().deserialize(rawProbability, "probability");
-        } else {
-            JsonElement rawP = json.get("p");
-            if (isNull(rawP)){
-                // This will call the default deserializer 100% of the time
-                probability = loader.getNumberProviderManager().deserialize(rawProbability, "probability");
-            } else {
-                probability = loader.getNumberProviderManager().deserialize(rawP, "p");
-            }
-        }
-        return new BinomiallyDistributedNumber(trials, probability);
+        return new BinomiallyDistributedNumber(
+            JsonHelper.optionalAlternativeKey(json, loader.getNumberProviderManager()::deserialize, "trials", "n"),
+            JsonHelper.optionalAlternativeKey(json, loader.getNumberProviderManager()::deserialize, "probability", "p")
+        );
     }
 }

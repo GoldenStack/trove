@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.function.BiFunction;
 
 /**
  * Utility class to help with JSON parsing.
@@ -241,5 +242,27 @@ public class JsonHelper {
             throw new JsonParseException(notJsonArrayMessage(key));
         }
         return element.getAsJsonArray();
+    }
+
+    /**
+     * Deserializes an object with the primary key if it exists. If not, it attempts to deserialize with the secondary
+     * key. If the secondary key doesn't exist or is null, it deserializes with the first key.
+     * @param object The object to get keys from
+     * @param deserializer The deserializer
+     * @param primary The primary key
+     * @param secondary The secondary key
+     * @return The deserialized object
+     */
+    public static @NotNull <T> T optionalAlternativeKey(@NotNull JsonObject object, @NotNull BiFunction<JsonElement, String, T> deserializer,
+                                                      @NotNull String primary, @NotNull String secondary){
+        JsonElement p = object.get(primary);
+        if (!isNull(p)){
+            return deserializer.apply(p, primary);
+        }
+        JsonElement s = object.get(secondary);
+        if (!isNull(s)){
+            return deserializer.apply(s, secondary);
+        }
+        return deserializer.apply(p, primary);
     }
 }
