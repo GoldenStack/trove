@@ -1,51 +1,29 @@
 package dev.goldenstack.loot.context;
 
-import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
 /**
  * Represents information about something that has happened that can be used to help generate loot.<br>
- * For example, if a player opens a chest, it might have {@code pos} and {@code luck} initialized, and if a player kills
- * a zombie, it might have {@code pos}, {@code killed}, {@code killer}, {@code looting}, {@code instance}, and
- * {@code luck} initialized.
  */
 public class LootContext {
 
-    private Pos pos;
-    private Entity killed, killer;
     private Random random;
     private Instance instance;
     private int looting;
     private float luck;
 
-    public LootContext(){}
+    private final Map<LootContextParameter<?>, Object> parameters;
 
-    /**
-     * Returns the position of whatever triggered this LootContext
-     */
-    public @Nullable Pos pos(){
-        return pos;
-    }
-
-    /**
-     * Returns the entity that was killed for this LootContext
-     */
-    public @Nullable Entity killed(){
-        return killed;
-    }
-
-    /**
-     * Returns the entity that acted as the killer for this LootContext
-     */
-    public @Nullable Entity killer(){
-        return killer;
+    public LootContext(){
+        parameters = new HashMap<>();
     }
 
     /**
@@ -76,6 +54,11 @@ public class LootContext {
         return luck;
     }
 
+    public @Nullable <T> T getParameter(@NotNull LootContextParameter<T> parameter){
+        //noinspection unchecked
+        return (T) this.parameters.get(parameter);
+    }
+
     /**
      * If this LootContext has a null random number generator, it initializes it via {@code new Random();}. Then, it
      * returns the random.
@@ -91,29 +74,9 @@ public class LootContext {
      * Sets the position that this LootContext contains.<br>
      * Note that this should not affect anything outside this LootContext.
      */
-    @Contract("_ -> this")
-    public @NotNull LootContext pos(@Nullable Pos pos){
-        this.pos = pos;
-        return this;
-    }
-
-    /**
-     * Sets the entity that was killed.<br>
-     * Note that this should not affect anything outside this LootContext.
-     */
-    @Contract("_ -> this")
-    public @NotNull LootContext killed(@Nullable Entity killed){
-        this.killed = killed;
-        return this;
-    }
-
-    /**
-     * Sets the entity that killed something.<br>
-     * Note that this should not affect anything outside this LootContext.
-     */
-    @Contract("_ -> this")
-    public @NotNull LootContext killer(@Nullable Entity killer){
-        this.killer = killer;
+    @Contract("_, _ -> this")
+    public @NotNull <T> LootContext parameter(@NotNull LootContextParameter<T> parameter, T value){
+        this.parameters.put(parameter, value);
         return this;
     }
 
@@ -158,14 +121,8 @@ public class LootContext {
 
     @Override
     public String toString() {
-        return "LootContext[pos=" + pos +
-                        ", killed=" + killed +
-                        ", killer=" + killer +
-                        ", random=" + random +
-                        ", instance=" + instance +
-                        ", looting=" + looting +
-                        ", luck=" + luck +
-                "]";
+        return "LootContext[parameters=" + parameters + ", random=" + random +
+                        ", instance=" + instance + ", looting=" + looting + ", luck=" + luck + "]";
     }
 
     @Override
@@ -173,15 +130,15 @@ public class LootContext {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LootContext context = (LootContext) o;
-        return looting == context.looting && Float.compare(context.luck, luck) == 0 && Objects.equals(pos, context.pos) && Objects.equals(killed, context.killed) && Objects.equals(killer, context.killer) && Objects.equals(random, context.random) && Objects.equals(instance, context.instance);
+        return looting == context.looting && Float.compare(context.luck, luck) == 0 &&
+                Objects.equals(this.parameters, context.parameters) && Objects.equals(random, context.random) &&
+                Objects.equals(instance, context.instance);
     }
 
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + Objects.hashCode(pos);
-        result = 31 * result + Objects.hashCode(killed);
-        result = 31 * result + Objects.hashCode(killer);
+        result = 31 * result + Objects.hashCode(parameters);
         result = 31 * result + Objects.hashCode(random);
         result = 31 * result + Objects.hashCode(instance);
         result = 31 * result + looting;
