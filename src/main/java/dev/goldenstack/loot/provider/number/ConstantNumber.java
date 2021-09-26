@@ -5,9 +5,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.LootTableLoader;
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.JsonHelper;
 import dev.goldenstack.loot.json.JsonSerializationManager;
+import dev.goldenstack.loot.json.LootDeserializer;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -89,7 +89,7 @@ public class ConstantNumber implements NumberProvider {
      * Static method to deserialize a {@code JsonObject} to a {@code ConstantNumber}
      */
     public static @NotNull NumberProvider deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
-        return new ConstantNumber(JsonHelper.getNumber(json.get("value"), "value").doubleValue());
+        return new ConstantNumber(JsonHelper.assureNumber(json.get("value"), "value").doubleValue());
     }
 
     public static @Nullable NumberProvider defaultDeserializer(@Nullable JsonElement element, @NotNull JsonSerializationManager<NumberProvider> manager){

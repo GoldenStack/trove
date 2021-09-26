@@ -15,8 +15,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
-import static dev.goldenstack.loot.json.JsonHelper.notJsonObjectMessage;
-
 /**
  * Manages serialization and deserialization for groups of serializable classes.
  * @param <T> Something that is a {@link LootSerializer}
@@ -104,7 +102,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
                 return t;
             }
         }
-        throw new JsonParseException(key == null ? "Expected object but found other value (primitive, array, null, etc)!" : notJsonObjectMessage(key));
+        throw new JsonParseException(JsonHelper.expectedNotNullMessage(key, element));
     }
 
     /**
