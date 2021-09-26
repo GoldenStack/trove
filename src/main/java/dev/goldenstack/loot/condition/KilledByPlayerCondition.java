@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.LootTableLoader;
 import dev.goldenstack.loot.context.LootContext;
+import dev.goldenstack.loot.context.LootContextParameter;
 import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.LootSerializer;
 import net.minestom.server.entity.Entity;
@@ -48,7 +49,7 @@ public class KilledByPlayerCondition implements LootCondition {
      */
     @Override
     public boolean test(@NotNull LootContext context) {
-        Entity entity = context.killer();
+        Entity entity = context.getParameter(LootContextParameter.KILLER_ENTITY);
         if (entity == null){
             return false;
         }

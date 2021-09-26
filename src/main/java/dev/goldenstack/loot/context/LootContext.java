@@ -54,8 +54,8 @@ public class LootContext {
         return luck;
     }
 
+    @SuppressWarnings("unchecked")
     public @Nullable <T> T getParameter(@NotNull LootContextParameter<T> parameter){
-        //noinspection unchecked
         return (T) this.parameters.get(parameter);
     }
 

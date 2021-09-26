@@ -1,6 +1,7 @@
 package dev.goldenstack.loot.context;
 
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.block.Block;
@@ -8,7 +9,6 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.Objects;
 
 /**
