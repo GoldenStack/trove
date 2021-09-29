@@ -66,7 +66,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
      * @return The generated JsonObject
      * @throws JsonParseException if the argument's deserializer throws an error
      */
-    public @NotNull JsonObject serialize(@NotNull T t) throws JsonParseException{
+    public @NotNull JsonObject serialize(@NotNull T t) throws JsonParseException {
         JsonObject object = new JsonObject();
         object.addProperty(this.elementName, t.getKey().asString());
         t.serialize(object, this.owner);
