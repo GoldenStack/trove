@@ -129,7 +129,8 @@ public class NumberRange {
     /**
      * Deserializes the provided JsonObject into a NumberRange
      */
-    public static @NotNull NumberRange deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull NumberRange deserialize(@NotNull JsonElement element, @NotNull LootTableLoader loader) throws JsonParseException {
+        JsonObject json = JsonHelper.assureJsonObject(element, null);
 
         JsonElement minElement = json.get("min");
         JsonElement maxElement = json.get("max");

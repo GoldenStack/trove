@@ -22,6 +22,7 @@ public class JsonHelper {
      * @param element The element to test
      * @return True if the element is null or is an instance of JsonNull, otherwise false
      */
+    @Contract("null -> true")
     public static boolean isNull(@Nullable JsonElement element){
         return element == null || element.isJsonNull();
     }
