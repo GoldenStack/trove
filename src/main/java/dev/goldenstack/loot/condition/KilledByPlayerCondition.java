@@ -69,10 +69,20 @@ public class KilledByPlayerCondition implements LootCondition {
         return "KilledByPlayerCondition[]";
     }
 
+    @Override
+    public int hashCode() {
+        return this.getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof KilledByPlayerCondition;
+    }
+
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code KilledByPlayerCondition}
      */
     public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
-        return new KilledByPlayerCondition();
+        return KilledByPlayerCondition.INSTANCE;
     }
 }
