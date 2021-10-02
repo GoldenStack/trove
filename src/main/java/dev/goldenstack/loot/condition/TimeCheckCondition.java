@@ -122,17 +122,7 @@ public class TimeCheckCondition implements LootCondition {
      * Static method to deserialize a {@code JsonObject} to a {@code TimeCheckCondition}
      */
     public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
-        JsonElement rangeElement = json.get("range");
-        if (rangeElement == null){
-            JsonElement valueElement = json.get("value");
-            if (valueElement == null){
-                throw new JsonParseException(JsonHelper.expectedNotNullMessage("value", null));
-            }
-        }
-        if (rangeElement == null){
-            throw new JsonParseException(JsonHelper.expectedNotNullMessage("range", null));
-        }
-        NumberRange range = NumberRange.deserialize(rangeElement, loader);
+        NumberRange range = JsonHelper.optionalAlternativeKey(json, loader::deserializeNumberRange, "range", "value");
 
         JsonElement number = json.get("period");
         Number period = null;

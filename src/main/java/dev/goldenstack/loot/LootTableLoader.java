@@ -1,10 +1,14 @@
 package dev.goldenstack.loot;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.json.JsonSerializationManager;
 import dev.goldenstack.loot.provider.number.NumberProvider;
+import dev.goldenstack.loot.util.NumberRange;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -40,6 +44,24 @@ public class LootTableLoader {
      */
     public @NotNull JsonSerializationManager<LootCondition> getLootConditionManager() {
         return lootConditionManager;
+    }
+
+    /**
+     * Utility method for deserializing number ranges. This exists because the default NumberRange deserialization
+     * method, {@link NumberRange#deserialize(LootTableLoader, JsonElement, String)}, does not fit for the standard
+     * {@code BiFunction<JsonElement, String, T>} that some methods in this library use.
+     */
+    public @NotNull NumberRange deserializeNumberRange(@Nullable JsonElement element, @Nullable String key){
+        return NumberRange.deserialize(this, element, key);
+    }
+
+    /**
+     * Utility method for serializing number ranges. This exists because the default NumberRange serialization method,
+     * {@link NumberRange#serialize(LootTableLoader)}, does not fit for the standard {@code Function<T, JsonElement>}
+     * that some methods in this library use.
+     */
+    public @NotNull JsonObject serializeNumberRange(@NotNull NumberRange range){
+        return range.serialize(this);
     }
 
     /**
