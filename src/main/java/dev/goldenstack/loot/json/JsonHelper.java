@@ -6,8 +6,11 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Utility class to help with JSON serialization and deserialization.
@@ -365,6 +368,39 @@ public class JsonHelper {
         } catch (IllegalArgumentException exception){
             throw new JsonParseException(expectedUuidMessage(key, element));
         }
+    }
+
+    /**
+     * Serializes the provided List<T> into a JsonArray
+     * @param elements The elements to serialize
+     * @param serializer The serializer. This fits perfectly as a method reference from {@link JsonSerializationManager#serialize(LootSerializer)}
+     * @return The JsonArray
+     */
+    public static @NotNull <T> JsonArray serializeJsonArray(@NotNull List<T> elements, @NotNull Function<T, JsonElement> serializer) throws JsonParseException {
+        final JsonArray array = new JsonArray();
+        for (T item : elements){
+            array.add(serializer.apply(item));
+        }
+        return array;
+    }
+
+    /**
+     * Deserializes the provided JsonElement, if it is a JsonArray, into a List<T>.
+     * @param element The element to deserialize. If this is not a JsonArray, an exception will be thrown.
+     * @param key The key, to use with {@code deserializer}
+     * @param deserializer The deserializer. This fits perfectly as a method reference from {@link JsonSerializationManager#deserialize(JsonElement, String)}}
+     * @return The deserialized list
+     */
+    public static @NotNull <T> List<T> deserializeJsonArray(@Nullable JsonElement element, @NotNull String key, @NotNull BiFunction<JsonElement, String, T> deserializer) throws JsonParseException {
+        if (element == null || !element.isJsonArray()){
+            throw new JsonParseException(expectedJsonArrayMessage(key, element));
+        }
+        JsonArray jsonArray = element.getAsJsonArray();
+        List<T> list = new ArrayList<>();
+        for (int i = 0; i < jsonArray.size(); i++){
+            list.add(deserializer.apply(jsonArray.get(i), key + " (while deserializing array elements)"));
+        }
+        return list;
     }
 
     /**
