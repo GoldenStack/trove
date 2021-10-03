@@ -3,6 +3,7 @@ package dev.goldenstack.loot;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.goldenstack.loot.condition.LootCondition;
+import dev.goldenstack.loot.function.LootFunction;
 import dev.goldenstack.loot.json.JsonSerializationManager;
 import dev.goldenstack.loot.provider.number.NumberProvider;
 import dev.goldenstack.loot.util.NumberRange;
@@ -19,6 +20,7 @@ public class LootTableLoader {
 
     private final @NotNull JsonSerializationManager<NumberProvider> numberProviderManager;
     private final @NotNull JsonSerializationManager<LootCondition> lootConditionManager;
+    private final @NotNull JsonSerializationManager<LootFunction> lootFunctionManager;
     private LootTableLoader(@NotNull Builder builder){
         JsonSerializationManager.Builder<NumberProvider> numberProviderBuilder = JsonSerializationManager.builder();
         if (builder.numberProviderBuilder != null){
@@ -30,6 +32,11 @@ public class LootTableLoader {
             builder.lootConditionBuilder.accept(lootConditionBuilder);
         }
         this.lootConditionManager = lootConditionBuilder.owner(this).build();
+        JsonSerializationManager.Builder<LootFunction> lootFunctionBuilder = JsonSerializationManager.builder();
+        if (builder.lootFunctionBuilder != null){
+            builder.lootFunctionBuilder.accept(lootFunctionBuilder);
+        }
+        this.lootFunctionManager = lootFunctionBuilder.owner(this).build();
     }
 
     /**
@@ -44,6 +51,13 @@ public class LootTableLoader {
      */
     public @NotNull JsonSerializationManager<LootCondition> getLootConditionManager() {
         return lootConditionManager;
+    }
+
+    /**
+     * Returns the JsonSerializationManager that is used to serialize/deserialize {@code LootFunction}s
+     */
+    public @NotNull JsonSerializationManager<LootFunction> getLootFunctionManager() {
+        return lootFunctionManager;
     }
 
     /**
@@ -80,6 +94,7 @@ public class LootTableLoader {
 
         private Consumer<JsonSerializationManager.Builder<NumberProvider>> numberProviderBuilder;
         private Consumer<JsonSerializationManager.Builder<LootCondition>> lootConditionBuilder;
+        private Consumer<JsonSerializationManager.Builder<LootFunction>> lootFunctionBuilder;
 
         /**
          * Sets the builder that is used for creating the {@link #getNumberProviderManager()}
@@ -91,11 +106,20 @@ public class LootTableLoader {
         }
 
         /**
-         * Sets the builder that is used for creating the {@link #getLootConditionManager()} ()}
+         * Sets the builder that is used for creating the {@link #getLootConditionManager()}
          */
         @Contract("_ -> this")
         public @NotNull Builder lootConditionBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootCondition>> lootConditionBuilder){
             this.lootConditionBuilder = lootConditionBuilder;
+            return this;
+        }
+
+        /**
+         * Sets the builder that is used for creating the {@link #getLootFunctionManager()}
+         */
+        @Contract("_ -> this")
+        public @NotNull Builder lootFunctionBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootFunction>> lootFunctionBuilder){
+            this.lootFunctionBuilder = lootFunctionBuilder;
             return this;
         }
 
