@@ -83,8 +83,8 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
      * @return The deserialized object
      * @throws JsonParseException if there is an error in the deserialization process
      */
-    public @NotNull T deserialize(@NotNull JsonElement element, @Nullable String key) throws JsonParseException {
-        if (element.isJsonObject()){
+    public @NotNull T deserialize(@Nullable JsonElement element, @Nullable String key) throws JsonParseException {
+        if (element != null && element.isJsonObject()){
             JsonObject object = element.getAsJsonObject();
             JsonElement rawElement = object.get(elementName);
             if (rawElement != null && rawElement.isJsonPrimitive() && rawElement.getAsJsonPrimitive().isString()){
