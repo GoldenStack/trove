@@ -1,5 +1,6 @@
 package dev.goldenstack.loot.condition;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.LootTableLoader;
@@ -10,7 +11,6 @@ import dev.goldenstack.loot.json.LootSerializer;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,23 +24,19 @@ public class AlternativeCondition implements LootCondition {
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "alternative");
 
-    private final List<LootCondition> terms;
+    private final ImmutableList<LootCondition> terms;
 
     /**
      * Initialize an AlternativeCondition with the provided LootConditions as terms
      */
-    public AlternativeCondition(@NotNull LootCondition @NotNull... terms){
-        this.terms = List.of(terms);
-    }
-
-    private AlternativeCondition(@NotNull List<LootCondition> terms){
+    private AlternativeCondition(@NotNull ImmutableList<LootCondition> terms){
         this.terms = terms;
     }
 
     /**
      * Returns the list of LootConditions
      */
-    public @NotNull List<LootCondition> terms(){
+    public @NotNull ImmutableList<LootCondition> terms(){
         return terms;
     }
 
@@ -99,6 +95,6 @@ public class AlternativeCondition implements LootCondition {
      * Static method to deserialize a {@code JsonObject} to an {@code AlternativeCondition}
      */
     public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
-        return new AlternativeCondition(Collections.unmodifiableList(JsonHelper.deserializeJsonArray(json.get("terms"), "terms", loader.getLootConditionManager()::deserialize)));
+        return new AlternativeCondition(ImmutableList.copyOf(JsonHelper.deserializeJsonArray(json.get("terms"), "terms", loader.getLootConditionManager()::deserialize)));
     }
 }

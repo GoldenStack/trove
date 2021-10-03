@@ -1,11 +1,15 @@
 package dev.goldenstack.loot.criterion;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.*;
 import dev.goldenstack.loot.json.JsonHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -19,25 +23,21 @@ public class PropertiesCriterion implements Predicate<Map<String, String>> {
     /**
      * A static PropertiesCriterion instance that contains no information, so accepts any properties.
      */
-    public static final @NotNull PropertiesCriterion ALL = new PropertiesCriterion(List.of());
+    public static final @NotNull PropertiesCriterion ALL = new PropertiesCriterion(ImmutableList.of());
 
-    private final @NotNull List<Property> properties;
+    private final @NotNull ImmutableList<Property> properties;
 
     /**
      * Creates a PropertiesCriterion instance with the provided properties
      */
-    public PropertiesCriterion(@NotNull Property... properties){
-        this(List.of(properties));
-    }
-
-    private PropertiesCriterion(@NotNull List<Property> properties){
+    private PropertiesCriterion(@NotNull ImmutableList<Property> properties){
         this.properties = properties;
     }
 
     /**
      * Returns this instance's list of properties. Because it's an immutable list, it doesn't need to be copied.
      */
-    public @NotNull List<Property> properties(){
+    public @NotNull ImmutableList<Property> properties(){
         return properties;
     }
 
@@ -102,20 +102,16 @@ public class PropertiesCriterion implements Predicate<Map<String, String>> {
         var entrySet = object.entrySet();
         List<Property> list = new ArrayList<>(entrySet.size());
 
-        Iterator<Map.Entry<String, JsonElement>> iterator = entrySet.iterator();
-        int index = 0;
-        while(iterator.hasNext()){
-            var entry = iterator.next();
+        for (Map.Entry<String, JsonElement> entry : entrySet) {
             Property pv = Property.deserialize(entry.getKey(), entry.getValue());
-            if (pv != null){
+            if (pv != null) {
                 list.add(Property.deserialize(entry.getKey(), entry.getValue()));
             }
-            index++;
         }
         if (list.size() == 0){
             return PropertiesCriterion.ALL;
         }
-        return new PropertiesCriterion(Collections.unmodifiableList(list));
+        return new PropertiesCriterion(ImmutableList.copyOf(list));
     }
 
     /**
