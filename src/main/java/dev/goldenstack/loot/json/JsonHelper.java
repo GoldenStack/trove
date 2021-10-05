@@ -31,6 +31,118 @@ public class JsonHelper {
     }
 
     /**
+     * If the element is a JsonPrimitive, returns it as a JsonPrimitive. Otherwise, returns null.
+     * @param element The element
+     * @return The element as a JsonPrimitive, or null if it was not.
+     */
+    public static @Nullable JsonPrimitive getAsJsonPrimitive(@Nullable JsonElement element){
+        return (element == null || !element.isJsonPrimitive()) ? null : element.getAsJsonPrimitive();
+    }
+
+    /**
+     * If the element is a JsonObject, returns it as a JsonObject. Otherwise, returns null.
+     * @param element The element
+     * @return The element as a JsonObject, or null if it was not.
+     */
+    public static @Nullable JsonObject getAsJsonObject(@Nullable JsonElement element){
+        return (element == null || !element.isJsonObject()) ? null : element.getAsJsonObject();
+    }
+
+    /**
+     * If the element is a JsonArray, returns it as a JsonArray. Otherwise, returns null.
+     * @param element The element
+     * @return The element as a JsonArray, or null if it was not.
+     */
+    public static @Nullable JsonArray getAsJsonArray(@Nullable JsonElement element){
+        return (element == null || !element.isJsonArray()) ? null : element.getAsJsonArray();
+    }
+
+    /**
+     * If the element is a Boolean, returns it as a Boolean. Otherwise, returns null.
+     * @param element The element
+     * @return The element as a Boolean, or null if it was not.
+     */
+    public static @Nullable Boolean getAsBoolean(@Nullable JsonElement element){
+        if (element == null || !element.isJsonPrimitive()){
+            return null;
+        }
+        JsonPrimitive primitive = element.getAsJsonPrimitive();
+        if (primitive.isBoolean()){
+            return primitive.getAsBoolean();
+        }
+        return null;
+    }
+
+    /**
+     * If the element is a Number, returns it as a Number. Otherwise, returns null.
+     * @param element The element
+     * @return The element as a Number, or null if it was not.
+     */
+    public static @Nullable Number getAsNumber(@Nullable JsonElement element){
+        if (element == null || !element.isJsonPrimitive()){
+            return null;
+        }
+        JsonPrimitive primitive = element.getAsJsonPrimitive();
+        if (primitive.isNumber()){
+            return primitive.getAsNumber();
+        }
+        return null;
+    }
+
+    /**
+     * If the element is a String, returns it as a String. Otherwise, returns null.
+     * @param element The element
+     * @return The element as a String, or null if it was not.
+     */
+    public static @Nullable String getAsString(@Nullable JsonElement element){
+        if (element == null || !element.isJsonPrimitive()){
+            return null;
+        }
+        JsonPrimitive primitive = element.getAsJsonPrimitive();
+        if (primitive.isString()){
+            return primitive.getAsString();
+        }
+        return null;
+    }
+
+    /**
+     * If the element is a NamespaceID, returns it as a NamespaceID. Otherwise, returns null.
+     * @param element The element
+     * @return The element as a NamespaceID, or null if it was not.
+     */
+    public static @Nullable NamespaceID getAsNamespaceId(@Nullable JsonElement element){
+        String string = getAsString(element);
+        if (string == null){
+            return null;
+        }
+        final int index = string.indexOf(':');
+        if (index < 0){
+            return NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, string);
+        }
+        if (string.indexOf(':', index + 1) != -1){
+            return null;
+        }
+        return NamespaceID.from(string.substring(0, index), string.substring(index + 1));
+    }
+
+    /**
+     * If the element is a UUID, returns it as a UUID. Otherwise, returns null.
+     * @param element The element
+     * @return The element as a UUID, or null if it was not.
+     */
+    public static @Nullable UUID getAsUuid(@Nullable JsonElement element){
+        String string = getAsString(element);
+        if (string == null){
+            return null;
+        }
+        try {
+            return UUID.fromString(string);
+        } catch (IllegalArgumentException exception){
+            return null;
+        }
+    }
+
+    /**
      * Gets the element type of the provided JsonElement as a string. This is purely for debug messages.<br>
      * For example, a JsonArray would return "array", and a JsonPrimitive that is a number would return "number". See
      * {@link #singularElementType(JsonElement)} because it might be more useful.
@@ -271,14 +383,11 @@ public class JsonHelper {
      */
     @Contract("null, _ -> fail")
     public static boolean assureBoolean(@Nullable JsonElement element, @Nullable String key) throws JsonParseException {
-        if (element == null || !element.isJsonPrimitive()){
+        Boolean bool = getAsBoolean(element);
+        if (bool == null){
             throw new JsonParseException(expectedBooleanMessage(key, jsonNullifNull(element)));
         }
-        JsonPrimitive primitive = element.getAsJsonPrimitive();
-        if (!primitive.isBoolean()){
-            throw new JsonParseException(expectedBooleanMessage(key, element));
-        }
-        return primitive.getAsBoolean();
+        return bool;
     }
 
     /**
@@ -290,14 +399,11 @@ public class JsonHelper {
      */
     @Contract("null, _ -> fail")
     public static @NotNull Number assureNumber(@Nullable JsonElement element, @Nullable String key) throws JsonParseException {
-        if (element == null || !element.isJsonPrimitive()){
+        Number number = getAsNumber(element);
+        if (number == null){
             throw new JsonParseException(expectedNumberMessage(key, jsonNullifNull(element)));
         }
-        JsonPrimitive primitive = element.getAsJsonPrimitive();
-        if (!primitive.isNumber()){
-            throw new JsonParseException(expectedNumberMessage(key, element));
-        }
-        return primitive.getAsNumber();
+        return number;
     }
 
     /**
@@ -309,14 +415,11 @@ public class JsonHelper {
      */
     @Contract("null, _ -> fail")
     public static @NotNull String assureString(@Nullable JsonElement element, @Nullable String key) throws JsonParseException {
-        if (element == null || !element.isJsonPrimitive()){
+        String string = getAsString(element);
+        if (string == null){
             throw new JsonParseException(expectedStringMessage(key, jsonNullifNull(element)));
         }
-        JsonPrimitive primitive = element.getAsJsonPrimitive();
-        if (!primitive.isString()){
-            throw new JsonParseException(expectedStringMessage(key, element));
-        }
-        return primitive.getAsString();
+        return string;
     }
 
     /**
@@ -328,22 +431,11 @@ public class JsonHelper {
      */
     @Contract("null, _ -> fail")
     public static @NotNull NamespaceID assureNamespaceId(@Nullable JsonElement element, @Nullable String key) throws JsonParseException {
-        if (element == null || !element.isJsonPrimitive()){
+        NamespaceID id = getAsNamespaceId(element);
+        if (id == null) {
             throw new JsonParseException(expectedNamespaceIdMessage(key, jsonNullifNull(element)));
         }
-        JsonPrimitive primitive = element.getAsJsonPrimitive();
-        if (!primitive.isString()){
-            throw new JsonParseException(expectedNamespaceIdMessage(key, element));
-        }
-        String string = primitive.getAsString();
-        final int index = string.indexOf(':');
-        if (index < 0){
-            return NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, string);
-        } else if (string.indexOf(':', index + 1) != -1){
-            throw new JsonParseException(expectedNamespaceIdMessage(key, element));
-        } else {
-            return NamespaceID.from(string.substring(0, index), string.substring(index + 1));
-        }
+        return id;
     }
 
     /**
@@ -355,19 +447,11 @@ public class JsonHelper {
      */
     @Contract("null, _ -> fail")
     public static @NotNull UUID assureUUID(@Nullable JsonElement element, @Nullable String key) throws JsonParseException {
-        if (element == null || !element.isJsonPrimitive()){
+        UUID uuid = getAsUuid(element);
+        if (uuid == null) {
             throw new JsonParseException(expectedUuidMessage(key, jsonNullifNull(element)));
         }
-        JsonPrimitive primitive = element.getAsJsonPrimitive();
-        if (!primitive.isString()){
-            throw new JsonParseException(expectedUuidMessage(key, element));
-        }
-        String string = primitive.getAsString();
-        try {
-            return UUID.fromString(string);
-        } catch (IllegalArgumentException exception){
-            throw new JsonParseException(expectedUuidMessage(key, element));
-        }
+        return uuid;
     }
 
     /**
