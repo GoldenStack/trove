@@ -122,7 +122,7 @@ public class SetDamageFunction extends ConditionalLootFunction {
 
     @Override
     public String toString() {
-        return "SetDamageFunction[damage=" + damage + ", add=" + add + "]";
+        return "SetDamageFunction[conditions=" + conditions() + ", damage=" + damage + ", add=" + add + "]";
     }
 
     @Override

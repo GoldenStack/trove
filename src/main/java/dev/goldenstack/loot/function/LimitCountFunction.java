@@ -77,7 +77,7 @@ public class LimitCountFunction extends ConditionalLootFunction {
 
     @Override
     public String toString() {
-        return "LimitCountFunction[limiter=" + limiter + "]";
+        return "LimitCountFunction[conditions=" + conditions() + ", limiter=" + limiter + "]";
     }
 
     @Override

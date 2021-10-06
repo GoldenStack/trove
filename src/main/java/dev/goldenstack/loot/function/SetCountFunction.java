@@ -90,7 +90,7 @@ public class SetCountFunction extends ConditionalLootFunction {
 
     @Override
     public String toString() {
-        return "SetCountFunction[count=" + count + ", add=" + add + "]";
+        return "SetCountFunction[conditions=" + conditions() + ", count=" + count + ", add=" + add + "]";
     }
 
     @Override
