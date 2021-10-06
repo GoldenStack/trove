@@ -5,10 +5,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Represents information about something that has happened that can be used to help generate loot.<br>
@@ -54,9 +51,32 @@ public class LootContext {
         return luck;
     }
 
+    /**
+     * Gets the provided parameter from this LootContext. If it does not exist, null is returned. If the parameter does
+     * exist but it has a different type than <T>, a ClassCastException will be thrown.
+     */
     @SuppressWarnings("unchecked")
     public @Nullable <T> T getParameter(@NotNull LootContextParameter<T> parameter){
-        return (T) this.parameters.get(parameter);
+        Object object = this.parameters.get(parameter);
+        if (object == null) {
+            return null;
+        }
+        return (T) object;
+    }
+
+    /**
+     * Gets the provided parameter from this LootContext. If it does not exist, a NoSuchElementException will be thrown.
+     * If the parameter does exist but it has a different type than <T>, a ClassCastException will be thrown.<br>
+     * Because an exception will always be thrown if the parameter does not exist, it is safe to assume that this will
+     * never return null, as the annotation of {@link NotNull @NotNull} on the return value suggests.
+     */
+    @SuppressWarnings("unchecked")
+    public @NotNull <T> T assureParameter(@NotNull LootContextParameter<T> parameter){
+        Object object = this.parameters.get(parameter);
+        if (object == null) {
+            throw new NoSuchElementException("Parameter \"" + parameter.key().asString() + "\" while reading a loot table");
+        }
+        return (T) object;
     }
 
     /**

@@ -84,8 +84,8 @@ public class BlockStatePropertyCondition implements LootCondition {
      */
     @Override
     public boolean test(@NotNull LootContext context) {
-        Block block = context.getParameter(LootContextParameter.BLOCK_STATE);
-        if (block == null || (this.block != null && !this.block.equals(block.registry().namespace()))){
+        Block block = context.assureParameter(LootContextParameter.BLOCK_STATE);
+        if (this.block != null && !this.block.equals(block.registry().namespace())){
             return false;
         }
         return this.properties.test(block.properties());

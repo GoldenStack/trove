@@ -50,11 +50,7 @@ public class SurvivesExplosionCondition implements LootCondition {
      */
     @Override
     public boolean test(@NotNull LootContext context) {
-        Float radius = context.getParameter(LootContextParameter.EXPLOSION_RADIUS);
-        if (radius != null) {
-            return context.findRandom().nextFloat() <= (1.0f / radius);
-        }
-        return true;
+        return context.findRandom().nextFloat() <= (1.0f / context.assureParameter(LootContextParameter.EXPLOSION_RADIUS));
     }
 
     /**
