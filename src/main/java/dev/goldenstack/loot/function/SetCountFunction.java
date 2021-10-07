@@ -98,7 +98,7 @@ public class SetCountFunction extends ConditionalLootFunction {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SetCountFunction that = (SetCountFunction) o;
-        return add == that.add && count.equals(that.count);
+        return conditions().equals(that.conditions()) && add == that.add && count.equals(that.count);
     }
 
     @Override

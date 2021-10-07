@@ -130,7 +130,7 @@ public class SetDamageFunction extends ConditionalLootFunction {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SetDamageFunction that = (SetDamageFunction) o;
-        return add == that.add && Objects.equals(damage, that.damage);
+        return conditions().equals(that.conditions()) && add == that.add && Objects.equals(damage, that.damage);
     }
 
     @Override

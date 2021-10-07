@@ -85,7 +85,7 @@ public class LimitCountFunction extends ConditionalLootFunction {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LimitCountFunction that = (LimitCountFunction) o;
-        return Objects.equals(limiter, that.limiter);
+        return conditions().equals(that.conditions()) && Objects.equals(limiter, that.limiter);
     }
 
     @Override
