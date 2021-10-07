@@ -19,9 +19,9 @@ import java.util.Objects;
 /**
  * Represents a {@code LootFunction} that sets the amount of damage that the provided ItemStack has.
  */
-public class SetDamageFunction extends ConditionalLootFunction {
+public class AddDamageFunction extends ConditionalLootFunction {
     /**
-     * The immutable key for all {@code SetDamageFunction}s
+     * The immutable key for all {@code AddDamageFunction}s
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "set_damage");
 
@@ -29,9 +29,9 @@ public class SetDamageFunction extends ConditionalLootFunction {
     private final boolean add;
 
     /**
-     * Initialize a SetDamageFunction with the provided damage and whether or not the damage should be added
+     * Initialize an AddDamageFunction with the provided damage and whether or not the damage should be added
      */
-    public SetDamageFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberProvider damage, boolean add){
+    public AddDamageFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberProvider damage, boolean add){
         super(conditions);
         this.damage = damage;
         this.add = add;
@@ -117,19 +117,19 @@ public class SetDamageFunction extends ConditionalLootFunction {
      */
     @Override
     public @NotNull LootDeserializer<? extends LootSerializer<LootFunction>> getDeserializer() {
-        return SetDamageFunction::deserialize;
+        return AddDamageFunction::deserialize;
     }
 
     @Override
     public String toString() {
-        return "SetDamageFunction[conditions=" + conditions() + ", damage=" + damage + ", add=" + add + "]";
+        return "AddDamageFunction[conditions=" + conditions() + ", damage=" + damage + ", add=" + add + "]";
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SetDamageFunction that = (SetDamageFunction) o;
+        AddDamageFunction that = (AddDamageFunction) o;
         return conditions().equals(that.conditions()) && add == that.add && Objects.equals(damage, that.damage);
     }
 
@@ -139,12 +139,12 @@ public class SetDamageFunction extends ConditionalLootFunction {
     }
 
     /**
-     * Static method to deserialize a {@code JsonObject} to a {@code LimitCountFunction}
+     * Static method to deserialize a {@code JsonObject} to an {@code AddDamageFunction}
      */
     public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
         ImmutableList<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
         NumberProvider provider = loader.getNumberProviderManager().deserialize(json.get("damage"), "damage");
         boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
-        return new SetDamageFunction(list, provider, add);
+        return new AddDamageFunction(list, provider, add);
     }
 }
