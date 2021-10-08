@@ -44,12 +44,28 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
     }
 
     /**
+     * Unregisters the provided NamespaceID from this manager
+     * @param key The key to remove
+     * @return True if a non-null key was removed, false if there was no key or if the key was null
+     */
+    public boolean unregister(@NotNull NamespaceID key){
+        return this.registry.remove(key.asString()) != null;
+    }
+
+    /**
      * Attempts to find a {@link LootDeserializer} based on the provided NamespacedID
      * @param key The key to search for
      * @return The deserializer that was found, or null if none was found.
      */
-    public @Nullable LootDeserializer<T> find(@NotNull NamespaceID key){
+    public @Nullable LootDeserializer<T> request(@NotNull NamespaceID key){
         return this.registry.get(key.asString());
+    }
+
+    /**
+     * Clears all of the registered values from this JsonSerializationManager
+     */
+    public void clear(){
+        this.registry.clear();
     }
 
     /**
