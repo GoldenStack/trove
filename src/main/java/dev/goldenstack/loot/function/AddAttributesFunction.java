@@ -317,7 +317,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(modifiers);
+        return modifiers.hashCode() * 31 + conditions().hashCode();
     }
 
     /**
