@@ -2,10 +2,13 @@ package dev.goldenstack.loot;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.goldenstack.loot.condition.LootCondition;
-import dev.goldenstack.loot.function.LootFunction;
+import dev.goldenstack.loot.condition.*;
+import dev.goldenstack.loot.function.*;
 import dev.goldenstack.loot.json.JsonSerializationManager;
+import dev.goldenstack.loot.provider.number.BinomiallyDistributedNumber;
+import dev.goldenstack.loot.provider.number.ConstantNumber;
 import dev.goldenstack.loot.provider.number.NumberProvider;
+import dev.goldenstack.loot.provider.number.UniformNumber;
 import dev.goldenstack.loot.util.NumberRange;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -89,6 +92,45 @@ public class LootTableLoader {
      * Utility class for building {@code LootTableLoader} instances
      */
     public static class Builder {
+
+        /**
+         * Adds the default values for the NumberProvider manager to the provided builder
+         */
+        public static void setupNumberProviderBuilder(@NotNull JsonSerializationManager.Builder<NumberProvider> builder){
+            builder.elementName("type")
+                   .defaultDeserializer(ConstantNumber::defaultDeserializer)
+                   .putDeserializer(ConstantNumber.KEY, ConstantNumber::deserialize)
+                   .putDeserializer(UniformNumber.KEY, UniformNumber::deserialize)
+                   .putDeserializer(BinomiallyDistributedNumber.KEY, BinomiallyDistributedNumber::deserialize);
+        }
+
+        /**
+         * Adds the default values for the LootCondition manager to the provided builder
+         */
+        public static void setupLootConditionManager(@NotNull JsonSerializationManager.Builder<LootCondition> builder){
+            builder.elementName("condition")
+                   .putDeserializer(RandomChanceCondition.KEY, RandomChanceCondition::deserialize)
+                   .putDeserializer(LootingRandomChanceCondition.KEY, LootingRandomChanceCondition::deserialize)
+                   .putDeserializer(KilledByPlayerCondition.KEY, KilledByPlayerCondition::deserialize)
+                   .putDeserializer(InvertedCondition.KEY, InvertedCondition::deserialize)
+                   .putDeserializer(BlockStatePropertyCondition.KEY, BlockStatePropertyCondition::deserialize)
+                   .putDeserializer(SurvivesExplosionCondition.KEY, SurvivesExplosionCondition::deserialize)
+                   .putDeserializer(TimeCheckCondition.KEY, TimeCheckCondition::deserialize)
+                   .putDeserializer(AlternativeCondition.KEY, AlternativeCondition::deserialize)
+                   .putDeserializer(ValueCheckCondition.KEY, ValueCheckCondition::deserialize);
+        }
+
+        /**
+         * Adds the default values for the LootFunction manager to the provided builder
+         */
+        public static void setupLootFunctionManager(@NotNull JsonSerializationManager.Builder<LootFunction> builder){
+            builder.elementName("function")
+                   .putDeserializer(SetCountFunction.KEY, SetCountFunction::deserialize)
+                   .putDeserializer(LimitCountFunction.KEY, LimitCountFunction::deserialize)
+                   .putDeserializer(AddDamageFunction.KEY, AddDamageFunction::deserialize)
+                   .putDeserializer(AddAttributesFunction.KEY, AddAttributesFunction::deserialize)
+                   .putDeserializer(ExplosionDecayFunction.KEY, ExplosionDecayFunction::deserialize);
+        }
 
         private Builder(){}
 
