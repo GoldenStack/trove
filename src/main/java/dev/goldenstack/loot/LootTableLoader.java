@@ -1,8 +1,11 @@
 package dev.goldenstack.loot;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.goldenstack.loot.condition.*;
+import dev.goldenstack.loot.context.LootParameterGroup;
 import dev.goldenstack.loot.function.*;
 import dev.goldenstack.loot.json.JsonSerializationManager;
 import dev.goldenstack.loot.provider.number.BinomiallyDistributedNumber;
@@ -24,6 +27,9 @@ public class LootTableLoader {
     private final @NotNull JsonSerializationManager<NumberProvider> numberProviderManager;
     private final @NotNull JsonSerializationManager<LootCondition> lootConditionManager;
     private final @NotNull JsonSerializationManager<LootFunction> lootFunctionManager;
+
+    private final @NotNull BiMap<String, LootParameterGroup> lootParameterGroupRegistry;
+
     private LootTableLoader(@NotNull Builder builder){
         JsonSerializationManager.Builder<NumberProvider> numberProviderBuilder = JsonSerializationManager.builder();
         if (builder.numberProviderBuilder != null){
@@ -40,6 +46,8 @@ public class LootTableLoader {
             builder.lootFunctionBuilder.accept(lootFunctionBuilder);
         }
         this.lootFunctionManager = lootFunctionBuilder.owner(this).build();
+
+        lootParameterGroupRegistry = HashBiMap.create();
     }
 
     /**
@@ -61,6 +69,13 @@ public class LootTableLoader {
      */
     public @NotNull JsonSerializationManager<LootFunction> getLootFunctionManager() {
         return lootFunctionManager;
+    }
+
+    /**
+     * Returns the BiMap that controls how loot parameter groups are registered.
+     */
+    public @NotNull BiMap<String, LootParameterGroup> getLootParameterGroupRegistry(){
+        return lootParameterGroupRegistry;
     }
 
     /**
