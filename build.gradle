@@ -17,4 +17,5 @@ repositories {
 dependencies {
     implementation 'com.github.Minestom:Minestom:-SNAPSHOT'
     implementation 'org.jetbrains:annotations:22.0.0'
+    implementation 'com.github.GoldenStack:EnchantmentManager:-SNAPSHOT'
 }

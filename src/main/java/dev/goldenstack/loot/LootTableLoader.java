@@ -4,6 +4,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import dev.goldenstack.enchantment.EnchantmentManager;
 import dev.goldenstack.loot.condition.*;
 import dev.goldenstack.loot.context.LootParameterGroup;
 import dev.goldenstack.loot.function.*;
@@ -30,24 +31,41 @@ public class LootTableLoader {
 
     private final @NotNull BiMap<String, LootParameterGroup> lootParameterGroupRegistry;
 
+    private final @NotNull EnchantmentManager enchantmentManager;
+
     private LootTableLoader(@NotNull Builder builder){
+
+        // Number provider manager
         JsonSerializationManager.Builder<NumberProvider> numberProviderBuilder = JsonSerializationManager.builder();
         if (builder.numberProviderBuilder != null){
             builder.numberProviderBuilder.accept(numberProviderBuilder);
         }
         this.numberProviderManager = numberProviderBuilder.owner(this).build();
+
+        // Loot condition manager
         JsonSerializationManager.Builder<LootCondition> lootConditionBuilder = JsonSerializationManager.builder();
         if (builder.lootConditionBuilder != null){
             builder.lootConditionBuilder.accept(lootConditionBuilder);
         }
         this.lootConditionManager = lootConditionBuilder.owner(this).build();
+
+        // Loot function manager
         JsonSerializationManager.Builder<LootFunction> lootFunctionBuilder = JsonSerializationManager.builder();
         if (builder.lootFunctionBuilder != null){
             builder.lootFunctionBuilder.accept(lootFunctionBuilder);
         }
         this.lootFunctionManager = lootFunctionBuilder.owner(this).build();
 
+        // Loot parameter group registry
         lootParameterGroupRegistry = HashBiMap.create();
+
+        // Enchantment manager
+        EnchantmentManager.Builder enchantmentBuilder = EnchantmentManager.builder();
+        if (builder.enchantmentManagerBuilder != null){
+            builder.enchantmentManagerBuilder.accept(enchantmentBuilder);
+        }
+        this.enchantmentManager = enchantmentBuilder.build();
+
     }
 
     /**
@@ -76,6 +94,13 @@ public class LootTableLoader {
      */
     public @NotNull BiMap<String, LootParameterGroup> getLootParameterGroupRegistry(){
         return lootParameterGroupRegistry;
+    }
+
+    /**
+     * Returns the EnchantmentManager that is used for some loot functions.
+     */
+    public @NotNull EnchantmentManager getEnchantmentManager(){
+        return enchantmentManager;
     }
 
     /**
@@ -147,11 +172,21 @@ public class LootTableLoader {
                    .putDeserializer(ExplosionDecayFunction.KEY, ExplosionDecayFunction::deserialize);
         }
 
+        /**
+         * Adds the default values for the EnchantmentManager to the provided builder
+         */
+        public static void setupEnchantmentManagerBuilder(@NotNull EnchantmentManager.Builder builder){
+            builder.useConcurrentHashMap(false)
+                   .useDefaultEnchantability(true)
+                   .useDefaultEnchantmentData(true);
+        }
+
         private Builder(){}
 
         private Consumer<JsonSerializationManager.Builder<NumberProvider>> numberProviderBuilder;
         private Consumer<JsonSerializationManager.Builder<LootCondition>> lootConditionBuilder;
         private Consumer<JsonSerializationManager.Builder<LootFunction>> lootFunctionBuilder;
+        private Consumer<EnchantmentManager.Builder> enchantmentManagerBuilder;
 
         /**
          * Sets the builder that is used for creating the {@link #getNumberProviderManager()}
@@ -177,6 +212,15 @@ public class LootTableLoader {
         @Contract("_ -> this")
         public @NotNull Builder lootFunctionBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootFunction>> lootFunctionBuilder){
             this.lootFunctionBuilder = lootFunctionBuilder;
+            return this;
+        }
+
+        /**
+         * Sets the builder that is used for creating the {@link #getEnchantmentManager()}
+         */
+        @Contract("_ -> this")
+        public @NotNull Builder enchantmentManagerBuilder(@NotNull Consumer<EnchantmentManager.Builder> enchantmentManagerBuilder){
+            this.enchantmentManagerBuilder = enchantmentManagerBuilder;
             return this;
         }
 
