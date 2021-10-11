@@ -169,7 +169,8 @@ public class LootTableLoader {
                    .putDeserializer(LimitCountFunction.KEY, LimitCountFunction::deserialize)
                    .putDeserializer(AddDamageFunction.KEY, AddDamageFunction::deserialize)
                    .putDeserializer(AddAttributesFunction.KEY, AddAttributesFunction::deserialize)
-                   .putDeserializer(ExplosionDecayFunction.KEY, ExplosionDecayFunction::deserialize);
+                   .putDeserializer(ExplosionDecayFunction.KEY, ExplosionDecayFunction::deserialize)
+                   .putDeserializer(SetEnchantmentsFunction.KEY, SetEnchantmentsFunction::deserialize);
         }
 
         /**
