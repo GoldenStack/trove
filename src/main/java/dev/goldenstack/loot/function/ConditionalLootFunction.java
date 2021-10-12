@@ -35,7 +35,7 @@ public abstract class ConditionalLootFunction implements LootFunction {
     /**
      * Returns this ConditionalLootFunction's conditions
      */
-    public @NotNull ImmutableList<LootCondition> conditions() {
+    public final @NotNull ImmutableList<LootCondition> conditions() {
         return conditions;
     }
 
@@ -59,7 +59,7 @@ public abstract class ConditionalLootFunction implements LootFunction {
     /**
      * {@inheritDoc}<br>
      * If you want to add more information to the JsonObject, it is a good idea to override this method, but make sure
-     * to run {@code super.serialize(object, loader)} so that the fields can get serialized!
+     * to run {@code super.serialize(object, loader)} so that the conditions can get serialized!
      */
     @Override
     public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
