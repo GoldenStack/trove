@@ -18,10 +18,6 @@ import org.jetbrains.annotations.NotNull;
  * are fully supported.
  */
 public abstract class ConditionalLootFunction implements LootFunction {
-    /**
-     * An empty list of conditions
-     */
-    public static final @NotNull ImmutableList<LootCondition> NO_CONDITIONS = ImmutableList.of();
 
     private final @NotNull ImmutableList<LootCondition> conditions;
 
@@ -76,7 +72,7 @@ public abstract class ConditionalLootFunction implements LootFunction {
     public static @NotNull ImmutableList<LootCondition> deserializeConditions(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
         JsonElement functions = json.get("conditions");
         if (JsonHelper.isNull(functions)){
-            return ConditionalLootFunction.NO_CONDITIONS;
+            return ImmutableList.of();
         }
         return ImmutableList.copyOf(JsonHelper.deserializeJsonArray(functions, "conditions", loader.getLootConditionManager()::deserialize));
     }
