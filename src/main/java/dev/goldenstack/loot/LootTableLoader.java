@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import dev.goldenstack.enchantment.EnchantmentManager;
 import dev.goldenstack.loot.condition.*;
 import dev.goldenstack.loot.context.LootParameterGroup;
+import dev.goldenstack.loot.entry.LootEntry;
 import dev.goldenstack.loot.function.*;
 import dev.goldenstack.loot.json.JsonSerializationManager;
 import dev.goldenstack.loot.provider.number.BinomiallyDistributedNumber;
@@ -28,6 +29,7 @@ public class LootTableLoader {
     private final @NotNull JsonSerializationManager<NumberProvider> numberProviderManager;
     private final @NotNull JsonSerializationManager<LootCondition> lootConditionManager;
     private final @NotNull JsonSerializationManager<LootFunction> lootFunctionManager;
+    private final @NotNull JsonSerializationManager<LootEntry> lootEntryManager;
 
     private final @NotNull BiMap<String, LootParameterGroup> lootParameterGroupRegistry;
 
@@ -55,6 +57,13 @@ public class LootTableLoader {
             builder.lootFunctionBuilder.accept(lootFunctionBuilder);
         }
         this.lootFunctionManager = lootFunctionBuilder.owner(this).build();
+
+        // Loot entry manager
+        JsonSerializationManager.Builder<LootEntry> lootEntryBuilder = JsonSerializationManager.builder();
+        if (builder.lootEntryBuilder != null){
+            builder.lootEntryBuilder.accept(lootEntryBuilder);
+        }
+        this.lootEntryManager = lootEntryBuilder.owner(this).build();
 
         // Loot parameter group registry
         lootParameterGroupRegistry = HashBiMap.create();
@@ -87,6 +96,13 @@ public class LootTableLoader {
      */
     public @NotNull JsonSerializationManager<LootFunction> getLootFunctionManager() {
         return lootFunctionManager;
+    }
+
+    /**
+     * Returns the JsonSerializationManager that is used to serialize/deserialize {@code LootEntry} instances.
+     */
+    public @NotNull JsonSerializationManager<LootEntry> getLootEntryManager() {
+        return lootEntryManager;
     }
 
     /**
@@ -174,6 +190,13 @@ public class LootTableLoader {
         }
 
         /**
+         * Adds the default values for the LootEntry manager to the provided builder
+         */
+        public static void setupLootEntryManager(@NotNull JsonSerializationManager.Builder<LootEntry> builder){
+            builder.elementName("type");
+        }
+
+        /**
          * Adds the default values for the EnchantmentManager to the provided builder
          */
         public static void setupEnchantmentManagerBuilder(@NotNull EnchantmentManager.Builder builder){
@@ -187,6 +210,8 @@ public class LootTableLoader {
         private Consumer<JsonSerializationManager.Builder<NumberProvider>> numberProviderBuilder;
         private Consumer<JsonSerializationManager.Builder<LootCondition>> lootConditionBuilder;
         private Consumer<JsonSerializationManager.Builder<LootFunction>> lootFunctionBuilder;
+        private Consumer<JsonSerializationManager.Builder<LootEntry>> lootEntryBuilder;
+
         private Consumer<EnchantmentManager.Builder> enchantmentManagerBuilder;
 
         /**
@@ -213,6 +238,15 @@ public class LootTableLoader {
         @Contract("_ -> this")
         public @NotNull Builder lootFunctionBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootFunction>> lootFunctionBuilder){
             this.lootFunctionBuilder = lootFunctionBuilder;
+            return this;
+        }
+
+        /**
+         * Sets the builder that is used for creating the {@link #getLootEntryManager()}
+         */
+        @Contract("_ -> this")
+        public @NotNull Builder lootEntryBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootEntry>> lootEntryBuilder){
+            this.lootEntryBuilder = lootEntryBuilder;
             return this;
         }
 
