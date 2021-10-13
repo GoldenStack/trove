@@ -8,6 +8,7 @@ import dev.goldenstack.loot.LootChoice;
 import dev.goldenstack.loot.LootTableLoader;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
+import dev.goldenstack.loot.function.LootFunction;
 import dev.goldenstack.loot.json.JsonHelper;
 import dev.goldenstack.loot.json.LootSerializer;
 import org.jetbrains.annotations.NotNull;
@@ -21,12 +22,14 @@ import java.util.Objects;
 public abstract class LootEntry implements LootSerializer<LootEntry> {
 
     private final @NotNull ImmutableList<LootCondition> conditions;
+    private final @NotNull ImmutableList<LootFunction> functions;
 
     /**
      * Creates a new LootEntry with the provided conditions
      */
-    public LootEntry(@NotNull ImmutableList<LootCondition> conditions){
+    public LootEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions){
         this.conditions = conditions;
+        this.functions = functions;
     }
 
     /**
@@ -34,6 +37,13 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      */
     public final @NotNull ImmutableList<LootCondition> conditions(){
         return conditions;
+    }
+
+    /**
+     * Returns this LootEntry's functions
+     */
+    public final @NotNull ImmutableList<LootFunction> functions(){
+        return functions;
     }
 
     /**
@@ -45,6 +55,9 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
     public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
         if (this.conditions.size() > 0){
             object.add("conditions", JsonHelper.serializeJsonArray(this.conditions, loader.getLootConditionManager()::serialize));
+        }
+        if (this.functions.size() > 0){
+            object.add("functions", JsonHelper.serializeJsonArray(this.functions, loader.getLootFunctionManager()::serialize));
         }
     }
 
@@ -62,7 +75,7 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
 
     @Override
     public String toString() {
-        return "LootEntry[conditions=" + conditions + "]";
+        return "LootEntry[conditions=" + conditions + ", functions=" + functions + "]";
     }
 
     @Override
@@ -70,12 +83,12 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LootEntry that = (LootEntry) o;
-        return conditions.equals(that.conditions);
+        return conditions.equals(that.conditions) && functions.equals(that.functions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(conditions);
+        return Objects.hashCode(conditions) * 31 + Objects.hashCode(functions);
     }
 
     /**
@@ -84,10 +97,23 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * {@code ImmutableList<LootCondition> conditions = LootEntry.deserializeConditions(json, loader);}
      */
     public static @NotNull ImmutableList<LootCondition> deserializeConditions(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
-        JsonElement functions = json.get("conditions");
+        JsonElement conditions = json.get("conditions");
+        if (JsonHelper.isNull(conditions)){
+            return ImmutableList.of();
+        }
+        return ImmutableList.copyOf(JsonHelper.deserializeJsonArray(conditions, "conditions", loader.getLootConditionManager()::deserialize));
+    }
+
+    /**
+     * Utility method for getting an immutable list of the functions from the JsonObject.<br>
+     * This should be called in a similar manner to: <br>
+     * {@code ImmutableList<LootFunction> functions = LootEntry.deserializeFunctions(json, loader);}
+     */
+    public static @NotNull ImmutableList<LootFunction> deserializeFunctions(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+        JsonElement functions = json.get("functions");
         if (JsonHelper.isNull(functions)){
             return ImmutableList.of();
         }
-        return ImmutableList.copyOf(JsonHelper.deserializeJsonArray(functions, "conditions", loader.getLootConditionManager()::deserialize));
+        return ImmutableList.copyOf(JsonHelper.deserializeJsonArray(functions, "functions", loader.getLootFunctionManager()::deserialize));
     }
 }
