@@ -4,32 +4,49 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootChoice;
 import dev.goldenstack.loot.LootTableLoader;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.function.LootFunction;
 import dev.goldenstack.loot.json.JsonHelper;
 import dev.goldenstack.loot.json.LootSerializer;
+import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
- * An entry that can contain conditions. This is the most basic entry class, so it should be the one that gets used if
- * you want to cover all possible entries.
+ * An entry that can contain conditions, functions, and has its own weight and quality. This is the most basic entry
+ * class, so it should be the one that gets used if you want to cover all possible entries.
  */
 public abstract class LootEntry implements LootSerializer<LootEntry> {
+
+    /**
+     * The default weight value for entries
+     */
+    public static final int DEFAULT_WEIGHT = 1;
+
+    /**
+     * The default quality value for entries
+     */
+    public static final int DEFAULT_QUALITY = 0;
 
     private final @NotNull ImmutableList<LootCondition> conditions;
     private final @NotNull ImmutableList<LootFunction> functions;
 
+    private final int weight, quality;
+
     /**
-     * Creates a new LootEntry with the provided conditions
+     * Creates a new LootEntry with the provided conditions, functions, weight, and quality.
      */
-    public LootEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions){
+    public LootEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
+                     int weight, int quality){
         this.conditions = conditions;
         this.functions = functions;
+        this.weight = weight;
+        this.quality = quality;
     }
 
     /**
@@ -47,6 +64,20 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
     }
 
     /**
+     * Returns this LootEntry's weight
+     */
+    public int weight(){
+        return weight;
+    }
+
+    /**
+     * Returns this LootEntry's quality
+     */
+    public int quality(){
+        return quality;
+    }
+
+    /**
      * {@inheritDoc}<br>
      * If you want to add more information to the JsonObject, it is a good idea to override this method, but make sure
      * to run {@code super.serialize(object, loader)} so that the fields can get serialized!
@@ -59,36 +90,90 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
         if (this.functions.size() > 0){
             object.add("functions", JsonHelper.serializeJsonArray(this.functions, loader.getLootFunctionManager()::serialize));
         }
+        if (this.weight != DEFAULT_WEIGHT){
+            object.addProperty("weight", this.weight);
+        }
+        if (this.quality != DEFAULT_QUALITY){
+            object.addProperty("quality", this.quality);
+        }
     }
 
     /**
-     * Returns the list of {@code LootChoice}s that this instance holds.
+     * Returns this instance's loot choices. When overriding this, you do not have to test if the conditions return true
+     * because {@link #getChoices(LootContext)} handles it automatically.
      */
-    public abstract @NotNull ImmutableList<LootChoice> getChoices(@NotNull LootContext context);
+    protected abstract @NotNull ImmutableList<Choice> collectChoices(@NotNull LootContext context);
 
     /**
-     * Tests this entry's conditions against the provided LootContext.
+     * Returns this instance's loot choices. If {@link #conditions()} does not entirely accept {@code context}, an empty
+     * list is returned. Otherwise, the actual choices will be returned.
      */
-    public final boolean testConditions(@NotNull LootContext context){
-        return LootCondition.and(context, this.conditions);
+    public final @NotNull ImmutableList<Choice> getChoices(@NotNull LootContext context){
+        if (!LootCondition.and(context, this.conditions)){
+            return ImmutableList.of();
+        }
+        return this.collectChoices(context);
     }
 
     @Override
     public String toString() {
-        return "LootEntry[conditions=" + conditions + ", functions=" + functions + "]";
+        return "LootEntry[conditions=" + conditions + ", functions=" +
+                functions + ", weight=" + weight + ", quality=" + quality + "]";
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LootEntry that = (LootEntry) o;
-        return conditions.equals(that.conditions) && functions.equals(that.functions);
+        LootEntry lootEntry = (LootEntry) o;
+        return weight == lootEntry.weight && quality == lootEntry.quality &&
+                conditions.equals(lootEntry.conditions) && functions.equals(lootEntry.functions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(conditions) * 31 + Objects.hashCode(functions);
+        return ((Objects.hashCode(conditions) * 31) + functions.hashCode() + weight) * (31 + quality);
+    }
+
+    /**
+     * A loot choice that can be generated by a {@code LootEntry}.
+     */
+    public abstract class Choice {
+        /**
+         * Gets the weight for this Choice based on the provided luck. It is safe to override this.
+         */
+        public int getWeight(float luck){
+            return Math.max((int) Math.floor(LootEntry.this.weight + LootEntry.this.quality * luck), 0);
+        }
+
+        /**
+         * Generates a list of items as loot based on the provided context. Loot functions from {@link #functions()} are
+         * automatically applied to the normal result.
+         */
+        public final @NotNull List<ItemStack> generateLoot(@NotNull LootContext context){
+            List<ItemStack> loot = this.generate(context);
+
+            List<ItemStack> newLoot = new ArrayList<>();
+            for (ItemStack item : loot){
+                for (LootFunction function : LootEntry.this.functions){
+                    item = function.apply(item, context);
+                }
+                newLoot.add(item);
+            }
+
+            return newLoot;
+        }
+
+        /**
+         * Generates a list of items as loot based on the provided context. The functions from {@link #functions()} will
+         * automatically be applied, so that doesn't have to be done here.
+         */
+        protected abstract @NotNull List<ItemStack> generate(@NotNull LootContext context);
+
+        @Override
+        public String toString() {
+            return "LootEntry.Choice[entry=" + LootEntry.this + "]";
+        }
     }
 
     /**
@@ -115,5 +200,31 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
             return ImmutableList.of();
         }
         return ImmutableList.copyOf(JsonHelper.deserializeJsonArray(functions, "functions", loader.getLootFunctionManager()::deserialize));
+    }
+
+    /**
+     * Utility method for getting the weight from the JsonObject.<br>
+     * This should be called in a similar manner to: <br>
+     * {@code int weight = LootEntry.deserializeWeight(json, loader);}
+     */
+    public static int deserializeWeight(@NotNull JsonObject json, @NotNull LootTableLoader loader){
+        JsonElement weight = json.get("weight");
+        if (weight == null){
+            return DEFAULT_WEIGHT;
+        }
+        return JsonHelper.assureNumber(weight, "weight").intValue();
+    }
+
+    /**
+     * Utility method for getting the quality from the JsonObject.<br>
+     * This should be called in a similar manner to: <br>
+     * {@code int quality = LootEntry.deserializeQuality(json, loader);}
+     */
+    public static int deserializeQuality(@NotNull JsonObject json, @NotNull LootTableLoader loader){
+        JsonElement quality = json.get("quality");
+        if (quality == null){
+            return DEFAULT_QUALITY;
+        }
+        return JsonHelper.assureNumber(quality, "quality").intValue();
     }
 }
