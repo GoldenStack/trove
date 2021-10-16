@@ -41,6 +41,25 @@ public abstract class ConstantChoiceEntry extends LootEntry {
         super(conditions, functions, weight, quality);
     }
 
+    @Override
+    public String toString() {
+        return "ConstantChoiceEntry[" + LootEntry.partialToString(this) + ", choices=" + choices + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ConstantChoiceEntry that = (ConstantChoiceEntry) o;
+        return choices.equals(that.choices);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() * 31 + choices.hashCode();
+    }
+
     /**
      * Returns this ConstantChoiceEntry's choice list. This choice list is an internal constant and the same value is
      * always returned.
