@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import dev.goldenstack.enchantment.EnchantmentManager;
 import dev.goldenstack.loot.condition.*;
 import dev.goldenstack.loot.context.LootParameterGroup;
+import dev.goldenstack.loot.entry.ItemEntry;
 import dev.goldenstack.loot.entry.LootEntry;
 import dev.goldenstack.loot.function.*;
 import dev.goldenstack.loot.json.JsonSerializationManager;
@@ -193,7 +194,8 @@ public class LootTableLoader {
          * Adds the default values for the LootEntry manager to the provided builder
          */
         public static void setupLootEntryManager(@NotNull JsonSerializationManager.Builder<LootEntry> builder){
-            builder.elementName("type");
+            builder.elementName("type")
+                   .putDeserializer(ItemEntry.KEY, ItemEntry::deserialize);
         }
 
         /**

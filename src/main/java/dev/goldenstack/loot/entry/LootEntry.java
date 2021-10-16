@@ -117,8 +117,7 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
 
     @Override
     public String toString() {
-        return "LootEntry[conditions=" + conditions + ", functions=" +
-                functions + ", weight=" + weight + ", quality=" + quality + "]";
+        return "LootEntry[" + LootEntry.partialToString(this) + "]";
     }
 
     @Override
@@ -174,6 +173,16 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
         public String toString() {
             return "LootEntry.Choice[entry=" + LootEntry.this + "]";
         }
+    }
+
+    /**
+     * Utility method that generates part of the result that should be returned via {@code toString()}.
+     * @param entry The entry to generate the string for
+     * @return The string
+     */
+    protected static @NotNull String partialToString(@NotNull LootEntry entry){
+        return "conditions=" + entry.conditions + ", functions=" + entry.functions +
+                ", weight=" + entry.weight + ", quality=" + entry.quality;
     }
 
     /**
