@@ -95,6 +95,6 @@ public class AlternativeCondition implements LootCondition {
      * Static method to deserialize a {@code JsonObject} to an {@code AlternativeCondition}
      */
     public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
-        return new AlternativeCondition(ImmutableList.copyOf(JsonHelper.deserializeJsonArray(json.get("terms"), "terms", loader.getLootConditionManager()::deserialize)));
+        return new AlternativeCondition(JsonHelper.deserializeJsonArray(json.get("terms"), "terms", loader.getLootConditionManager()::deserialize));
     }
 }

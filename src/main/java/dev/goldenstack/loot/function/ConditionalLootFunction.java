@@ -74,6 +74,6 @@ public abstract class ConditionalLootFunction implements LootFunction {
         if (JsonHelper.isNull(functions)){
             return ImmutableList.of();
         }
-        return ImmutableList.copyOf(JsonHelper.deserializeJsonArray(functions, "conditions", loader.getLootConditionManager()::deserialize));
+        return JsonHelper.deserializeJsonArray(functions, "conditions", loader.getLootConditionManager()::deserialize);
     }
 }

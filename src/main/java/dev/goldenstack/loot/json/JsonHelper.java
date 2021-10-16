@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.json;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.*;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -469,22 +469,25 @@ public class JsonHelper {
     }
 
     /**
-     * Deserializes the provided JsonElement, if it is a JsonArray, into a List<T>.
+     * Deserializes the provided JsonElement, if it is a JsonArray, into an ImmutableList<T>.
      * @param element The element to deserialize. If this is not a JsonArray, an exception will be thrown.
      * @param key The key, to use with {@code deserializer}
      * @param deserializer The deserializer. This fits perfectly as a method reference from {@link JsonSerializationManager#deserialize(JsonElement, String)}}
-     * @return The deserialized list
+     * @return The deserialized and immutable list
      */
-    public static @NotNull <T> List<T> deserializeJsonArray(@Nullable JsonElement element, @NotNull String key, @NotNull BiFunction<JsonElement, String, T> deserializer) throws JsonParseException {
+    public static @NotNull <T> ImmutableList<T> deserializeJsonArray(@Nullable JsonElement element, @NotNull String key, @NotNull BiFunction<JsonElement, String, T> deserializer) throws JsonParseException {
         if (element == null || !element.isJsonArray()){
             throw new JsonParseException(expectedJsonArrayMessage(key, element));
         }
         JsonArray jsonArray = element.getAsJsonArray();
-        List<T> list = new ArrayList<>();
-        for (int i = 0; i < jsonArray.size(); i++){
-            list.add(deserializer.apply(jsonArray.get(i), key + " (while deserializing array elements)"));
+        if (jsonArray.size() == 0){
+            return ImmutableList.of();
         }
-        return list;
+        ImmutableList.Builder<T> builder = ImmutableList.builder();
+        for (int i = 0; i < jsonArray.size(); i++){
+            builder.add(deserializer.apply(jsonArray.get(i), key + " (while deserializing array elements)"));
+        }
+        return builder.build();
     }
 
     /**

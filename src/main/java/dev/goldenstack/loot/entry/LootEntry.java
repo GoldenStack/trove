@@ -195,7 +195,7 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
         if (JsonHelper.isNull(conditions)){
             return ImmutableList.of();
         }
-        return ImmutableList.copyOf(JsonHelper.deserializeJsonArray(conditions, "conditions", loader.getLootConditionManager()::deserialize));
+        return JsonHelper.deserializeJsonArray(conditions, "conditions", loader.getLootConditionManager()::deserialize);
     }
 
     /**
@@ -208,7 +208,7 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
         if (JsonHelper.isNull(functions)){
             return ImmutableList.of();
         }
-        return ImmutableList.copyOf(JsonHelper.deserializeJsonArray(functions, "functions", loader.getLootFunctionManager()::deserialize));
+        return JsonHelper.deserializeJsonArray(functions, "functions", loader.getLootFunctionManager()::deserialize);
     }
 
     /**
