@@ -28,7 +28,7 @@ public class BlockStatePropertyCondition implements LootCondition {
     /**
      * The immutable key for all {@code BlockStatePropertyCondition}s
      */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "entity_properties");
+    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "block_state_property");
 
     private final @Nullable NamespaceID block;
     private final PropertiesCriterion properties;
