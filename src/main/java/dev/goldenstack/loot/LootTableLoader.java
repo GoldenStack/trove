@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import dev.goldenstack.enchantment.EnchantmentManager;
 import dev.goldenstack.loot.condition.*;
 import dev.goldenstack.loot.context.LootParameterGroup;
+import dev.goldenstack.loot.entry.EmptyEntry;
 import dev.goldenstack.loot.entry.ItemEntry;
 import dev.goldenstack.loot.entry.LootEntry;
 import dev.goldenstack.loot.function.*;
@@ -195,7 +196,8 @@ public class LootTableLoader {
          */
         public static void setupLootEntryManager(@NotNull JsonSerializationManager.Builder<LootEntry> builder){
             builder.elementName("type")
-                   .putDeserializer(ItemEntry.KEY, ItemEntry::deserialize);
+                   .putDeserializer(ItemEntry.KEY, ItemEntry::deserialize)
+                   .putDeserializer(EmptyEntry.KEY, EmptyEntry::deserialize);
         }
 
         /**
