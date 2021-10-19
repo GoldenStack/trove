@@ -98,18 +98,18 @@ public class LootParameterGroup {
      */
     public static void addDefaults(@NotNull LootTableLoader loader){
         var map = loader.getLootParameterGroupRegistry();
-        map.put("empty", EMPTY);
-        map.put("chest", CHEST);
-        map.put("command", COMMAND);
-        map.put("selector", SELECTOR);
-        map.put("fishing", FISHING);
-        map.put("entity", ENTITY);
-        map.put("gift", GIFT);
-        map.put("barter", BARTER);
-        map.put("advancement_reward", ADVANCEMENT_REWARD);
-        map.put("advancement_entity", ADVANCEMENT_ENTITY);
-        map.put("generic", GENERIC);
-        map.put("block", BLOCK);
+        map.put("minecraft:empty", EMPTY);
+        map.put("minecraft:chest", CHEST);
+        map.put("minecraft:command", COMMAND);
+        map.put("minecraft:selector", SELECTOR);
+        map.put("minecraft:fishing", FISHING);
+        map.put("minecraft:entity", ENTITY);
+        map.put("minecraft:gift", GIFT);
+        map.put("minecraft:barter", BARTER);
+        map.put("minecraft:advancement_reward", ADVANCEMENT_REWARD);
+        map.put("minecraft:advancement_entity", ADVANCEMENT_ENTITY);
+        map.put("minecraft:generic", GENERIC);
+        map.put("minecraft:block", BLOCK);
     }
 
     private final @NotNull ImmutableSet<LootContextParameter<?>> required, allowed;
