@@ -7,10 +7,7 @@ import com.google.gson.JsonObject;
 import dev.goldenstack.enchantment.EnchantmentManager;
 import dev.goldenstack.loot.condition.*;
 import dev.goldenstack.loot.context.LootParameterGroup;
-import dev.goldenstack.loot.entry.EmptyEntry;
-import dev.goldenstack.loot.entry.GroupEntry;
-import dev.goldenstack.loot.entry.ItemEntry;
-import dev.goldenstack.loot.entry.LootEntry;
+import dev.goldenstack.loot.entry.*;
 import dev.goldenstack.loot.function.*;
 import dev.goldenstack.loot.json.JsonSerializationManager;
 import dev.goldenstack.loot.provider.number.BinomiallyDistributedNumber;
@@ -199,7 +196,8 @@ public class LootTableLoader {
             builder.elementName("type")
                    .putDeserializer(ItemEntry.KEY, ItemEntry::deserialize)
                    .putDeserializer(EmptyEntry.KEY, EmptyEntry::deserialize)
-                   .putDeserializer(GroupEntry.KEY, GroupEntry::deserialize);
+                   .putDeserializer(GroupEntry.KEY, GroupEntry::deserialize)
+                   .putDeserializer(AlternativeEntry.KEY, AlternativeEntry::deserialize);
         }
 
         /**
