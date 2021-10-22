@@ -197,7 +197,8 @@ public class LootTableLoader {
                    .putDeserializer(ItemEntry.KEY, ItemEntry::deserialize)
                    .putDeserializer(EmptyEntry.KEY, EmptyEntry::deserialize)
                    .putDeserializer(GroupEntry.KEY, GroupEntry::deserialize)
-                   .putDeserializer(AlternativeEntry.KEY, AlternativeEntry::deserialize);
+                   .putDeserializer(AlternativeEntry.KEY, AlternativeEntry::deserialize)
+                   .putDeserializer(SequenceEntry.KEY, SequenceEntry::deserialize);
         }
 
         /**
