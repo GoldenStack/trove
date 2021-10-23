@@ -29,7 +29,7 @@ public class AlternativeCondition implements LootCondition {
     /**
      * Initialize an AlternativeCondition with the provided LootConditions as terms
      */
-    private AlternativeCondition(@NotNull ImmutableList<LootCondition> terms){
+    public AlternativeCondition(@NotNull ImmutableList<LootCondition> terms){
         this.terms = terms;
     }
 
