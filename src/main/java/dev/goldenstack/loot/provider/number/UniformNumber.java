@@ -9,41 +9,15 @@ import dev.goldenstack.loot.json.LootSerializer;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 /**
  * Represents a {@code NumberProvider} that generates a value between the {@code min} and the {@code max}. The values
  * are uniformly generated (as suggested by the name).
  */
-public class UniformNumber implements NumberProvider {
+public record UniformNumber(@NotNull NumberProvider min, @NotNull NumberProvider max) implements NumberProvider {
     /**
      * The immutable key for all {@code UniformNumber}s
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "uniform");
-
-    private final NumberProvider min, max;
-
-    /**
-     * Initialize a UniformNumber with the provided minimum and maximum values.
-     */
-    public UniformNumber(@NotNull NumberProvider min, @NotNull NumberProvider max){
-        this.min = min;
-        this.max = max;
-    }
-
-    /**
-     * Returns the minimum value that is used
-     */
-    public @NotNull NumberProvider min(){
-        return min;
-    }
-
-    /**
-     * Returns the maximum value that is used
-     */
-    public @NotNull NumberProvider max(){
-        return max;
-    }
 
     /**
      * {@inheritDoc}<br>
@@ -87,24 +61,6 @@ public class UniformNumber implements NumberProvider {
     @Override
     public @NotNull LootDeserializer<? extends LootSerializer<NumberProvider>> getDeserializer() {
         return UniformNumber::deserialize;
-    }
-
-    @Override
-    public String toString() {
-        return "UniformNumber[min=" + min + ", max=" + max +"]";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UniformNumber that = (UniformNumber) o;
-        return Objects.equals(min, that.min) && Objects.equals(max, that.max);
-    }
-
-    @Override
-    public int hashCode() {
-        return (min.hashCode() * 31 + max.hashCode()) * 53;
     }
 
     /**

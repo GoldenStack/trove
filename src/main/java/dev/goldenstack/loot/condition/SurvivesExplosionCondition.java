@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  * {@code 1 / radius}, where radius is the value of the {@link LootContextParameter#EXPLOSION_RADIUS} parameter. If
  * there is not a radius, it always returns true.
  */
-public class SurvivesExplosionCondition implements LootCondition {
+public record SurvivesExplosionCondition() implements LootCondition {
     /**
      * The immutable key for all {@code SurvivesExplosionCondition}s
      */
@@ -26,8 +26,6 @@ public class SurvivesExplosionCondition implements LootCondition {
      * break anything.
      */
     public static final @NotNull SurvivesExplosionCondition INSTANCE = new SurvivesExplosionCondition();
-
-    private SurvivesExplosionCondition(){}
 
     /**
      * {@inheritDoc}
@@ -59,21 +57,6 @@ public class SurvivesExplosionCondition implements LootCondition {
     @Override
     public @NotNull LootDeserializer<? extends LootSerializer<LootCondition>> getDeserializer() {
         return SurvivesExplosionCondition::deserialize;
-    }
-
-    @Override
-    public String toString() {
-        return "SurvivesExplosionCondition[]";
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof SurvivesExplosionCondition;
-    }
-
-    @Override
-    public int hashCode() {
-        return this.getClass().hashCode();
     }
 
     /**

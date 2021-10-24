@@ -14,52 +14,23 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 /**
  * Represents a {@code LootCondition} that returns true if the provided LootContext's instance has a time that fits in
  * this {@link #range()}'s values. If {@link #period()}, is not null, the result of {@code time % this.period.longValue()}
  * is used as the time instead of the raw value.
  */
-public class TimeCheckCondition implements LootCondition {
+public record TimeCheckCondition(@NotNull NumberRange range, @Nullable Number period) implements LootCondition {
     /**
      * The immutable key for all {@code TimeCheckCondition}s
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "time_check");
-
-    private final @NotNull NumberRange range;
-    private final @Nullable Number period;
-
-    /**
-     * Initialize a TimeCheckCondition with the provided range and an optional period, which runs the modulo operation
-     * on the amount of time that the instance is at.
-     */
-    public TimeCheckCondition(@NotNull NumberRange range, @Nullable Number period){
-        this.range = range;
-        this.period = period;
-    }
-
-    /**
-     * Returns the NumberRange that determines the range that this TimeCheckCondition can accept.
-     */
-    public @NotNull NumberRange range(){
-        return range;
-    }
-
-    /**
-     * Returns the Number that determines the amount of time that would be considered a 'day'. This runs the modulo
-     * operation on the amount of time that the world has.
-     */
-    public @Nullable Number period(){
-        return period;
-    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
-        if (this.period != null){
+        if (this.period != null) {
             object.addProperty("period", this.period);
         }
         object.add("range", this.range.serialize(loader));
@@ -82,11 +53,11 @@ public class TimeCheckCondition implements LootCondition {
     @Override
     public boolean test(@NotNull LootContext context) {
         Instance instance = context.instance();
-        if (instance == null){
+        if (instance == null) {
             return false;
         }
         long value = instance.getTime();
-        if (this.period != null){
+        if (this.period != null) {
             value %= this.period.longValue();
         }
         return this.range.predicate(context, value);
@@ -100,24 +71,6 @@ public class TimeCheckCondition implements LootCondition {
         return TimeCheckCondition::deserialize;
     }
 
-    @Override
-    public String toString() {
-        return "TimeCheckCondition[range=" + range + ", period=" + period + "]";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TimeCheckCondition that = (TimeCheckCondition) o;
-        return range.equals(that.range) && Objects.equals(period, that.period);
-    }
-
-    @Override
-    public int hashCode() {
-        return (range.hashCode() * 31) + Objects.hashCode(period);
-    }
-
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code TimeCheckCondition}
      */
@@ -126,7 +79,7 @@ public class TimeCheckCondition implements LootCondition {
 
         JsonElement number = json.get("period");
         Number period = null;
-        if (number != null){
+        if (number != null) {
             period = JsonHelper.assureNumber(number, "period");
         }
 

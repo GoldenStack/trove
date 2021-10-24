@@ -10,41 +10,15 @@ import dev.goldenstack.loot.provider.number.NumberProvider;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 /**
  * Represents a {@code LootCondition} that returns true if a random number from the provided LootContext is less than
  * {@code this.chance.getDouble(context) + context.looting() * this.lootingMultiplier.getDouble(context)}
  */
-public class LootingRandomChanceCondition implements LootCondition {
+public record LootingRandomChanceCondition(@NotNull NumberProvider chance, @NotNull NumberProvider lootingMultiplier) implements LootCondition {
     /**
      * The immutable key for all {@code LootingRandomChanceCondition}s
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "random_chance_with_looting");
-
-    private final NumberProvider chance, lootingMultiplier;
-
-    /**
-     * Initialize a LootingRandomChanceCondition with the provided probability of success and looting multiplier
-     */
-    public LootingRandomChanceCondition(@NotNull NumberProvider chance, @NotNull NumberProvider lootingMultiplier){
-        this.chance = chance;
-        this.lootingMultiplier = lootingMultiplier;
-    }
-
-    /**
-     * Returns the number provider that calculates the chance of success
-     */
-    public @NotNull NumberProvider chance() {
-        return chance;
-    }
-
-    /**
-     * Returns the number provider that calculates the looting multiplier
-     */
-    public @NotNull NumberProvider lootingMultiplier() {
-        return lootingMultiplier;
-    }
 
     /**
      * {@inheritDoc}
@@ -79,24 +53,6 @@ public class LootingRandomChanceCondition implements LootCondition {
     @Override
     public @NotNull LootDeserializer<? extends LootSerializer<LootCondition>> getDeserializer() {
         return LootingRandomChanceCondition::deserialize;
-    }
-
-    @Override
-    public String toString() {
-        return "LootingRandomChanceCondition[chance-=" + chance + ", lootingMultiplier=" + lootingMultiplier + "]";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LootingRandomChanceCondition that = (LootingRandomChanceCondition) o;
-        return Objects.equals(chance, that.chance) && Objects.equals(lootingMultiplier, that.lootingMultiplier);
-    }
-
-    @Override
-    public int hashCode() {
-        return (chance.hashCode() * 31 + lootingMultiplier.hashCode()) * 73;
     }
 
     /**

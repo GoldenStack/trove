@@ -12,33 +12,16 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Represents a {@code LootCondition} that returns true if at least one of this instance's conditions is true according
  * to {@link LootCondition#or(LootContext, List)}.
  */
-public class AlternativeCondition implements LootCondition {
+public record AlternativeCondition(@NotNull ImmutableList<LootCondition> terms) implements LootCondition {
     /**
      * The immutable key for all {@code AlternativeCondition}s
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "alternative");
-
-    private final ImmutableList<LootCondition> terms;
-
-    /**
-     * Initialize an AlternativeCondition with the provided LootConditions as terms
-     */
-    public AlternativeCondition(@NotNull ImmutableList<LootCondition> terms){
-        this.terms = terms;
-    }
-
-    /**
-     * Returns the list of LootConditions
-     */
-    public @NotNull ImmutableList<LootCondition> terms(){
-        return terms;
-    }
 
     /**
      * {@inheritDoc}
@@ -71,24 +54,6 @@ public class AlternativeCondition implements LootCondition {
     @Override
     public @NotNull LootDeserializer<? extends LootSerializer<LootCondition>> getDeserializer() {
         return AlternativeCondition::deserialize;
-    }
-
-    @Override
-    public String toString() {
-        return "AlternativeCondition[terms=" + terms + "]";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AlternativeCondition that = (AlternativeCondition) o;
-        return Objects.equals(terms, that.terms);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(terms) * 31;
     }
 
     /**

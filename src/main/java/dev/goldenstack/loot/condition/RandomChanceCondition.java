@@ -10,33 +10,15 @@ import dev.goldenstack.loot.provider.number.NumberProvider;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 /**
  * Represents a {@code LootCondition} that returns true if the provided LootContext generates a number less than the
  * value of this instance's {@code probability} field.
  */
-public class RandomChanceCondition implements LootCondition {
+public record RandomChanceCondition(@NotNull NumberProvider probability) implements LootCondition {
     /**
      * The immutable key for all {@code RandomChanceCondition}s
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "random_chance");
-
-    private final NumberProvider probability;
-
-    /**
-     * Initialize a RandomChanceCondition with the provided probability of success
-     */
-    public RandomChanceCondition(@NotNull NumberProvider probability){
-        this.probability = probability;
-    }
-
-    /**
-     * Returns the number provider that calculates the probability of being true
-     */
-    public @NotNull NumberProvider probability(){
-        return probability;
-    }
 
     /**
      * {@inheritDoc}
@@ -69,23 +51,6 @@ public class RandomChanceCondition implements LootCondition {
     @Override
     public @NotNull LootDeserializer<? extends LootSerializer<LootCondition>> getDeserializer() {
         return RandomChanceCondition::deserialize;
-    }
-
-    public String toString(){
-        return "RandomChanceCondition[probability=" + probability + "]";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RandomChanceCondition that = (RandomChanceCondition) o;
-        return Objects.equals(probability, that.probability);
-    }
-
-    @Override
-    public int hashCode() {
-        return probability.hashCode() * 59;
     }
 
     /**

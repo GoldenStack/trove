@@ -9,32 +9,14 @@ import dev.goldenstack.loot.json.LootSerializer;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 /**
  * Represents a {@code LootCondition} that wraps another condition and inverts the result.
  */
-public class InvertedCondition implements LootCondition {
+public record InvertedCondition(@NotNull LootCondition condition) implements LootCondition {
     /**
      * The immutable key for all {@code InvertedCondition}s
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "inverted");
-
-    private final LootCondition condition;
-
-    /**
-     * Initialize an InvertedCondition with the provided condition
-     */
-    public InvertedCondition(@NotNull LootCondition condition){
-        this.condition = condition;
-    }
-
-    /**
-     * Returns the condition that gets inverted
-     */
-    public @NotNull LootCondition condition(){
-        return condition;
-    }
 
     /**
      * {@inheritDoc}
@@ -67,24 +49,6 @@ public class InvertedCondition implements LootCondition {
     @Override
     public @NotNull LootDeserializer<? extends LootSerializer<LootCondition>> getDeserializer() {
         return InvertedCondition::deserialize;
-    }
-
-    @Override
-    public String toString() {
-        return "InvertedCondition[condition=" + condition + "]";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        InvertedCondition that = (InvertedCondition) o;
-        return Objects.equals(condition, that.condition);
-    }
-
-    @Override
-    public int hashCode() {
-        return condition.hashCode() * 37;
     }
 
     /**

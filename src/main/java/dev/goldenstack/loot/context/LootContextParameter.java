@@ -9,12 +9,10 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 /**
  * Represents information about something that happened in a LootContext
  */
-public class LootContextParameter <T> {
+public record LootContextParameter <T> (@NotNull NamespaceID key) {
 
     /**
      * Represents the entity that is getting loot generated for it
@@ -68,45 +66,11 @@ public class LootContextParameter <T> {
      */
     public static final LootContextParameter<Float> EXPLOSION_RADIUS = new LootContextParameter<>("explosion_radius");
 
-    private final NamespaceID key;
-
-    /**
-     * Creates a new LootContextParameter with the provided key
-     */
-    public LootContextParameter(@NotNull NamespaceID key){
-        this.key = key;
-    }
-
     /**
      * Creates a new LootContextParameter with the result of {@code NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, key)}
      * , where {@code key} is the {@code key} parameter.
      */
     public LootContextParameter(@NotNull String key){
-        this.key = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, key);
-    }
-
-    /**
-     * Returns this LootContextParameter's key
-     */
-    public @NotNull NamespaceID key(){
-        return key;
-    }
-
-    @Override
-    public String toString() {
-        return "LootContextParameter[key=" + key + "]";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LootContextParameter<?> that = (LootContextParameter<?>) o;
-        return Objects.equals(key, that.key);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(key);
+        this(NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, key));
     }
 }

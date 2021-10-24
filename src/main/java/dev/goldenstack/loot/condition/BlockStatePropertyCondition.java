@@ -15,8 +15,6 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 /**
  * Represents a {@code LootCondition} that returns true if:
  * <ul>
@@ -24,36 +22,11 @@ import java.util.Objects;
  *     <li>There are no properties or all provided properties apply to the provided block</li>
  * </ul>
  */
-public class BlockStatePropertyCondition implements LootCondition {
+public record BlockStatePropertyCondition(@Nullable NamespaceID block, @NotNull PropertiesCriterion properties) implements LootCondition {
     /**
      * The immutable key for all {@code BlockStatePropertyCondition}s
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "block_state_property");
-
-    private final @Nullable NamespaceID block;
-    private final PropertiesCriterion properties;
-
-    /**
-     * Initialize a BlockStatePropertyCondition with the provided PropertiesCriterion
-     */
-    public BlockStatePropertyCondition(@Nullable NamespaceID block, @NotNull PropertiesCriterion properties){
-        this.block = block;
-        this.properties = properties;
-    }
-
-    /**
-     * Returns the NamespaceID that represents the block. This can be null, meaning that any block works.
-     */
-    public @Nullable NamespaceID block(){
-        return block;
-    }
-
-    /**
-     * Returns the PropertiesCriterion that is used to test for properties
-     */
-    public @NotNull PropertiesCriterion properties(){
-        return properties;
-    }
 
     /**
      * {@inheritDoc}
@@ -85,7 +58,7 @@ public class BlockStatePropertyCondition implements LootCondition {
     @Override
     public boolean test(@NotNull LootContext context) {
         Block block = context.assureParameter(LootContextParameter.BLOCK_STATE);
-        if (this.block != null && !this.block.equals(block.registry().namespace())){
+        if (this.block != null && !this.block.equals(block.registry().namespace())) {
             return false;
         }
         return this.properties.test(block.properties());
@@ -99,31 +72,13 @@ public class BlockStatePropertyCondition implements LootCondition {
         return BlockStatePropertyCondition::deserialize;
     }
 
-    @Override
-    public String toString() {
-        return "BlockStatePropertyCondition[block=" + block + ", properties=" + properties + "]";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BlockStatePropertyCondition that = (BlockStatePropertyCondition) o;
-        return Objects.equals(block, that.block) && Objects.equals(properties, that.properties);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(block) * 31 + Objects.hashCode(properties);
-    }
-
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code BlockStatePropertyCondition}
      */
     public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
         JsonElement blockElement = json.get("block");
         NamespaceID id = null;
-        if (!JsonHelper.isNull(blockElement)){
+        if (!JsonHelper.isNull(blockElement)) {
             id = JsonHelper.assureNamespaceId(blockElement, "block");
         }
         return new BlockStatePropertyCondition(id, PropertiesCriterion.deserialize(json.get("properties")));

@@ -16,35 +16,11 @@ import java.util.Random;
  * Represents a {@code NumberProvider} that generates binomially distributed numbers based on the {@code trials} and
  * {@code probability}.
  */
-public class BinomiallyDistributedNumber implements NumberProvider {
+public record BinomiallyDistributedNumber(@NotNull NumberProvider trials, @NotNull NumberProvider probability) implements NumberProvider {
     /**
      * The immutable key for all {@code BinomiallyDistributedNumber}s
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "binomial");
-
-    private final @NotNull NumberProvider trials, probability;
-
-    /**
-     * Initializes a {@code BinomiallyDistributedNumber} with the provided trials and probability providers.
-     */
-    public BinomiallyDistributedNumber(@NotNull NumberProvider trials, @NotNull NumberProvider probability){
-        this.trials = trials;
-        this.probability = probability;
-    }
-
-    /**
-     * Returns the value that this instance uses to calculate the number of trials
-     */
-    public @NotNull NumberProvider trials(){
-        return this.trials;
-    }
-
-    /**
-     * Returns the value that this instance uses to calculate the probability of success
-     */
-    public @NotNull NumberProvider probability(){
-        return this.probability;
-    }
 
     /**
      * {@inheritDoc}<br>
@@ -65,8 +41,8 @@ public class BinomiallyDistributedNumber implements NumberProvider {
         double probability = this.probability.getDouble(context);
         final Random random = context.findRandom();
         int val = 0;
-        for (int i = 0; i < trials; i++){
-            if (random.nextDouble() < probability){
+        for (int i = 0; i < trials; i++) {
+            if (random.nextDouble() < probability) {
                 val++;
             }
         }
@@ -94,24 +70,6 @@ public class BinomiallyDistributedNumber implements NumberProvider {
     @Override
     public @NotNull LootDeserializer<? extends LootSerializer<NumberProvider>> getDeserializer() {
         return BinomiallyDistributedNumber::deserialize;
-    }
-
-    @Override
-    public String toString() {
-        return "BinomiallyDistributedNumber[trials=" + trials + ", probability=" + probability + "]";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BinomiallyDistributedNumber that = (BinomiallyDistributedNumber) o;
-        return trials.equals(that.trials) && probability.equals(that.probability);
-    }
-
-    @Override
-    public int hashCode() {
-        return (trials.hashCode() * 31 + probability.hashCode()) * 47;
     }
 
     /**

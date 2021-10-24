@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  * Represents a {@code LootCondition} that returns true if the provided LootContext has a killer and the killer is a
  * player.
  */
-public class KilledByPlayerCondition implements LootCondition {
+public record KilledByPlayerCondition() implements LootCondition {
     /**
      * Since this implementation doesn't have any settings, it can be stored in a single instance.
      */
@@ -57,21 +57,6 @@ public class KilledByPlayerCondition implements LootCondition {
     @Override
     public @NotNull LootDeserializer<? extends LootSerializer<LootCondition>> getDeserializer() {
         return KilledByPlayerCondition::deserialize;
-    }
-
-    @Override
-    public String toString() {
-        return "KilledByPlayerCondition[]";
-    }
-
-    @Override
-    public int hashCode() {
-        return this.getClass().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof KilledByPlayerCondition;
     }
 
     /**
