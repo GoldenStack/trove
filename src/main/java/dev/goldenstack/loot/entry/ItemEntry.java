@@ -81,7 +81,7 @@ public class ItemEntry extends ConstantChoiceEntry {
 
     @Override
     public String toString() {
-        return "ItemEntry[" + LootEntry.partialToString(this) + ", quality=" + quality() + "]";
+        return "ItemEntry[" + LootEntry.partialToString(this) + ", material=" + material + "]";
     }
 
     @Override
