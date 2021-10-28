@@ -89,18 +89,19 @@ public class EnchantWithLevelsFunction extends ConditionalLootFunction {
      */
     @Override
     public @NotNull ItemStack modify(@NotNull ItemStack itemStack, @NotNull LootContext context) {
-        if (itemStack.getMaterial() == Material.BOOK){
-            // Unsafely change the type
-            //noinspection UnstableApiUsage
-            itemStack = ItemStack.fromItemNBT(itemStack.toItemNBT().setString("id", Material.ENCHANTED_BOOK.namespace().asString()));
-        }
-        return this.enchantmentManager.enchantWithLevels(
+        itemStack = this.enchantmentManager.enchantWithLevels(
                 itemStack,
                 this.level.getInt(context),
                 context.findRandom(),
                 allowTreasure ? EnchantmentManager::discoverable : EnchantmentManager::discoverableAndNotTreasure,
                 EnchantmentManager::alwaysAddIfBook
         );
+        if (itemStack.getMaterial() == Material.BOOK){
+            // Unsafely change the type
+            //noinspection UnstableApiUsage
+            itemStack = ItemStack.fromItemNBT(itemStack.toItemNBT().setString("id", Material.ENCHANTED_BOOK.namespace().asString()));
+        }
+        return itemStack;
     }
 
     /**
