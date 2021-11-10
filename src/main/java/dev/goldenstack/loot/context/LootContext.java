@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents information about something that has happened that can be used to help generate loot.<br>
@@ -20,7 +21,11 @@ public class LootContext {
     private final Map<LootContextParameter<?>, Object> parameters;
 
     public LootContext(){
-        parameters = new HashMap<>();
+        this(true);
+    }
+
+    public LootContext(boolean concurrent){
+        parameters = concurrent ? new ConcurrentHashMap<>() : new HashMap<>();
     }
 
     /**
