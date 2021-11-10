@@ -3,7 +3,7 @@ package dev.goldenstack.loot.condition;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
 import dev.goldenstack.loot.json.LootDeserializer;
@@ -29,7 +29,7 @@ public record TimeCheckCondition(@NotNull NumberRange range, @Nullable Number pe
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         if (this.period != null) {
             object.addProperty("period", this.period);
         }
@@ -74,7 +74,7 @@ public record TimeCheckCondition(@NotNull NumberRange range, @Nullable Number pe
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code TimeCheckCondition}
      */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         NumberRange range = JsonHelper.optionalAlternativeKey(json, loader::deserializeNumberRange, "range", "value");
 
         JsonElement number = json.get("period");

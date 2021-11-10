@@ -58,7 +58,7 @@ public record LootTable(@Nullable LootParameterGroup group, @NotNull ImmutableLi
      * Serializes this LootTable into a new JsonObject instance.
      */
     @Contract("_ -> new")
-    public @NotNull JsonObject serialize(@NotNull LootTableLoader loader){
+    public @NotNull JsonObject serialize(@NotNull ImmuTables loader){
         JsonObject object = new JsonObject();
 
         if (this.group != null){
@@ -87,7 +87,7 @@ public record LootTable(@Nullable LootParameterGroup group, @NotNull ImmutableLi
      * Deserializes the provided {@code JsonObject} into a new {@code LootTable} instance.
      */
     @Contract("_, _ -> new")
-    public static @NotNull LootTable deserialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) {
+    public static @NotNull LootTable deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) {
         LootParameterGroup group = null;
         GroupDetection:
         {

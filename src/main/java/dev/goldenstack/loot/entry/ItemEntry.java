@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.function.LootFunction;
@@ -49,7 +49,7 @@ public class ItemEntry extends ConstantChoiceEntry {
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         super.serialize(object, loader);
         object.addProperty("name", this.material.namespace().asString());
     }
@@ -101,7 +101,7 @@ public class ItemEntry extends ConstantChoiceEntry {
     /**
      * Static method to deserialize a {@code JsonObject} to an {@code ItemEntry}.
      */
-    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull LootTableLoader loader){
+    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader){
         JsonElement name = object.get("name");
         Material material = Material.fromNamespaceId(JsonHelper.assureNamespaceId(name, "name"));
 

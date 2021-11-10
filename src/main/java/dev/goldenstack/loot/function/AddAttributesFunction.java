@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
@@ -57,7 +57,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         super.serialize(object, loader);
         JsonArray array = new JsonArray();
         for (Modifier modifier : this.modifiers){
@@ -192,7 +192,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
         /**
          * Serializes this Modifier to a JsonObject.
          */
-        public @NotNull JsonObject serialize(@NotNull LootTableLoader loader) throws JsonParseException {
+        public @NotNull JsonObject serialize(@NotNull ImmuTables loader) throws JsonParseException {
             JsonObject object = new JsonObject();
             object.addProperty("attribute", this.attribute.getKey());
             object.addProperty("operation", this.operation.name().toLowerCase(Locale.ROOT));
@@ -218,7 +218,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
         /**
          * Deserializes the provided JsonObject into a Modifier.
          */
-        public static @NotNull Modifier deserialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+        public static @NotNull Modifier deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
 
             Attribute attribute = Attribute.fromKey(JsonHelper.assureString(object.get("attribute"), "attribute"));
             if (attribute == null) {
@@ -323,7 +323,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
     /**
      * Static method to deserialize a {@code JsonObject} to an {@code AddAttributesFunction}
      */
-    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         ImmutableList<LootCondition> conditions = ConditionalLootFunction.deserializeConditions(json, loader);
 
         JsonArray array = JsonHelper.assureJsonArray(json.get("modifiers"), "modifiers");

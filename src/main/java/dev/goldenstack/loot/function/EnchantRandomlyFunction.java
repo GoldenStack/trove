@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.enchantment.EnchantmentData;
 import dev.goldenstack.enchantment.EnchantmentManager;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
@@ -64,7 +64,7 @@ public class EnchantRandomlyFunction extends ConditionalLootFunction {
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         super.serialize(object, loader);
 
         JsonArray array = new JsonArray();
@@ -146,7 +146,7 @@ public class EnchantRandomlyFunction extends ConditionalLootFunction {
     /**
      * Static method to deserialize a {@code JsonObject} to an {@code EnchantRandomlyFunction}
      */
-    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         ImmutableList<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
 
         JsonElement element = json.get("enchantments");

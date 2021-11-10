@@ -2,7 +2,7 @@ package dev.goldenstack.loot.json;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -21,9 +21,9 @@ public interface LootDeserializer<T extends LootSerializer<?>> {
      * equal to the manager's {@link JsonSerializationManager#getElementName() elementName}, although I still do
      * recommend checking it yourself if you'd like.
      * @param json The JsonObject to be deserialized
-     * @param loader The LootTableLoader, to make it easier to deserialize things accurately.
+     * @param loader The ImmuTables instance, to make it easier to deserialize things accurately.
      * @return The deserialized object
      * @throws JsonParseException if any errors occur
      */
-    @NotNull T deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException;
+    @NotNull T deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException;
 }

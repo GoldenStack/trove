@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 /**
  * Main class for serializing and deserializing loot tables
  */
-public class LootTableLoader {
+public class ImmuTables {
 
     private final @NotNull JsonSerializationManager<NumberProvider> numberProviderManager;
     private final @NotNull JsonSerializationManager<LootCondition> lootConditionManager;
@@ -35,7 +35,7 @@ public class LootTableLoader {
 
     private final @NotNull EnchantmentManager enchantmentManager;
 
-    private LootTableLoader(@NotNull Builder builder){
+    private ImmuTables(@NotNull Builder builder){
 
         // Number provider manager
         JsonSerializationManager.Builder<NumberProvider> numberProviderBuilder = JsonSerializationManager.builder();
@@ -121,7 +121,7 @@ public class LootTableLoader {
 
     /**
      * Utility method for deserializing number ranges. This exists because the default NumberRange deserialization
-     * method, {@link NumberRange#deserialize(LootTableLoader, JsonElement, String)}, does not fit for the standard
+     * method, {@link NumberRange#deserialize(ImmuTables, JsonElement, String)}, does not fit for the standard
      * {@code BiFunction<JsonElement, String, T>} that some methods in this library use.
      */
     public @NotNull NumberRange deserializeNumberRange(@Nullable JsonElement element, @Nullable String key){
@@ -130,7 +130,7 @@ public class LootTableLoader {
 
     /**
      * Utility method for serializing number ranges. This exists because the default NumberRange serialization method,
-     * {@link NumberRange#serialize(LootTableLoader)}, does not fit for the standard {@code Function<T, JsonElement>}
+     * {@link NumberRange#serialize(ImmuTables)}, does not fit for the standard {@code Function<T, JsonElement>}
      * that some methods in this library use.
      */
     public @NotNull JsonObject serializeNumberRange(@NotNull NumberRange range){
@@ -145,7 +145,7 @@ public class LootTableLoader {
     }
 
     /**
-     * Utility class for building {@code LootTableLoader} instances
+     * Utility class for building {@code ImmuTables} instances
      */
     public static class Builder {
 
@@ -267,10 +267,10 @@ public class LootTableLoader {
         }
 
         /**
-         * Builds a {@code LootTableLoader} instance from this builder.
+         * Builds a {@code ImmuTables} instance from this builder.
          */
-        public @NotNull LootTableLoader build(){
-            return new LootTableLoader(this);
+        public @NotNull ImmuTables build(){
+            return new ImmuTables(this);
         }
 
     }

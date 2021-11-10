@@ -3,7 +3,7 @@ package dev.goldenstack.loot.function;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootContextParameter;
@@ -37,7 +37,7 @@ public class ExplosionDecayFunction extends ConditionalLootFunction {
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         super.serialize(object, loader);
     }
 
@@ -100,7 +100,7 @@ public class ExplosionDecayFunction extends ConditionalLootFunction {
     /**
      * Static method to deserialize a {@code JsonObject} to an {@code ExplosionDecayFunction}
      */
-    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         return new ExplosionDecayFunction(ConditionalLootFunction.deserializeConditions(json, loader));
     }
 }

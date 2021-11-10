@@ -104,7 +104,7 @@ public record LootPool(@NotNull ImmutableList<LootEntry> entries, @NotNull Immut
      * Serializes this {@code LootPool} into a new {@code JsonObject}
      */
     @Contract("_ -> new")
-    public @NotNull JsonObject serialize(@NotNull LootTableLoader loader){
+    public @NotNull JsonObject serialize(@NotNull ImmuTables loader){
         JsonObject object = new JsonObject();
         object.add("rolls", loader.getNumberProviderManager().serialize(this.rolls));
         if (!(this.bonusRolls instanceof ConstantNumber constantNumber) || (constantNumber.value() == 0)){
@@ -142,7 +142,7 @@ public record LootPool(@NotNull ImmutableList<LootEntry> entries, @NotNull Immut
      * Deserializes the provided {@code JsonObject} into a {@code LootPool}.
      */
     @Contract("_, _ -> new")
-    public static @NotNull LootPool deserialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) {
+    public static @NotNull LootPool deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) {
         NumberProvider rolls = loader.getNumberProviderManager().deserialize(object.get("rolls"), "rolls");
 
         JsonElement jsonBonusRolls = object.get("bonus_rolls");

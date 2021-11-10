@@ -2,7 +2,7 @@ package dev.goldenstack.loot.condition;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.LootSerializer;
@@ -22,7 +22,7 @@ public record InvertedCondition(@NotNull LootCondition condition) implements Loo
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         object.add("term", loader.getLootConditionManager().serialize(this.condition));
     }
 
@@ -54,7 +54,7 @@ public record InvertedCondition(@NotNull LootCondition condition) implements Loo
     /**
      * Static method to deserialize a {@code JsonObject} to an {@code InvertedCondition}
      */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         return new InvertedCondition(loader.getLootConditionManager().deserialize(json.get("term"), "term"));
     }
 }

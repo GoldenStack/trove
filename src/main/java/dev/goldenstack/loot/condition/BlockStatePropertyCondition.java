@@ -3,7 +3,7 @@ package dev.goldenstack.loot.condition;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootContextParameter;
 import dev.goldenstack.loot.criterion.PropertiesCriterion;
@@ -32,7 +32,7 @@ public record BlockStatePropertyCondition(@Nullable NamespaceID block, @NotNull 
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         if (this.block != null) {
             object.addProperty("block", this.block.asString());
         }
@@ -75,7 +75,7 @@ public record BlockStatePropertyCondition(@Nullable NamespaceID block, @NotNull 
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code BlockStatePropertyCondition}
      */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         JsonElement blockElement = json.get("block");
         NamespaceID id = null;
         if (!JsonHelper.isNull(blockElement)) {

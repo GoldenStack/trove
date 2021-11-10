@@ -2,7 +2,7 @@ package dev.goldenstack.loot.provider.number;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.LootSerializer;
@@ -44,7 +44,7 @@ public record UniformNumber(@NotNull NumberProvider min, @NotNull NumberProvider
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         object.add("min", loader.getNumberProviderManager().serialize(this.min));
         object.add("max", loader.getNumberProviderManager().serialize(this.max));
     }
@@ -66,7 +66,7 @@ public record UniformNumber(@NotNull NumberProvider min, @NotNull NumberProvider
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code UniformNumber}
      */
-    public static @NotNull NumberProvider deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull NumberProvider deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         return new UniformNumber(
                 loader.getNumberProviderManager().deserialize(json.get("min"), "min"),
                 loader.getNumberProviderManager().deserialize(json.get("max"), "max")

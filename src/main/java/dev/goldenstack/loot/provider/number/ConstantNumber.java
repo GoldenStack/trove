@@ -3,7 +3,7 @@ package dev.goldenstack.loot.provider.number;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
 import dev.goldenstack.loot.json.JsonSerializationManager;
@@ -36,7 +36,7 @@ public record ConstantNumber(double value) implements NumberProvider {
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         object.addProperty("value", this.value);
     }
 
@@ -57,7 +57,7 @@ public record ConstantNumber(double value) implements NumberProvider {
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code ConstantNumber}
      */
-    public static @NotNull NumberProvider deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull NumberProvider deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         return new ConstantNumber(JsonHelper.assureNumber(json.get("value"), "value").doubleValue());
     }
 

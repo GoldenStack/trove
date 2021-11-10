@@ -2,7 +2,7 @@ package dev.goldenstack.loot.json;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,10 +17,10 @@ public interface LootSerializer<T> {
      * method adds data to a JsonObject instead of creating its own is to allow whatever is serializing this object to
      * add data to it before the serialization method does.
      * @param object The object to add data to
-     * @param loader The LootTableLoader, to make it easier to serialize things accurately.
+     * @param loader The ImmuTables instance, to make it easier to serialize things accurately.
      * @throws JsonParseException if any errors occur
      */
-    void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException;
+    void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException;
 
     /**
      * Returns this LootSerializer's NamespacedID. If you're adding this yourself, try to make it unique so it

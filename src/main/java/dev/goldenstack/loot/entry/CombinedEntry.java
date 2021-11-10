@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.function.LootFunction;
 import dev.goldenstack.loot.json.JsonHelper;
@@ -37,7 +37,7 @@ public abstract class CombinedEntry extends LootEntry {
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         super.serialize(object, loader);
         if (this.children.size() > 0) {
             object.add("children", JsonHelper.serializeJsonArray(this.children, loader.getLootEntryManager()::serialize));
@@ -77,7 +77,7 @@ public abstract class CombinedEntry extends LootEntry {
      * This should be called in a similar manner to: <br>
      * {@code ImmutableList<LootEntry> children = CombinedEntry.deserializeChildren(json, loader);}
      */
-    public static @NotNull ImmutableList<LootEntry> deserializeChildren(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull ImmutableList<LootEntry> deserializeChildren(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         JsonElement children = json.get("children");
         if (JsonHelper.isNull(children)){
             return ImmutableList.of();

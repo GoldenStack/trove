@@ -2,7 +2,7 @@ package dev.goldenstack.loot.provider.number;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
 import dev.goldenstack.loot.json.LootDeserializer;
@@ -53,7 +53,7 @@ public record BinomiallyDistributedNumber(@NotNull NumberProvider trials, @NotNu
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         object.add("trials", loader.getNumberProviderManager().serialize(this.trials));
         object.add("probability", loader.getNumberProviderManager().serialize(this.probability));
     }
@@ -75,7 +75,7 @@ public record BinomiallyDistributedNumber(@NotNull NumberProvider trials, @NotNu
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code BinomiallyDistributedNumber}
      */
-    public static @NotNull NumberProvider deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull NumberProvider deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         return new BinomiallyDistributedNumber(
             JsonHelper.optionalAlternativeKey(json, loader.getNumberProviderManager()::deserialize, "trials", "n"),
             JsonHelper.optionalAlternativeKey(json, loader.getNumberProviderManager()::deserialize, "probability", "p")

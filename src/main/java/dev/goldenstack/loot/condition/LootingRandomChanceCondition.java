@@ -2,7 +2,7 @@ package dev.goldenstack.loot.condition;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.LootSerializer;
@@ -24,7 +24,7 @@ public record LootingRandomChanceCondition(@NotNull NumberProvider chance, @NotN
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         object.add("chance", loader.getNumberProviderManager().serialize(chance));
         object.add("looting_multiplier", loader.getNumberProviderManager().serialize(lootingMultiplier));
     }
@@ -58,7 +58,7 @@ public record LootingRandomChanceCondition(@NotNull NumberProvider chance, @NotN
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code LootingRandomChanceCondition}
      */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         return new LootingRandomChanceCondition(
                 loader.getNumberProviderManager().deserialize(json.get("chance"), "chance"),
                 loader.getNumberProviderManager().deserialize(json.get("looting_multiplier"), "looting_multiplier")

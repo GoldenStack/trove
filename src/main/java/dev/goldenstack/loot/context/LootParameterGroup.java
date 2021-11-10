@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.context;
 
 import com.google.common.collect.ImmutableSet;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -94,9 +94,9 @@ public class LootParameterGroup {
         BLOCK = builder().require(BLOCK_STATE).require(ORIGIN).require(TOOL).optional(THIS_ENTITY).optional(BLOCK_ENTITY).optional(EXPLOSION_RADIUS).build();
 
     /**
-     * Adds the default parameter groups to the provided LootTableLoader.
+     * Adds the default parameter groups to the provided ImmuTables instance.
      */
-    public static void addDefaults(@NotNull LootTableLoader loader){
+    public static void addDefaults(@NotNull ImmuTables loader){
         var map = loader.getLootParameterGroupRegistry();
         map.put("minecraft:empty", EMPTY);
         map.put("minecraft:chest", CHEST);
@@ -125,7 +125,7 @@ public class LootParameterGroup {
     /**
      * Utility method to register this group with the provided key in the loader.
      */
-    public void register(@NotNull String key, @NotNull LootTableLoader loader){
+    public void register(@NotNull String key, @NotNull ImmuTables loader){
         loader.getLootParameterGroupRegistry().put(key, this);
     }
 

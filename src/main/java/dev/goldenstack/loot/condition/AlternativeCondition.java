@@ -3,7 +3,7 @@ package dev.goldenstack.loot.condition;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
 import dev.goldenstack.loot.json.LootDeserializer;
@@ -27,7 +27,7 @@ public record AlternativeCondition(@NotNull ImmutableList<LootCondition> terms) 
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         object.add("terms", JsonHelper.serializeJsonArray(this.terms, loader.getLootConditionManager()::serialize));
     }
 
@@ -59,7 +59,7 @@ public record AlternativeCondition(@NotNull ImmutableList<LootCondition> terms) 
     /**
      * Static method to deserialize a {@code JsonObject} to an {@code AlternativeCondition}
      */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         return new AlternativeCondition(JsonHelper.deserializeJsonArray(json.get("terms"), "terms", loader.getLootConditionManager()::deserialize));
     }
 }

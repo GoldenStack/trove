@@ -2,7 +2,7 @@ package dev.goldenstack.loot.condition;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootContextParameter;
 import dev.goldenstack.loot.json.LootDeserializer;
@@ -31,7 +31,7 @@ public record SurvivesExplosionCondition() implements LootCondition {
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {}
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {}
 
     /**
      * {@inheritDoc}
@@ -62,7 +62,7 @@ public record SurvivesExplosionCondition() implements LootCondition {
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code SurvivesExplosionCondition}
      */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         return SurvivesExplosionCondition.INSTANCE;
     }
 }

@@ -3,7 +3,7 @@ package dev.goldenstack.loot.function;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.LootDeserializer;
@@ -45,7 +45,7 @@ public class LimitCountFunction extends ConditionalLootFunction {
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         super.serialize(object, loader);
         object.add("limit", loader.serializeNumberRange(this.limiter));
     }
@@ -96,7 +96,7 @@ public class LimitCountFunction extends ConditionalLootFunction {
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code LimitCountFunction}
      */
-    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         ImmutableList<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
         NumberRange range = loader.deserializeNumberRange(json.get("limit"), "limit");
         return new LimitCountFunction(list, range);

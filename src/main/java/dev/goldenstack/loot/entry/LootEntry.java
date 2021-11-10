@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.function.LootFunction;
@@ -83,7 +83,7 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * to run {@code super.serialize(object, loader)} so that the fields can get serialized!
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         if (this.conditions.size() > 0){
             object.add("conditions", JsonHelper.serializeJsonArray(this.conditions, loader.getLootConditionManager()::serialize));
         }
@@ -190,7 +190,7 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * This should be called in a similar manner to: <br>
      * {@code ImmutableList<LootCondition> conditions = LootEntry.deserializeConditions(json, loader);}
      */
-    public static @NotNull ImmutableList<LootCondition> deserializeConditions(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull ImmutableList<LootCondition> deserializeConditions(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         JsonElement conditions = json.get("conditions");
         if (JsonHelper.isNull(conditions)){
             return ImmutableList.of();
@@ -203,7 +203,7 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * This should be called in a similar manner to: <br>
      * {@code ImmutableList<LootFunction> functions = LootEntry.deserializeFunctions(json, loader);}
      */
-    public static @NotNull ImmutableList<LootFunction> deserializeFunctions(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull ImmutableList<LootFunction> deserializeFunctions(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         JsonElement functions = json.get("functions");
         if (JsonHelper.isNull(functions)){
             return ImmutableList.of();
@@ -216,7 +216,7 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * This should be called in a similar manner to: <br>
      * {@code int weight = LootEntry.deserializeWeight(json, loader);}
      */
-    public static int deserializeWeight(@NotNull JsonObject json, @NotNull LootTableLoader loader){
+    public static int deserializeWeight(@NotNull JsonObject json, @NotNull ImmuTables loader){
         JsonElement weight = json.get("weight");
         if (weight == null){
             return DEFAULT_WEIGHT;
@@ -229,7 +229,7 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * This should be called in a similar manner to: <br>
      * {@code int quality = LootEntry.deserializeQuality(json, loader);}
      */
-    public static int deserializeQuality(@NotNull JsonObject json, @NotNull LootTableLoader loader){
+    public static int deserializeQuality(@NotNull JsonObject json, @NotNull ImmuTables loader){
         JsonElement quality = json.get("quality");
         if (quality == null){
             return DEFAULT_QUALITY;

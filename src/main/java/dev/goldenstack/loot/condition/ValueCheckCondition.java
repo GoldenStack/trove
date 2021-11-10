@@ -2,7 +2,7 @@ package dev.goldenstack.loot.condition;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.LootSerializer;
@@ -25,7 +25,7 @@ public record ValueCheckCondition(@NotNull NumberProvider value, @NotNull Number
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         object.add("value", loader.getNumberProviderManager().serialize(value));
         object.add("range", loader.serializeNumberRange(range));
     }
@@ -58,7 +58,7 @@ public record ValueCheckCondition(@NotNull NumberProvider value, @NotNull Number
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code ValueCheckCondition}
      */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         return new ValueCheckCondition(
                 loader.getNumberProviderManager().deserialize(json.get("value"), "value"),
                 NumberRange.deserialize(loader, json.get("range"), "range")

@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
@@ -58,7 +58,7 @@ public abstract class ConditionalLootFunction implements LootFunction {
      * to run {@code super.serialize(object, loader)} so that the conditions can get serialized!
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         if (this.conditions.size() > 0){
             object.add("conditions", JsonHelper.serializeJsonArray(this.conditions, loader.getLootConditionManager()::serialize));
         }
@@ -69,7 +69,7 @@ public abstract class ConditionalLootFunction implements LootFunction {
      * This should be called in a similar manner to: <br>
      * {@code ImmutableList<LootCondition> conditions = ConditionalLootFunction.deserializeConditions(json, loader);}
      */
-    public static @NotNull ImmutableList<LootCondition> deserializeConditions(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull ImmutableList<LootCondition> deserializeConditions(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         JsonElement functions = json.get("conditions");
         if (JsonHelper.isNull(functions)){
             return ImmutableList.of();

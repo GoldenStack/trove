@@ -2,7 +2,7 @@ package dev.goldenstack.loot.condition;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.LootSerializer;
@@ -24,7 +24,7 @@ public record RandomChanceCondition(@NotNull NumberProvider probability) impleme
      * {@inheritDoc}
      */
     @Override
-    public void serialize(@NotNull JsonObject object, @NotNull LootTableLoader loader) throws JsonParseException {
+    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         object.add("probability", loader.getNumberProviderManager().serialize(this.probability));
     }
 
@@ -56,7 +56,7 @@ public record RandomChanceCondition(@NotNull NumberProvider probability) impleme
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code RandomChanceCondition}
      */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull LootTableLoader loader) throws JsonParseException {
+    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         return new RandomChanceCondition(loader.getNumberProviderManager().deserialize(json.get("probability"), "probability"));
     }
 }

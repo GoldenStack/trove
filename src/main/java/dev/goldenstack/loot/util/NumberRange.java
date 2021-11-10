@@ -3,7 +3,7 @@ package dev.goldenstack.loot.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
 import dev.goldenstack.loot.provider.number.NumberProvider;
@@ -68,7 +68,7 @@ public record NumberRange(@Nullable NumberProvider min, @Nullable NumberProvider
      * for this method to return an empty JsonObject if {@link #min()} and {@link #max()} are both null.
      */
     public @NotNull
-    JsonObject serialize(@NotNull LootTableLoader loader) throws JsonParseException {
+    JsonObject serialize(@NotNull ImmuTables loader) throws JsonParseException {
         JsonObject object = new JsonObject();
 
         if (this.min != null) {
@@ -84,7 +84,7 @@ public record NumberRange(@Nullable NumberProvider min, @Nullable NumberProvider
     /**
      * Deserializes the provided JsonObject into a NumberRange
      */
-    public static @NotNull NumberRange deserialize(@NotNull LootTableLoader loader, @Nullable JsonElement element, @Nullable String key) throws JsonParseException {
+    public static @NotNull NumberRange deserialize(@NotNull ImmuTables loader, @Nullable JsonElement element, @Nullable String key) throws JsonParseException {
         JsonObject json = JsonHelper.assureJsonObject(element, key);
 
         JsonElement minElement = json.get("min"), maxElement = json.get("max");

@@ -3,7 +3,7 @@ package dev.goldenstack.loot.json;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -23,9 +23,9 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
 
     private final @NotNull String elementName;
     private final @NotNull Map<String, LootDeserializer<T>> registry;
-    private final @NotNull LootTableLoader owner;
+    private final @NotNull ImmuTables owner;
     private @Nullable BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer;
-    private JsonSerializationManager(boolean useConcurrentHashMap, @NotNull String elementName, @NotNull LootTableLoader owner){
+    private JsonSerializationManager(boolean useConcurrentHashMap, @NotNull String elementName, @NotNull ImmuTables owner){
         this.registry = useConcurrentHashMap ? new ConcurrentHashMap<>() : new HashMap<>();
         this.elementName = elementName;
         this.owner = owner;
@@ -148,7 +148,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
 
         private String elementName = null;
         private BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer = null;
-        private LootTableLoader owner;
+        private ImmuTables owner;
 
         private Map<String, LootDeserializer<T>> deserializers = null;
 
@@ -216,7 +216,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
          * The owner allows objects that are being deserialized to deserialize other objects that they need to.
          */
         @Contract("_ -> this")
-        public @NotNull Builder<T> owner(@NotNull LootTableLoader owner){
+        public @NotNull Builder<T> owner(@NotNull ImmuTables owner){
             this.owner = owner;
             return this;
         }

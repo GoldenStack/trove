@@ -2,7 +2,7 @@ package dev.goldenstack.loot.entry;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
-import dev.goldenstack.loot.LootTableLoader;
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.function.LootFunction;
@@ -67,7 +67,7 @@ public class AlternativeEntry extends CombinedEntry {
     /**
      * Static method to deserialize a {@code JsonObject} to an {@code AlternativeEntry}.
      */
-    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull LootTableLoader loader){
+    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader){
         return new AlternativeEntry(
                 LootEntry.deserializeConditions(object, loader),
                 LootEntry.deserializeFunctions(object, loader),
