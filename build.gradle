@@ -25,6 +25,9 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+            groupId = 'dev.goldenstack.loot'
+            artifactId = 'ImmuTables'
+            version = '1.0'
         }
     }
 }
