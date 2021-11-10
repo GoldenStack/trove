@@ -2,6 +2,7 @@
 
 [![license](https://img.shields.io/github/license/GoldenStack/ImmuTables?style=for-the-badge&color=dd2233)](../LICENSE)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=for-the-badge)](https://github.com/RichardLitt/standard-readme)
+
 ImmuTables is a rewrite of the Minecraft loot table system, written for Minestom.
 
 This library includes many of the functions, conditions, and entries that default Minecraft has, but it also allows you
