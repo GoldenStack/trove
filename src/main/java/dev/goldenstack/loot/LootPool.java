@@ -52,7 +52,6 @@ public record LootPool(@NotNull ImmutableList<LootEntry> entries, @NotNull Immut
             int total = 0;
             List<LootEntry.Choice> choices = new ArrayList<>();
             for (LootEntry entry : this.entries) {
-                System.out.println(entry);
                 choices.addAll(entry.getChoices(context));
             }
 
