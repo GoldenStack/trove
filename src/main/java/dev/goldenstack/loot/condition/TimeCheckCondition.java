@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
  * is used as the time instead of the raw value.
  */
 public record TimeCheckCondition(@NotNull NumberRange range, @Nullable Number period) implements LootCondition {
+
     /**
      * The immutable key for all {@code TimeCheckCondition}s
      */

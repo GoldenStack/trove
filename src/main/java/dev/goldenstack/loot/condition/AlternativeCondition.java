@@ -18,6 +18,7 @@ import java.util.List;
  * to {@link LootCondition#or(LootContext, List)}.
  */
 public record AlternativeCondition(@NotNull ImmutableList<LootCondition> terms) implements LootCondition {
+
     /**
      * The immutable key for all {@code AlternativeCondition}s
      */

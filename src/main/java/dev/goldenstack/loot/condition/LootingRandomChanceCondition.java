@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
  * {@code this.chance.getDouble(context) + context.looting() * this.lootingMultiplier.getDouble(context)}
  */
 public record LootingRandomChanceCondition(@NotNull NumberProvider chance, @NotNull NumberProvider lootingMultiplier) implements LootCondition {
+
     /**
      * The immutable key for all {@code LootingRandomChanceCondition}s
      */

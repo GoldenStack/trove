@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
  * there is not a radius, it always returns true.
  */
 public record SurvivesExplosionCondition() implements LootCondition {
+
     /**
      * The immutable key for all {@code SurvivesExplosionCondition}s
      */

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
  * value of this instance's {@code probability} field.
  */
 public record RandomChanceCondition(@NotNull NumberProvider probability) implements LootCondition {
+
     /**
      * The immutable key for all {@code RandomChanceCondition}s
      */

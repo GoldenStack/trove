@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
  * player.
  */
 public record KilledByPlayerCondition() implements LootCondition {
+
     /**
      * Since this implementation doesn't have any settings, it can be stored in a single instance.
      */

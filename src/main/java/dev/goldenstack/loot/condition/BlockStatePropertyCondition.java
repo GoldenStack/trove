@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  */
 public record BlockStatePropertyCondition(@Nullable NamespaceID block, @NotNull PropertiesCriterion properties) implements LootCondition {
+
     /**
      * The immutable key for all {@code BlockStatePropertyCondition}s
      */

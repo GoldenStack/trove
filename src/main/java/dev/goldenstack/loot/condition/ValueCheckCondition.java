@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
  * {@link NumberRange#predicate(LootContext, double)} method of {@link #range()}.
  */
 public record ValueCheckCondition(@NotNull NumberProvider value, @NotNull NumberRange range) implements LootCondition {
+
     /**
      * The immutable key for all {@code ValueCheckCondition}s
      */

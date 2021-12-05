@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
  * Represents a {@code LootCondition} that wraps another condition and inverts the result.
  */
 public record InvertedCondition(@NotNull LootCondition condition) implements LootCondition {
+
     /**
      * The immutable key for all {@code InvertedCondition}s
      */
