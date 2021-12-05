@@ -37,7 +37,7 @@ public abstract class ConstantChoiceEntry extends LootEntry {
     /**
      * Create a ConstantChoiceEntry with the provided conditions, functions, weight, and quality.
      */
-    public ConstantChoiceEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions, int weight, int quality){
+    public ConstantChoiceEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions, int weight, int quality) {
         super(conditions, functions, weight, quality);
     }
 

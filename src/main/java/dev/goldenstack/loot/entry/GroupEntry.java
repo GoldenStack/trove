@@ -24,7 +24,7 @@ public class GroupEntry extends CombinedEntry {
      * Initialize a new GroupEntry with the provided conditions, functions, weight, quality, and children.
      */
     public GroupEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
-                         int weight, int quality, @NotNull ImmutableList<LootEntry> children){
+                         int weight, int quality, @NotNull ImmutableList<LootEntry> children) {
         super(conditions, functions, weight, quality, children);
     }
 
@@ -65,7 +65,7 @@ public class GroupEntry extends CombinedEntry {
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code GroupEntry}.
      */
-    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader){
+    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) {
         return new GroupEntry(
                 LootEntry.deserializeConditions(object, loader),
                 LootEntry.deserializeFunctions(object, loader),

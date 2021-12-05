@@ -25,15 +25,15 @@ public interface LootCondition extends LootSerializer<LootCondition>, Predicate<
      * @param conditions The conditions
      * @return True if at least one condition is true
      */
-    static boolean or(@NotNull LootContext context, @NotNull List<LootCondition> conditions){
-        if (conditions.size() == 0){
+    static boolean or(@NotNull LootContext context, @NotNull List<LootCondition> conditions) {
+        if (conditions.size() == 0) {
             return false;
         }
-        if (conditions.size() == 1){
+        if (conditions.size() == 1) {
             return conditions.get(0).test(context);
         }
-        for (LootCondition condition : conditions){
-            if (condition.test(context)){
+        for (LootCondition condition : conditions) {
+            if (condition.test(context)) {
                 return true;
             }
         }
@@ -46,15 +46,15 @@ public interface LootCondition extends LootSerializer<LootCondition>, Predicate<
      * @param conditions The conditions
      * @return True if all conditions are true
      */
-    static boolean and(@NotNull LootContext context, @NotNull List<LootCondition> conditions){
-        if (conditions.size() == 0){
+    static boolean and(@NotNull LootContext context, @NotNull List<LootCondition> conditions) {
+        if (conditions.size() == 0) {
             return true;
         }
-        if (conditions.size() == 1){
+        if (conditions.size() == 1) {
             return conditions.get(0).test(context);
         }
-        for (LootCondition condition : conditions){
-            if (!condition.test(context)){
+        for (LootCondition condition : conditions) {
+            if (!condition.test(context)) {
                 return false;
             }
         }

@@ -16,7 +16,7 @@ import java.util.function.Function;
  * Utility class to help with JSON serialization and deserialization.
  */
 public class JsonHelper {
-    private JsonHelper(){
+    private JsonHelper() {
         throw new UnsupportedOperationException("Cannot instantiate utility class!");
     }
 
@@ -26,7 +26,7 @@ public class JsonHelper {
      * @return True if the element is null or is an instance of JsonNull, otherwise false
      */
     @Contract("null -> true")
-    public static boolean isNull(@Nullable JsonElement element){
+    public static boolean isNull(@Nullable JsonElement element) {
         return element == null || element.isJsonNull();
     }
 
@@ -35,7 +35,7 @@ public class JsonHelper {
      * @param element The element
      * @return The element as a JsonPrimitive, or null if it was not.
      */
-    public static @Nullable JsonPrimitive getAsJsonPrimitive(@Nullable JsonElement element){
+    public static @Nullable JsonPrimitive getAsJsonPrimitive(@Nullable JsonElement element) {
         return (element == null || !element.isJsonPrimitive()) ? null : element.getAsJsonPrimitive();
     }
 
@@ -44,7 +44,7 @@ public class JsonHelper {
      * @param element The element
      * @return The element as a JsonObject, or null if it was not.
      */
-    public static @Nullable JsonObject getAsJsonObject(@Nullable JsonElement element){
+    public static @Nullable JsonObject getAsJsonObject(@Nullable JsonElement element) {
         return (element == null || !element.isJsonObject()) ? null : element.getAsJsonObject();
     }
 
@@ -53,7 +53,7 @@ public class JsonHelper {
      * @param element The element
      * @return The element as a JsonArray, or null if it was not.
      */
-    public static @Nullable JsonArray getAsJsonArray(@Nullable JsonElement element){
+    public static @Nullable JsonArray getAsJsonArray(@Nullable JsonElement element) {
         return (element == null || !element.isJsonArray()) ? null : element.getAsJsonArray();
     }
 
@@ -62,12 +62,12 @@ public class JsonHelper {
      * @param element The element
      * @return The element as a Boolean, or null if it was not.
      */
-    public static @Nullable Boolean getAsBoolean(@Nullable JsonElement element){
-        if (element == null || !element.isJsonPrimitive()){
+    public static @Nullable Boolean getAsBoolean(@Nullable JsonElement element) {
+        if (element == null || !element.isJsonPrimitive()) {
             return null;
         }
         JsonPrimitive primitive = element.getAsJsonPrimitive();
-        if (primitive.isBoolean()){
+        if (primitive.isBoolean()) {
             return primitive.getAsBoolean();
         }
         return null;
@@ -78,12 +78,12 @@ public class JsonHelper {
      * @param element The element
      * @return The element as a Number, or null if it was not.
      */
-    public static @Nullable Number getAsNumber(@Nullable JsonElement element){
-        if (element == null || !element.isJsonPrimitive()){
+    public static @Nullable Number getAsNumber(@Nullable JsonElement element) {
+        if (element == null || !element.isJsonPrimitive()) {
             return null;
         }
         JsonPrimitive primitive = element.getAsJsonPrimitive();
-        if (primitive.isNumber()){
+        if (primitive.isNumber()) {
             return primitive.getAsNumber();
         }
         return null;
@@ -94,12 +94,12 @@ public class JsonHelper {
      * @param element The element
      * @return The element as a String, or null if it was not.
      */
-    public static @Nullable String getAsString(@Nullable JsonElement element){
-        if (element == null || !element.isJsonPrimitive()){
+    public static @Nullable String getAsString(@Nullable JsonElement element) {
+        if (element == null || !element.isJsonPrimitive()) {
             return null;
         }
         JsonPrimitive primitive = element.getAsJsonPrimitive();
-        if (primitive.isString()){
+        if (primitive.isString()) {
             return primitive.getAsString();
         }
         return null;
@@ -110,16 +110,16 @@ public class JsonHelper {
      * @param element The element
      * @return The element as a NamespaceID, or null if it was not.
      */
-    public static @Nullable NamespaceID getAsNamespaceId(@Nullable JsonElement element){
+    public static @Nullable NamespaceID getAsNamespaceId(@Nullable JsonElement element) {
         String string = getAsString(element);
-        if (string == null){
+        if (string == null) {
             return null;
         }
         final int index = string.indexOf(':');
-        if (index < 0){
+        if (index < 0) {
             return NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, string);
         }
-        if (string.indexOf(':', index + 1) != -1){
+        if (string.indexOf(':', index + 1) != -1) {
             return null;
         }
         return NamespaceID.from(string.substring(0, index), string.substring(index + 1));
@@ -130,14 +130,14 @@ public class JsonHelper {
      * @param element The element
      * @return The element as a UUID, or null if it was not.
      */
-    public static @Nullable UUID getAsUuid(@Nullable JsonElement element){
+    public static @Nullable UUID getAsUuid(@Nullable JsonElement element) {
         String string = getAsString(element);
-        if (string == null){
+        if (string == null) {
             return null;
         }
         try {
             return UUID.fromString(string);
-        } catch (IllegalArgumentException exception){
+        } catch (IllegalArgumentException exception) {
             return null;
         }
     }
@@ -149,12 +149,12 @@ public class JsonHelper {
      * @param element The element to find the type of
      * @return The type of the element
      */
-    public static @NotNull String getElementType(@Nullable JsonElement element){
-        if (isNull(element)){
+    public static @NotNull String getElementType(@Nullable JsonElement element) {
+        if (isNull(element)) {
             return "null";
         } else if (element.isJsonObject()) {
             return "object";
-        } else if (element.isJsonArray()){
+        } else if (element.isJsonArray()) {
             return "array";
         } else if (element.isJsonPrimitive()) {
             JsonPrimitive primitive = element.getAsJsonPrimitive();
@@ -176,7 +176,7 @@ public class JsonHelper {
      * @param element The element to find the type of
      * @return The type of the element
      */
-    public static @NotNull String singularElementType(@Nullable JsonElement element){
+    public static @NotNull String singularElementType(@Nullable JsonElement element) {
         if (isNull(element)){
             return "a null value";
         } else if (element.isJsonObject()) {
@@ -215,12 +215,12 @@ public class JsonHelper {
      * @param element The element (can be null)
      * @return The error message that was created.
      */
-    public static @NotNull String createExpectedValueMessage(@NotNull String expected, @Nullable String key, @Nullable JsonElement element){
+    public static @NotNull String createExpectedValueMessage(@NotNull String expected, @Nullable String key, @Nullable JsonElement element) {
         StringBuilder builder = new StringBuilder("Expected ").append(expected);
-        if (key != null){
+        if (key != null) {
             builder.append(" for key \"").append(key).append("\"");
         }
-        if (element != null){
+        if (element != null) {
             builder.append(" but found ").append(singularElementType(element));
         }
         return builder.append('!').toString();
@@ -230,7 +230,7 @@ public class JsonHelper {
      * Returns {@link JsonNull#INSTANCE} if {@code element} is null. Otherwise, returns {@code element}.<br>
      * This is useful for distinguishing between an unknown element and a null element for {@link #createExpectedValueMessage(String, String, JsonElement)}.
      */
-    public static @NotNull JsonElement jsonNullifNull(@Nullable JsonElement element){
+    public static @NotNull JsonElement jsonNullifNull(@Nullable JsonElement element) {
         return element == null ? JsonNull.INSTANCE : element;
     }
 
@@ -238,7 +238,7 @@ public class JsonHelper {
      * Creates an error message as though the provided element was not supposed to be null.<br>
      * Returns {@code createExpectedValueMessage("a not-null value", key, element);}
      */
-    public static @NotNull String expectedNotNullMessage(@Nullable String key, @Nullable JsonElement element){
+    public static @NotNull String expectedNotNullMessage(@Nullable String key, @Nullable JsonElement element) {
         return createExpectedValueMessage("a not-null value", key, element);
     }
 
@@ -246,7 +246,7 @@ public class JsonHelper {
      * Creates an error message as though the provided element was supposed to be null.<br>
      * Returns {@code createExpectedValueMessage("a null value", key, element);}
      */
-    public static @NotNull String expectedNullMessage(@Nullable String key, @Nullable JsonElement element){
+    public static @NotNull String expectedNullMessage(@Nullable String key, @Nullable JsonElement element) {
         return createExpectedValueMessage("a null value", key, element);
     }
 
@@ -254,7 +254,7 @@ public class JsonHelper {
      * Creates an error message as though the provided element was supposed to be a JsonPrimitive.<br>
      * Returns {@code createExpectedValueMessage("a primitive (string, number, or boolean)", key, element);}
      */
-    public static @NotNull String expectedJsonPrimitiveMessage(@Nullable String key, @Nullable JsonElement element){
+    public static @NotNull String expectedJsonPrimitiveMessage(@Nullable String key, @Nullable JsonElement element) {
         return createExpectedValueMessage("a primitive (string, number, or boolean)", key, element);
     }
 
@@ -262,7 +262,7 @@ public class JsonHelper {
      * Creates an error message as though the provided element was supposed to be a JsonObject.<br>
      * Returns {@code createExpectedValueMessage("an object", key, element);}
      */
-    public static @NotNull String expectedJsonObjectMessage(@Nullable String key, @Nullable JsonElement element){
+    public static @NotNull String expectedJsonObjectMessage(@Nullable String key, @Nullable JsonElement element) {
         return createExpectedValueMessage("an object", key, element);
     }
 
@@ -270,7 +270,7 @@ public class JsonHelper {
      * Creates an error message as though the provided element was supposed to be a JsonArray.<br>
      * Returns {@code createExpectedValueMessage("an array", key, element);}
      */
-    public static @NotNull String expectedJsonArrayMessage(@Nullable String key, @Nullable JsonElement element){
+    public static @NotNull String expectedJsonArrayMessage(@Nullable String key, @Nullable JsonElement element) {
         return createExpectedValueMessage("an array", key, element);
     }
 
@@ -278,7 +278,7 @@ public class JsonHelper {
      * Creates an error message as though the provided element was supposed to be a boolean.<br>
      * Returns {@code createExpectedValueMessage("a boolean", key, element);}
      */
-    public static @NotNull String expectedBooleanMessage(@Nullable String key, @Nullable JsonElement element){
+    public static @NotNull String expectedBooleanMessage(@Nullable String key, @Nullable JsonElement element) {
         return createExpectedValueMessage("a boolean", key, element);
     }
 
@@ -286,7 +286,7 @@ public class JsonHelper {
      * Creates an error message as though the provided element was supposed to be a number.<br>
      * Returns {@code createExpectedValueMessage("a number", key, element);}
      */
-    public static @NotNull String expectedNumberMessage(@Nullable String key, @Nullable JsonElement element){
+    public static @NotNull String expectedNumberMessage(@Nullable String key, @Nullable JsonElement element) {
         return createExpectedValueMessage("a number", key, element);
     }
 
@@ -294,7 +294,7 @@ public class JsonHelper {
      * Creates an error message as though the provided element was supposed to be a string.<br>
      * Returns {@code createExpectedValueMessage("a string", key, element);}
      */
-    public static @NotNull String expectedStringMessage(@Nullable String key, @Nullable JsonElement element){
+    public static @NotNull String expectedStringMessage(@Nullable String key, @Nullable JsonElement element) {
         return createExpectedValueMessage("a string", key, element);
     }
 
@@ -302,7 +302,7 @@ public class JsonHelper {
      * Creates an error message as though the provided element was supposed to be a valid NamespaceID.<br>
      * Returns {@code createExpectedValueMessage("a NamespaceID", key, element);}
      */
-    public static @NotNull String expectedNamespaceIdMessage(@Nullable String key, @Nullable JsonElement element){
+    public static @NotNull String expectedNamespaceIdMessage(@Nullable String key, @Nullable JsonElement element) {
         return createExpectedValueMessage("a NamespaceID", key, element);
     }
 
@@ -310,7 +310,7 @@ public class JsonHelper {
      * Creates an error message as though the provided element was supposed to be a valid UUID.<br>
      * Returns {@code createExpectedValueMessage("a UUID", key, element);}
      */
-    public static @NotNull String expectedUuidMessage(@Nullable String key, @Nullable JsonElement element){
+    public static @NotNull String expectedUuidMessage(@Nullable String key, @Nullable JsonElement element) {
         return createExpectedValueMessage("a UUID", key, element);
     }
 
@@ -384,7 +384,7 @@ public class JsonHelper {
     @Contract("null, _ -> fail")
     public static boolean assureBoolean(@Nullable JsonElement element, @Nullable String key) throws JsonParseException {
         Boolean bool = getAsBoolean(element);
-        if (bool == null){
+        if (bool == null) {
             throw new JsonParseException(expectedBooleanMessage(key, jsonNullifNull(element)));
         }
         return bool;
@@ -400,7 +400,7 @@ public class JsonHelper {
     @Contract("null, _ -> fail")
     public static @NotNull Number assureNumber(@Nullable JsonElement element, @Nullable String key) throws JsonParseException {
         Number number = getAsNumber(element);
-        if (number == null){
+        if (number == null) {
             throw new JsonParseException(expectedNumberMessage(key, jsonNullifNull(element)));
         }
         return number;
@@ -416,7 +416,7 @@ public class JsonHelper {
     @Contract("null, _ -> fail")
     public static @NotNull String assureString(@Nullable JsonElement element, @Nullable String key) throws JsonParseException {
         String string = getAsString(element);
-        if (string == null){
+        if (string == null) {
             throw new JsonParseException(expectedStringMessage(key, jsonNullifNull(element)));
         }
         return string;
@@ -462,7 +462,7 @@ public class JsonHelper {
      */
     public static @NotNull <T> JsonArray serializeJsonArray(@NotNull List<T> elements, @NotNull Function<T, JsonElement> serializer) throws JsonParseException {
         final JsonArray array = new JsonArray();
-        for (T item : elements){
+        for (T item : elements) {
             array.add(serializer.apply(item));
         }
         return array;
@@ -480,11 +480,11 @@ public class JsonHelper {
             throw new JsonParseException(expectedJsonArrayMessage(key, element));
         }
         JsonArray jsonArray = element.getAsJsonArray();
-        if (jsonArray.size() == 0){
+        if (jsonArray.size() == 0) {
             return ImmutableList.of();
         }
         ImmutableList.Builder<T> builder = ImmutableList.builder();
-        for (int i = 0; i < jsonArray.size(); i++){
+        for (int i = 0; i < jsonArray.size(); i++) {
             builder.add(deserializer.apply(jsonArray.get(i), key + " (while deserializing array elements)"));
         }
         return builder.build();
@@ -500,7 +500,7 @@ public class JsonHelper {
      * @return The deserialized object
      */
     public static @NotNull <T> T optionalAlternativeKey(@NotNull JsonObject object, @NotNull BiFunction<JsonElement, String, T> deserializer,
-                                                      @NotNull String primary, @NotNull String secondary){
+                                                      @NotNull String primary, @NotNull String secondary) {
         JsonElement p = object.get(primary);
         if (!isNull(p)){
             return deserializer.apply(p, primary);

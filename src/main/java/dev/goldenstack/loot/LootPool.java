@@ -103,32 +103,32 @@ public record LootPool(@NotNull ImmutableList<LootEntry> entries, @NotNull Immut
      * Serializes this {@code LootPool} into a new {@code JsonObject}
      */
     @Contract("_ -> new")
-    public @NotNull JsonObject serialize(@NotNull ImmuTables loader){
+    public @NotNull JsonObject serialize(@NotNull ImmuTables loader) {
         JsonObject object = new JsonObject();
         object.add("rolls", loader.getNumberProviderManager().serialize(this.rolls));
-        if (!(this.bonusRolls instanceof ConstantNumber constantNumber) || (constantNumber.value() == 0)){
+        if (!(this.bonusRolls instanceof ConstantNumber constantNumber) || (constantNumber.value() == 0)) {
             object.add("bonusRolls", loader.getNumberProviderManager().serialize(this.bonusRolls));
         }
 
-        if (this.entries.size() > 0){
+        if (this.entries.size() > 0) {
             JsonArray array = new JsonArray();
-            for (LootEntry entry : this.entries){
+            for (LootEntry entry : this.entries) {
                 array.add(loader.getLootEntryManager().serialize(entry));
             }
             object.add("entries", array);
         }
 
-        if (this.conditions.size() > 0){
+        if (this.conditions.size() > 0) {
             JsonArray array = new JsonArray();
-            for (LootCondition condition : this.conditions){
+            for (LootCondition condition : this.conditions) {
                 array.add(loader.getLootConditionManager().serialize(condition));
             }
             object.add("conditions", array);
         }
 
-        if (this.functions.size() > 0){
+        if (this.functions.size() > 0) {
             JsonArray array = new JsonArray();
-            for (LootFunction function : this.functions){
+            for (LootFunction function : this.functions) {
                 array.add(loader.getLootFunctionManager().serialize(function));
             }
             object.add("functions", array);

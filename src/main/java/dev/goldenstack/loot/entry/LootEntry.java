@@ -42,7 +42,7 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * Creates a new LootEntry with the provided conditions, functions, weight, and quality.
      */
     public LootEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
-                     int weight, int quality){
+                     int weight, int quality) {
         this.conditions = conditions;
         this.functions = functions;
         this.weight = weight;
@@ -52,28 +52,28 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
     /**
      * Returns this LootEntry's conditions
      */
-    public final @NotNull ImmutableList<LootCondition> conditions(){
+    public final @NotNull ImmutableList<LootCondition> conditions() {
         return conditions;
     }
 
     /**
      * Returns this LootEntry's functions
      */
-    public final @NotNull ImmutableList<LootFunction> functions(){
+    public final @NotNull ImmutableList<LootFunction> functions() {
         return functions;
     }
 
     /**
      * Returns this LootEntry's weight
      */
-    public int weight(){
+    public int weight() {
         return weight;
     }
 
     /**
      * Returns this LootEntry's quality
      */
-    public int quality(){
+    public int quality() {
         return quality;
     }
 
@@ -84,16 +84,16 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      */
     @Override
     public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        if (this.conditions.size() > 0){
+        if (this.conditions.size() > 0) {
             object.add("conditions", JsonHelper.serializeJsonArray(this.conditions, loader.getLootConditionManager()::serialize));
         }
-        if (this.functions.size() > 0){
+        if (this.functions.size() > 0) {
             object.add("functions", JsonHelper.serializeJsonArray(this.functions, loader.getLootFunctionManager()::serialize));
         }
-        if (this.weight != DEFAULT_WEIGHT){
+        if (this.weight != DEFAULT_WEIGHT) {
             object.addProperty("weight", this.weight);
         }
-        if (this.quality != DEFAULT_QUALITY){
+        if (this.quality != DEFAULT_QUALITY) {
             object.addProperty("quality", this.quality);
         }
     }
@@ -108,8 +108,8 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * Returns this instance's loot choices. If {@link #conditions()} does not entirely accept {@code context}, an empty
      * list is returned. Otherwise, the actual choices will be returned.
      */
-    public final @NotNull ImmutableList<Choice> getChoices(@NotNull LootContext context){
-        if (!LootCondition.and(context, this.conditions)){
+    public final @NotNull ImmutableList<Choice> getChoices(@NotNull LootContext context) {
+        if (!LootCondition.and(context, this.conditions)) {
             return ImmutableList.of();
         }
         return this.collectChoices(context);
@@ -141,7 +141,7 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
         /**
          * Gets the weight for this Choice based on the provided luck. It is safe to override this.
          */
-        public int getWeight(float luck){
+        public int getWeight(float luck) {
             return Math.max((int) Math.floor(LootEntry.this.weight + LootEntry.this.quality * luck), 0);
         }
 
@@ -149,12 +149,12 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
          * Generates a list of items as loot based on the provided context. Loot functions from {@link #functions()} are
          * automatically applied to the normal result.
          */
-        public final @NotNull List<ItemStack> generateLoot(@NotNull LootContext context){
+        public final @NotNull List<ItemStack> generateLoot(@NotNull LootContext context) {
             List<ItemStack> loot = this.generate(context);
 
             List<ItemStack> newLoot = new ArrayList<>();
-            for (ItemStack item : loot){
-                for (LootFunction function : LootEntry.this.functions){
+            for (ItemStack item : loot) {
+                for (LootFunction function : LootEntry.this.functions) {
                     item = function.apply(item, context);
                 }
                 newLoot.add(item);
@@ -180,7 +180,7 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * @param entry The entry to generate the string for
      * @return The string
      */
-    protected static @NotNull String partialToString(@NotNull LootEntry entry){
+    protected static @NotNull String partialToString(@NotNull LootEntry entry) {
         return "conditions=" + entry.conditions + ", functions=" + entry.functions +
                 ", weight=" + entry.weight + ", quality=" + entry.quality;
     }
@@ -216,9 +216,9 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * This should be called in a similar manner to: <br>
      * {@code int weight = LootEntry.deserializeWeight(json, loader);}
      */
-    public static int deserializeWeight(@NotNull JsonObject json, @NotNull ImmuTables loader){
+    public static int deserializeWeight(@NotNull JsonObject json, @NotNull ImmuTables loader) {
         JsonElement weight = json.get("weight");
-        if (weight == null){
+        if (weight == null) {
             return DEFAULT_WEIGHT;
         }
         return JsonHelper.assureNumber(weight, "weight").intValue();
@@ -229,9 +229,9 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * This should be called in a similar manner to: <br>
      * {@code int quality = LootEntry.deserializeQuality(json, loader);}
      */
-    public static int deserializeQuality(@NotNull JsonObject json, @NotNull ImmuTables loader){
+    public static int deserializeQuality(@NotNull JsonObject json, @NotNull ImmuTables loader) {
         JsonElement quality = json.get("quality");
-        if (quality == null){
+        if (quality == null) {
             return DEFAULT_QUALITY;
         }
         return JsonHelper.assureNumber(quality, "quality").intValue();

@@ -36,7 +36,7 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
      * on the item will get removed.
      */
     public SetEnchantmentsFunction(@NotNull ImmutableList<LootCondition> conditions,
-                                   @NotNull ImmutableMap<Enchantment, NumberProvider> enchantments, boolean add){
+                                   @NotNull ImmutableMap<Enchantment, NumberProvider> enchantments, boolean add) {
         super(conditions);
         this.enchantments = enchantments;
         this.add = add;
@@ -91,10 +91,10 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
     @Override
     public @NotNull ItemStack modify(@NotNull ItemStack itemStack, @NotNull LootContext context) {
         return itemStack.withMeta(im -> {
-            if (!add){
+            if (!add) {
                 im.enchantments(new HashMap<>());
             }
-            for (var entry : this.enchantments.entrySet()){
+            for (var entry : this.enchantments.entrySet()) {
                 im.enchantment(entry.getKey(), (short) entry.getValue().getInt(context));
             }
             return im;
@@ -141,7 +141,7 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
 
             EnchantmentData data = loader.getEnchantmentManager().getEnchantmentData(namespaceID);
 
-            if (data == null){
+            if (data == null) {
                 throw new JsonParseException("Invalid enchantment \"" + namespaceID + "\"! Did you initialize your enchantment manager correctly?");
             }
 

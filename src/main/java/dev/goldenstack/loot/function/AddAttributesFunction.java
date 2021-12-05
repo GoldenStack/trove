@@ -41,7 +41,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
     /**
      * Initializes an AddAttributesFunction with the provided modifiers
      */
-    public AddAttributesFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<Modifier> modifiers){
+    public AddAttributesFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<Modifier> modifiers) {
         super(conditions);
         this.modifiers = modifiers;
     }
@@ -60,7 +60,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
     public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
         super.serialize(object, loader);
         JsonArray array = new JsonArray();
-        for (Modifier modifier : this.modifiers){
+        for (Modifier modifier : this.modifiers) {
             array.add(modifier.serialize(loader));
         }
         object.add("modifiers", array);
@@ -82,7 +82,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
     public @NotNull ItemStack modify(@NotNull ItemStack itemStack, @NotNull LootContext context) {
         return itemStack.withMeta(builder -> {
             List<ItemAttribute> attributeList = new ArrayList<>();
-            for (Modifier modifier : this.modifiers){
+            for (Modifier modifier : this.modifiers) {
                 attributeList.add(modifier.toItemAttribute(context));
             }
             return builder.attributes(attributeList);
@@ -113,9 +113,9 @@ public class AddAttributesFunction extends ConditionalLootFunction {
          * @param name The name to use. If this is null, Modifier#toItemAttribute will use an empty string instead.
          */
         public Modifier(@NotNull Attribute attribute, @NotNull ImmutableList<AttributeSlot> slots, @NotNull AttributeOperation operation,
-                        @NotNull NumberProvider amount, @Nullable UUID uuid, @Nullable String name){
+                        @NotNull NumberProvider amount, @Nullable UUID uuid, @Nullable String name) {
             this.attribute = attribute;
-            if (slots.size() == 0){
+            if (slots.size() == 0) {
                 throw new InvalidParameterException("Parameter \"slots\" must have at least one element!");
             }
             this.slots = slots;
@@ -128,7 +128,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
         /**
          * Returns the attribute that is used when creating ItemAttribute instances.
          */
-        public @NotNull Attribute attribute(){
+        public @NotNull Attribute attribute() {
             return this.attribute;
         }
 
@@ -178,7 +178,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
          * @param context The context to use (the only use of this in the method is to get the value from {@link #amount()}).
          * @return The ItemAttribute that was generated
          */
-        public @NotNull ItemAttribute toItemAttribute(@NotNull LootContext context){
+        public @NotNull ItemAttribute toItemAttribute(@NotNull LootContext context) {
             return new ItemAttribute(
                     this.uuid == null ? UUID.randomUUID() : this.uuid,
                     this.name == null ? "" : this.name,
@@ -197,17 +197,17 @@ public class AddAttributesFunction extends ConditionalLootFunction {
             object.addProperty("attribute", this.attribute.getKey());
             object.addProperty("operation", this.operation.name().toLowerCase(Locale.ROOT));
             object.add("amount", loader.getNumberProviderManager().serialize(this.amount));
-            if (this.name != null){
+            if (this.name != null) {
                 object.addProperty("name", this.name);
             }
-            if (this.uuid != null){
+            if (this.uuid != null) {
                 object.addProperty("id", this.uuid.toString());
             }
-            if (this.slots.size() == 1){
+            if (this.slots.size() == 1) {
                 object.addProperty("slot", this.slots.get(0).toString().toLowerCase(Locale.ROOT));
             } else {
                 JsonArray array = new JsonArray();
-                for (AttributeSlot slot : this.slots){
+                for (AttributeSlot slot : this.slots) {
                     array.add(slot.toString().toLowerCase(Locale.ROOT));
                 }
                 object.add("slot", array);
@@ -242,20 +242,20 @@ public class AddAttributesFunction extends ConditionalLootFunction {
             ImmutableList<AttributeSlot> slots;
 
             String string = JsonHelper.getAsString(slotElement);
-            if (string == null){
+            if (string == null) {
                 JsonArray array = JsonHelper.getAsJsonArray(slotElement);
-                if (array == null){
+                if (array == null) {
                     throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid attribute slot or an array of attribute slots", "slot", slotElement));
                 }
                 AttributeSlot[] slotArray = new AttributeSlot[array.size()];
-                for (int i = 0; i < array.size(); i++){
+                for (int i = 0; i < array.size(); i++) {
                     JsonElement element = array.get(i);
                     String slotString = JsonHelper.getAsString(element);
-                    if (slotString == null){
+                    if (slotString == null) {
                         throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid attribute slot (while deserializing an element in an array)", "slot", element));
                     }
                     AttributeSlot slot = EnumValues.ATTRIBUTE_SLOT.valueOf(slotString.toUpperCase(Locale.ROOT));
-                    if (slot == null){
+                    if (slot == null) {
                         throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid attribute slot (while deserializing an element in an array)", "slot", element));
                     }
                     slotArray[i] = slot;
@@ -328,7 +328,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
 
         JsonArray array = JsonHelper.assureJsonArray(json.get("modifiers"), "modifiers");
         Modifier[] modifiers = new Modifier[array.size()];
-        for (int i = 0; i < array.size(); i++){
+        for (int i = 0; i < array.size(); i++) {
             modifiers[i] = Modifier.deserialize(JsonHelper.assureJsonObject(array.get(i), "modifiers (while deserializing an element)"), loader);
         }
 

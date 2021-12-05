@@ -20,39 +20,39 @@ public class LootContext {
 
     private final Map<LootContextParameter<?>, Object> parameters;
 
-    public LootContext(){
+    public LootContext() {
         this(true);
     }
 
-    public LootContext(boolean concurrent){
+    public LootContext(boolean concurrent) {
         parameters = concurrent ? new ConcurrentHashMap<>() : new HashMap<>();
     }
 
     /**
      * Returns the random number generator that this LootContext uses
      */
-    public @Nullable Random random(){
+    public @Nullable Random random() {
         return random;
     }
 
     /**
      * Returns the instance that this LootContext uses
      */
-    public @Nullable Instance instance(){
+    public @Nullable Instance instance() {
         return instance;
     }
 
     /**
      * Returns the looting level for this LootContext
      */
-    public int looting(){
+    public int looting() {
         return looting;
     }
 
     /**
      * Returns the luck for this LootContext
      */
-    public float luck(){
+    public float luck() {
         return luck;
     }
 
@@ -61,7 +61,7 @@ public class LootContext {
      * exist but it has a different type than <T>, a ClassCastException will be thrown.
      */
     @SuppressWarnings("unchecked")
-    public @Nullable <T> T getParameter(@NotNull LootContextParameter<T> parameter){
+    public @Nullable <T> T getParameter(@NotNull LootContextParameter<T> parameter) {
         Object object = this.parameters.get(parameter);
         if (object == null) {
             return null;
@@ -76,7 +76,7 @@ public class LootContext {
      * never return null, as the annotation of {@link NotNull @NotNull} on the return value suggests.
      */
     @SuppressWarnings("unchecked")
-    public @NotNull <T> T assureParameter(@NotNull LootContextParameter<T> parameter){
+    public @NotNull <T> T assureParameter(@NotNull LootContextParameter<T> parameter) {
         Object object = this.parameters.get(parameter);
         if (object == null) {
             throw new NoSuchElementException("Parameter \"" + parameter.key().asString() + "\" while reading a loot table");
@@ -88,8 +88,8 @@ public class LootContext {
      * If this LootContext has a null random number generator, it initializes it via {@code new Random();}. Then, it
      * returns the random.
      */
-    public @NotNull Random findRandom(){
-        if (this.random == null){
+    public @NotNull Random findRandom() {
+        if (this.random == null) {
             this.random = new Random();
         }
         return this.random;
@@ -100,7 +100,7 @@ public class LootContext {
      * Note that this should not affect anything outside this LootContext.
      */
     @Contract("_, _ -> this")
-    public @NotNull <T> LootContext parameter(@NotNull LootContextParameter<T> parameter, T value){
+    public @NotNull <T> LootContext parameter(@NotNull LootContextParameter<T> parameter, T value) {
         this.parameters.put(parameter, value);
         return this;
     }
@@ -109,7 +109,7 @@ public class LootContext {
      * Sets the random that this LootContext uses
      */
     @Contract("_ -> this")
-    public @NotNull LootContext random(@Nullable Random random){
+    public @NotNull LootContext random(@Nullable Random random) {
         this.random = random;
         return this;
     }
@@ -119,7 +119,7 @@ public class LootContext {
      * Note that this should not affect anything outside this LootContext.
      */
     @Contract("_ -> this")
-    public @NotNull LootContext instance(@Nullable Instance instance){
+    public @NotNull LootContext instance(@Nullable Instance instance) {
         this.instance = instance;
         return this;
     }
@@ -129,7 +129,7 @@ public class LootContext {
      * Note that this should not affect anything outside this LootContext.
      */
     @Contract("_ -> this")
-    public @NotNull LootContext looting(int looting){
+    public @NotNull LootContext looting(int looting) {
         this.looting = looting;
         return this;
     }
@@ -139,7 +139,7 @@ public class LootContext {
      * Note that this should not affect anything outside this LootContext.
      */
     @Contract("_ -> this")
-    public @NotNull LootContext luck(float luck){
+    public @NotNull LootContext luck(float luck) {
         this.luck = luck;
         return this;
     }

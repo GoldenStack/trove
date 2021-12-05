@@ -24,7 +24,7 @@ public class AlternativeEntry extends CombinedEntry {
      * Initialize a new AlternativeEntry with the provided conditions, functions, weight, quality, and children.
      */
     public AlternativeEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
-                      int weight, int quality, @NotNull ImmutableList<LootEntry> children){
+                      int weight, int quality, @NotNull ImmutableList<LootEntry> children) {
         super(conditions, functions, weight, quality, children);
     }
 
@@ -50,9 +50,9 @@ public class AlternativeEntry extends CombinedEntry {
      */
     @Override
     protected @NotNull ImmutableList<Choice> collectChoices(@NotNull LootContext context) {
-        for (LootEntry entry : this.children()){
+        for (LootEntry entry : this.children()) {
             var choices = entry.getChoices(context);
-            if (choices.size() > 0){
+            if (choices.size() > 0) {
                 return choices;
             }
         }
@@ -67,7 +67,7 @@ public class AlternativeEntry extends CombinedEntry {
     /**
      * Static method to deserialize a {@code JsonObject} to an {@code AlternativeEntry}.
      */
-    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader){
+    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) {
         return new AlternativeEntry(
                 LootEntry.deserializeConditions(object, loader),
                 LootEntry.deserializeFunctions(object, loader),

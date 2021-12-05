@@ -31,7 +31,7 @@ public class EnumValues <T extends Enum<?>> {
     /**
      * Creates a new EnumValues instance that is concurrent with the provided supplier.
      */
-    public EnumValues(@NotNull Supplier<T[]> supplier){
+    public EnumValues(@NotNull Supplier<T[]> supplier) {
         this(supplier, true);
     }
 
@@ -39,7 +39,7 @@ public class EnumValues <T extends Enum<?>> {
      * Creates a new EnumValues instance with the provided supplier and whether or not it will use a ConcurrentHashMap
      * instead of a normal HashMap.
      */
-    public EnumValues(@NotNull Supplier<T[]> supplier, boolean concurrent){
+    public EnumValues(@NotNull Supplier<T[]> supplier, boolean concurrent) {
         this.supplier = supplier;
         this.concurrent = concurrent;
     }
@@ -50,8 +50,8 @@ public class EnumValues <T extends Enum<?>> {
      * @param key The key to check
      * @return The instance of {@code T} that was found, or null if none.
      */
-    public @Nullable T valueOf(@NotNull String key){
-        if (values == null){
+    public @Nullable T valueOf(@NotNull String key) {
+        if (values == null) {
             initializeValues();
         }
         return values.get(key);
@@ -60,12 +60,12 @@ public class EnumValues <T extends Enum<?>> {
     /**
      * Initializes this instance's map. No checks are done to assure that the map has not already been initialized.
      */
-    public void initializeValues(){
+    public void initializeValues() {
         T[] array = this.supplier.get();
         this.values = this.concurrent ?
                 new ConcurrentHashMap<>((int)(array.length / 0.75) + 1) :
                 new HashMap<>((int)(array.length / 0.75) + 1);
-        for (T t : array){
+        for (T t : array) {
             values.put(t.name(), t);
         }
     }

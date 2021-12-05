@@ -31,7 +31,7 @@ public class AddDamageFunction extends ConditionalLootFunction {
     /**
      * Initialize an AddDamageFunction with the provided damage and whether or not the damage should be added
      */
-    public AddDamageFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberProvider damage, boolean add){
+    public AddDamageFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberProvider damage, boolean add) {
         super(conditions);
         this.damage = damage;
         this.add = add;
@@ -85,7 +85,7 @@ public class AddDamageFunction extends ConditionalLootFunction {
         final int max_damage = itemStack.getMaterial().registry().maxDamage();
 
         // Don't change the durability if the item has no durability
-        if (max_damage == 0){
+        if (max_damage == 0) {
             return itemStack;
         }
 
@@ -98,7 +98,7 @@ public class AddDamageFunction extends ConditionalLootFunction {
         final int value = (int) ((1 - this.damage.getDouble(context)) * max_damage);
 
         // Different calculations are required if we need to factor in the current durability.
-        if (add){
+        if (add) {
             final int damage = itemStack.getMeta().getDamage();
             // The reason we use "damage - (max_damage - value)" is because the current damage still needs to be taken into account.
             // If the value variable represented durability instead of damage, we could simply write "damage - value".

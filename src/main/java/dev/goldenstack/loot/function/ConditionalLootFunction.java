@@ -24,7 +24,7 @@ public abstract class ConditionalLootFunction implements LootFunction {
     /**
      * Creates a ConditionalLootFunction with the provided {@code LootCondition}s
      */
-    public ConditionalLootFunction(@NotNull ImmutableList<LootCondition> conditions){
+    public ConditionalLootFunction(@NotNull ImmutableList<LootCondition> conditions) {
         this.conditions = conditions;
     }
 
@@ -59,7 +59,7 @@ public abstract class ConditionalLootFunction implements LootFunction {
      */
     @Override
     public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        if (this.conditions.size() > 0){
+        if (this.conditions.size() > 0) {
             object.add("conditions", JsonHelper.serializeJsonArray(this.conditions, loader.getLootConditionManager()::serialize));
         }
     }

@@ -21,7 +21,7 @@ public abstract class CombinedEntry extends LootEntry {
      * Initialize a new CombinedEntry with the provided conditions, functions, weight, quality, and children.
      */
     public CombinedEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
-                         int weight, int quality, @NotNull ImmutableList<LootEntry> children){
+                         int weight, int quality, @NotNull ImmutableList<LootEntry> children) {
         super(conditions, functions, weight, quality);
         this.children = children;
     }
@@ -29,7 +29,7 @@ public abstract class CombinedEntry extends LootEntry {
     /**
      * Returns this CombinedEntry's children
      */
-    public final @NotNull ImmutableList<LootEntry> children(){
+    public final @NotNull ImmutableList<LootEntry> children() {
         return this.children;
     }
 
@@ -68,7 +68,7 @@ public abstract class CombinedEntry extends LootEntry {
      * @param entry The entry to generate the string for
      * @return The string
      */
-    protected static @NotNull String partialToString(@NotNull CombinedEntry entry){
+    protected static @NotNull String partialToString(@NotNull CombinedEntry entry) {
         return LootEntry.partialToString(entry) + ", children=" + entry.children;
     }
 

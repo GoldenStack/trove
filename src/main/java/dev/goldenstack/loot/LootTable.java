@@ -58,24 +58,24 @@ public record LootTable(@Nullable LootParameterGroup group, @NotNull ImmutableLi
      * Serializes this LootTable into a new JsonObject instance.
      */
     @Contract("_ -> new")
-    public @NotNull JsonObject serialize(@NotNull ImmuTables loader){
+    public @NotNull JsonObject serialize(@NotNull ImmuTables loader) {
         JsonObject object = new JsonObject();
 
-        if (this.group != null){
+        if (this.group != null) {
             String key = loader.getLootParameterGroupRegistry().inverse().get(this.group);
-            if (key != null){
+            if (key != null) {
                 object.addProperty("type", key);
             }
         }
 
         JsonArray poolsArray = new JsonArray();
-        for (LootPool pool : this.pools){
+        for (LootPool pool : this.pools) {
             poolsArray.add(pool.serialize(loader));
         }
         object.add("pools", poolsArray);
 
         JsonArray functionsArray = new JsonArray();
-        for (LootFunction function : this.functions){
+        for (LootFunction function : this.functions) {
             functionsArray.add(loader.getLootFunctionManager().serialize(function));
         }
         object.add("functions", functionsArray);

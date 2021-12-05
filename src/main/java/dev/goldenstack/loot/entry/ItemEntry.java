@@ -41,7 +41,7 @@ public class ItemEntry extends ConstantChoiceEntry {
     /**
      * Returns the material that will be used to generate items.
      */
-    public @NotNull Material material(){
+    public @NotNull Material material() {
         return material;
     }
 
@@ -101,11 +101,11 @@ public class ItemEntry extends ConstantChoiceEntry {
     /**
      * Static method to deserialize a {@code JsonObject} to an {@code ItemEntry}.
      */
-    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader){
+    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) {
         JsonElement name = object.get("name");
         Material material = Material.fromNamespaceId(JsonHelper.assureNamespaceId(name, "name"));
 
-        if (material == null){
+        if (material == null) {
             throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid material (as a NamespaceID)", "name", name));
         }
 

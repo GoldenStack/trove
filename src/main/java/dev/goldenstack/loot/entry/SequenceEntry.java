@@ -25,7 +25,7 @@ public class SequenceEntry extends CombinedEntry {
      * Initialize a new SequenceEntry with the provided conditions, functions, weight, quality, and children.
      */
     public SequenceEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
-                            int weight, int quality, @NotNull ImmutableList<LootEntry> children){
+                            int weight, int quality, @NotNull ImmutableList<LootEntry> children) {
         super(conditions, functions, weight, quality, children);
     }
 
@@ -55,7 +55,7 @@ public class SequenceEntry extends CombinedEntry {
         ImmutableList.Builder<Choice> choices = ImmutableList.builder();
         for (LootEntry entry : this.children()){
             var entryChoices = entry.getChoices(context);
-            if (entryChoices.size() == 0){
+            if (entryChoices.size() == 0) {
                 break;
             }
         }
@@ -70,7 +70,7 @@ public class SequenceEntry extends CombinedEntry {
     /**
      * Static method to deserialize a {@code JsonObject} to a {@code SequenceEntry}.
      */
-    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader){
+    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) {
         return new SequenceEntry(
                 LootEntry.deserializeConditions(object, loader),
                 LootEntry.deserializeFunctions(object, loader),

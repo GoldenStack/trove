@@ -35,32 +35,32 @@ public class ImmuTables {
 
     private final @NotNull EnchantmentManager enchantmentManager;
 
-    private ImmuTables(@NotNull Builder builder){
+    private ImmuTables(@NotNull Builder builder) {
 
         // Number provider manager
         JsonSerializationManager.Builder<NumberProvider> numberProviderBuilder = JsonSerializationManager.builder();
-        if (builder.numberProviderBuilder != null){
+        if (builder.numberProviderBuilder != null) {
             builder.numberProviderBuilder.accept(numberProviderBuilder);
         }
         this.numberProviderManager = numberProviderBuilder.owner(this).build();
 
         // Loot condition manager
         JsonSerializationManager.Builder<LootCondition> lootConditionBuilder = JsonSerializationManager.builder();
-        if (builder.lootConditionBuilder != null){
+        if (builder.lootConditionBuilder != null) {
             builder.lootConditionBuilder.accept(lootConditionBuilder);
         }
         this.lootConditionManager = lootConditionBuilder.owner(this).build();
 
         // Loot function manager
         JsonSerializationManager.Builder<LootFunction> lootFunctionBuilder = JsonSerializationManager.builder();
-        if (builder.lootFunctionBuilder != null){
+        if (builder.lootFunctionBuilder != null) {
             builder.lootFunctionBuilder.accept(lootFunctionBuilder);
         }
         this.lootFunctionManager = lootFunctionBuilder.owner(this).build();
 
         // Loot entry manager
         JsonSerializationManager.Builder<LootEntry> lootEntryBuilder = JsonSerializationManager.builder();
-        if (builder.lootEntryBuilder != null){
+        if (builder.lootEntryBuilder != null) {
             builder.lootEntryBuilder.accept(lootEntryBuilder);
         }
         this.lootEntryManager = lootEntryBuilder.owner(this).build();
@@ -70,7 +70,7 @@ public class ImmuTables {
 
         // Enchantment manager
         EnchantmentManager.Builder enchantmentBuilder = EnchantmentManager.builder();
-        if (builder.enchantmentManagerBuilder != null){
+        if (builder.enchantmentManagerBuilder != null) {
             builder.enchantmentManagerBuilder.accept(enchantmentBuilder);
         }
         this.enchantmentManager = enchantmentBuilder.build();
@@ -108,14 +108,14 @@ public class ImmuTables {
     /**
      * Returns the BiMap that controls how loot parameter groups are registered.
      */
-    public @NotNull BiMap<String, LootParameterGroup> getLootParameterGroupRegistry(){
+    public @NotNull BiMap<String, LootParameterGroup> getLootParameterGroupRegistry() {
         return lootParameterGroupRegistry;
     }
 
     /**
      * Returns the EnchantmentManager that is used for some loot functions.
      */
-    public @NotNull EnchantmentManager getEnchantmentManager(){
+    public @NotNull EnchantmentManager getEnchantmentManager() {
         return enchantmentManager;
     }
 
@@ -124,7 +124,7 @@ public class ImmuTables {
      * method, {@link NumberRange#deserialize(ImmuTables, JsonElement, String)}, does not fit for the standard
      * {@code BiFunction<JsonElement, String, T>} that some methods in this library use.
      */
-    public @NotNull NumberRange deserializeNumberRange(@Nullable JsonElement element, @Nullable String key){
+    public @NotNull NumberRange deserializeNumberRange(@Nullable JsonElement element, @Nullable String key) {
         return NumberRange.deserialize(this, element, key);
     }
 
@@ -133,14 +133,14 @@ public class ImmuTables {
      * {@link NumberRange#serialize(ImmuTables)}, does not fit for the standard {@code Function<T, JsonElement>}
      * that some methods in this library use.
      */
-    public @NotNull JsonObject serializeNumberRange(@NotNull NumberRange range){
+    public @NotNull JsonObject serializeNumberRange(@NotNull NumberRange range) {
         return range.serialize(this);
     }
 
     /**
      * Creates a new {@link Builder}
      */
-    public static @NotNull Builder builder(){
+    public static @NotNull Builder builder() {
         return new Builder();
     }
 
@@ -152,7 +152,7 @@ public class ImmuTables {
         /**
          * Adds the default values for the NumberProvider manager to the provided builder
          */
-        public static void setupNumberProviderBuilder(@NotNull JsonSerializationManager.Builder<NumberProvider> builder){
+        public static void setupNumberProviderBuilder(@NotNull JsonSerializationManager.Builder<NumberProvider> builder) {
             builder.elementName("type")
                    .defaultDeserializer(ConstantNumber::defaultDeserializer)
                    .putDeserializer(ConstantNumber.KEY, ConstantNumber::deserialize)
@@ -163,7 +163,7 @@ public class ImmuTables {
         /**
          * Adds the default values for the LootCondition manager to the provided builder
          */
-        public static void setupLootConditionManager(@NotNull JsonSerializationManager.Builder<LootCondition> builder){
+        public static void setupLootConditionManager(@NotNull JsonSerializationManager.Builder<LootCondition> builder) {
             builder.elementName("condition")
                    .putDeserializer(RandomChanceCondition.KEY, RandomChanceCondition::deserialize)
                    .putDeserializer(LootingRandomChanceCondition.KEY, LootingRandomChanceCondition::deserialize)
@@ -179,7 +179,7 @@ public class ImmuTables {
         /**
          * Adds the default values for the LootFunction manager to the provided builder
          */
-        public static void setupLootFunctionManager(@NotNull JsonSerializationManager.Builder<LootFunction> builder){
+        public static void setupLootFunctionManager(@NotNull JsonSerializationManager.Builder<LootFunction> builder) {
             builder.elementName("function")
                    .putDeserializer(SetCountFunction.KEY, SetCountFunction::deserialize)
                    .putDeserializer(LimitCountFunction.KEY, LimitCountFunction::deserialize)
@@ -194,7 +194,7 @@ public class ImmuTables {
         /**
          * Adds the default values for the LootEntry manager to the provided builder
          */
-        public static void setupLootEntryManager(@NotNull JsonSerializationManager.Builder<LootEntry> builder){
+        public static void setupLootEntryManager(@NotNull JsonSerializationManager.Builder<LootEntry> builder) {
             builder.elementName("type")
                    .putDeserializer(ItemEntry.KEY, ItemEntry::deserialize)
                    .putDeserializer(EmptyEntry.KEY, EmptyEntry::deserialize)
@@ -206,13 +206,13 @@ public class ImmuTables {
         /**
          * Adds the default values for the EnchantmentManager to the provided builder
          */
-        public static void setupEnchantmentManagerBuilder(@NotNull EnchantmentManager.Builder builder){
+        public static void setupEnchantmentManagerBuilder(@NotNull EnchantmentManager.Builder builder) {
             builder.useConcurrentHashMap(false)
                    .useDefaultEnchantability(true)
                    .useDefaultEnchantmentData(true);
         }
 
-        private Builder(){}
+        private Builder() {}
 
         private Consumer<JsonSerializationManager.Builder<NumberProvider>> numberProviderBuilder;
         private Consumer<JsonSerializationManager.Builder<LootCondition>> lootConditionBuilder;
@@ -225,7 +225,7 @@ public class ImmuTables {
          * Sets the builder that is used for creating the {@link #getNumberProviderManager()}
          */
         @Contract("_ -> this")
-        public @NotNull Builder numberProviderBuilder(@NotNull Consumer<JsonSerializationManager.Builder<NumberProvider>> numberProviderBuilder){
+        public @NotNull Builder numberProviderBuilder(@NotNull Consumer<JsonSerializationManager.Builder<NumberProvider>> numberProviderBuilder) {
             this.numberProviderBuilder = numberProviderBuilder;
             return this;
         }
@@ -234,7 +234,7 @@ public class ImmuTables {
          * Sets the builder that is used for creating the {@link #getLootConditionManager()}
          */
         @Contract("_ -> this")
-        public @NotNull Builder lootConditionBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootCondition>> lootConditionBuilder){
+        public @NotNull Builder lootConditionBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootCondition>> lootConditionBuilder) {
             this.lootConditionBuilder = lootConditionBuilder;
             return this;
         }
@@ -243,7 +243,7 @@ public class ImmuTables {
          * Sets the builder that is used for creating the {@link #getLootFunctionManager()}
          */
         @Contract("_ -> this")
-        public @NotNull Builder lootFunctionBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootFunction>> lootFunctionBuilder){
+        public @NotNull Builder lootFunctionBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootFunction>> lootFunctionBuilder) {
             this.lootFunctionBuilder = lootFunctionBuilder;
             return this;
         }
@@ -252,7 +252,7 @@ public class ImmuTables {
          * Sets the builder that is used for creating the {@link #getLootEntryManager()}
          */
         @Contract("_ -> this")
-        public @NotNull Builder lootEntryBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootEntry>> lootEntryBuilder){
+        public @NotNull Builder lootEntryBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootEntry>> lootEntryBuilder) {
             this.lootEntryBuilder = lootEntryBuilder;
             return this;
         }
@@ -261,7 +261,7 @@ public class ImmuTables {
          * Sets the builder that is used for creating the {@link #getEnchantmentManager()}
          */
         @Contract("_ -> this")
-        public @NotNull Builder enchantmentManagerBuilder(@NotNull Consumer<EnchantmentManager.Builder> enchantmentManagerBuilder){
+        public @NotNull Builder enchantmentManagerBuilder(@NotNull Consumer<EnchantmentManager.Builder> enchantmentManagerBuilder) {
             this.enchantmentManagerBuilder = enchantmentManagerBuilder;
             return this;
         }
@@ -269,7 +269,7 @@ public class ImmuTables {
         /**
          * Builds a {@code ImmuTables} instance from this builder.
          */
-        public @NotNull ImmuTables build(){
+        public @NotNull ImmuTables build() {
             return new ImmuTables(this);
         }
 

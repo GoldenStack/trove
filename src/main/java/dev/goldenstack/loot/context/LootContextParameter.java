@@ -70,7 +70,7 @@ public record LootContextParameter <T> (@NotNull NamespaceID key) {
      * Creates a new LootContextParameter with the result of {@code NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, key)}
      * , where {@code key} is the {@code key} parameter.
      */
-    public LootContextParameter(@NotNull String key){
+    public LootContextParameter(@NotNull String key) {
         this(NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, key));
     }
 }

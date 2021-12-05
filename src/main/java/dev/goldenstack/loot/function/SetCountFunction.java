@@ -29,7 +29,7 @@ public class SetCountFunction extends ConditionalLootFunction {
     /**
      * Initialize a SetCountFunction with the provided amount and whether or not the amount will be added instead of set
      */
-    public SetCountFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberProvider count, boolean add){
+    public SetCountFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberProvider count, boolean add) {
         super(conditions);
         this.count = count;
         this.add = add;

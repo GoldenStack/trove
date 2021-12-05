@@ -29,7 +29,7 @@ public class LimitCountFunction extends ConditionalLootFunction {
     /**
      * Initialize a LimitCountFunction with the NumberRange as the limiter
      */
-    public LimitCountFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberRange limiter){
+    public LimitCountFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberRange limiter) {
         super(conditions);
         this.limiter = limiter;
     }

@@ -25,7 +25,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
     private final @NotNull Map<String, LootDeserializer<T>> registry;
     private final @NotNull ImmuTables owner;
     private @Nullable BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer;
-    private JsonSerializationManager(boolean useConcurrentHashMap, @NotNull String elementName, @NotNull ImmuTables owner){
+    private JsonSerializationManager(boolean useConcurrentHashMap, @NotNull String elementName, @NotNull ImmuTables owner) {
         this.registry = useConcurrentHashMap ? new ConcurrentHashMap<>() : new HashMap<>();
         this.elementName = elementName;
         this.owner = owner;
@@ -34,14 +34,14 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
     /**
      * Returns this JsonSerializationManager's default deserializer
      */
-    public @Nullable BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer(){
+    public @Nullable BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer() {
         return defaultDeserializer;
     }
 
     /**
      * Sets this JsonSerializationManager's default deserializer to the provided value
      */
-    public void defaultDeserializer(@Nullable BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer){
+    public void defaultDeserializer(@Nullable BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer) {
         this.defaultDeserializer = defaultDeserializer;
     }
 
@@ -50,7 +50,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
      * @param key The key
      * @param value The value
      */
-    public void register(@NotNull NamespaceID key, @NotNull LootDeserializer<T> value){
+    public void register(@NotNull NamespaceID key, @NotNull LootDeserializer<T> value) {
         this.registry.put(key.asString(), value);
     }
 
@@ -59,7 +59,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
      * @param key The key to remove
      * @return True if a non-null key was removed, false if there was no key or if the key was null
      */
-    public boolean unregister(@NotNull NamespaceID key){
+    public boolean unregister(@NotNull NamespaceID key) {
         return this.registry.remove(key.asString()) != null;
     }
 
@@ -68,21 +68,21 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
      * @param key The key to search for
      * @return The deserializer that was found, or null if none was found.
      */
-    public @Nullable LootDeserializer<T> request(@NotNull NamespaceID key){
+    public @Nullable LootDeserializer<T> request(@NotNull NamespaceID key) {
         return this.registry.get(key.asString());
     }
 
     /**
      * Clears all of the registered values from this JsonSerializationManager
      */
-    public void clear(){
+    public void clear() {
         this.registry.clear();
     }
 
     /**
      * @return This manager's {@code elementName} that it uses for serialization and deserialization.
      */
-    public @NotNull String getElementName(){
+    public @NotNull String getElementName() {
         return elementName;
     }
 
@@ -117,7 +117,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
             if (rawElement != null && rawElement.isJsonPrimitive() && rawElement.getAsJsonPrimitive().isString()){
                 String type = rawElement.getAsString();
                 LootDeserializer<T> t = this.registry.get(type);
-                if (t != null){
+                if (t != null) {
                     return t.deserialize(object, this.owner);
                 }
                 throw new JsonParseException("Could not find deserializer for type \"" + type + "\"!");
@@ -125,7 +125,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
         }
         if (this.defaultDeserializer != null) {
             T t = this.defaultDeserializer.apply(element, this);
-            if (t != null){
+            if (t != null) {
                 return t;
             }
         }
@@ -135,7 +135,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
     /**
      * Creates a new {@link Builder}
      */
-    public static @NotNull <T extends LootSerializer<?>> Builder<T> builder(){
+    public static @NotNull <T extends LootSerializer<?>> Builder<T> builder() {
         return new Builder<>();
     }
 
@@ -152,10 +152,10 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
 
         private Map<String, LootDeserializer<T>> deserializers = null;
 
-        private Builder(){}
+        private Builder() {}
 
-        private void assureMapExists(){
-            if (this.deserializers == null){
+        private void assureMapExists() {
+            if (this.deserializers == null) {
                 this.deserializers = new HashMap<>();
             }
         }
@@ -165,7 +165,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
          * cause many problems.
          */
         @Contract("_, _ -> this")
-        public @NotNull Builder<T> putDeserializer(@NotNull NamespaceID key, @NotNull LootDeserializer<T> deserializer){
+        public @NotNull Builder<T> putDeserializer(@NotNull NamespaceID key, @NotNull LootDeserializer<T> deserializer) {
             assureMapExists();
             this.deserializers.put(key.asString(), deserializer);
             return this;
@@ -175,7 +175,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
          * Removes the key from this builder. The internal map is not concurrent, but that shouldn't cause many problems.
          */
         @Contract("_ -> this")
-        public @NotNull Builder<T> removeDeserializer(@NotNull NamespaceID key){
+        public @NotNull Builder<T> removeDeserializer(@NotNull NamespaceID key) {
             assureMapExists();
             this.deserializers.remove(key.asString());
             return this;
@@ -185,7 +185,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
          * Sets the {@code elementName} for instances created from this builder.
          */
         @Contract("_ -> this")
-        public @NotNull Builder<T> elementName(@NotNull String elementName){
+        public @NotNull Builder<T> elementName(@NotNull String elementName) {
             this.elementName = elementName;
             return this;
         }
@@ -195,7 +195,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
          * when true.
          */
         @Contract("_ -> this")
-        public @NotNull Builder<T> useConcurrentHashMap(boolean useConcurrentHashMap){
+        public @NotNull Builder<T> useConcurrentHashMap(boolean useConcurrentHashMap) {
             this.useConcurrentHashMap = useConcurrentHashMap;
             return this;
         }
@@ -206,7 +206,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
          * handled.
          */
         @Contract("_ -> this")
-        public @NotNull Builder<T> defaultDeserializer(@NotNull BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer){
+        public @NotNull Builder<T> defaultDeserializer(@NotNull BiFunction<JsonElement, JsonSerializationManager<T>, T> defaultDeserializer) {
             this.defaultDeserializer = defaultDeserializer;
             return this;
         }
@@ -216,7 +216,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
          * The owner allows objects that are being deserialized to deserialize other objects that they need to.
          */
         @Contract("_ -> this")
-        public @NotNull Builder<T> owner(@NotNull ImmuTables owner){
+        public @NotNull Builder<T> owner(@NotNull ImmuTables owner) {
             this.owner = owner;
             return this;
         }
@@ -224,12 +224,12 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
         /**
          * Builds a {@code JsonSerializationManager} instance from this builder.
          */
-        public JsonSerializationManager<T> build(){
+        public JsonSerializationManager<T> build() {
             Objects.requireNonNull(elementName, "This builder must have an elementName!");
             Objects.requireNonNull(owner, "This builder must have an owner!");
             JsonSerializationManager<T> manager = new JsonSerializationManager<>(this.useConcurrentHashMap, this.elementName, this.owner);
             manager.defaultDeserializer = this.defaultDeserializer;
-            if (this.deserializers != null){
+            if (this.deserializers != null) {
                 manager.registry.putAll(this.deserializers);
             }
             return manager;

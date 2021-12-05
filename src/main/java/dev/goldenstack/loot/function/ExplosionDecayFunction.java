@@ -29,7 +29,7 @@ public class ExplosionDecayFunction extends ConditionalLootFunction {
     /**
      * Creates a new ExplosionDecayFunction with the provided conditions
      */
-    public ExplosionDecayFunction(@NotNull ImmutableList<LootCondition> conditions){
+    public ExplosionDecayFunction(@NotNull ImmutableList<LootCondition> conditions) {
         super(conditions);
     }
 
@@ -56,15 +56,15 @@ public class ExplosionDecayFunction extends ConditionalLootFunction {
     @Override
     public @NotNull ItemStack modify(@NotNull ItemStack itemStack, @NotNull LootContext context) {
         @Nullable Float f = context.getParameter(LootContextParameter.EXPLOSION_RADIUS);
-        if (f == null || f <= 1){
+        if (f == null || f <= 1) {
             return itemStack;
         }
         Random random = context.findRandom();
         float div = 1.0f / f;
 
         int count = 0;
-        for (int i = 0; i < itemStack.getAmount(); i++){
-            if (random.nextFloat() <= div){
+        for (int i = 0; i < itemStack.getAmount(); i++) {
+            if (random.nextFloat() <= div) {
                 count++;
             }
         }

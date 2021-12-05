@@ -63,7 +63,7 @@ public class EmptyEntry extends ConstantChoiceEntry {
     /**
      * Static method to deserialize a {@code JsonObject} to an {@code EmptyEntry}.
      */
-    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader){
+    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) {
         return new EmptyEntry(
                 LootEntry.deserializeConditions(object, loader),
                 LootEntry.deserializeFunctions(object, loader),

@@ -37,7 +37,7 @@ public class EnchantWithLevelsFunction extends ConditionalLootFunction {
      * are valid, and the provided EnchantmentManager.
      */
     public EnchantWithLevelsFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberProvider level,
-                                     boolean allowTreasure, EnchantmentManager enchantmentManager){
+                                     boolean allowTreasure, EnchantmentManager enchantmentManager) {
         super(conditions);
         this.level = level;
         this.allowTreasure = allowTreasure;
@@ -96,7 +96,7 @@ public class EnchantWithLevelsFunction extends ConditionalLootFunction {
                 allowTreasure ? EnchantmentManager::discoverable : EnchantmentManager::discoverableAndNotTreasure,
                 EnchantmentManager::alwaysAddIfBook
         );
-        if (itemStack.getMaterial() == Material.BOOK){
+        if (itemStack.getMaterial() == Material.BOOK) {
             // Unsafely change the type
             //noinspection UnstableApiUsage
             itemStack = ItemStack.fromItemNBT(itemStack.toItemNBT().setString("id", Material.ENCHANTED_BOOK.namespace().asString()));

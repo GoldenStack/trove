@@ -40,7 +40,7 @@ public class EnchantRandomlyFunction extends ConditionalLootFunction {
      * Initialize an EnchantRandomlyFunction with the provided list of possible enchantments and the EnchantmentManager.
      */
     public EnchantRandomlyFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull EnchantmentManager manager,
-                                   @NotNull ImmutableList<Enchantment> enchantments){
+                                   @NotNull ImmutableList<Enchantment> enchantments) {
         super(conditions);
         this.manager = manager;
         this.enchantments = enchantments;
@@ -56,7 +56,7 @@ public class EnchantRandomlyFunction extends ConditionalLootFunction {
     /**
      * Returns the EnchantmentManager that is used to generate enchantments
      */
-    public @NotNull EnchantmentManager enchantmentManager(){
+    public @NotNull EnchantmentManager enchantmentManager() {
         return manager;
     }
 
@@ -68,7 +68,7 @@ public class EnchantRandomlyFunction extends ConditionalLootFunction {
         super.serialize(object, loader);
 
         JsonArray array = new JsonArray();
-        for (Enchantment enchantment : this.enchantments){
+        for (Enchantment enchantment : this.enchantments) {
             array.add(enchantment.namespace().asString());
         }
 
@@ -90,7 +90,7 @@ public class EnchantRandomlyFunction extends ConditionalLootFunction {
      */
     @Override
     public @NotNull ItemStack modify(@NotNull ItemStack itemStack, @NotNull LootContext context) {
-        if (itemStack.getMaterial() == Material.BOOK){
+        if (itemStack.getMaterial() == Material.BOOK) {
             // Unsafely change the type
             //noinspection UnstableApiUsage
             itemStack = ItemStack.fromItemNBT(itemStack.toItemNBT().setString("id", Material.ENCHANTED_BOOK.namespace().asString()));
@@ -150,17 +150,17 @@ public class EnchantRandomlyFunction extends ConditionalLootFunction {
         ImmutableList<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
 
         JsonElement element = json.get("enchantments");
-        if (element == null){
+        if (element == null) {
             return new EnchantRandomlyFunction(list, loader.getEnchantmentManager(), ImmutableList.of());
         }
 
         JsonArray array = JsonHelper.assureJsonArray(element, "enchantments");
 
         ImmutableList.Builder<Enchantment> builder = ImmutableList.builder();
-        for (JsonElement item : array){
+        for (JsonElement item : array) {
             NamespaceID namespaceID = JsonHelper.assureNamespaceId(item, "enchantments (while deserializing an item in the array)");
             EnchantmentData data = loader.getEnchantmentManager().getEnchantmentData(namespaceID);
-            if (data == null){
+            if (data == null) {
                 throw new JsonParseException("Invalid enchantment \"" + namespaceID + "\"! Did you initialize your enchantment manager correctly?");
             }
             builder.add(data.enchantment());

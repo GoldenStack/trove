@@ -96,7 +96,7 @@ public class LootParameterGroup {
     /**
      * Adds the default parameter groups to the provided ImmuTables instance.
      */
-    public static void addDefaults(@NotNull ImmuTables loader){
+    public static void addDefaults(@NotNull ImmuTables loader) {
         var map = loader.getLootParameterGroupRegistry();
         map.put("minecraft:empty", EMPTY);
         map.put("minecraft:chest", CHEST);
@@ -117,7 +117,7 @@ public class LootParameterGroup {
     /**
      * Creates a new LootParameterGroup with the provided required and optional parameters.
      */
-    public LootParameterGroup(@NotNull Set<LootContextParameter<?>> required, @NotNull Set<LootContextParameter<?>> optional){
+    public LootParameterGroup(@NotNull Set<LootContextParameter<?>> required, @NotNull Set<LootContextParameter<?>> optional) {
         this.required = ImmutableSet.copyOf(required);
         this.allowed = ImmutableSet.<LootContextParameter<?>>builder().addAll(required).addAll(optional).build();
     }
@@ -125,7 +125,7 @@ public class LootParameterGroup {
     /**
      * Utility method to register this group with the provided key in the loader.
      */
-    public void register(@NotNull String key, @NotNull ImmuTables loader){
+    public void register(@NotNull String key, @NotNull ImmuTables loader) {
         loader.getLootParameterGroupRegistry().put(key, this);
     }
 
@@ -146,14 +146,14 @@ public class LootParameterGroup {
     /**
      * Returns true if the provided parameter is required.
      */
-    public boolean isRequired(@NotNull LootContextParameter<?> parameter){
+    public boolean isRequired(@NotNull LootContextParameter<?> parameter) {
         return this.required.contains(parameter);
     }
 
     /**
      * Returns true if the provided parameter is allowed.
      */
-    public boolean isAllowed(@NotNull LootContextParameter<?> parameter){
+    public boolean isAllowed(@NotNull LootContextParameter<?> parameter) {
         return this.allowed.contains(parameter);
     }
 
@@ -161,7 +161,7 @@ public class LootParameterGroup {
     public String toString() {
         StringJoiner joiner = new StringJoiner(", ");
 
-        for (LootContextParameter<?> parameter : this.allowed){
+        for (LootContextParameter<?> parameter : this.allowed) {
             joiner.add((this.required.contains(parameter) ? "!" : "") + parameter.key().asString());
         }
 
@@ -171,7 +171,7 @@ public class LootParameterGroup {
     /**
      * Returns a new builder
      */
-    public static @NotNull Builder builder(){
+    public static @NotNull Builder builder() {
         return new Builder();
     }
 
@@ -182,17 +182,17 @@ public class LootParameterGroup {
         private final Set<LootContextParameter<?>> required = new HashSet<>();
         private final Set<LootContextParameter<?>> optional = new HashSet<>();
 
-        private Builder(){}
+        private Builder() {}
 
         /**
          * Makes the provided parameter required. The parameter cannot already be required and cannot already be optional.
          */
         @Contract("_ -> this")
-        public @NotNull Builder require(@NotNull LootContextParameter<?> parameter){
-            if (this.optional.contains(parameter)){
+        public @NotNull Builder require(@NotNull LootContextParameter<?> parameter) {
+            if (this.optional.contains(parameter)) {
                 throw new IllegalArgumentException("Parameter \"" + parameter.key() + "\" is already optional for this builder!");
             }
-            if (!this.required.add(parameter)){
+            if (!this.required.add(parameter)) {
                 throw new IllegalArgumentException("Parameter \"" + parameter.key() + "\" is already required for this builder!");
             }
             return this;
@@ -202,7 +202,7 @@ public class LootParameterGroup {
          * Makes the provided parameter optional. The parameter cannot already be optional and cannot already be required.
          */
         @Contract("_ -> this")
-        public @NotNull Builder optional(@NotNull LootContextParameter<?> parameter){
+        public @NotNull Builder optional(@NotNull LootContextParameter<?> parameter) {
             if (this.required.contains(parameter)){
                 throw new IllegalArgumentException("Parameter \"" + parameter.key() + "\" is already required for this builder!");
             }
@@ -216,7 +216,7 @@ public class LootParameterGroup {
          * Builds a new LootParameterGroup from this instance. This can be used multiple times safely, if you wanted to
          * for some reason.
          */
-        public @NotNull LootParameterGroup build(){
+        public @NotNull LootParameterGroup build() {
             return new LootParameterGroup(required, optional);
         }
     }
