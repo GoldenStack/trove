@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.entry;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -32,8 +31,8 @@ public class ItemEntry extends ConstantChoiceEntry {
     /**
      * Initializes an ItemEntry instance with the provided material
      */
-    public ItemEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
-                     int weight, int quality, @NotNull Material material) {
+    public ItemEntry(@NotNull List<LootCondition> conditions, @NotNull List<LootFunction> functions, int weight,
+                     int quality, @NotNull Material material) {
         super(conditions, functions, weight, quality);
         this.material = material;
     }
@@ -68,7 +67,7 @@ public class ItemEntry extends ConstantChoiceEntry {
      */
     @Override
     public @NotNull List<ItemStack> generateLoot(@NotNull LootContext context) {
-        return ImmutableList.of(ItemStack.of(material));
+        return List.of(ItemStack.of(material));
     }
 
     /**

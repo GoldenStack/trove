@@ -1,13 +1,15 @@
 package dev.goldenstack.loot.context;
 
-import com.google.common.collect.ImmutableSet;
 import dev.goldenstack.loot.ImmuTables;
+import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static dev.goldenstack.loot.context.LootContextParameter.*;
 
@@ -15,40 +17,40 @@ import static dev.goldenstack.loot.context.LootContextParameter.*;
  * A group of {@code LootParameter}s, with a set of required {@code LootParameter}s and a set of optional ones.
  * Internally, the required and optional sets are combined into an "allowed" set.
  */
-public class LootParameterGroup {
+public record LootParameterGroup (@NotNull NamespaceID key, @NotNull Set<LootContextParameter<?>> required,
+                                  @NotNull Set<LootContextParameter<?>> allowed){
 
         /**
          * A LootParameterGroup with no required and no optional parameters.
          */
-        // Yes, this looks a bit wonky :(
     public static final @NotNull LootParameterGroup
-        EMPTY = builder().build(),
+        EMPTY = builder().key(NamespaceID.from("empty")).build(),
         /**
          * A LootParameterGroup that represents what should be provided when a chest is opened. It includes a required
          * origin (where the chest was) and an optional entity (the entity that opened the chest).
          */
-        CHEST = builder().require(ORIGIN).optional(THIS_ENTITY).build(),
+        CHEST = builder().key(NamespaceID.from("chest")).require(ORIGIN).optional(THIS_ENTITY).build(),
 
         /**
          * A LootParameterGroup that represents what should be provided when a command is run. It includes a required
          * origin (where the entity or command block that ran the command was) and an optional entity (the entity that
          * ran the command).
          */
-        COMMAND = builder().require(ORIGIN).optional(THIS_ENTITY).build(),
+        COMMAND = builder().key(NamespaceID.from("command")).require(ORIGIN).optional(THIS_ENTITY).build(),
 
         /**
          * A LootParameterGroup that represents what should be provided when a selector is triggered. It includes a
          * required origin (where the entity or command block that triggered the selector was) and an optional entity
          * (the entity that triggered the selector).
          */
-        SELECTOR = builder().require(ORIGIN).optional(THIS_ENTITY).build(),
+        SELECTOR = builder().key(NamespaceID.from("selector")).require(ORIGIN).optional(THIS_ENTITY).build(),
 
         /**
          * A LootParameterGroup that represents what should be provided when a fishing rod is pulled in. It includes a
          * required origin (where the bobber of the fishing rod was), a required tool (the fishing rod item), and an
          * optional entity (the entity that was fishing).
          */
-        FISHING = builder().require(ORIGIN).require(TOOL).optional(THIS_ENTITY).build(),
+        FISHING = builder().key(NamespaceID.from("fishing")).require(ORIGIN).require(TOOL).optional(THIS_ENTITY).build(),
 
         /**
          * A LootParameterGroup that represents what should be provided when an entity is killed or something otherwise
@@ -57,33 +59,39 @@ public class LootParameterGroup {
          * the entity who actually killed it, such as the arrow that did the damage), and an optional last player damage
          * (the last damage that was dealt to the entity).
          */
-        ENTITY = builder().require(THIS_ENTITY).require(ORIGIN).require(DAMAGE_SOURCE).optional(KILLER_ENTITY).optional(DIRECT_KILLER_ENTITY).optional(LAST_DAMAGE_PLAYER).build(),
+        ENTITY = builder().key(NamespaceID.from("entity")).require(THIS_ENTITY).require(ORIGIN).require(DAMAGE_SOURCE).optional(KILLER_ENTITY).optional(DIRECT_KILLER_ENTITY).optional(LAST_DAMAGE_PLAYER).build(),
+
         /**
          * A LootParameterGroup that represents when a villager gives a gift to a player. It requires the origin (the
          * location of the villager) and the required entity (the villager that is giving the gift).
          */
-        GIFT = builder().require(ORIGIN).require(THIS_ENTITY).build(),
+        GIFT = builder().key(NamespaceID.from("gift")).require(ORIGIN).require(THIS_ENTITY).build(),
+
         /**
          * A LootParameterGroup that represents when a piglin is bartering. It requires the entity (the piglin that is
          * doing the bartering).
          */
-        BARTER = builder().require(THIS_ENTITY).build(),
+        BARTER = builder().key(NamespaceID.from("barter")).require(THIS_ENTITY).build(),
+
         /**
          * A LootParameterGroup that represents when an entity gets advancement rewards. It requires the entity (the
          * entity that is getting the rewards) and a required origin (the position of the entity).
          */
-        ADVANCEMENT_REWARD = builder().require(THIS_ENTITY).require(ORIGIN).build(),
+        ADVANCEMENT_REWARD = builder().key(NamespaceID.from("advancement_reward")).require(THIS_ENTITY).require(ORIGIN).build(),
+
         /**
          * A LootParameterGroup that represents when an advancement is granted to a target entity. It requires an entity
          * (the entity that is getting the advancement) and a required origin (the location of the entity that is granting the
          * advancement). The documentation for this may be unreliable.
          */
-        ADVANCEMENT_ENTITY = builder().require(THIS_ENTITY).require(ORIGIN).build(),
+        ADVANCEMENT_ENTITY = builder().key(NamespaceID.from("advancement_entity")).require(THIS_ENTITY).require(ORIGIN).build(),
+
         /**
          * A LootParameterGroup that requires everything. This is not done dynamically, so if you add your own parameters
          * you will need to create a new group with the extra ones.
          */
-        GENERIC = builder().require(THIS_ENTITY).require(LAST_DAMAGE_PLAYER).require(DAMAGE_SOURCE).require(KILLER_ENTITY).require(DIRECT_KILLER_ENTITY).require(ORIGIN).require(BLOCK_STATE).require(BLOCK_ENTITY).require(TOOL).require(EXPLOSION_RADIUS).build(),
+        GENERIC = builder().key(NamespaceID.from("generic")).require(THIS_ENTITY).require(LAST_DAMAGE_PLAYER).require(DAMAGE_SOURCE).require(KILLER_ENTITY).require(DIRECT_KILLER_ENTITY).require(ORIGIN).require(BLOCK_STATE).require(BLOCK_ENTITY).require(TOOL).require(EXPLOSION_RADIUS).build(),
+
         /**
          * A LootParameterGroup that represents when something happens to a block. It requires the block state (the state
          * of the block when it was broken), a required origin (the location of the block), a required tool (the tool that
@@ -91,55 +99,49 @@ public class LootParameterGroup {
          * an optional block entity (the entity that the block was), and an optional explosion radius (the radius of the
          * explosion that caused whatever happened).
          */
-        BLOCK = builder().require(BLOCK_STATE).require(ORIGIN).require(TOOL).optional(THIS_ENTITY).optional(BLOCK_ENTITY).optional(EXPLOSION_RADIUS).build();
+        BLOCK = builder().key(NamespaceID.from("block")).require(BLOCK_STATE).require(ORIGIN).require(TOOL).optional(THIS_ENTITY).optional(BLOCK_ENTITY).optional(EXPLOSION_RADIUS).build();
 
     /**
      * Adds the default parameter groups to the provided ImmuTables instance.
      */
     public static void addDefaults(@NotNull ImmuTables loader) {
-        var map = loader.getLootParameterGroupRegistry();
-        map.put("minecraft:empty", EMPTY);
-        map.put("minecraft:chest", CHEST);
-        map.put("minecraft:command", COMMAND);
-        map.put("minecraft:selector", SELECTOR);
-        map.put("minecraft:fishing", FISHING);
-        map.put("minecraft:entity", ENTITY);
-        map.put("minecraft:gift", GIFT);
-        map.put("minecraft:barter", BARTER);
-        map.put("minecraft:advancement_reward", ADVANCEMENT_REWARD);
-        map.put("minecraft:advancement_entity", ADVANCEMENT_ENTITY);
-        map.put("minecraft:generic", GENERIC);
-        map.put("minecraft:block", BLOCK);
+        EMPTY.register(loader);
+        CHEST.register(loader);
+        COMMAND.register(loader);
+        SELECTOR.register(loader);
+        FISHING.register(loader);
+        ENTITY.register(loader);
+        GIFT.register(loader);
+        BARTER.register(loader);
+        ADVANCEMENT_REWARD.register(loader);
+        ADVANCEMENT_ENTITY.register(loader);
+        GENERIC.register(loader);
+        BLOCK.register(loader);
     }
 
-    private final @NotNull ImmutableSet<LootContextParameter<?>> required, allowed;
-
-    /**
-     * Creates a new LootParameterGroup with the provided required and optional parameters.
-     */
-    public LootParameterGroup(@NotNull Set<LootContextParameter<?>> required, @NotNull Set<LootContextParameter<?>> optional) {
-        this.required = ImmutableSet.copyOf(required);
-        this.allowed = ImmutableSet.<LootContextParameter<?>>builder().addAll(required).addAll(optional).build();
+    public LootParameterGroup {
+        required = Set.copyOf(required);
+        allowed = Set.copyOf(allowed);
     }
 
     /**
      * Utility method to register this group with the provided key in the loader.
      */
-    public void register(@NotNull String key, @NotNull ImmuTables loader) {
-        loader.getLootParameterGroupRegistry().put(key, this);
+    public void register(@NotNull ImmuTables loader) {
+        loader.getLootParameterGroupRegistry().put(this.key, this);
     }
 
     /**
      * Returns the set of required parameters.
      */
-    public @NotNull ImmutableSet<LootContextParameter<?>> required() {
+    public @NotNull Set<LootContextParameter<?>> required() {
         return required;
     }
 
     /**
      * Returns the set of allowed parameters.
      */
-    public @NotNull ImmutableSet<LootContextParameter<?>> allowed() {
+    public @NotNull Set<LootContextParameter<?>> allowed() {
         return allowed;
     }
 
@@ -158,7 +160,7 @@ public class LootParameterGroup {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         StringJoiner joiner = new StringJoiner(", ");
 
         for (LootContextParameter<?> parameter : this.allowed) {
@@ -179,10 +181,19 @@ public class LootParameterGroup {
      * Utility class for building LootParameterGroup instances
      */
     public static class Builder {
+
+        private NamespaceID key;
+
         private final Set<LootContextParameter<?>> required = new HashSet<>();
         private final Set<LootContextParameter<?>> optional = new HashSet<>();
 
         private Builder() {}
+
+        @Contract("_ -> this")
+        public @NotNull Builder key(@NotNull NamespaceID key) {
+            this.key = key;
+            return this;
+        }
 
         /**
          * Makes the provided parameter required. The parameter cannot already be required and cannot already be optional.
@@ -217,7 +228,10 @@ public class LootParameterGroup {
          * for some reason.
          */
         public @NotNull LootParameterGroup build() {
-            return new LootParameterGroup(required, optional);
+            if (key == null) {
+                throw new IllegalStateException("Cannot build this builder while its key is null");
+            }
+            return new LootParameterGroup(key, required, Stream.concat(required.stream(), optional.stream()).collect(Collectors.toSet()));
         }
     }
 }

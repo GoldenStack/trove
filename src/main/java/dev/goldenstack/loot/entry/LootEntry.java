@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.entry;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -33,18 +32,18 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      */
     public static final int DEFAULT_QUALITY = 0;
 
-    private final @NotNull ImmutableList<LootCondition> conditions;
-    private final @NotNull ImmutableList<LootFunction> functions;
+    private final @NotNull List<LootCondition> conditions;
+    private final @NotNull List<LootFunction> functions;
 
     private final int weight, quality;
 
     /**
      * Creates a new LootEntry with the provided conditions, functions, weight, and quality.
      */
-    public LootEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
-                     int weight, int quality) {
-        this.conditions = conditions;
-        this.functions = functions;
+    public LootEntry(@NotNull List<LootCondition> conditions, @NotNull List<LootFunction> functions, int weight,
+                     int quality) {
+        this.conditions = List.copyOf(conditions);
+        this.functions = List.copyOf(functions);
         this.weight = weight;
         this.quality = quality;
     }
@@ -52,14 +51,14 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
     /**
      * Returns this LootEntry's conditions
      */
-    public final @NotNull ImmutableList<LootCondition> conditions() {
+    public final @NotNull List<LootCondition> conditions() {
         return conditions;
     }
 
     /**
      * Returns this LootEntry's functions
      */
-    public final @NotNull ImmutableList<LootFunction> functions() {
+    public final @NotNull List<LootFunction> functions() {
         return functions;
     }
 
@@ -102,15 +101,15 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * Returns this instance's loot choices. When overriding this, you do not have to test if the conditions return true
      * because {@link #getChoices(LootContext)} handles it automatically.
      */
-    protected abstract @NotNull ImmutableList<Choice> collectChoices(@NotNull LootContext context);
+    protected abstract @NotNull List<Choice> collectChoices(@NotNull LootContext context);
 
     /**
      * Returns this instance's loot choices. If {@link #conditions()} does not entirely accept {@code context}, an empty
      * list is returned. Otherwise, the actual choices will be returned.
      */
-    public final @NotNull ImmutableList<Choice> getChoices(@NotNull LootContext context) {
+    public final @NotNull List<Choice> getChoices(@NotNull LootContext context) {
         if (!LootCondition.and(context, this.conditions)) {
-            return ImmutableList.of();
+            return List.of();
         }
         return this.collectChoices(context);
     }
@@ -190,10 +189,10 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * This should be called in a similar manner to: <br>
      * {@code ImmutableList<LootCondition> conditions = LootEntry.deserializeConditions(json, loader);}
      */
-    public static @NotNull ImmutableList<LootCondition> deserializeConditions(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+    public static @NotNull List<LootCondition> deserializeConditions(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         JsonElement conditions = json.get("conditions");
         if (JsonHelper.isNull(conditions)){
-            return ImmutableList.of();
+            return List.of();
         }
         return JsonHelper.deserializeJsonArray(conditions, "conditions", loader.getLootConditionManager()::deserialize);
     }
@@ -203,10 +202,10 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      * This should be called in a similar manner to: <br>
      * {@code ImmutableList<LootFunction> functions = LootEntry.deserializeFunctions(json, loader);}
      */
-    public static @NotNull ImmutableList<LootFunction> deserializeFunctions(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+    public static @NotNull List<LootFunction> deserializeFunctions(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         JsonElement functions = json.get("functions");
         if (JsonHelper.isNull(functions)){
-            return ImmutableList.of();
+            return List.of();
         }
         return JsonHelper.deserializeJsonArray(functions, "functions", loader.getLootFunctionManager()::deserialize);
     }

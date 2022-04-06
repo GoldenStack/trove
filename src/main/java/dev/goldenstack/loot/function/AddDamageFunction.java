@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.function;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
@@ -14,6 +13,7 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -31,7 +31,7 @@ public class AddDamageFunction extends ConditionalLootFunction {
     /**
      * Initialize an AddDamageFunction with the provided damage and whether or not the damage should be added
      */
-    public AddDamageFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberProvider damage, boolean add) {
+    public AddDamageFunction(@NotNull List<LootCondition> conditions, @NotNull NumberProvider damage, boolean add) {
         super(conditions);
         this.damage = damage;
         this.add = add;
@@ -142,7 +142,7 @@ public class AddDamageFunction extends ConditionalLootFunction {
      * Static method to deserialize a {@code JsonObject} to an {@code AddDamageFunction}
      */
     public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        ImmutableList<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
+        List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
         NumberProvider provider = loader.getNumberProviderManager().deserialize(json.get("damage"), "damage");
         boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
         return new AddDamageFunction(list, provider, add);

@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.entry;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
@@ -10,6 +9,8 @@ import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.LootSerializer;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  * An entry that returns the result of the first child that passes its conditions
@@ -23,8 +24,8 @@ public class AlternativeEntry extends CombinedEntry {
     /**
      * Initialize a new AlternativeEntry with the provided conditions, functions, weight, quality, and children.
      */
-    public AlternativeEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
-                      int weight, int quality, @NotNull ImmutableList<LootEntry> children) {
+    public AlternativeEntry(@NotNull List<LootCondition> conditions, @NotNull List<LootFunction> functions, int weight,
+                            int quality, @NotNull List<LootEntry> children) {
         super(conditions, functions, weight, quality, children);
     }
 
@@ -49,14 +50,14 @@ public class AlternativeEntry extends CombinedEntry {
      * Returns the result of the first child that passes its conditions
      */
     @Override
-    protected @NotNull ImmutableList<Choice> collectChoices(@NotNull LootContext context) {
+    protected @NotNull List<Choice> collectChoices(@NotNull LootContext context) {
         for (LootEntry entry : this.children()) {
             var choices = entry.getChoices(context);
             if (choices.size() > 0) {
                 return choices;
             }
         }
-        return ImmutableList.of();
+        return List.of();
     }
 
     @Override

@@ -58,7 +58,7 @@ public class LootContext {
 
     /**
      * Gets the provided parameter from this LootContext. If it does not exist, null is returned. If the parameter does
-     * exist but it has a different type than <T>, a ClassCastException will be thrown.
+     * exist, but it has a different type than <T>, a ClassCastException will be thrown.
      */
     @SuppressWarnings("unchecked")
     public @Nullable <T> T getParameter(@NotNull LootContextParameter<T> parameter) {
@@ -71,7 +71,7 @@ public class LootContext {
 
     /**
      * Gets the provided parameter from this LootContext. If it does not exist, a NoSuchElementException will be thrown.
-     * If the parameter does exist but it has a different type than <T>, a ClassCastException will be thrown.<br>
+     * If the parameter does exist, but it has a different type than <T>, a ClassCastException will be thrown.<br>
      * Because an exception will always be thrown if the parameter does not exist, it is safe to assume that this will
      * never return null, as the annotation of {@link NotNull @NotNull} on the return value suggests.
      */

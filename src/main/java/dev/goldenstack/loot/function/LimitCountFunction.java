@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.function;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
@@ -13,6 +12,7 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -29,7 +29,7 @@ public class LimitCountFunction extends ConditionalLootFunction {
     /**
      * Initialize a LimitCountFunction with the NumberRange as the limiter
      */
-    public LimitCountFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberRange limiter) {
+    public LimitCountFunction(@NotNull List<LootCondition> conditions, @NotNull NumberRange limiter) {
         super(conditions);
         this.limiter = limiter;
     }
@@ -97,7 +97,7 @@ public class LimitCountFunction extends ConditionalLootFunction {
      * Static method to deserialize a {@code JsonObject} to a {@code LimitCountFunction}
      */
     public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        ImmutableList<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
+        List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
         NumberRange range = loader.deserializeNumberRange(json.get("limit"), "limit");
         return new LimitCountFunction(list, range);
     }

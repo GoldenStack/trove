@@ -1,6 +1,5 @@
 package dev.goldenstack.loot;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -10,6 +9,7 @@ import dev.goldenstack.loot.context.LootParameterGroup;
 import dev.goldenstack.loot.function.LootFunction;
 import dev.goldenstack.loot.json.JsonHelper;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,11 +21,17 @@ import java.util.List;
  * A class that stores a list of loot pools, loot functions, and a required parameter group. This can be used to
  * generate loot.
  */
-public record LootTable(@Nullable LootParameterGroup group, @NotNull ImmutableList<LootPool> pools, @NotNull ImmutableList<LootFunction> functions) {
+public record LootTable(@Nullable LootParameterGroup group, @NotNull List<LootPool> pools, @NotNull List<LootFunction> functions) {
+
     /**
      * An empty loot table that always generates no loot.
      */
-    public static final @NotNull LootTable EMPTY = new LootTable(LootParameterGroup.EMPTY, ImmutableList.of(), ImmutableList.of());
+    public static final @NotNull LootTable EMPTY = new LootTable(LootParameterGroup.EMPTY, List.of(), List.of());
+
+    public LootTable {
+        pools = List.copyOf(pools);
+        functions = List.copyOf(functions);
+    }
 
     /**
      * Generates a list of items from this LootTable. First, the items from the pools are added, then all the functions
@@ -62,10 +68,7 @@ public record LootTable(@Nullable LootParameterGroup group, @NotNull ImmutableLi
         JsonObject object = new JsonObject();
 
         if (this.group != null) {
-            String key = loader.getLootParameterGroupRegistry().inverse().get(this.group);
-            if (key != null) {
-                object.addProperty("type", key);
-            }
+            object.addProperty("type", this.group.key().asString());
         }
 
         JsonArray poolsArray = new JsonArray();
@@ -98,37 +101,29 @@ public record LootTable(@Nullable LootParameterGroup group, @NotNull ImmutableLi
 
             String groupName = JsonHelper.assureString(object.get("type"), "type");
 
-            group = loader.getLootParameterGroupRegistry().get(groupName);
+            group = loader.getLootParameterGroupRegistry().get(NamespaceID.from(groupName));
             if (group == null) {
                 throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid parameter group", "type", null));
             }
         }
 
-        JsonElement rawPools = object.get("pools");
-        ImmutableList<LootPool> pools;
-        if (rawPools == null) {
-            pools = ImmutableList.of();
-        } else {
-            JsonArray jsonPools = JsonHelper.assureJsonArray(rawPools, "pools");
-            ImmutableList.Builder<LootPool> poolsBuilder = ImmutableList.builder();
+        List<LootPool> pools = List.of();
+        if (object.has("pools")) {
+            JsonArray jsonPools = JsonHelper.assureJsonArray(object.get("pools"), "pools");
+            pools = new ArrayList<>();
             for (JsonElement element : jsonPools) {
                 JsonObject jsonObject = JsonHelper.assureJsonObject(element, "pools (while deserializing an element)");
-                poolsBuilder.add(LootPool.deserialize(jsonObject, loader));
+                pools.add(LootPool.deserialize(jsonObject, loader));
             }
-            pools = poolsBuilder.build();
         }
 
-        JsonElement rawFunctions = object.get("functions");
-        ImmutableList<LootFunction> functions;
-        if (rawFunctions == null) {
-            functions = ImmutableList.of();
-        } else {
-            JsonArray jsonFunctions = JsonHelper.assureJsonArray(rawFunctions, "functions");
-            ImmutableList.Builder<LootFunction> functionsBuilder = ImmutableList.builder();
+        List<LootFunction> functions = List.of();
+        if (object.has("functions")) {
+            JsonArray jsonFunctions = JsonHelper.assureJsonArray(object.get("functions"), "functions");
+            functions = new ArrayList<>();
             for (JsonElement element : jsonFunctions) {
-                functionsBuilder.add(loader.getLootFunctionManager().deserialize(element, "functions (while deserializing an element)"));
+                functions.add(loader.getLootFunctionManager().deserialize(element, "functions (while deserializing an element)"));
             }
-            functions = functionsBuilder.build();
         }
 
         return new LootTable(group, pools, functions);

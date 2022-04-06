@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.function;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -36,20 +35,20 @@ public class AddAttributesFunction extends ConditionalLootFunction {
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "set_attributes");
 
-    private final ImmutableList<Modifier> modifiers;
+    private final List<Modifier> modifiers;
 
     /**
      * Initializes an AddAttributesFunction with the provided modifiers
      */
-    public AddAttributesFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<Modifier> modifiers) {
+    public AddAttributesFunction(@NotNull List<LootCondition> conditions, @NotNull List<Modifier> modifiers) {
         super(conditions);
-        this.modifiers = modifiers;
+        this.modifiers = List.copyOf(modifiers);
     }
 
     /**
      * Returns the modifiers that get added to items that are provided to this instance.
      */
-    public @NotNull ImmutableList<Modifier> modifiers() {
+    public @NotNull List<Modifier> modifiers() {
         return modifiers;
     }
 
@@ -94,81 +93,24 @@ public class AddAttributesFunction extends ConditionalLootFunction {
      * from a list of {@code AttributeSlot}s, create random UUIDs if it doesn't have one, and generate attribute values
      * dynamically, through a NumberProvider.
      */
-    public static class Modifier {
-        private final @NotNull Attribute attribute;
-        private final @NotNull ImmutableList<AttributeSlot> slots;
-        private final @NotNull AttributeOperation operation;
-        private final @NotNull NumberProvider amount;
-
-        private final @Nullable UUID uuid;
-        private final @Nullable String name;
-
+    public record Modifier(@NotNull Attribute attribute, @NotNull List<AttributeSlot> slots,
+                           @NotNull AttributeOperation operation, @NotNull NumberProvider amount, @Nullable UUID uuid,
+                           @Nullable String name) {
         /**
          * Creates a new Modifier
+         *
          * @param attribute The attribute to use
-         * @param slots The list of slots that can be picked
+         * @param slots     The list of slots that can be picked
          * @param operation The operation to use
-         * @param amount The NumberProvider that will be used to generate values
-         * @param uuid The UUID to use, or null if it should be randomly generated
-         * @param name The name to use. If this is null, Modifier#toItemAttribute will use an empty string instead.
+         * @param amount    The NumberProvider that will be used to generate values
+         * @param uuid      The UUID to use, or null if it should be randomly generated
+         * @param name      The name to use. If this is null, Modifier#toItemAttribute will use an empty string instead.
          */
-        public Modifier(@NotNull Attribute attribute, @NotNull ImmutableList<AttributeSlot> slots, @NotNull AttributeOperation operation,
-                        @NotNull NumberProvider amount, @Nullable UUID uuid, @Nullable String name) {
-            this.attribute = attribute;
+        public Modifier {
             if (slots.size() == 0) {
                 throw new InvalidParameterException("Parameter \"slots\" must have at least one element!");
             }
-            this.slots = slots;
-            this.operation = operation;
-            this.amount = amount;
-            this.uuid = uuid;
-            this.name = name;
-        }
-
-        /**
-         * Returns the attribute that is used when creating ItemAttribute instances.
-         */
-        public @NotNull Attribute attribute() {
-            return this.attribute;
-        }
-
-        /**
-         * Returns the list of attribute slots. When creating an ItemAttribute instance, a random slot from the list is
-         * picked. This is guaranteed to have at least one element, because an exception is thrown during initialization
-         * if that is the case.
-         */
-        public @NotNull ImmutableList<AttributeSlot> slots() {
-            return slots;
-        }
-
-        /**
-         * Returns the operation that is used when ItemAttribute instances are created.
-         */
-        public @NotNull AttributeOperation operation() {
-            return operation;
-        }
-
-        /**
-         * Returns the NumberProvider that is used to calculate the value for the ItemAttribute that gets created.
-         */
-        public @NotNull NumberProvider amount() {
-            return amount;
-        }
-
-        /**
-         * Returns the UUID that is used when {@link #toItemAttribute(LootContext)} is run. If this is null, a random
-         * UUID is used whenever the method is called.
-         */
-        public @Nullable UUID uuid() {
-            return uuid;
-        }
-
-        /**
-         * Returns the name that is used when {@link #toItemAttribute(LootContext)} is run. If this is null, an empty
-         * string ("") is used.
-         */
-        public @Nullable String name() {
-            return name;
+            slots = List.copyOf(slots);
         }
 
         /**
@@ -194,7 +136,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
          */
         public @NotNull JsonObject serialize(@NotNull ImmuTables loader) throws JsonParseException {
             JsonObject object = new JsonObject();
-            object.addProperty("attribute", this.attribute.getKey());
+            object.addProperty("attribute", this.attribute.key());
             object.addProperty("operation", this.operation.name().toLowerCase(Locale.ROOT));
             object.add("amount", loader.getNumberProviderManager().serialize(this.amount));
             if (this.name != null) {
@@ -239,7 +181,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
             final @Nullable UUID uuid = (JsonHelper.isNull(uuidElement) ? null : JsonHelper.assureUUID(uuidElement, "id"));
 
             JsonElement slotElement = JsonHelper.assureNotNull(object.get("slot"), "slot");
-            ImmutableList<AttributeSlot> slots;
+            List<AttributeSlot> slots;
 
             String string = JsonHelper.getAsString(slotElement);
             if (string == null) {
@@ -260,37 +202,16 @@ public class AddAttributesFunction extends ConditionalLootFunction {
                     }
                     slotArray[i] = slot;
                 }
-                slots = ImmutableList.copyOf(slotArray);
+                slots = List.of(slotArray);
             } else {
                 AttributeSlot slot = EnumValues.ATTRIBUTE_SLOT.valueOf(string.toUpperCase(Locale.ROOT));
                 if (slot == null) {
                     throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid attribute slot", "slot", null));
                 }
-                slots = ImmutableList.of(slot);
+                slots = List.of(slot);
             }
 
             return new Modifier(attribute, slots, operation, amount, uuid, name);
-        }
-
-        @Override
-        public String toString() {
-            return "AddAttributesFunction.Modifier[attribute=" + attribute + ", slots=" + slots +
-                    ", operation=" + operation + ", amount=" + amount + ", uuid=" + uuid + ", name=" + name + "]";
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Modifier modifier = (Modifier) o;
-            return attribute.equals(modifier.attribute) && slots.equals(modifier.slots) &&
-                    operation == modifier.operation && amount.equals(modifier.amount) &&
-                    Objects.equals(uuid, modifier.uuid) && Objects.equals(name, modifier.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(attribute, slots, operation, amount, uuid, name);
         }
     }
 
@@ -324,7 +245,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
      * Static method to deserialize a {@code JsonObject} to an {@code AddAttributesFunction}
      */
     public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        ImmutableList<LootCondition> conditions = ConditionalLootFunction.deserializeConditions(json, loader);
+        List<LootCondition> conditions = ConditionalLootFunction.deserializeConditions(json, loader);
 
         JsonArray array = JsonHelper.assureJsonArray(json.get("modifiers"), "modifiers");
         Modifier[] modifiers = new Modifier[array.size()];
@@ -332,6 +253,6 @@ public class AddAttributesFunction extends ConditionalLootFunction {
             modifiers[i] = Modifier.deserialize(JsonHelper.assureJsonObject(array.get(i), "modifiers (while deserializing an element)"), loader);
         }
 
-        return new AddAttributesFunction(conditions, ImmutableList.copyOf(modifiers));
+        return new AddAttributesFunction(conditions, List.of(modifiers));
     }
 }

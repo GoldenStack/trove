@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.condition;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
@@ -17,12 +16,16 @@ import java.util.List;
  * Represents a {@code LootCondition} that returns true if at least one of this instance's conditions is true according
  * to {@link LootCondition#or(LootContext, List)}.
  */
-public record AlternativeCondition(@NotNull ImmutableList<LootCondition> terms) implements LootCondition {
+public record AlternativeCondition(@NotNull List<LootCondition> terms) implements LootCondition {
 
     /**
      * The immutable key for all {@code AlternativeCondition}s
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "alternative");
+
+    public AlternativeCondition {
+        terms = List.copyOf(terms);
+    }
 
     /**
      * {@inheritDoc}

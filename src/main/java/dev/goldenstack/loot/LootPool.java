@@ -1,6 +1,5 @@
 package dev.goldenstack.loot;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -24,8 +23,15 @@ import java.util.List;
  * that gets run a selected number of times based on the rolls plus the context's luck multiplied by the value of
  * bonusRolls.
  */
-public record LootPool(@NotNull ImmutableList<LootEntry> entries, @NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
-                       @NotNull NumberProvider rolls, @NotNull NumberProvider bonusRolls) {
+public record LootPool(@NotNull List<LootEntry> entries, @NotNull List<LootCondition> conditions,
+                       @NotNull List<LootFunction> functions, @NotNull NumberProvider rolls,
+                       @NotNull NumberProvider bonusRolls) {
+
+    public LootPool {
+        entries = List.copyOf(entries);
+        conditions = List.copyOf(conditions);
+        functions = List.copyOf(functions);
+    }
 
     /**
      * Generates a list of items as loot.<br>
@@ -150,18 +156,18 @@ public record LootPool(@NotNull ImmutableList<LootEntry> entries, @NotNull Immut
                 loader.getNumberProviderManager().deserialize(object.get("bonus_rolls"), "bonus_rolls");
 
         JsonElement jsonEntries = object.get("entries");
-        ImmutableList<LootEntry> entries = JsonHelper.isNull(jsonEntries) ?
-                ImmutableList.of() :
+        List<LootEntry> entries = JsonHelper.isNull(jsonEntries) ?
+                List.of() :
                 JsonHelper.deserializeJsonArray(jsonEntries, "entries", loader.getLootEntryManager()::deserialize);
 
         JsonElement jsonConditions = object.get("conditions");
-        ImmutableList<LootCondition> conditions = JsonHelper.isNull(jsonConditions) ?
-                ImmutableList.of() :
+        List<LootCondition> conditions = JsonHelper.isNull(jsonConditions) ?
+                List.of() :
                 JsonHelper.deserializeJsonArray(jsonConditions, "conditions", loader.getLootConditionManager()::deserialize);
 
         JsonElement jsonFunctions = object.get("functions");
-        ImmutableList<LootFunction> functions = JsonHelper.isNull(jsonFunctions) ?
-                ImmutableList.of() :
+        List<LootFunction> functions = JsonHelper.isNull(jsonFunctions) ?
+                List.of() :
                 JsonHelper.deserializeJsonArray(jsonFunctions, "functions", loader.getLootFunctionManager()::deserialize);
 
         return new LootPool(entries, conditions, functions, rolls, bonusRolls);

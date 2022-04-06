@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.function;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
@@ -13,6 +12,8 @@ import dev.goldenstack.loot.provider.number.NumberProvider;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  * Represents a {@code LootFunction} that can change the amount of the ItemStack that is provided.
@@ -29,7 +30,7 @@ public class SetCountFunction extends ConditionalLootFunction {
     /**
      * Initialize a SetCountFunction with the provided amount and whether or not the amount will be added instead of set
      */
-    public SetCountFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberProvider count, boolean add) {
+    public SetCountFunction(@NotNull List<LootCondition> conditions, @NotNull NumberProvider count, boolean add) {
         super(conditions);
         this.count = count;
         this.add = add;
@@ -110,7 +111,7 @@ public class SetCountFunction extends ConditionalLootFunction {
      * Static method to deserialize a {@code JsonObject} to a {@code SetCountFunction}
      */
     public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        ImmutableList<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
+        List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
         NumberProvider provider = loader.getNumberProviderManager().deserialize(json.get("count"), "count");
         boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
         return new SetCountFunction(list, provider, add);

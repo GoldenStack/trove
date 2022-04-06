@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.function;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -17,6 +16,7 @@ import net.minestom.server.item.Material;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -36,7 +36,7 @@ public class EnchantWithLevelsFunction extends ConditionalLootFunction {
      * Initialize an EnchantWithLevelsFunction with the provided range of levels, whether or not treasure enchantments
      * are valid, and the provided EnchantmentManager.
      */
-    public EnchantWithLevelsFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull NumberProvider level,
+    public EnchantWithLevelsFunction(@NotNull List<LootCondition> conditions, @NotNull NumberProvider level,
                                      boolean allowTreasure, EnchantmentManager enchantmentManager) {
         super(conditions);
         this.level = level;
@@ -99,7 +99,7 @@ public class EnchantWithLevelsFunction extends ConditionalLootFunction {
         if (itemStack.getMaterial() == Material.BOOK) {
             // Unsafely change the type
             //noinspection UnstableApiUsage
-            itemStack = ItemStack.fromItemNBT(itemStack.toItemNBT().setString("id", Material.ENCHANTED_BOOK.namespace().asString()));
+            itemStack = ItemStack.fromItemNBT(itemStack.toItemNBT().modify(mutable -> mutable.setString("id", Material.ENCHANTED_BOOK.namespace().asString())));
         }
         return itemStack;
     }
@@ -134,7 +134,7 @@ public class EnchantWithLevelsFunction extends ConditionalLootFunction {
      * Static method to deserialize a {@code JsonObject} to an {@code EnchantWithLevelsFunction}
      */
     public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        ImmutableList<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
+        List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
 
         NumberProvider level = loader.getNumberProviderManager().deserialize(json.get("levels"), "levels");
 

@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.entry;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
@@ -10,6 +9,9 @@ import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.LootSerializer;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An entry that returns the combined result of all of the children that pass their conditions until there is a child
@@ -24,8 +26,8 @@ public class SequenceEntry extends CombinedEntry {
     /**
      * Initialize a new SequenceEntry with the provided conditions, functions, weight, quality, and children.
      */
-    public SequenceEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
-                            int weight, int quality, @NotNull ImmutableList<LootEntry> children) {
+    public SequenceEntry(@NotNull List<LootCondition> conditions, @NotNull List<LootFunction> functions, int weight,
+                         int quality, @NotNull List<LootEntry> children) {
         super(conditions, functions, weight, quality, children);
     }
 
@@ -51,15 +53,15 @@ public class SequenceEntry extends CombinedEntry {
      * that does not pass its conditions.
      */
     @Override
-    protected @NotNull ImmutableList<Choice> collectChoices(@NotNull LootContext context) {
-        ImmutableList.Builder<Choice> choices = ImmutableList.builder();
+    protected @NotNull List<Choice> collectChoices(@NotNull LootContext context) {
+        List<Choice> choices = new ArrayList<>();
         for (LootEntry entry : this.children()){
             var entryChoices = entry.getChoices(context);
             if (entryChoices.size() == 0) {
                 break;
             }
         }
-        return choices.build();
+        return List.copyOf(choices);
     }
 
     @Override

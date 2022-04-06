@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.function;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -11,6 +10,8 @@ import dev.goldenstack.loot.json.JsonHelper;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 /**
  * Represents the basic information for a LootFunction that can be given a list of functions. The LootFunction's effects
  * are only applied to the item if all the functions return true for the provided LootContext.<br>
@@ -19,19 +20,19 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class ConditionalLootFunction implements LootFunction {
 
-    private final @NotNull ImmutableList<LootCondition> conditions;
+    private final @NotNull List<LootCondition> conditions;
 
     /**
      * Creates a ConditionalLootFunction with the provided {@code LootCondition}s
      */
-    public ConditionalLootFunction(@NotNull ImmutableList<LootCondition> conditions) {
-        this.conditions = conditions;
+    public ConditionalLootFunction(@NotNull List<LootCondition> conditions) {
+        this.conditions = List.copyOf(conditions);
     }
 
     /**
      * Returns this ConditionalLootFunction's conditions
      */
-    public final @NotNull ImmutableList<LootCondition> conditions() {
+    public final @NotNull List<LootCondition> conditions() {
         return conditions;
     }
 
@@ -69,10 +70,10 @@ public abstract class ConditionalLootFunction implements LootFunction {
      * This should be called in a similar manner to: <br>
      * {@code ImmutableList<LootCondition> conditions = ConditionalLootFunction.deserializeConditions(json, loader);}
      */
-    public static @NotNull ImmutableList<LootCondition> deserializeConditions(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+    public static @NotNull List<LootCondition> deserializeConditions(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         JsonElement functions = json.get("conditions");
         if (JsonHelper.isNull(functions)){
-            return ImmutableList.of();
+            return List.of();
         }
         return JsonHelper.deserializeJsonArray(functions, "conditions", loader.getLootConditionManager()::deserialize);
     }

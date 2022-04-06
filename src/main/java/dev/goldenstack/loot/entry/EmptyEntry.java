@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.entry;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
@@ -26,7 +25,8 @@ public class EmptyEntry extends ConstantChoiceEntry {
     /**
      * Initializes an EmptyEntry instance
      */
-    public EmptyEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions, int weight, int quality) {
+    public EmptyEntry(@NotNull List<LootCondition> conditions, @NotNull List<LootFunction> functions, int weight,
+                      int quality) {
         super(conditions, functions, weight, quality);
     }
 
@@ -35,7 +35,7 @@ public class EmptyEntry extends ConstantChoiceEntry {
      */
     @Override
     public @NotNull List<ItemStack> generateLoot(@NotNull LootContext context) {
-        return ImmutableList.of();
+        return List.of();
     }
 
     /**

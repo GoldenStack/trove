@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.entry;
 
-import com.google.common.collect.ImmutableList;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.function.LootFunction;
@@ -32,12 +31,13 @@ public abstract class ConstantChoiceEntry extends LootEntry {
         }
     }
 
-    private final @NotNull ImmutableList<Choice> choices = ImmutableList.of(new InnerChoice());
+    private final @NotNull List<Choice> choices = List.of(new InnerChoice());
 
     /**
      * Create a ConstantChoiceEntry with the provided conditions, functions, weight, and quality.
      */
-    public ConstantChoiceEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions, int weight, int quality) {
+    public ConstantChoiceEntry(@NotNull List<LootCondition> conditions, @NotNull List<LootFunction> functions,
+                               int weight, int quality) {
         super(conditions, functions, weight, quality);
     }
 
@@ -65,7 +65,7 @@ public abstract class ConstantChoiceEntry extends LootEntry {
      * always returned.
      */
     @Override
-    protected final @NotNull ImmutableList<Choice> collectChoices(@NotNull LootContext context) {
+    protected final @NotNull List<Choice> collectChoices(@NotNull LootContext context) {
         return choices;
     }
 

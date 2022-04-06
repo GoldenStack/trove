@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.criterion;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.*;
 import dev.goldenstack.loot.json.JsonHelper;
 import org.jetbrains.annotations.NotNull;
@@ -18,12 +17,16 @@ import java.util.function.Predicate;
  * By default, it supports two ways of storing data about which properties it will accept: {@link SingleValueProperty}
  * and {@link NumberRangeProperty}.
  */
-public record PropertiesCriterion(@NotNull ImmutableList<Property> properties) implements Predicate<Map<String, String>> {
+public record PropertiesCriterion(@NotNull List<Property> properties) implements Predicate<Map<String, String>> {
 
     /**
      * A static PropertiesCriterion instance that contains no information, so accepts any properties.
      */
-    public static final @NotNull PropertiesCriterion ALL = new PropertiesCriterion(ImmutableList.of());
+    public static final @NotNull PropertiesCriterion ALL = new PropertiesCriterion(List.of());
+
+    public PropertiesCriterion {
+        properties = List.copyOf(properties);
+    }
 
     /**
      * Tests this PropertiesCriterion against the provided map of properties.
@@ -77,7 +80,7 @@ public record PropertiesCriterion(@NotNull ImmutableList<Property> properties) i
         if (list.size() == 0) {
             return PropertiesCriterion.ALL;
         }
-        return new PropertiesCriterion(ImmutableList.copyOf(list));
+        return new PropertiesCriterion(list);
     }
 
     /**

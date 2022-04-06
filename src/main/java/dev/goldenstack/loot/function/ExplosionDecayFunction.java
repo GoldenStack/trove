@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.function;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
@@ -14,6 +13,7 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -29,7 +29,7 @@ public class ExplosionDecayFunction extends ConditionalLootFunction {
     /**
      * Creates a new ExplosionDecayFunction with the provided conditions
      */
-    public ExplosionDecayFunction(@NotNull ImmutableList<LootCondition> conditions) {
+    public ExplosionDecayFunction(@NotNull List<LootCondition> conditions) {
         super(conditions);
     }
 

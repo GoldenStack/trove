@@ -3,6 +3,8 @@
 [![license](https://img.shields.io/github/license/GoldenStack/ImmuTables?style=for-the-badge&color=dd2233)](../LICENSE)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=for-the-badge)](https://github.com/RichardLitt/standard-readme)
 
+[![Release](https://jitpack.io/v/GoldenStack/ImmuTables.svg)](https://jitpack.io/#GoldenStack/ImmuTables)
+
 ImmuTables is a rewrite of the Minecraft loot table system, written for Minestom.
 
 This library includes many of the functions, conditions, and entries that default Minecraft has, but it also allows you
@@ -67,7 +69,7 @@ Maven -
 
 If you want to use this library, you will first have to set up your `ImmuTables` instance. There are easy-to-use methods
 to automatically add the default functions, entries, and conditions to your builder. If you use these methods, you can
-still add or remove your own implementations of these, so you're not limited to just the premade ones.
+still add or remove your own implementations of these, so you're not limited to just the pre-made ones.
 ``` java
 ImmuTables loader = ImmuTables
         // Create the builder
@@ -114,7 +116,7 @@ List<ItemStack> loot = table.generateLoot(context);
 ```
 
 ## API
-For the simple usages of this library, you can just see the usages section above.
+For the simple usages of this library, you can just see the Usage section above.
 However, if you wish to add your own implementations, the following text should help you.
 
 #### Adding your changes

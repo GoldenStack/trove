@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.function;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,6 +15,7 @@ import dev.goldenstack.loot.json.LootSerializer;
 import net.minestom.server.item.Enchantment;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.item.metadata.EnchantedBookMeta;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,22 +34,22 @@ public class EnchantRandomlyFunction extends ConditionalLootFunction {
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "enchant_randomly");
 
     private final @NotNull EnchantmentManager manager;
-    private final @NotNull ImmutableList<Enchantment> enchantments;
+    private final @NotNull List<Enchantment> enchantments;
 
     /**
      * Initialize an EnchantRandomlyFunction with the provided list of possible enchantments and the EnchantmentManager.
      */
-    public EnchantRandomlyFunction(@NotNull ImmutableList<LootCondition> conditions, @NotNull EnchantmentManager manager,
-                                   @NotNull ImmutableList<Enchantment> enchantments) {
+    public EnchantRandomlyFunction(@NotNull List<LootCondition> conditions, @NotNull EnchantmentManager manager,
+                                   @NotNull List<Enchantment> enchantments) {
         super(conditions);
         this.manager = manager;
-        this.enchantments = enchantments;
+        this.enchantments = List.copyOf(enchantments);
     }
 
     /**
      * Returns the immutable list of enchantments that will be used to select which enchantment will be added.
      */
-    public @NotNull ImmutableList<Enchantment> enchantments() {
+    public @NotNull List<Enchantment> enchantments() {
         return enchantments;
     }
 
@@ -93,19 +93,14 @@ public class EnchantRandomlyFunction extends ConditionalLootFunction {
         if (itemStack.getMaterial() == Material.BOOK) {
             // Unsafely change the type
             //noinspection UnstableApiUsage
-            itemStack = ItemStack.fromItemNBT(itemStack.toItemNBT().setString("id", Material.ENCHANTED_BOOK.namespace().asString()));
+            itemStack = ItemStack.fromItemNBT(itemStack.toItemNBT().modify(mutable -> mutable.setString("id", Material.ENCHANTED_BOOK.namespace().asString())));
         }
         List<Enchantment> acceptableEnchantments = new ArrayList<>();
         if (this.enchantments.size() == 0) {
-            if (itemStack.getMaterial() == Material.ENCHANTED_BOOK) {
-                for (EnchantmentData data : this.manager.getAllEnchantmentData()) {
+            boolean isEnchantedBookMeta = itemStack.getMeta() instanceof EnchantedBookMeta;
+            for (EnchantmentData data : this.manager.getAllEnchantmentData()) {
+                if (isEnchantedBookMeta || data.slotType().canEnchant(itemStack)) {
                     acceptableEnchantments.add(data.enchantment());
-                }
-            } else {
-                for (EnchantmentData data : this.manager.getAllEnchantmentData()) {
-                    if (data.slotType().canEnchant(itemStack)) {
-                        acceptableEnchantments.add(data.enchantment());
-                    }
                 }
             }
         } else {
@@ -147,25 +142,25 @@ public class EnchantRandomlyFunction extends ConditionalLootFunction {
      * Static method to deserialize a {@code JsonObject} to an {@code EnchantRandomlyFunction}
      */
     public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        ImmutableList<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
+        List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
 
         JsonElement element = json.get("enchantments");
         if (element == null) {
-            return new EnchantRandomlyFunction(list, loader.getEnchantmentManager(), ImmutableList.of());
+            return new EnchantRandomlyFunction(list, loader.getEnchantmentManager(), List.of());
         }
 
         JsonArray array = JsonHelper.assureJsonArray(element, "enchantments");
 
-        ImmutableList.Builder<Enchantment> builder = ImmutableList.builder();
+        List<Enchantment> enchantments = new ArrayList<>();
         for (JsonElement item : array) {
             NamespaceID namespaceID = JsonHelper.assureNamespaceId(item, "enchantments (while deserializing an item in the array)");
             EnchantmentData data = loader.getEnchantmentManager().getEnchantmentData(namespaceID);
             if (data == null) {
                 throw new JsonParseException("Invalid enchantment \"" + namespaceID + "\"! Did you initialize your enchantment manager correctly?");
             }
-            builder.add(data.enchantment());
+            enchantments.add(data.enchantment());
         }
 
-        return new EnchantRandomlyFunction(list, loader.getEnchantmentManager(), builder.build());
+        return new EnchantRandomlyFunction(list, loader.getEnchantmentManager(), enchantments);
     }
 }

@@ -1,7 +1,5 @@
 package dev.goldenstack.loot;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.goldenstack.enchantment.EnchantmentManager;
@@ -15,10 +13,13 @@ import dev.goldenstack.loot.provider.number.ConstantNumber;
 import dev.goldenstack.loot.provider.number.NumberProvider;
 import dev.goldenstack.loot.provider.number.UniformNumber;
 import dev.goldenstack.loot.util.NumberRange;
+import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
@@ -31,7 +32,7 @@ public class ImmuTables {
     private final @NotNull JsonSerializationManager<LootFunction> lootFunctionManager;
     private final @NotNull JsonSerializationManager<LootEntry> lootEntryManager;
 
-    private final @NotNull BiMap<String, LootParameterGroup> lootParameterGroupRegistry;
+    private final @NotNull Map<NamespaceID, LootParameterGroup> lootParameterGroupRegistry;
 
     private final @NotNull EnchantmentManager enchantmentManager;
 
@@ -66,7 +67,7 @@ public class ImmuTables {
         this.lootEntryManager = lootEntryBuilder.owner(this).build();
 
         // Loot parameter group registry
-        lootParameterGroupRegistry = HashBiMap.create();
+        lootParameterGroupRegistry = new ConcurrentHashMap<>();
 
         // Enchantment manager
         EnchantmentManager.Builder enchantmentBuilder = EnchantmentManager.builder();
@@ -106,9 +107,9 @@ public class ImmuTables {
     }
 
     /**
-     * Returns the BiMap that controls how loot parameter groups are registered.
+     * Returns the map that controls how loot parameter groups are registered.
      */
-    public @NotNull BiMap<String, LootParameterGroup> getLootParameterGroupRegistry() {
+    public @NotNull Map<NamespaceID, LootParameterGroup> getLootParameterGroupRegistry() {
         return lootParameterGroupRegistry;
     }
 

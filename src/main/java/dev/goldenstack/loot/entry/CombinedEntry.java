@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.entry;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -10,26 +9,28 @@ import dev.goldenstack.loot.function.LootFunction;
 import dev.goldenstack.loot.json.JsonHelper;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 /**
  * An abstract class for an entry that may contain multiple "child" entries.
  */
 public abstract class CombinedEntry extends LootEntry {
 
-    private final @NotNull ImmutableList<LootEntry> children;
+    private final @NotNull List<LootEntry> children;
 
     /**
      * Initialize a new CombinedEntry with the provided conditions, functions, weight, quality, and children.
      */
-    public CombinedEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
-                         int weight, int quality, @NotNull ImmutableList<LootEntry> children) {
+    public CombinedEntry(@NotNull List<LootCondition> conditions, @NotNull List<LootFunction> functions, int weight,
+                         int quality, @NotNull List<LootEntry> children) {
         super(conditions, functions, weight, quality);
-        this.children = children;
+        this.children = List.copyOf(children);
     }
 
     /**
      * Returns this CombinedEntry's children
      */
-    public final @NotNull ImmutableList<LootEntry> children() {
+    public final @NotNull List<LootEntry> children() {
         return this.children;
     }
 
@@ -77,10 +78,10 @@ public abstract class CombinedEntry extends LootEntry {
      * This should be called in a similar manner to: <br>
      * {@code ImmutableList<LootEntry> children = CombinedEntry.deserializeChildren(json, loader);}
      */
-    public static @NotNull ImmutableList<LootEntry> deserializeChildren(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+    public static @NotNull List<LootEntry> deserializeChildren(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         JsonElement children = json.get("children");
         if (JsonHelper.isNull(children)){
-            return ImmutableList.of();
+            return List.of();
         }
         return JsonHelper.deserializeJsonArray(children, "children", loader.getLootEntryManager()::deserialize);
     }

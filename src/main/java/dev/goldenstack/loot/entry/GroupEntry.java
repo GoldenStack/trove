@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.entry;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
@@ -10,6 +9,9 @@ import dev.goldenstack.loot.json.LootDeserializer;
 import dev.goldenstack.loot.json.LootSerializer;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An entry that returns the combined results of all its children.
@@ -23,8 +25,8 @@ public class GroupEntry extends CombinedEntry {
     /**
      * Initialize a new GroupEntry with the provided conditions, functions, weight, quality, and children.
      */
-    public GroupEntry(@NotNull ImmutableList<LootCondition> conditions, @NotNull ImmutableList<LootFunction> functions,
-                         int weight, int quality, @NotNull ImmutableList<LootEntry> children) {
+    public GroupEntry(@NotNull List<LootCondition> conditions, @NotNull List<LootFunction> functions, int weight,
+                      int quality, @NotNull List<LootEntry> children) {
         super(conditions, functions, weight, quality, children);
     }
 
@@ -49,12 +51,12 @@ public class GroupEntry extends CombinedEntry {
      * Returns the combined results from all of this entry's children.
      */
     @Override
-    protected @NotNull ImmutableList<Choice> collectChoices(@NotNull LootContext context) {
-        ImmutableList.Builder<Choice> choice = ImmutableList.builder();
+    protected @NotNull List<Choice> collectChoices(@NotNull LootContext context) {
+        List<Choice> choices = new ArrayList<>();
         for (LootEntry entry : this.children()){
-            choice.addAll(entry.getChoices(context));
+            choices.addAll(entry.getChoices(context));
         }
-        return choice.build();
+        return List.copyOf(choices);
     }
 
     @Override

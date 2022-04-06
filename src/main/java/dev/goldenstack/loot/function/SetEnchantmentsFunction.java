@@ -1,7 +1,5 @@
 package dev.goldenstack.loot.function;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.enchantment.EnchantmentData;
@@ -18,6 +16,8 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a {@code LootFunction} that adds enchantments to the ItemStack that is provided.
@@ -28,24 +28,24 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
      */
     public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "set_enchantments");
 
-    private final @NotNull ImmutableMap<Enchantment, NumberProvider> enchantments;
+    private final @NotNull Map<Enchantment, NumberProvider> enchantments;
     private final boolean add;
 
     /**
      * Initialize a SetEnchantmentsFunction with the provided enchantments and whether or not the enchantments already
      * on the item will get removed.
      */
-    public SetEnchantmentsFunction(@NotNull ImmutableList<LootCondition> conditions,
-                                   @NotNull ImmutableMap<Enchantment, NumberProvider> enchantments, boolean add) {
+    public SetEnchantmentsFunction(@NotNull List<LootCondition> conditions,
+                                   @NotNull Map<Enchantment, NumberProvider> enchantments, boolean add) {
         super(conditions);
-        this.enchantments = enchantments;
+        this.enchantments = Map.copyOf(enchantments);
         this.add = add;
     }
 
     /**
      * Returns the immutable map of enchantments that will be given to the item
      */
-    public @NotNull ImmutableMap<Enchantment, NumberProvider> enchantments() {
+    public @NotNull Map<Enchantment, NumberProvider> enchantments() {
         return enchantments;
     }
 
@@ -131,11 +131,10 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
      * Static method to deserialize a {@code JsonObject} to a {@code SetEnchantmentsFunction}
      */
     public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        ImmutableList<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
+        List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
 
         JsonObject object = JsonHelper.assureJsonObject(json.get("enchantments"), "enchantments");
-        ImmutableMap.Builder<Enchantment, NumberProvider> builder = ImmutableMap.builder();
-
+        Map<Enchantment, NumberProvider> map = new HashMap<>();
         for (var entry : object.entrySet()){
             NamespaceID namespaceID = NamespaceID.from(entry.getKey());
 
@@ -145,11 +144,11 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
                 throw new JsonParseException("Invalid enchantment \"" + namespaceID + "\"! Did you initialize your enchantment manager correctly?");
             }
 
-            builder.put(data.enchantment(), loader.getNumberProviderManager().deserialize(entry.getValue(), entry.getKey()));
+            map.put(data.enchantment(), loader.getNumberProviderManager().deserialize(entry.getValue(), entry.getKey()));
         }
 
         boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
 
-        return new SetEnchantmentsFunction(list, builder.build(), add);
+        return new SetEnchantmentsFunction(list, map, add);
     }
 }
