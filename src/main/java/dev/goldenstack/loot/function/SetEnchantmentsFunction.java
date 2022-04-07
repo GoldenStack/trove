@@ -2,7 +2,6 @@ package dev.goldenstack.loot.function;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import dev.goldenstack.enchantment.EnchantmentData;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
@@ -138,13 +137,12 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
         for (var entry : object.entrySet()){
             NamespaceID namespaceID = NamespaceID.from(entry.getKey());
 
-            EnchantmentData data = loader.getEnchantmentManager().getEnchantmentData(namespaceID);
-
-            if (data == null) {
+            Enchantment enchantment = Enchantment.fromNamespaceId(namespaceID);
+            if (enchantment == null) {
                 throw new JsonParseException("Invalid enchantment \"" + namespaceID + "\"! Did you initialize your enchantment manager correctly?");
             }
 
-            map.put(data.enchantment(), loader.getNumberProviderManager().deserialize(entry.getValue(), entry.getKey()));
+            map.put(enchantment, loader.getNumberProviderManager().deserialize(entry.getValue(), entry.getKey()));
         }
 
         boolean add = JsonHelper.assureBoolean(json.get("add"), "add");

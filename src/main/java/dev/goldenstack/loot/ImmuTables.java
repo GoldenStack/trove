@@ -2,7 +2,6 @@ package dev.goldenstack.loot;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.goldenstack.enchantment.EnchantmentManager;
 import dev.goldenstack.loot.condition.*;
 import dev.goldenstack.loot.context.LootParameterGroup;
 import dev.goldenstack.loot.entry.*;
@@ -33,8 +32,6 @@ public class ImmuTables {
     private final @NotNull JsonSerializationManager<LootEntry> lootEntryManager;
 
     private final @NotNull Map<NamespaceID, LootParameterGroup> lootParameterGroupRegistry;
-
-    private final @NotNull EnchantmentManager enchantmentManager;
 
     private ImmuTables(@NotNull Builder builder) {
 
@@ -68,13 +65,6 @@ public class ImmuTables {
 
         // Loot parameter group registry
         lootParameterGroupRegistry = new ConcurrentHashMap<>();
-
-        // Enchantment manager
-        EnchantmentManager.Builder enchantmentBuilder = EnchantmentManager.builder();
-        if (builder.enchantmentManagerBuilder != null) {
-            builder.enchantmentManagerBuilder.accept(enchantmentBuilder);
-        }
-        this.enchantmentManager = enchantmentBuilder.build();
 
     }
 
@@ -111,13 +101,6 @@ public class ImmuTables {
      */
     public @NotNull Map<NamespaceID, LootParameterGroup> getLootParameterGroupRegistry() {
         return lootParameterGroupRegistry;
-    }
-
-    /**
-     * Returns the EnchantmentManager that is used for some loot functions.
-     */
-    public @NotNull EnchantmentManager getEnchantmentManager() {
-        return enchantmentManager;
     }
 
     /**
@@ -187,9 +170,7 @@ public class ImmuTables {
                    .putDeserializer(AddDamageFunction.KEY, AddDamageFunction::deserialize)
                    .putDeserializer(AddAttributesFunction.KEY, AddAttributesFunction::deserialize)
                    .putDeserializer(ExplosionDecayFunction.KEY, ExplosionDecayFunction::deserialize)
-                   .putDeserializer(SetEnchantmentsFunction.KEY, SetEnchantmentsFunction::deserialize)
-                   .putDeserializer(EnchantWithLevelsFunction.KEY, EnchantWithLevelsFunction::deserialize)
-                   .putDeserializer(EnchantRandomlyFunction.KEY, EnchantRandomlyFunction::deserialize);
+                   .putDeserializer(SetEnchantmentsFunction.KEY, SetEnchantmentsFunction::deserialize);
         }
 
         /**
@@ -204,23 +185,12 @@ public class ImmuTables {
                    .putDeserializer(SequenceEntry.KEY, SequenceEntry::deserialize);
         }
 
-        /**
-         * Adds the default values for the EnchantmentManager to the provided builder
-         */
-        public static void setupEnchantmentManagerBuilder(@NotNull EnchantmentManager.Builder builder) {
-            builder.useConcurrentHashMap(false)
-                   .useDefaultEnchantability(true)
-                   .useDefaultEnchantmentData(true);
-        }
-
         private Builder() {}
 
         private Consumer<JsonSerializationManager.Builder<NumberProvider>> numberProviderBuilder;
         private Consumer<JsonSerializationManager.Builder<LootCondition>> lootConditionBuilder;
         private Consumer<JsonSerializationManager.Builder<LootFunction>> lootFunctionBuilder;
         private Consumer<JsonSerializationManager.Builder<LootEntry>> lootEntryBuilder;
-
-        private Consumer<EnchantmentManager.Builder> enchantmentManagerBuilder;
 
         /**
          * Sets the builder that is used for creating the {@link #getNumberProviderManager()}
@@ -255,15 +225,6 @@ public class ImmuTables {
         @Contract("_ -> this")
         public @NotNull Builder lootEntryBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootEntry>> lootEntryBuilder) {
             this.lootEntryBuilder = lootEntryBuilder;
-            return this;
-        }
-
-        /**
-         * Sets the builder that is used for creating the {@link #getEnchantmentManager()}
-         */
-        @Contract("_ -> this")
-        public @NotNull Builder enchantmentManagerBuilder(@NotNull Consumer<EnchantmentManager.Builder> enchantmentManagerBuilder) {
-            this.enchantmentManagerBuilder = enchantmentManagerBuilder;
             return this;
         }
 
