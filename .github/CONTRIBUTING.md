@@ -10,7 +10,7 @@ sure that it's in English (American English is preferred). Response times should
 
 ### How to request an enhancement
 To request an enhancement, just open an issue and tag it as "enhancement". Make sure that you clearly explain what you
-want added and make sure that it's possible to do.
+want added and that it's possible to implement it.
 
 ### Who is involved?
 Currently, this project is run purely by GoldenStack (me, obviously). My Discord is GoldenStack#3022. You can ask me for

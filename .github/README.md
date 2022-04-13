@@ -17,9 +17,6 @@ All classes that can be used to generate loot from a `LootTable` are immutable, 
 thread-safe. Additionally, most `Map` instances are `ConcurrentHashMap`s, and anything that isn't should have the option
 to use a concurrent implementation.
 
-This library depends on the [EnchantmentManager](https://github.com/GoldenStack/EnchantmentManager) library for some
-classes.
-
 ## Table of Contents
 - [Install](#install)
 - [Usage](#usage)
