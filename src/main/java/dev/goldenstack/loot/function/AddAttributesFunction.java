@@ -84,7 +84,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
             for (Modifier modifier : this.modifiers) {
                 attributeList.add(modifier.toItemAttribute(context));
             }
-            return builder.attributes(attributeList);
+            builder.attributes(attributeList);
         });
     }
 

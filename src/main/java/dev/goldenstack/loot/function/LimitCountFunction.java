@@ -64,7 +64,7 @@ public class LimitCountFunction extends ConditionalLootFunction {
      */
     @Override
     public @NotNull ItemStack modify(@NotNull ItemStack itemStack, @NotNull LootContext context) {
-        return itemStack.withAmount(this.limiter.limit(context, itemStack.getAmount()));
+        return itemStack.withAmount(this.limiter.limit(context, itemStack.amount()));
     }
 
     /**

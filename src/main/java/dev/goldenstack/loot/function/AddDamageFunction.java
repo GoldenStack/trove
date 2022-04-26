@@ -78,11 +78,11 @@ public class AddDamageFunction extends ConditionalLootFunction {
     @Override
     public @NotNull ItemStack modify(@NotNull ItemStack itemStack, @NotNull LootContext context) {
         // Don't change the durability if the item is unbreakable.
-        if (itemStack.getMeta().isUnbreakable()) {
+        if (itemStack.meta().isUnbreakable()) {
             return itemStack;
         }
         // Store the maximum damage value for later use
-        final int max_damage = itemStack.getMaterial().registry().maxDamage();
+        final int max_damage = itemStack.material().registry().maxDamage();
 
         // Don't change the durability if the item has no durability
         if (max_damage == 0) {
@@ -99,7 +99,7 @@ public class AddDamageFunction extends ConditionalLootFunction {
 
         // Different calculations are required if we need to factor in the current durability.
         if (add) {
-            final int damage = itemStack.getMeta().getDamage();
+            final int damage = itemStack.meta().getDamage();
             // The reason we use "damage - (max_damage - value)" is because the current damage still needs to be taken into account.
             // If the value variable represented durability instead of damage, we could simply write "damage - value".
             // However, value must be converted to a durability value instead with a simple "max_damage - value"

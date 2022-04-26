@@ -63,12 +63,12 @@ public class ExplosionDecayFunction extends ConditionalLootFunction {
         float div = 1.0f / f;
 
         int count = 0;
-        for (int i = 0; i < itemStack.getAmount(); i++) {
+        for (int i = 0; i < itemStack.amount(); i++) {
             if (random.nextFloat() <= div) {
                 count++;
             }
         }
-        return itemStack.getAmount() == count ? itemStack : itemStack.withAmount(count);
+        return itemStack.amount() == count ? itemStack : itemStack.withAmount(count);
     }
 
     /**

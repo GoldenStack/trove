@@ -78,7 +78,7 @@ public class SetCountFunction extends ConditionalLootFunction {
     @Override
     public @NotNull ItemStack modify(@NotNull ItemStack itemStack, @NotNull LootContext context) {
         int count = this.count.getInt(context);
-        return itemStack.withAmount(add ? count + itemStack.getAmount() : count);
+        return itemStack.withAmount(add ? count + itemStack.amount() : count);
     }
 
     /**
