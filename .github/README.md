@@ -79,8 +79,6 @@ ImmuTables loader = ImmuTables
         .lootFunctionBuilder(ImmuTables.Builder::setupLootFunctionManager)
         // Register the default loot entries
         .lootEntryBuilder(ImmuTables.Builder::setupLootEntryManager)
-        // Modify the default builder for the EnchantmentManager
-        .enchantmentManagerBuilder(ImmuTables.Builder::setupEnchantmentManagerBuilder)
     .build();
 
 // Register the default `LootParameterGroup`s to this loader
