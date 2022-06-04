@@ -23,7 +23,7 @@ public interface LootSerializer<T> {
     void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException;
 
     /**
-     * Returns this LootSerializer's NamespacedID. If you're adding this yourself, try to make it unique, so it
+     * Returns this LootSerializer's NamespaceID. If you're adding this yourself, try to make it unique, so it
      * doesn't mess with anything else.
      */
     @NotNull NamespaceID getKey();

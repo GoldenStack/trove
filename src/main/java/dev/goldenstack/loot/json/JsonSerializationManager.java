@@ -64,7 +64,7 @@ public class JsonSerializationManager <T extends LootSerializer<?>> {
     }
 
     /**
-     * Attempts to find a {@link LootDeserializer} based on the provided NamespacedID
+     * Attempts to find a {@link LootDeserializer} based on the provided NamespaceID
      * @param key The key to search for
      * @return The deserializer that was found, or null if none was found.
      */
