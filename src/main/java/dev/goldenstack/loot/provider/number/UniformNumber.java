@@ -37,7 +37,7 @@ public record UniformNumber(@NotNull NumberProvider min, @NotNull NumberProvider
     @Override
     public int getInt(@NotNull LootContext context) {
         final int max = this.max.getInt(context), min = this.min.getInt(context);
-        return context.findRandom().nextInt(max - min) + min;
+        return context.findRandom().nextInt(max - min + 1) + min;
     }
 
     /**
