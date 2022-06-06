@@ -14,8 +14,7 @@ Because there are no static `ImmuTables` instances, each extension, project, or 
 This prevents libraries from messing up other libraries.
 
 All classes that can be used to generate loot from a `LootTable` are immutable, so this library is completely
-thread-safe. Additionally, most `Map` instances are `ConcurrentHashMap`s, and anything that isn't should have the option
-to use a concurrent implementation.
+thread-safe. Additionally, everything else should be synchronized, so there should be fewer issues there.
 
 ## Table of Contents
 - [Install](#install)
@@ -64,24 +63,24 @@ Maven -
 
 ## Usage
 
-If you want to use this library, you will first have to set up your `ImmuTables` instance. There are easy-to-use methods
-to automatically add the default functions, entries, and conditions to your builder. If you use these methods, you can
-still add or remove your own implementations of these, so you're not limited to just the pre-made ones.
-``` java
-ImmuTables loader = ImmuTables
-        // Create the builder
-        .builder()
-        // Register the default number providers
-        .numberProviderBuilder(ImmuTables.Builder::setupNumberProviderBuilder)
-        // Register the default loot conditions
-        .lootConditionBuilder(ImmuTables.Builder::setupLootConditionManager)
-        // Register the default loot functions
-        .lootFunctionBuilder(ImmuTables.Builder::setupLootFunctionManager)
-        // Register the default loot entries
-        .lootEntryBuilder(ImmuTables.Builder::setupLootEntryManager)
-    .build();
+If you want to use this library, you will first have to set up your `ImmuTables` instance.
 
-// Register the default `LootParameterGroup`s to this loader
+The only information that is assigned through the builder and is immutable after is each element name, representing
+which key in each `JsonObject` is used to determine which type it is and which deserializer to use.
+
+The following code represents a pretty bare-bones way to create a working loader:
+
+``` java
+// Create the basic loader with element names
+ImmuTables loader = ImmuTables.builder().setDefaultValues().build();
+
+// Register all of the number providers, conditions, functions, and entries 
+ImmuTables.Builder.setupNumberProviderManager(loader.getNumberProviderManager());
+ImmuTables.Builder.setupLootConditionManager(loader.getLootConditionManager());
+ImmuTables.Builder.setupLootFunctionManager(loader.getLootFunctionManager());
+ImmuTables.Builder.setupLootEntryManager(loader.getLootEntryManager());
+
+// Register the default loot parameter groups to this loader
 LootParameterGroup.addDefaults(loader);
 ```
 
@@ -97,7 +96,7 @@ JsonObject object = ...; // Initialize this JsonObject to something that should 
 LootTable table = LootTable.deserialize(object, loader);
 ```
 
-This loot table can be used to generate loot by providing it a `LootContext`.
+This loot table can be used to generate loot by providing it a `LootContext`:
 
 ``` java
 LootTable table = ...; // Initialize the loot table here
@@ -115,19 +114,15 @@ For the simple usages of this library, you can just see the Usage section above.
 However, if you wish to add your own implementations, the following text should help you.
 
 #### Adding your changes
-Because the default functions are intended to be used as method references, you have to create your own method (or
-lambda) and call it yourself. See below:
-``` java
-ImmuTables loader = ImmuTables.builder()
-        .numberProviderBuilder((builder) -> {
-            ImmuTables.Builder.setupNumberProviderBuilder(builder);
-            builder.putDeserializer(/* The NamespaceID to use*/, /* The deserialization method */)
-        })
-    .build();
-```
+It's pretty simple to add your own implementations of any of the classes here. Unless you need to convert your class to
+or from JSON, you don't need to register it anywhere; you can just add it to somewhere that it could go.
+
+If, however, you do need to deal with JSON, it's pretty simple to do it: just get, from an ImmuTables instance, the
+manager with the right type, and then register a `JsonLootConverter` with it. After that, everything else should be
+automatically handled when you call the appropriate serialization or deserialization methods.
 
 When implementing `LootFunction`, it is a good idea to extend `ConditionalLootFunction` instead of implementing the
-class directly. This is because the class automatically handles adding `LootCondition`s to the function.
+class directly because the class automatically handles adding `LootCondition`s to the function.
 
 ## Contributing
 
