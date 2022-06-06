@@ -22,7 +22,7 @@ public record BinomiallyDistributedNumber(@NotNull NumberProvider trials, @NotNu
      */
     @Override
     public double getDouble(@NotNull LootContext context) {
-        return getInt(context);
+        return getInteger(context);
     }
 
     /**
@@ -30,8 +30,8 @@ public record BinomiallyDistributedNumber(@NotNull NumberProvider trials, @NotNu
      * Generates an integer via binomial distribution with {@link #trials} trials and {@link #probability} probability.
      */
     @Override
-    public int getInt(@NotNull LootContext context) {
-        int trials = this.trials.getInt(context);
+    public int getInteger(@NotNull LootContext context) {
+        int trials = this.trials.getInteger(context);
         double probability = this.probability.getDouble(context);
         final Random random = context.findRandom();
         int val = 0;

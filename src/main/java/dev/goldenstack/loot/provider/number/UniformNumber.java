@@ -25,12 +25,12 @@ public record UniformNumber(@NotNull NumberProvider min, @NotNull NumberProvider
 
     /**
      * {@inheritDoc}<br>
-     * For {@code UniformNumber}s, it's a uniform integer between the minimum's {@link NumberProvider#getInt(LootContext)}
-     * and the maximum's {@link NumberProvider#getInt(LootContext)}.
+     * For {@code UniformNumber}s, it's a uniform integer between the minimum's {@link NumberProvider#getInteger(LootContext)}
+     * and the maximum's {@link NumberProvider#getInteger(LootContext)}.
      */
     @Override
-    public int getInt(@NotNull LootContext context) {
-        final int max = this.max.getInt(context), min = this.min.getInt(context);
+    public int getInteger(@NotNull LootContext context) {
+        final int max = this.max.getInteger(context), min = this.min.getInteger(context);
         return context.findRandom().nextInt(max - min + 1) + min;
     }
 

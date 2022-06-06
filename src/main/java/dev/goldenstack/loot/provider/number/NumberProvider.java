@@ -14,10 +14,10 @@ public interface NumberProvider {
     double getDouble(@NotNull LootContext context);
 
     /**
-     * Generates an int based on the provided LootContext. By default, it returns the double from {@link #getDouble(LootContext)}
-     * rounded to the nearest integer.
+     * Generates an integer based on the provided LootContext. By default, it returns the double from
+     * {@link #getDouble(LootContext)} rounded to the nearest integer.
      */
-    default int getInt(@NotNull LootContext context) {
+    default int getInteger(@NotNull LootContext context) {
         return (int) Math.round(getDouble(context));
     }
 }

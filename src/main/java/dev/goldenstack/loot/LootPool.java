@@ -52,7 +52,7 @@ public record LootPool(@NotNull List<LootEntry> entries, @NotNull List<LootCondi
 
         List<ItemStack> items = new ArrayList<>();
 
-        int rolls = this.rolls.getInt(context) + (int) Math.floor(this.bonusRolls.getDouble(context) * context.luck());
+        int rolls = this.rolls.getInteger(context) + (int) Math.floor(this.bonusRolls.getDouble(context) * context.luck());
 
         for (int i = 0; i < rolls; i++) {
             int total = 0;

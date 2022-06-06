@@ -64,7 +64,7 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
                 im.enchantments(new HashMap<>());
             }
             for (var entry : this.enchantments.entrySet()) {
-                im.enchantment(entry.getKey(), (short) entry.getValue().getInt(context));
+                im.enchantment(entry.getKey(), (short) entry.getValue().getInteger(context));
             }
         });
     }

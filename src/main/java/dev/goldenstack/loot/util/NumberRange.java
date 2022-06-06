@@ -22,10 +22,10 @@ public record NumberRange(@Nullable NumberProvider min, @Nullable NumberProvider
      */
     public int limit(@NotNull LootContext context, int number) {
         if (this.min != null) {
-            number = Math.max(this.min.getInt(context), number);
+            number = Math.max(this.min.getInteger(context), number);
         }
         if (this.max != null) {
-            number = Math.min(this.max.getInt(context), number);
+            number = Math.min(this.max.getInteger(context), number);
         }
         return number;
     }
@@ -51,7 +51,7 @@ public record NumberRange(@Nullable NumberProvider min, @Nullable NumberProvider
      * equal to {@code max} are valid. If both {@code min} and {@code max} are null, true is always returned.
      */
     public boolean predicate(@NotNull LootContext context, int number) {
-        return (this.min == null || this.min.getInt(context) <= number) && (this.max == null || this.max.getInt(context) >= number);
+        return (this.min == null || this.min.getInteger(context) <= number) && (this.max == null || this.max.getInteger(context) >= number);
     }
 
     /**
@@ -67,8 +67,7 @@ public record NumberRange(@Nullable NumberProvider min, @Nullable NumberProvider
      * Serializes this NumberRange to a JsonObject. Null fields will not be added to the JsonObject, so it is possible
      * for this method to return an empty JsonObject if {@link #min()} and {@link #max()} are both null.
      */
-    public @NotNull
-    JsonObject serialize(@NotNull ImmuTables loader) throws JsonParseException {
+    public @NotNull JsonObject serialize(@NotNull ImmuTables loader) throws JsonParseException {
         JsonObject object = new JsonObject();
 
         if (this.min != null) {
