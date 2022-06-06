@@ -68,10 +68,9 @@ public record LootContextParameter <T> (@NotNull NamespaceID key) {
     public static final @NotNull LootContextParameter<Float> EXPLOSION_RADIUS = new LootContextParameter<>("explosion_radius");
 
     /**
-     * Creates a new LootContextParameter with the result of {@code NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, key)}
-     * , where {@code key} is the {@code key} parameter.
+     * Creates a new LootContextParameter with the provided key turned into a {@link NamespaceID}
      */
     public LootContextParameter(@NotNull String key) {
-        this(NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, key));
+        this(NamespaceID.from(key));
     }
 }
