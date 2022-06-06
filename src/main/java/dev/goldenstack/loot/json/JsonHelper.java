@@ -115,14 +115,7 @@ public class JsonHelper {
         if (string == null) {
             return null;
         }
-        final int index = string.indexOf(':');
-        if (index < 0) {
-            return NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, string);
-        }
-        if (string.indexOf(':', index + 1) != -1) {
-            return null;
-        }
-        return NamespaceID.from(string.substring(0, index), string.substring(index + 1));
+        return NamespaceID.from(string);
     }
 
     /**
@@ -457,7 +450,7 @@ public class JsonHelper {
     /**
      * Serializes the provided List<T> into a JsonArray
      * @param elements The elements to serialize
-     * @param serializer The serializer. This fits perfectly as a method reference from {@link JsonSerializationManager#serialize(LootSerializer)}
+     * @param serializer The serializer
      * @return The JsonArray
      */
     public static @NotNull <T> JsonArray serializeJsonArray(@NotNull List<T> elements, @NotNull Function<T, JsonElement> serializer) throws JsonParseException {
@@ -472,7 +465,7 @@ public class JsonHelper {
      * Deserializes the provided JsonElement, if it is a JsonArray, into an ImmutableList<T>.
      * @param element The element to deserialize. If this is not a JsonArray, an exception will be thrown.
      * @param key The key, to use with {@code deserializer}
-     * @param deserializer The deserializer. This fits perfectly as a method reference from {@link JsonSerializationManager#deserialize(JsonElement, String)}}
+     * @param deserializer The deserializer
      * @return The deserialized and immutable list
      */
     public static @NotNull <T> List<T> deserializeJsonArray(@Nullable JsonElement element, @NotNull String key, @NotNull BiFunction<JsonElement, String, T> deserializer) throws JsonParseException {
