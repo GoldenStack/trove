@@ -18,8 +18,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 /**
  * Main class for serializing and deserializing loot tables
@@ -34,38 +34,12 @@ public class ImmuTables {
     private final @NotNull Map<NamespaceID, LootParameterGroup> lootParameterGroupRegistry;
 
     private ImmuTables(@NotNull Builder builder) {
+        this.numberProviderManager = new JsonSerializationManager<>(this, builder.numberProviderElementName);
+        this.lootConditionManager = new JsonSerializationManager<>(this, builder.lootConditionElementName);
+        this.lootFunctionManager = new JsonSerializationManager<>(this, builder.lootFunctionElementName);
+        this.lootEntryManager = new JsonSerializationManager<>(this, builder.lootEntryElementName);
 
-        // Number provider manager
-        JsonSerializationManager.Builder<NumberProvider> numberProviderBuilder = JsonSerializationManager.builder();
-        if (builder.numberProviderBuilder != null) {
-            builder.numberProviderBuilder.accept(numberProviderBuilder);
-        }
-        this.numberProviderManager = numberProviderBuilder.owner(this).build();
-
-        // Loot condition manager
-        JsonSerializationManager.Builder<LootCondition> lootConditionBuilder = JsonSerializationManager.builder();
-        if (builder.lootConditionBuilder != null) {
-            builder.lootConditionBuilder.accept(lootConditionBuilder);
-        }
-        this.lootConditionManager = lootConditionBuilder.owner(this).build();
-
-        // Loot function manager
-        JsonSerializationManager.Builder<LootFunction> lootFunctionBuilder = JsonSerializationManager.builder();
-        if (builder.lootFunctionBuilder != null) {
-            builder.lootFunctionBuilder.accept(lootFunctionBuilder);
-        }
-        this.lootFunctionManager = lootFunctionBuilder.owner(this).build();
-
-        // Loot entry manager
-        JsonSerializationManager.Builder<LootEntry> lootEntryBuilder = JsonSerializationManager.builder();
-        if (builder.lootEntryBuilder != null) {
-            builder.lootEntryBuilder.accept(lootEntryBuilder);
-        }
-        this.lootEntryManager = lootEntryBuilder.owner(this).build();
-
-        // Loot parameter group registry
-        lootParameterGroupRegistry = new ConcurrentHashMap<>();
-
+        this.lootParameterGroupRegistry = new ConcurrentHashMap<>();
     }
 
     /**
@@ -136,95 +110,85 @@ public class ImmuTables {
         /**
          * Adds the default values for the NumberProvider manager to the provided builder
          */
-        public static void setupNumberProviderBuilder(@NotNull JsonSerializationManager.Builder<NumberProvider> builder) {
-            builder.elementName("type")
-                   .defaultDeserializer(ConstantNumber::defaultDeserializer)
-                   .putDeserializer(ConstantNumber.KEY, ConstantNumber::deserialize)
-                   .putDeserializer(UniformNumber.KEY, UniformNumber::deserialize)
-                   .putDeserializer(BinomiallyDistributedNumber.KEY, BinomiallyDistributedNumber::deserialize);
+        public static void setupNumberProviderManager(@NotNull JsonSerializationManager<NumberProvider> manager) {
+            manager.defaultDeserializer(ConstantNumber.DEFAULT_DESERIALIZER);
+            manager.register(ConstantNumber.CONVERTER);
+            manager.register(UniformNumber.CONVERTER);
+            manager.register(BinomiallyDistributedNumber.CONVERTER);
         }
 
         /**
          * Adds the default values for the LootCondition manager to the provided builder
          */
-        public static void setupLootConditionManager(@NotNull JsonSerializationManager.Builder<LootCondition> builder) {
-            builder.elementName("condition")
-                   .putDeserializer(RandomChanceCondition.KEY, RandomChanceCondition::deserialize)
-                   .putDeserializer(LootingRandomChanceCondition.KEY, LootingRandomChanceCondition::deserialize)
-                   .putDeserializer(KilledByPlayerCondition.KEY, KilledByPlayerCondition::deserialize)
-                   .putDeserializer(InvertedCondition.KEY, InvertedCondition::deserialize)
-                   .putDeserializer(BlockStatePropertyCondition.KEY, BlockStatePropertyCondition::deserialize)
-                   .putDeserializer(SurvivesExplosionCondition.KEY, SurvivesExplosionCondition::deserialize)
-                   .putDeserializer(TimeCheckCondition.KEY, TimeCheckCondition::deserialize)
-                   .putDeserializer(AlternativeCondition.KEY, AlternativeCondition::deserialize)
-                   .putDeserializer(ValueCheckCondition.KEY, ValueCheckCondition::deserialize);
+        public static void setupLootConditionManager(@NotNull JsonSerializationManager<LootCondition> manager) {
+            manager.register(AlternativeCondition.CONVERTER);
+            manager.register(BlockStatePropertyCondition.CONVERTER);
+            manager.register(InvertedCondition.CONVERTER);
+            manager.register(KilledByPlayerCondition.CONVERTER);
+            manager.register(LootingRandomChanceCondition.CONVERTER);
+            manager.register(RandomChanceCondition.CONVERTER);
+            manager.register(SurvivesExplosionCondition.CONVERTER);
+            manager.register(TimeCheckCondition.CONVERTER);
+            manager.register(ValueCheckCondition.CONVERTER);
         }
 
         /**
          * Adds the default values for the LootFunction manager to the provided builder
          */
-        public static void setupLootFunctionManager(@NotNull JsonSerializationManager.Builder<LootFunction> builder) {
-            builder.elementName("function")
-                   .putDeserializer(SetCountFunction.KEY, SetCountFunction::deserialize)
-                   .putDeserializer(LimitCountFunction.KEY, LimitCountFunction::deserialize)
-                   .putDeserializer(AddDamageFunction.KEY, AddDamageFunction::deserialize)
-                   .putDeserializer(AddAttributesFunction.KEY, AddAttributesFunction::deserialize)
-                   .putDeserializer(ExplosionDecayFunction.KEY, ExplosionDecayFunction::deserialize)
-                   .putDeserializer(SetEnchantmentsFunction.KEY, SetEnchantmentsFunction::deserialize);
+        public static void setupLootFunctionManager(@NotNull JsonSerializationManager<LootFunction> manager) {
+            manager.register(AddAttributesFunction.CONVERTER);
+            manager.register(AddDamageFunction.CONVERTER);
+            manager.register(ExplosionDecayFunction.CONVERTER);
+            manager.register(LimitCountFunction.CONVERTER);
+            manager.register(SetCountFunction.CONVERTER);
+            manager.register(SetEnchantmentsFunction.CONVERTER);
         }
 
         /**
          * Adds the default values for the LootEntry manager to the provided builder
          */
-        public static void setupLootEntryManager(@NotNull JsonSerializationManager.Builder<LootEntry> builder) {
-            builder.elementName("type")
-                   .putDeserializer(ItemEntry.KEY, ItemEntry::deserialize)
-                   .putDeserializer(EmptyEntry.KEY, EmptyEntry::deserialize)
-                   .putDeserializer(GroupEntry.KEY, GroupEntry::deserialize)
-                   .putDeserializer(AlternativeEntry.KEY, AlternativeEntry::deserialize)
-                   .putDeserializer(SequenceEntry.KEY, SequenceEntry::deserialize);
+        public static void setupLootEntryManager(@NotNull JsonSerializationManager<LootEntry> manager) {
+            manager.register(AlternativeEntry.CONVERTER);
+            manager.register(EmptyEntry.CONVERTER);
+            manager.register(GroupEntry.CONVERTER);
+            manager.register(ItemEntry.CONVERTER);
+            manager.register(SequenceEntry.CONVERTER);
         }
 
         private Builder() {}
 
-        private Consumer<JsonSerializationManager.Builder<NumberProvider>> numberProviderBuilder;
-        private Consumer<JsonSerializationManager.Builder<LootCondition>> lootConditionBuilder;
-        private Consumer<JsonSerializationManager.Builder<LootFunction>> lootFunctionBuilder;
-        private Consumer<JsonSerializationManager.Builder<LootEntry>> lootEntryBuilder;
+        private String numberProviderElementName, lootConditionElementName, lootFunctionElementName, lootEntryElementName;
 
-        /**
-         * Sets the builder that is used for creating the {@link #getNumberProviderManager()}
-         */
-        @Contract("_ -> this")
-        public @NotNull Builder numberProviderBuilder(@NotNull Consumer<JsonSerializationManager.Builder<NumberProvider>> numberProviderBuilder) {
-            this.numberProviderBuilder = numberProviderBuilder;
+        @Contract(" -> this")
+        public @NotNull Builder setDefaultValues() {
+            this.numberProviderElementName = "type";
+            this.lootConditionElementName = "condition";
+            this.lootFunctionElementName = "function";
+            this.lootEntryElementName = "type";
             return this;
         }
 
-        /**
-         * Sets the builder that is used for creating the {@link #getLootConditionManager()}
-         */
         @Contract("_ -> this")
-        public @NotNull Builder lootConditionBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootCondition>> lootConditionBuilder) {
-            this.lootConditionBuilder = lootConditionBuilder;
+        public @NotNull Builder numberProviderElementName(@NotNull String numberProviderElementName) {
+            this.numberProviderElementName = numberProviderElementName;
             return this;
         }
 
-        /**
-         * Sets the builder that is used for creating the {@link #getLootFunctionManager()}
-         */
         @Contract("_ -> this")
-        public @NotNull Builder lootFunctionBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootFunction>> lootFunctionBuilder) {
-            this.lootFunctionBuilder = lootFunctionBuilder;
+        public @NotNull Builder lootConditionElementName(@NotNull String lootConditionElementName) {
+            this.lootConditionElementName = lootConditionElementName;
             return this;
         }
 
-        /**
-         * Sets the builder that is used for creating the {@link #getLootEntryManager()}
-         */
         @Contract("_ -> this")
-        public @NotNull Builder lootEntryBuilder(@NotNull Consumer<JsonSerializationManager.Builder<LootEntry>> lootEntryBuilder) {
-            this.lootEntryBuilder = lootEntryBuilder;
+        public @NotNull Builder lootEntryElementName(@NotNull String lootEntryElementName) {
+            this.lootEntryElementName = lootEntryElementName;
+            return this;
+        }
+
+        @Contract("_ -> this")
+        public @NotNull Builder lootFunctionElementName(@NotNull String lootFunctionElementName) {
+            this.lootFunctionElementName = lootFunctionElementName;
             return this;
         }
 
@@ -232,6 +196,10 @@ public class ImmuTables {
          * Builds a {@code ImmuTables} instance from this builder.
          */
         public @NotNull ImmuTables build() {
+            Objects.requireNonNull(this.numberProviderElementName, "Number provider element name must not be null!");
+            Objects.requireNonNull(this.lootConditionElementName, "Loot condition element name must not be null!");
+            Objects.requireNonNull(this.lootFunctionElementName, "Loot function element name must not be null!");
+            Objects.requireNonNull(this.lootEntryElementName, "Loot entry element name must not be null!");
             return new ImmuTables(this);
         }
 

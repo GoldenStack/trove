@@ -8,8 +8,7 @@ import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.function.LootFunction;
 import dev.goldenstack.loot.json.JsonHelper;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.utils.NamespaceID;
@@ -21,11 +20,6 @@ import java.util.List;
  * An entry that always generates an item with the same material.
  */
 public class ItemEntry extends ConstantChoiceEntry {
-    /**
-     * The immutable key for all ItemEntry instances
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "item");
-
     private final @NotNull Material material;
 
     /**
@@ -45,37 +39,11 @@ public class ItemEntry extends ConstantChoiceEntry {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        super.serialize(object, loader);
-        object.addProperty("name", this.material.namespace().asString());
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
-
-    /**
      * Generates a list with one item of the material {@link #material()}.
      */
     @Override
     public @NotNull List<ItemStack> generateLoot(@NotNull LootContext context) {
         return List.of(ItemStack.of(material));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootEntry>> getDeserializer() {
-        return ItemEntry::deserialize;
     }
 
     @Override
@@ -97,23 +65,30 @@ public class ItemEntry extends ConstantChoiceEntry {
         return super.hashCode() * 31 + material.hashCode();
     }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to an {@code ItemEntry}.
-     */
-    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) {
-        JsonElement name = object.get("name");
-        Material material = Material.fromNamespaceId(JsonHelper.assureNamespaceId(name, "name"));
+    public static final @NotNull JsonLootConverter<ItemEntry> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:item"), ItemEntry.class) {
+        @Override
+        public @NotNull ItemEntry deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            JsonElement name = json.get("name");
+            Material material = Material.fromNamespaceId(JsonHelper.assureNamespaceId(name, "name"));
 
-        if (material == null) {
-            throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid material (as a NamespaceID)", "name", name));
+            if (material == null) {
+                throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid material (as a NamespaceID)", "name", name));
+            }
+
+            return new ItemEntry(
+                    LootEntry.deserializeConditions(json, loader),
+                    LootEntry.deserializeFunctions(json, loader),
+                    LootEntry.deserializeWeight(json, loader),
+                    LootEntry.deserializeQuality(json, loader),
+                    material
+            );
         }
 
-        return new ItemEntry(
-                LootEntry.deserializeConditions(object, loader),
-                LootEntry.deserializeFunctions(object, loader),
-                LootEntry.deserializeWeight(object, loader),
-                LootEntry.deserializeQuality(object, loader),
-                material
-        );
-    }
+        @Override
+        public void serialize(@NotNull ItemEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            LootEntry.serializeLootEntry(input, result, loader);
+            result.addProperty("name", input.material.namespace().asString());
+        }
+    };
 }

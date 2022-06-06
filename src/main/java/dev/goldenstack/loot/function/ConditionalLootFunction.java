@@ -54,18 +54,6 @@ public abstract class ConditionalLootFunction implements LootFunction {
     public abstract @NotNull ItemStack modify(@NotNull ItemStack itemStack, @NotNull LootContext context);
 
     /**
-     * {@inheritDoc}<br>
-     * If you want to add more information to the JsonObject, it is a good idea to override this method, but make sure
-     * to run {@code super.serialize(object, loader)} so that the conditions can get serialized!
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        if (this.conditions.size() > 0) {
-            object.add("conditions", JsonHelper.serializeJsonArray(this.conditions, loader.getLootConditionManager()::serialize));
-        }
-    }
-
-    /**
      * Utility method for getting an immutable list of the conditions from the JsonObject.<br>
      * This should be called in a similar manner to: <br>
      * {@code List<LootCondition> conditions = ConditionalLootFunction.deserializeConditions(json, loader);}
@@ -76,5 +64,15 @@ public abstract class ConditionalLootFunction implements LootFunction {
             return List.of();
         }
         return JsonHelper.deserializeJsonArray(functions, "conditions", loader.getLootConditionManager()::deserialize);
+    }
+
+    /**
+     * Serializes the conditions in the provided function to the provided JsonObject.
+     */
+    public static void serializeConditionalLootFunction(@NotNull ConditionalLootFunction input, @NotNull JsonObject result,
+                                                        @NotNull ImmuTables loader) throws JsonParseException {
+        if (input.conditions.size() > 0) {
+            result.add("conditions", JsonHelper.serializeJsonArray(input.conditions, loader.getLootConditionManager()::serialize));
+        }
     }
 }

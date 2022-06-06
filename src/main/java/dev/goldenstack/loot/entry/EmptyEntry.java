@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.entry;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.function.LootFunction;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
@@ -17,11 +17,6 @@ import java.util.List;
  * An entry that generates nothing.
  */
 public class EmptyEntry extends ConstantChoiceEntry {
-    /**
-     * The immutable key for all EmptyEntry instances
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "empty");
-
     /**
      * Initializes an EmptyEntry instance
      */
@@ -38,37 +33,26 @@ public class EmptyEntry extends ConstantChoiceEntry {
         return List.of();
     }
 
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootEntry>> getDeserializer() {
-        return EmptyEntry::deserialize;
-    }
-
     @Override
     public String toString() {
         return "EmptyEntry[" + LootEntry.partialToString(this) + "]";
     }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to an {@code EmptyEntry}.
-     */
-    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) {
-        return new EmptyEntry(
-                LootEntry.deserializeConditions(object, loader),
-                LootEntry.deserializeFunctions(object, loader),
-                LootEntry.deserializeWeight(object, loader),
-                LootEntry.deserializeQuality(object, loader)
-        );
-    }
+    public static final @NotNull JsonLootConverter<EmptyEntry> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:empty"), EmptyEntry.class) {
+        @Override
+        public @NotNull EmptyEntry deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new EmptyEntry(
+                    LootEntry.deserializeConditions(json, loader),
+                    LootEntry.deserializeFunctions(json, loader),
+                    LootEntry.deserializeWeight(json, loader),
+                    LootEntry.deserializeQuality(json, loader)
+            );
+        }
+
+        @Override
+        public void serialize(@NotNull EmptyEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            LootEntry.serializeLootEntry(input, result, loader);
+        }
+    };
 }

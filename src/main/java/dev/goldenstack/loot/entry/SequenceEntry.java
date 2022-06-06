@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.entry;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.function.LootFunction;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,10 +18,6 @@ import java.util.List;
  * that does not pass its conditions.
  */
 public class SequenceEntry extends CombinedEntry {
-    /**
-     * The immutable key for all SequenceEntry instances
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "sequence");
 
     /**
      * Initialize a new SequenceEntry with the provided conditions, functions, weight, quality, and children.
@@ -29,23 +25,6 @@ public class SequenceEntry extends CombinedEntry {
     public SequenceEntry(@NotNull List<LootCondition> conditions, @NotNull List<LootFunction> functions, int weight,
                          int quality, @NotNull List<LootEntry> children) {
         super(conditions, functions, weight, quality, children);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootEntry>> getDeserializer() {
-        return SequenceEntry::deserialize;
     }
 
     /**
@@ -69,17 +48,23 @@ public class SequenceEntry extends CombinedEntry {
         return "SequenceEntry[" + CombinedEntry.partialToString(this) + "]";
     }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to a {@code SequenceEntry}.
-     */
-    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) {
-        return new SequenceEntry(
-                LootEntry.deserializeConditions(object, loader),
-                LootEntry.deserializeFunctions(object, loader),
-                LootEntry.deserializeWeight(object, loader),
-                LootEntry.deserializeQuality(object, loader),
-                CombinedEntry.deserializeChildren(object, loader)
-        );
-    }
+    public static final @NotNull JsonLootConverter<SequenceEntry> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:sequence"), SequenceEntry.class) {
+        @Override
+        public @NotNull SequenceEntry deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new SequenceEntry(
+                    LootEntry.deserializeConditions(json, loader),
+                    LootEntry.deserializeFunctions(json, loader),
+                    LootEntry.deserializeWeight(json, loader),
+                    LootEntry.deserializeQuality(json, loader),
+                    CombinedEntry.deserializeChildren(json, loader)
+            );
+        }
+
+        @Override
+        public void serialize(@NotNull SequenceEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            CombinedEntry.serializeCombinedEntry(input, result, loader);
+        }
+    };
 
 }

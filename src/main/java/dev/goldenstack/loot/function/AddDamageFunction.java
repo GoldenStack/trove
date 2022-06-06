@@ -6,8 +6,7 @@ import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import dev.goldenstack.loot.provider.number.NumberProvider;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
@@ -20,10 +19,6 @@ import java.util.Objects;
  * Represents a {@code LootFunction} that sets the amount of damage that the provided ItemStack has.
  */
 public class AddDamageFunction extends ConditionalLootFunction {
-    /**
-     * The immutable key for all {@code AddDamageFunction}s
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "set_damage");
 
     private final NumberProvider damage;
     private final boolean add;
@@ -50,25 +45,6 @@ public class AddDamageFunction extends ConditionalLootFunction {
      */
     public boolean add() {
         return add;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        super.serialize(object, loader);
-        object.add("damage", loader.getNumberProviderManager().serialize(this.damage));
-        object.addProperty("add", this.add);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
     }
 
     /**
@@ -112,14 +88,6 @@ public class AddDamageFunction extends ConditionalLootFunction {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootFunction>> getDeserializer() {
-        return AddDamageFunction::deserialize;
-    }
-
     @Override
     public String toString() {
         return "AddDamageFunction[conditions=" + conditions() + ", damage=" + damage + ", add=" + add + "]";
@@ -138,13 +106,21 @@ public class AddDamageFunction extends ConditionalLootFunction {
         return Objects.hashCode(damage) * 31 + Boolean.hashCode(add);
     }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to an {@code AddDamageFunction}
-     */
-    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
-        NumberProvider provider = loader.getNumberProviderManager().deserialize(json.get("damage"), "damage");
-        boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
-        return new AddDamageFunction(list, provider, add);
-    }
+    public static final @NotNull JsonLootConverter<AddDamageFunction> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:set_damage"), AddDamageFunction.class) {
+        @Override
+        public @NotNull AddDamageFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
+            NumberProvider provider = loader.getNumberProviderManager().deserialize(json.get("damage"), "damage");
+            boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
+            return new AddDamageFunction(list, provider, add);
+        }
+
+        @Override
+        public void serialize(@NotNull AddDamageFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
+            result.add("damage", loader.getNumberProviderManager().serialize(input.damage));
+            result.addProperty("add", input.add);
+        }
+    };
 }

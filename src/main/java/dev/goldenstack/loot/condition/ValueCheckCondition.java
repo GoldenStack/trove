@@ -4,8 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import dev.goldenstack.loot.provider.number.NumberProvider;
 import dev.goldenstack.loot.util.NumberRange;
 import net.minestom.server.utils.NamespaceID;
@@ -18,29 +17,6 @@ import org.jetbrains.annotations.NotNull;
 public record ValueCheckCondition(@NotNull NumberProvider value, @NotNull NumberRange range) implements LootCondition {
 
     /**
-     * The immutable key for all {@code ValueCheckCondition}s
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "value_check");
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        object.add("value", loader.getNumberProviderManager().serialize(value));
-        object.add("range", loader.serializeNumberRange(range));
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
-
-    /**
      * Returns true if the value of {@link #value()} fits in the range of {@link #range()}.
      */
     @Override
@@ -48,21 +24,20 @@ public record ValueCheckCondition(@NotNull NumberProvider value, @NotNull Number
         return this.range.predicate(context, this.value.getDouble(context));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootCondition>> getDeserializer() {
-        return ValueCheckCondition::deserialize;
-    }
+    public static final @NotNull JsonLootConverter<ValueCheckCondition> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:value_check"), ValueCheckCondition.class) {
+        @Override
+        public @NotNull ValueCheckCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new ValueCheckCondition(
+                    loader.getNumberProviderManager().deserialize(json.get("value"), "value"),
+                    NumberRange.deserialize(loader, json.get("range"), "range")
+            );
+        }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to a {@code ValueCheckCondition}
-     */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        return new ValueCheckCondition(
-                loader.getNumberProviderManager().deserialize(json.get("value"), "value"),
-                NumberRange.deserialize(loader, json.get("range"), "range")
-        );
-    }
+        @Override
+        public void serialize(@NotNull ValueCheckCondition input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            result.add("value", loader.getNumberProviderManager().serialize(input.value));
+            result.add("range", loader.serializeNumberRange(input.range));
+        }
+    };
 }

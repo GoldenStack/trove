@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.json.LootSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.function.Predicate;
 /**
  * Represents something that can return true or false based on the LootContext that is provided
  */
-public interface LootCondition extends LootSerializer<LootCondition>, Predicate<LootContext> {
+public interface LootCondition extends Predicate<LootContext> {
 
     /**
      * Returns true or false based on the LootContext.<br>

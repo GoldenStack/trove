@@ -4,8 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import dev.goldenstack.loot.provider.number.NumberProvider;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
@@ -17,28 +16,6 @@ import org.jetbrains.annotations.NotNull;
 public record RandomChanceCondition(@NotNull NumberProvider probability) implements LootCondition {
 
     /**
-     * The immutable key for all {@code RandomChanceCondition}s
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "random_chance");
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        object.add("probability", loader.getNumberProviderManager().serialize(this.probability));
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
-
-    /**
      * Returns true if {@code context.findRandom().nextDouble() < this.probability.getDouble(context);}
      */
     @Override
@@ -46,18 +23,17 @@ public record RandomChanceCondition(@NotNull NumberProvider probability) impleme
         return context.findRandom().nextDouble() < this.probability.getDouble(context);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootCondition>> getDeserializer() {
-        return RandomChanceCondition::deserialize;
-    }
+    public static final @NotNull JsonLootConverter<RandomChanceCondition> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:random_chance"), RandomChanceCondition.class) {
+        @Override
+        public @NotNull RandomChanceCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new RandomChanceCondition(loader.getNumberProviderManager().deserialize(json.get("probability"), "probability"));
+        }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to a {@code RandomChanceCondition}
-     */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        return new RandomChanceCondition(loader.getNumberProviderManager().deserialize(json.get("probability"), "probability"));
-    }
+        @Override
+        public void serialize(@NotNull RandomChanceCondition input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            result.add("probability", loader.getNumberProviderManager().serialize(input.probability));
+        }
+    };
+
 }

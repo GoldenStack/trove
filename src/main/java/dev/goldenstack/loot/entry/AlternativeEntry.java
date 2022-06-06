@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.entry;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.function.LootFunction;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,10 +16,6 @@ import java.util.List;
  * An entry that returns the result of the first child that passes its conditions
  */
 public class AlternativeEntry extends CombinedEntry {
-    /**
-     * The immutable key for all AlternativeEntry instances
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "alternatives");
 
     /**
      * Initialize a new AlternativeEntry with the provided conditions, functions, weight, quality, and children.
@@ -27,23 +23,6 @@ public class AlternativeEntry extends CombinedEntry {
     public AlternativeEntry(@NotNull List<LootCondition> conditions, @NotNull List<LootFunction> functions, int weight,
                             int quality, @NotNull List<LootEntry> children) {
         super(conditions, functions, weight, quality, children);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootEntry>> getDeserializer() {
-        return AlternativeEntry::deserialize;
     }
 
     /**
@@ -65,16 +44,22 @@ public class AlternativeEntry extends CombinedEntry {
         return "AlternativeEntry[" + CombinedEntry.partialToString(this) + "]";
     }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to an {@code AlternativeEntry}.
-     */
-    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) {
-        return new AlternativeEntry(
-                LootEntry.deserializeConditions(object, loader),
-                LootEntry.deserializeFunctions(object, loader),
-                LootEntry.deserializeWeight(object, loader),
-                LootEntry.deserializeQuality(object, loader),
-                CombinedEntry.deserializeChildren(object, loader)
-        );
-    }
+    public static final @NotNull JsonLootConverter<AlternativeEntry> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:alternatives"), AlternativeEntry.class) {
+        @Override
+        public @NotNull AlternativeEntry deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new AlternativeEntry(
+                    LootEntry.deserializeConditions(json, loader),
+                    LootEntry.deserializeFunctions(json, loader),
+                    LootEntry.deserializeWeight(json, loader),
+                    LootEntry.deserializeQuality(json, loader),
+                    CombinedEntry.deserializeChildren(json, loader)
+            );
+        }
+
+        @Override
+        public void serialize(@NotNull AlternativeEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            CombinedEntry.serializeCombinedEntry(input, result, loader);
+        }
+    };
 }

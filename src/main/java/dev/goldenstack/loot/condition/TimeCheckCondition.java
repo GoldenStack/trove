@@ -6,8 +6,7 @@ import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import dev.goldenstack.loot.util.NumberRange;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.utils.NamespaceID;
@@ -20,31 +19,6 @@ import org.jetbrains.annotations.Nullable;
  * is used as the time instead of the raw value.
  */
 public record TimeCheckCondition(@NotNull NumberRange range, @Nullable Number period) implements LootCondition {
-
-    /**
-     * The immutable key for all {@code TimeCheckCondition}s
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "time_check");
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        if (this.period != null) {
-            object.addProperty("period", this.period);
-        }
-        object.add("range", this.range.serialize(loader));
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
 
     /**
      * Returns true if the context's instance has a time that fits in the range of {@link #range()}. If {@link #period()}
@@ -64,27 +38,28 @@ public record TimeCheckCondition(@NotNull NumberRange range, @Nullable Number pe
         return this.range.predicate(context, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootCondition>> getDeserializer() {
-        return TimeCheckCondition::deserialize;
-    }
+    public static final @NotNull JsonLootConverter<TimeCheckCondition> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:time_check"), TimeCheckCondition.class) {
+        @Override
+        public @NotNull TimeCheckCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            NumberRange range = JsonHelper.optionalAlternativeKey(json, loader::deserializeNumberRange, "range", "value");
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to a {@code TimeCheckCondition}
-     */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        NumberRange range = JsonHelper.optionalAlternativeKey(json, loader::deserializeNumberRange, "range", "value");
+            JsonElement number = json.get("period");
+            Number period = null;
+            if (number != null) {
+                period = JsonHelper.assureNumber(number, "period");
+            }
 
-        JsonElement number = json.get("period");
-        Number period = null;
-        if (number != null) {
-            period = JsonHelper.assureNumber(number, "period");
+            return new TimeCheckCondition(range, period);
         }
 
-        return new TimeCheckCondition(range, period);
-    }
+        @Override
+        public void serialize(@NotNull TimeCheckCondition input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            if (input.period != null) {
+                result.addProperty("period", input.period);
+            }
+            result.add("range", input.range.serialize(loader));
+        }
+    };
 }
 

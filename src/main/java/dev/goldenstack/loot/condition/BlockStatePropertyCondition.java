@@ -8,8 +8,7 @@ import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootContextParameter;
 import dev.goldenstack.loot.criterion.PropertiesCriterion;
 import dev.goldenstack.loot.json.JsonHelper;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
@@ -23,31 +22,6 @@ import org.jetbrains.annotations.Nullable;
  * </ul>
  */
 public record BlockStatePropertyCondition(@Nullable NamespaceID block, @NotNull PropertiesCriterion properties) implements LootCondition {
-
-    /**
-     * The immutable key for all {@code BlockStatePropertyCondition}s
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "block_state_property");
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        if (this.block != null) {
-            object.addProperty("block", this.block.asString());
-        }
-        object.add("properties", this.properties.serialize());
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
 
     /**
      * Returns true if:
@@ -65,23 +39,24 @@ public record BlockStatePropertyCondition(@Nullable NamespaceID block, @NotNull 
         return this.properties.test(block.properties());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootCondition>> getDeserializer() {
-        return BlockStatePropertyCondition::deserialize;
-    }
-
-    /**
-     * Static method to deserialize a {@code JsonObject} to a {@code BlockStatePropertyCondition}
-     */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        JsonElement blockElement = json.get("block");
-        NamespaceID id = null;
-        if (!JsonHelper.isNull(blockElement)) {
-            id = JsonHelper.assureNamespaceId(blockElement, "block");
+    public static final @NotNull JsonLootConverter<BlockStatePropertyCondition> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:block_state_property"), BlockStatePropertyCondition.class) {
+        @Override
+        public @NotNull BlockStatePropertyCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            JsonElement blockElement = json.get("block");
+            NamespaceID id = null;
+            if (!JsonHelper.isNull(blockElement)) {
+                id = JsonHelper.assureNamespaceId(blockElement, "block");
+            }
+            return new BlockStatePropertyCondition(id, PropertiesCriterion.deserialize(json.get("properties")));
         }
-        return new BlockStatePropertyCondition(id, PropertiesCriterion.deserialize(json.get("properties")));
-    }
+
+        @Override
+        public void serialize(@NotNull BlockStatePropertyCondition input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            if (input.block != null) {
+                result.addProperty("block", input.block.asString());
+            }
+            result.add("properties", input.properties.serialize());
+        }
+    };
 }

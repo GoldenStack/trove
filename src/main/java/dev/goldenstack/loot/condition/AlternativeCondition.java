@@ -5,8 +5,7 @@ import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,30 +17,8 @@ import java.util.List;
  */
 public record AlternativeCondition(@NotNull List<LootCondition> terms) implements LootCondition {
 
-    /**
-     * The immutable key for all {@code AlternativeCondition}s
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "alternative");
-
     public AlternativeCondition {
         terms = List.copyOf(terms);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        object.add("terms", JsonHelper.serializeJsonArray(this.terms, loader.getLootConditionManager()::serialize));
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
     }
 
     /**
@@ -52,18 +29,16 @@ public record AlternativeCondition(@NotNull List<LootCondition> terms) implement
         return LootCondition.or(context, this.terms);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootCondition>> getDeserializer() {
-        return AlternativeCondition::deserialize;
-    }
+    public static final @NotNull JsonLootConverter<AlternativeCondition> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:alternative"), AlternativeCondition.class) {
+        @Override
+        public @NotNull AlternativeCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new AlternativeCondition(JsonHelper.deserializeJsonArray(json.get("terms"), "terms", loader.getLootConditionManager()::deserialize));
+        }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to an {@code AlternativeCondition}
-     */
-    public static @NotNull LootCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        return new AlternativeCondition(JsonHelper.deserializeJsonArray(json.get("terms"), "terms", loader.getLootConditionManager()::deserialize));
-    }
+        @Override
+        public void serialize(@NotNull AlternativeCondition input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            result.add("terms", JsonHelper.serializeJsonArray(input.terms, loader.getLootConditionManager()::serialize));
+        }
+    };
 }

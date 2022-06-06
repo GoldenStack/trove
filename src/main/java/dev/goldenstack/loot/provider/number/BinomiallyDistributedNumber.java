@@ -5,8 +5,7 @@ import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,11 +16,6 @@ import java.util.Random;
  * {@code probability}.
  */
 public record BinomiallyDistributedNumber(@NotNull NumberProvider trials, @NotNull NumberProvider probability) implements NumberProvider {
-    /**
-     * The immutable key for all {@code BinomiallyDistributedNumber}s
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "binomial");
-
     /**
      * {@inheritDoc}<br>
      * Generates an integer via binomial distribution with {@link #trials} trials and {@link #probability} probability.
@@ -49,36 +43,20 @@ public record BinomiallyDistributedNumber(@NotNull NumberProvider trials, @NotNu
         return val;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        object.add("trials", loader.getNumberProviderManager().serialize(this.trials));
-        object.add("probability", loader.getNumberProviderManager().serialize(this.probability));
-    }
+    public static final @NotNull JsonLootConverter<BinomiallyDistributedNumber> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:binomial"), BinomiallyDistributedNumber.class) {
+        @Override
+        public @NotNull BinomiallyDistributedNumber deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new BinomiallyDistributedNumber(
+                    JsonHelper.optionalAlternativeKey(json, loader.getNumberProviderManager()::deserialize, "trials", "n"),
+                    JsonHelper.optionalAlternativeKey(json, loader.getNumberProviderManager()::deserialize, "probability", "p")
+            );
+        }
 
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
-
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<NumberProvider>> getDeserializer() {
-        return BinomiallyDistributedNumber::deserialize;
-    }
-
-    /**
-     * Static method to deserialize a {@code JsonObject} to a {@code BinomiallyDistributedNumber}
-     */
-    public static @NotNull NumberProvider deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        return new BinomiallyDistributedNumber(
-            JsonHelper.optionalAlternativeKey(json, loader.getNumberProviderManager()::deserialize, "trials", "n"),
-            JsonHelper.optionalAlternativeKey(json, loader.getNumberProviderManager()::deserialize, "probability", "p")
-        );
-    }
+        @Override
+        public void serialize(@NotNull BinomiallyDistributedNumber input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            result.add("trials", loader.getNumberProviderManager().serialize(input.trials));
+            result.add("probability", loader.getNumberProviderManager().serialize(input.probability));
+        }
+    };
 }

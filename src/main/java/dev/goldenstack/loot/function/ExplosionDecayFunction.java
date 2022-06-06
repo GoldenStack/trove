@@ -6,8 +6,7 @@ import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootContextParameter;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
@@ -21,33 +20,12 @@ import java.util.Random;
  * distance and its random instance.
  */
 public class ExplosionDecayFunction extends ConditionalLootFunction {
-    /**
-     * The immutable key for all {@code ExplosionDecayFunction}s
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "explosion_decay");
 
     /**
      * Creates a new ExplosionDecayFunction with the provided conditions
      */
     public ExplosionDecayFunction(@NotNull List<LootCondition> conditions) {
         super(conditions);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        super.serialize(object, loader);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
     }
 
     /**
@@ -71,14 +49,6 @@ public class ExplosionDecayFunction extends ConditionalLootFunction {
         return itemStack.amount() == count ? itemStack : itemStack.withAmount(count);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootFunction>> getDeserializer() {
-        return ExplosionDecayFunction::deserialize;
-    }
-
     @Override
     public String toString() {
         return "ExplosionDecayFunction[conditions=" + conditions() + "]";
@@ -97,10 +67,16 @@ public class ExplosionDecayFunction extends ConditionalLootFunction {
         return conditions().hashCode() * 37;
     }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to an {@code ExplosionDecayFunction}
-     */
-    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        return new ExplosionDecayFunction(ConditionalLootFunction.deserializeConditions(json, loader));
-    }
+    public static final @NotNull JsonLootConverter<ExplosionDecayFunction> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:explosion_decay"), ExplosionDecayFunction.class) {
+        @Override
+        public @NotNull ExplosionDecayFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new ExplosionDecayFunction(ConditionalLootFunction.deserializeConditions(json, loader));
+        }
+
+        @Override
+        public void serialize(@NotNull ExplosionDecayFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
+        }
+    };
 }

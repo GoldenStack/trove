@@ -6,8 +6,7 @@ import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import dev.goldenstack.loot.provider.number.NumberProvider;
 import net.minestom.server.item.Enchantment;
 import net.minestom.server.item.ItemStack;
@@ -22,10 +21,6 @@ import java.util.Map;
  * Represents a {@code LootFunction} that adds enchantments to the ItemStack that is provided.
  */
 public class SetEnchantmentsFunction extends ConditionalLootFunction {
-    /**
-     * The immutable key for all {@code SetEnchantmentsFunction}s
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "set_enchantments");
 
     private final @NotNull Map<Enchantment, NumberProvider> enchantments;
     private final boolean add;
@@ -58,31 +53,6 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        super.serialize(object, loader);
-
-        JsonObject enchantments = new JsonObject();
-        for (var entry : this.enchantments.entrySet()){
-            enchantments.add(entry.getKey().name(), loader.getNumberProviderManager().serialize(entry.getValue()));
-        }
-
-        object.add("enchantments", enchantments);
-        object.addProperty("add", this.add);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
-
-    /**
      * If {@link #add()} is false, sets the ItemStack's enchantments to {@link #enchantments()}. Otherwise, just adds
      * them, preserving any current enchantments. <b>If you have a custom ItemMeta implementation that has a different
      * way to add enchantments to an item, you will have to extend this class.</b>
@@ -97,14 +67,6 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
                 im.enchantment(entry.getKey(), (short) entry.getValue().getInt(context));
             }
         });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootFunction>> getDeserializer() {
-        return SetEnchantmentsFunction::deserialize;
     }
 
     @Override
@@ -125,27 +87,39 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
         return enchantments.hashCode() * 31 + Boolean.hashCode(add);
     }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to a {@code SetEnchantmentsFunction}
-     */
-    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
+    public static final @NotNull JsonLootConverter<SetEnchantmentsFunction> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:set_enchantments"), SetEnchantmentsFunction.class) {
+        @Override
+        public @NotNull SetEnchantmentsFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
 
-        JsonObject object = JsonHelper.assureJsonObject(json.get("enchantments"), "enchantments");
-        Map<Enchantment, NumberProvider> map = new HashMap<>();
-        for (var entry : object.entrySet()){
-            NamespaceID namespaceID = NamespaceID.from(entry.getKey());
+            JsonObject object = JsonHelper.assureJsonObject(json.get("enchantments"), "enchantments");
+            Map<Enchantment, NumberProvider> map = new HashMap<>();
+            for (var entry : object.entrySet()){
+                NamespaceID namespaceID = NamespaceID.from(entry.getKey());
 
-            Enchantment enchantment = Enchantment.fromNamespaceId(namespaceID);
-            if (enchantment == null) {
-                throw new JsonParseException("Invalid enchantment \"" + namespaceID + "\"! Did you initialize your enchantment manager correctly?");
+                Enchantment enchantment = Enchantment.fromNamespaceId(namespaceID);
+                if (enchantment == null) {
+                    throw new JsonParseException("Invalid enchantment \"" + namespaceID + "\"! Did you initialize your enchantment manager correctly?");
+                }
+
+                map.put(enchantment, loader.getNumberProviderManager().deserialize(entry.getValue(), entry.getKey()));
             }
 
-            map.put(enchantment, loader.getNumberProviderManager().deserialize(entry.getValue(), entry.getKey()));
+            boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
+
+            return new SetEnchantmentsFunction(list, map, add);
         }
 
-        boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
-
-        return new SetEnchantmentsFunction(list, map, add);
-    }
+        @Override
+        public void serialize(@NotNull SetEnchantmentsFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
+            JsonObject enchantments = new JsonObject();
+            for (var entry : input.enchantments.entrySet()){
+                enchantments.add(entry.getKey().name(), loader.getNumberProviderManager().serialize(entry.getValue()));
+            }
+            result.add("enchantments", enchantments);
+            result.addProperty("add", input.add);
+        }
+    };
 }

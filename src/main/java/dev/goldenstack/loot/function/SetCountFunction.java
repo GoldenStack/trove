@@ -6,8 +6,7 @@ import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import dev.goldenstack.loot.provider.number.NumberProvider;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
@@ -19,10 +18,6 @@ import java.util.List;
  * Represents a {@code LootFunction} that can change the amount of the ItemStack that is provided.
  */
 public class SetCountFunction extends ConditionalLootFunction {
-    /**
-     * The immutable key for all {@code SetCountFunction}s
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "set_count");
 
     private final @NotNull NumberProvider count;
     private final boolean add;
@@ -53,25 +48,6 @@ public class SetCountFunction extends ConditionalLootFunction {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        super.serialize(object, loader);
-        object.add("count", loader.getNumberProviderManager().serialize(this.count));
-        object.addProperty("add", this.add);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
-
-    /**
      * If {@link #add()} is false, sets the ItemStack's amount to the value of {@link #count()}. Otherwise, adds the
      * value to the ItemStack's count.
      */
@@ -79,14 +55,6 @@ public class SetCountFunction extends ConditionalLootFunction {
     public @NotNull ItemStack modify(@NotNull ItemStack itemStack, @NotNull LootContext context) {
         int count = this.count.getInt(context);
         return itemStack.withAmount(add ? count + itemStack.amount() : count);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootFunction>> getDeserializer() {
-        return SetCountFunction::deserialize;
     }
 
     @Override
@@ -107,13 +75,21 @@ public class SetCountFunction extends ConditionalLootFunction {
         return count.hashCode() * 31 + Boolean.hashCode(this.add);
     }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to a {@code SetCountFunction}
-     */
-    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
-        NumberProvider provider = loader.getNumberProviderManager().deserialize(json.get("count"), "count");
-        boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
-        return new SetCountFunction(list, provider, add);
-    }
+    public static final @NotNull JsonLootConverter<SetCountFunction> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:set_count"), SetCountFunction.class) {
+        @Override
+        public @NotNull SetCountFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
+            NumberProvider provider = loader.getNumberProviderManager().deserialize(json.get("count"), "count");
+            boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
+            return new SetCountFunction(list, provider, add);
+        }
+
+        @Override
+        public void serialize(@NotNull SetCountFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
+            result.add("count", loader.getNumberProviderManager().serialize(input.count));
+            result.addProperty("add", input.add);
+        }
+    };
 }

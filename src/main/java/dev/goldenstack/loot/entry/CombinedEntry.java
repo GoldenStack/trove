@@ -34,17 +34,6 @@ public abstract class CombinedEntry extends LootEntry {
         return this.children;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        super.serialize(object, loader);
-        if (this.children.size() > 0) {
-            object.add("children", JsonHelper.serializeJsonArray(this.children, loader.getLootEntryManager()::serialize));
-        }
-    }
-
     @Override
     public String toString() {
         return "CombinedEntry["  + LootEntry.partialToString(this) + ", children=" + children + "]";
@@ -71,6 +60,16 @@ public abstract class CombinedEntry extends LootEntry {
      */
     protected static @NotNull String partialToString(@NotNull CombinedEntry entry) {
         return LootEntry.partialToString(entry) + ", children=" + entry.children;
+    }
+
+    /**
+     * Serializes all fields that are in a CombinedEntry to the provided JsonObject.
+     */
+    public static void serializeCombinedEntry(@NotNull CombinedEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+        LootEntry.serializeLootEntry(input, result, loader);
+        if (input.children.size() > 0) {
+            result.add("children", JsonHelper.serializeJsonArray(input.children, loader.getLootEntryManager()::serialize));
+        }
     }
 
     /**

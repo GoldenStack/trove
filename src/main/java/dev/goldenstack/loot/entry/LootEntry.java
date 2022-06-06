@@ -8,7 +8,6 @@ import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.function.LootFunction;
 import dev.goldenstack.loot.json.JsonHelper;
-import dev.goldenstack.loot.json.LootSerializer;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,7 +19,7 @@ import java.util.Objects;
  * An entry that can contain conditions, functions, and has its own weight and quality. This is the most basic entry
  * class, so it should be the one that gets used if you want to cover all possible entries.
  */
-public abstract class LootEntry implements LootSerializer<LootEntry> {
+public abstract class LootEntry {
 
     /**
      * The default weight value for entries
@@ -74,27 +73,6 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
      */
     public int quality() {
         return quality;
-    }
-
-    /**
-     * {@inheritDoc}<br>
-     * If you want to add more information to the JsonObject, it is a good idea to override this method, but make sure
-     * to run {@code super.serialize(object, loader)} so that the fields can get serialized!
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        if (this.conditions.size() > 0) {
-            object.add("conditions", JsonHelper.serializeJsonArray(this.conditions, loader.getLootConditionManager()::serialize));
-        }
-        if (this.functions.size() > 0) {
-            object.add("functions", JsonHelper.serializeJsonArray(this.functions, loader.getLootFunctionManager()::serialize));
-        }
-        if (this.weight != DEFAULT_WEIGHT) {
-            object.addProperty("weight", this.weight);
-        }
-        if (this.quality != DEFAULT_QUALITY) {
-            object.addProperty("quality", this.quality);
-        }
     }
 
     /**
@@ -182,6 +160,24 @@ public abstract class LootEntry implements LootSerializer<LootEntry> {
     protected static @NotNull String partialToString(@NotNull LootEntry entry) {
         return "conditions=" + entry.conditions + ", functions=" + entry.functions +
                 ", weight=" + entry.weight + ", quality=" + entry.quality;
+    }
+
+    /**
+     * Serializes all fields that are in a LootEntry to the provided JsonObject.
+     */
+    public static void serializeLootEntry(@NotNull LootEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+        if (input.conditions.size() > 0) {
+            result.add("conditions", JsonHelper.serializeJsonArray(input.conditions, loader.getLootConditionManager()::serialize));
+        }
+        if (input.functions.size() > 0) {
+            result.add("functions", JsonHelper.serializeJsonArray(input.functions, loader.getLootFunctionManager()::serialize));
+        }
+        if (input.weight != DEFAULT_WEIGHT) {
+            result.addProperty("weight", input.weight);
+        }
+        if (input.quality != DEFAULT_QUALITY) {
+            result.addProperty("quality", input.quality);
+        }
     }
 
     /**

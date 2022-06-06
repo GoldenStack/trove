@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.entry;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.function.LootFunction;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,10 +17,6 @@ import java.util.List;
  * An entry that returns the combined results of all its children.
  */
 public class GroupEntry extends CombinedEntry {
-    /**
-     * The immutable key for all GroupEntry instances
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "group");
 
     /**
      * Initialize a new GroupEntry with the provided conditions, functions, weight, quality, and children.
@@ -28,23 +24,6 @@ public class GroupEntry extends CombinedEntry {
     public GroupEntry(@NotNull List<LootCondition> conditions, @NotNull List<LootFunction> functions, int weight,
                       int quality, @NotNull List<LootEntry> children) {
         super(conditions, functions, weight, quality, children);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
-
-    /**
-      * {@inheritDoc}
-      */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootEntry>> getDeserializer() {
-        return GroupEntry::deserialize;
     }
 
     /**
@@ -64,16 +43,22 @@ public class GroupEntry extends CombinedEntry {
         return "GroupEntry[" + CombinedEntry.partialToString(this) + "]";
     }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to a {@code GroupEntry}.
-     */
-    public static @NotNull LootEntry deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) {
-        return new GroupEntry(
-                LootEntry.deserializeConditions(object, loader),
-                LootEntry.deserializeFunctions(object, loader),
-                LootEntry.deserializeWeight(object, loader),
-                LootEntry.deserializeQuality(object, loader),
-                CombinedEntry.deserializeChildren(object, loader)
-        );
-    }
+    public static final @NotNull JsonLootConverter<GroupEntry> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:group"), GroupEntry.class) {
+        @Override
+        public @NotNull GroupEntry deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new GroupEntry(
+                    LootEntry.deserializeConditions(json, loader),
+                    LootEntry.deserializeFunctions(json, loader),
+                    LootEntry.deserializeWeight(json, loader),
+                    LootEntry.deserializeQuality(json, loader),
+                    CombinedEntry.deserializeChildren(json, loader)
+            );
+        }
+
+        @Override
+        public void serialize(@NotNull GroupEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            CombinedEntry.serializeCombinedEntry(input, result, loader);
+        }
+    };
 }

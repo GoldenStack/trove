@@ -5,8 +5,7 @@ import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import dev.goldenstack.loot.util.NumberRange;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
@@ -19,10 +18,6 @@ import java.util.Objects;
  * Represents a {@code LootFunction} that limits the stack size of the provided ItemStack.
  */
 public class LimitCountFunction extends ConditionalLootFunction {
-    /**
-     * The immutable key for all {@code LimitCountFunction}s
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "limit_count");
 
     private final NumberRange limiter;
 
@@ -42,37 +37,11 @@ public class LimitCountFunction extends ConditionalLootFunction {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        super.serialize(object, loader);
-        object.add("limit", loader.serializeNumberRange(this.limiter));
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
-    }
-
-    /**
      * Limits the provided ItemStack's amount according to {@link #limiter()}.
      */
     @Override
     public @NotNull ItemStack modify(@NotNull ItemStack itemStack, @NotNull LootContext context) {
         return itemStack.withAmount(this.limiter.limit(context, itemStack.amount()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootFunction>> getDeserializer() {
-        return LimitCountFunction::deserialize;
     }
 
     @Override
@@ -93,12 +62,19 @@ public class LimitCountFunction extends ConditionalLootFunction {
         return Objects.hashCode(limiter);
     }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to a {@code LimitCountFunction}
-     */
-    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
-        NumberRange range = loader.deserializeNumberRange(json.get("limit"), "limit");
-        return new LimitCountFunction(list, range);
-    }
+    public static final @NotNull JsonLootConverter<LimitCountFunction> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:limit_count"), LimitCountFunction.class) {
+        @Override
+        public @NotNull LimitCountFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
+            NumberRange range = loader.deserializeNumberRange(json.get("limit"), "limit");
+            return new LimitCountFunction(list, range);
+        }
+
+        @Override
+        public void serialize(@NotNull LimitCountFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
+            result.add("limit", loader.serializeNumberRange(input.limiter));
+        }
+    };
 }

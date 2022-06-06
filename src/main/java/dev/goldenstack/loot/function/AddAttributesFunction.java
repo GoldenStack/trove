@@ -8,8 +8,7 @@ import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.condition.LootCondition;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.json.JsonHelper;
-import dev.goldenstack.loot.json.LootDeserializer;
-import dev.goldenstack.loot.json.LootSerializer;
+import dev.goldenstack.loot.json.JsonLootConverter;
 import dev.goldenstack.loot.provider.number.NumberProvider;
 import dev.goldenstack.loot.util.EnumValues;
 import net.minestom.server.attribute.Attribute;
@@ -26,14 +25,9 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Represents a {@code LootFunction} that adds attributes to the provided ItemStack.<br>
- * Contrary to the path of {@link #KEY}, this preserves attributes that were already on the ItemStack.
+ * Represents a {@code LootFunction} that adds attributes to the provided ItemStack.
  */
 public class AddAttributesFunction extends ConditionalLootFunction {
-    /**
-     * The immutable key for all {@code AddAttributesFunction}s
-     */
-    public static final @NotNull NamespaceID KEY = NamespaceID.from(NamespaceID.MINECRAFT_NAMESPACE, "set_attributes");
 
     private final List<Modifier> modifiers;
 
@@ -50,28 +44,6 @@ public class AddAttributesFunction extends ConditionalLootFunction {
      */
     public @NotNull List<Modifier> modifiers() {
         return modifiers;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-        super.serialize(object, loader);
-        JsonArray array = new JsonArray();
-        for (Modifier modifier : this.modifiers) {
-            array.add(modifier.serialize(loader));
-        }
-        object.add("modifiers", array);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return {@link #KEY}
-     */
-    @Override
-    public @NotNull NamespaceID getKey() {
-        return KEY;
     }
 
     /**
@@ -215,14 +187,6 @@ public class AddAttributesFunction extends ConditionalLootFunction {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @NotNull LootDeserializer<? extends LootSerializer<LootFunction>> getDeserializer() {
-        return AddAttributesFunction::deserialize;
-    }
-
     @Override
     public String toString() {
         return "AddAttributesFunction[conditions=" + conditions() + ", modifiers=" + modifiers + "]";
@@ -241,18 +205,29 @@ public class AddAttributesFunction extends ConditionalLootFunction {
         return modifiers.hashCode() * 31 + conditions().hashCode();
     }
 
-    /**
-     * Static method to deserialize a {@code JsonObject} to an {@code AddAttributesFunction}
-     */
-    public static @NotNull LootFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-        List<LootCondition> conditions = ConditionalLootFunction.deserializeConditions(json, loader);
+    public static final @NotNull JsonLootConverter<AddAttributesFunction> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:set_attributes"), AddAttributesFunction.class) {
+        @Override
+        public @NotNull AddAttributesFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            List<LootCondition> conditions = ConditionalLootFunction.deserializeConditions(json, loader);
 
-        JsonArray array = JsonHelper.assureJsonArray(json.get("modifiers"), "modifiers");
-        Modifier[] modifiers = new Modifier[array.size()];
-        for (int i = 0; i < array.size(); i++) {
-            modifiers[i] = Modifier.deserialize(JsonHelper.assureJsonObject(array.get(i), "modifiers (while deserializing an element)"), loader);
+            JsonArray array = JsonHelper.assureJsonArray(json.get("modifiers"), "modifiers");
+            Modifier[] modifiers = new Modifier[array.size()];
+            for (int i = 0; i < array.size(); i++) {
+                modifiers[i] = Modifier.deserialize(JsonHelper.assureJsonObject(array.get(i), "modifiers (while deserializing an element)"), loader);
+            }
+
+            return new AddAttributesFunction(conditions, List.of(modifiers));
         }
 
-        return new AddAttributesFunction(conditions, List.of(modifiers));
-    }
+        @Override
+        public void serialize(@NotNull AddAttributesFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
+            JsonArray array = new JsonArray();
+            for (Modifier modifier : input.modifiers) {
+                array.add(modifier.serialize(loader));
+            }
+            result.add("modifiers", array);
+        }
+    };
 }

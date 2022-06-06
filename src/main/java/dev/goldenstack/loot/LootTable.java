@@ -24,7 +24,7 @@ import java.util.List;
 public record LootTable(@Nullable LootParameterGroup group, @NotNull List<LootPool> pools, @NotNull List<LootFunction> functions) {
 
     /**
-     * An empty loot table that always generates no loot.
+     * An empty loot table that consistently generates nothing.
      */
     public static final @NotNull LootTable EMPTY = new LootTable(LootParameterGroup.EMPTY, List.of(), List.of());
 
