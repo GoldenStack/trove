@@ -42,7 +42,7 @@ public record TimeCheckCondition(@NotNull NumberRange range, @Nullable Number pe
             NamespaceID.from("minecraft:time_check"), TimeCheckCondition.class) {
         @Override
         public @NotNull TimeCheckCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            NumberRange range = JsonHelper.optionalAlternativeKey(json, loader::deserializeNumberRange, "range", "value");
+            NumberRange range = JsonHelper.optionalAlternativeKey(json, (element, key) -> NumberRange.deserialize(loader, element, key), "range", "value");
 
             JsonElement number = json.get("period");
             Number period = null;

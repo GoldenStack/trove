@@ -37,7 +37,7 @@ public record ValueCheckCondition(@NotNull NumberProvider value, @NotNull Number
         @Override
         public void serialize(@NotNull ValueCheckCondition input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
             result.add("value", loader.getNumberProviderManager().serialize(input.value));
-            result.add("range", loader.serializeNumberRange(input.range));
+            result.add("range", input.range.serialize(loader));
         }
     };
 }

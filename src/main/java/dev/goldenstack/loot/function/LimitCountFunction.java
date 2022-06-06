@@ -67,14 +67,14 @@ public class LimitCountFunction extends ConditionalLootFunction {
         @Override
         public @NotNull LimitCountFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
             List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
-            NumberRange range = loader.deserializeNumberRange(json.get("limit"), "limit");
+            NumberRange range = NumberRange.deserialize(loader, json.get("limit"), "limit");
             return new LimitCountFunction(list, range);
         }
 
         @Override
         public void serialize(@NotNull LimitCountFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
             ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
-            result.add("limit", loader.serializeNumberRange(input.limiter));
+            result.add("limit", input.limiter.serialize(loader));
         }
     };
 }

@@ -1,7 +1,5 @@
 package dev.goldenstack.loot;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import dev.goldenstack.loot.condition.*;
 import dev.goldenstack.loot.context.LootParameterGroup;
 import dev.goldenstack.loot.entry.*;
@@ -11,11 +9,9 @@ import dev.goldenstack.loot.provider.number.BinomiallyDistributedNumber;
 import dev.goldenstack.loot.provider.number.ConstantNumber;
 import dev.goldenstack.loot.provider.number.NumberProvider;
 import dev.goldenstack.loot.provider.number.UniformNumber;
-import dev.goldenstack.loot.util.NumberRange;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Objects;
@@ -75,24 +71,6 @@ public class ImmuTables {
      */
     public @NotNull Map<NamespaceID, LootParameterGroup> getLootParameterGroupRegistry() {
         return lootParameterGroupRegistry;
-    }
-
-    /**
-     * Utility method for deserializing number ranges. This exists because the default NumberRange deserialization
-     * method, {@link NumberRange#deserialize(ImmuTables, JsonElement, String)}, does not fit for the standard
-     * {@code BiFunction<JsonElement, String, T>} that some methods in this library use.
-     */
-    public @NotNull NumberRange deserializeNumberRange(@Nullable JsonElement element, @Nullable String key) {
-        return NumberRange.deserialize(this, element, key);
-    }
-
-    /**
-     * Utility method for serializing number ranges. This exists because the default NumberRange serialization method,
-     * {@link NumberRange#serialize(ImmuTables)}, does not fit for the standard {@code Function<T, JsonElement>}
-     * that some methods in this library use.
-     */
-    public @NotNull JsonObject serializeNumberRange(@NotNull NumberRange range) {
-        return range.serialize(this);
     }
 
     /**
