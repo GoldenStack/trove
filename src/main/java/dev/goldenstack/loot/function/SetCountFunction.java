@@ -79,10 +79,11 @@ public class SetCountFunction extends ConditionalLootFunction {
             NamespaceID.from("minecraft:set_count"), SetCountFunction.class) {
         @Override
         public @NotNull SetCountFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
-            NumberProvider provider = loader.getNumberProviderManager().deserialize(json.get("count"), "count");
-            boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
-            return new SetCountFunction(list, provider, add);
+            return new SetCountFunction(
+                    ConditionalLootFunction.deserializeConditions(json, loader),
+                    loader.getNumberProviderManager().deserialize(json.get("count"), "count"),
+                    JsonHelper.assureBoolean(json.get("add"), "add")
+            );
         }
 
         @Override

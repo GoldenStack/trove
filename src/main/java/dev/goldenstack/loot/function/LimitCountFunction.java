@@ -66,9 +66,10 @@ public class LimitCountFunction extends ConditionalLootFunction {
             NamespaceID.from("minecraft:limit_count"), LimitCountFunction.class) {
         @Override
         public @NotNull LimitCountFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
-            NumberRange range = NumberRange.deserialize(loader, json.get("limit"), "limit");
-            return new LimitCountFunction(list, range);
+            return new LimitCountFunction(
+                    ConditionalLootFunction.deserializeConditions(json, loader),
+                    NumberRange.deserialize(loader, json.get("limit"), "limit")
+            );
         }
 
         @Override

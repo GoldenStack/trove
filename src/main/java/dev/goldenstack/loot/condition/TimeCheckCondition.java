@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.condition;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
@@ -42,15 +41,10 @@ public record TimeCheckCondition(@NotNull NumberRange range, @Nullable Number pe
             NamespaceID.from("minecraft:time_check"), TimeCheckCondition.class) {
         @Override
         public @NotNull TimeCheckCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            NumberRange range = JsonHelper.optionalAlternativeKey(json, (element, key) -> NumberRange.deserialize(loader, element, key), "range", "value");
-
-            JsonElement number = json.get("period");
-            Number period = null;
-            if (number != null) {
-                period = JsonHelper.assureNumber(number, "period");
-            }
-
-            return new TimeCheckCondition(range, period);
+            return new TimeCheckCondition(
+                    JsonHelper.optionalAlternativeKey(json, (element, key) -> NumberRange.deserialize(loader, element, key), "range", "value"),
+                    JsonHelper.getAsNumber(json.get("period"))
+            );
         }
 
         @Override

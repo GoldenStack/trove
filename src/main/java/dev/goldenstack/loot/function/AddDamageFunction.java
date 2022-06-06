@@ -110,10 +110,11 @@ public class AddDamageFunction extends ConditionalLootFunction {
             NamespaceID.from("minecraft:set_damage"), AddDamageFunction.class) {
         @Override
         public @NotNull AddDamageFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
-            NumberProvider provider = loader.getNumberProviderManager().deserialize(json.get("damage"), "damage");
-            boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
-            return new AddDamageFunction(list, provider, add);
+            return new AddDamageFunction(
+                    ConditionalLootFunction.deserializeConditions(json, loader),
+                    loader.getNumberProviderManager().deserialize(json.get("damage"), "damage"),
+                    JsonHelper.assureBoolean(json.get("add"), "add")
+            );
         }
 
         @Override

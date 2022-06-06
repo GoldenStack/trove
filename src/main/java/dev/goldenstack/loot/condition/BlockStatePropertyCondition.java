@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.condition;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.goldenstack.loot.ImmuTables;
@@ -43,12 +42,10 @@ public record BlockStatePropertyCondition(@Nullable NamespaceID block, @NotNull 
             NamespaceID.from("minecraft:block_state_property"), BlockStatePropertyCondition.class) {
         @Override
         public @NotNull BlockStatePropertyCondition deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            JsonElement blockElement = json.get("block");
-            NamespaceID id = null;
-            if (!JsonHelper.isNull(blockElement)) {
-                id = JsonHelper.assureNamespaceId(blockElement, "block");
-            }
-            return new BlockStatePropertyCondition(id, PropertiesCriterion.deserialize(json.get("properties")));
+            return new BlockStatePropertyCondition(
+                    JsonHelper.getAsNamespaceId(json.get("block")),
+                    PropertiesCriterion.deserialize(json.get("properties"))
+            );
         }
 
         @Override
