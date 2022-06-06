@@ -68,7 +68,7 @@ public abstract class ConditionalLootFunction implements LootFunction {
     /**
      * Utility method for getting an immutable list of the conditions from the JsonObject.<br>
      * This should be called in a similar manner to: <br>
-     * {@code ImmutableList<LootCondition> conditions = ConditionalLootFunction.deserializeConditions(json, loader);}
+     * {@code List<LootCondition> conditions = ConditionalLootFunction.deserializeConditions(json, loader);}
      */
     public static @NotNull List<LootCondition> deserializeConditions(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
         JsonElement functions = json.get("conditions");
