@@ -104,7 +104,7 @@ public class SetCountFunction extends ConditionalLootFunction {
 
     @Override
     public int hashCode() {
-        return count.hashCode() * 31 + Boolean.FALSE.hashCode();
+        return count.hashCode() * 31 + Boolean.hashCode(this.add);
     }
 
     /**
