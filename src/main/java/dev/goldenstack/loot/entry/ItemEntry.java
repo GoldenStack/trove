@@ -20,6 +20,34 @@ import java.util.List;
  * An entry that always generates an item with the same material.
  */
 public class ItemEntry extends ConstantChoiceEntry {
+
+    public static final @NotNull JsonLootConverter<ItemEntry> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:item"), ItemEntry.class) {
+        @Override
+        public @NotNull ItemEntry deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            JsonElement name = json.get("name");
+            Material material = Material.fromNamespaceId(JsonHelper.assureNamespaceId(name, "name"));
+
+            if (material == null) {
+                throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid material (as a NamespaceID)", "name", name));
+            }
+
+            return new ItemEntry(
+                    LootEntry.deserializeConditions(json, loader),
+                    LootEntry.deserializeFunctions(json, loader),
+                    LootEntry.deserializeWeight(json, loader),
+                    LootEntry.deserializeQuality(json, loader),
+                    material
+            );
+        }
+
+        @Override
+        public void serialize(@NotNull ItemEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            LootEntry.serializeLootEntry(input, result, loader);
+            result.addProperty("name", input.material.namespace().asString());
+        }
+    };
+
     private final @NotNull Material material;
 
     /**
@@ -64,31 +92,4 @@ public class ItemEntry extends ConstantChoiceEntry {
     public int hashCode() {
         return super.hashCode() * 31 + material.hashCode();
     }
-
-    public static final @NotNull JsonLootConverter<ItemEntry> CONVERTER = new JsonLootConverter<>(
-            NamespaceID.from("minecraft:item"), ItemEntry.class) {
-        @Override
-        public @NotNull ItemEntry deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            JsonElement name = json.get("name");
-            Material material = Material.fromNamespaceId(JsonHelper.assureNamespaceId(name, "name"));
-
-            if (material == null) {
-                throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid material (as a NamespaceID)", "name", name));
-            }
-
-            return new ItemEntry(
-                    LootEntry.deserializeConditions(json, loader),
-                    LootEntry.deserializeFunctions(json, loader),
-                    LootEntry.deserializeWeight(json, loader),
-                    LootEntry.deserializeQuality(json, loader),
-                    material
-            );
-        }
-
-        @Override
-        public void serialize(@NotNull ItemEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
-            LootEntry.serializeLootEntry(input, result, loader);
-            result.addProperty("name", input.material.namespace().asString());
-        }
-    };
 }

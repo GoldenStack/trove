@@ -13,14 +13,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public record InvertedCondition(@NotNull LootCondition condition) implements LootCondition {
 
-    /**
-     * Returns the inverted result of this instance's {@link #condition}.
-     */
-    @Override
-    public boolean test(@NotNull LootContext context) {
-        return !condition.test(context);
-    }
-
     public static final @NotNull JsonLootConverter<InvertedCondition> CONVERTER = new JsonLootConverter<>(
             NamespaceID.from("minecraft:inverted"), InvertedCondition.class) {
         @Override
@@ -33,4 +25,12 @@ public record InvertedCondition(@NotNull LootCondition condition) implements Loo
             result.add("term", loader.getLootConditionManager().serialize(input.condition));
         }
     };
+
+    /**
+     * Returns the inverted result of this instance's {@link #condition}.
+     */
+    @Override
+    public boolean test(@NotNull LootContext context) {
+        return !condition.test(context);
+    }
 }

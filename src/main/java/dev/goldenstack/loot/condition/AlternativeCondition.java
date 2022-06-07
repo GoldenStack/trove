@@ -17,18 +17,6 @@ import java.util.List;
  */
 public record AlternativeCondition(@NotNull List<LootCondition> terms) implements LootCondition {
 
-    public AlternativeCondition {
-        terms = List.copyOf(terms);
-    }
-
-    /**
-     * Returns true if {@link LootCondition#or(LootContext, List)} returns true for {@link #terms()}.
-     */
-    @Override
-    public boolean test(@NotNull LootContext context) {
-        return LootCondition.or(context, this.terms);
-    }
-
     public static final @NotNull JsonLootConverter<AlternativeCondition> CONVERTER = new JsonLootConverter<>(
             NamespaceID.from("minecraft:alternative"), AlternativeCondition.class) {
         @Override
@@ -41,4 +29,16 @@ public record AlternativeCondition(@NotNull List<LootCondition> terms) implement
             result.add("terms", JsonHelper.serializeJsonArray(input.terms, loader.getLootConditionManager()::serialize));
         }
     };
+
+    public AlternativeCondition {
+        terms = List.copyOf(terms);
+    }
+
+    /**
+     * Returns true if {@link LootCondition#or(LootContext, List)} returns true for {@link #terms()}.
+     */
+    @Override
+    public boolean test(@NotNull LootContext context) {
+        return LootCondition.or(context, this.terms);
+    }
 }

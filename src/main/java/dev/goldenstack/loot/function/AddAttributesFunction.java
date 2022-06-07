@@ -29,6 +29,32 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class AddAttributesFunction extends ConditionalLootFunction {
 
+    public static final @NotNull JsonLootConverter<AddAttributesFunction> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:set_attributes"), AddAttributesFunction.class) {
+        @Override
+        public @NotNull AddAttributesFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            List<LootCondition> conditions = ConditionalLootFunction.deserializeConditions(json, loader);
+
+            JsonArray array = JsonHelper.assureJsonArray(json.get("modifiers"), "modifiers");
+            Modifier[] modifiers = new Modifier[array.size()];
+            for (int i = 0; i < array.size(); i++) {
+                modifiers[i] = Modifier.deserialize(JsonHelper.assureJsonObject(array.get(i), "modifiers (while deserializing an element)"), loader);
+            }
+
+            return new AddAttributesFunction(conditions, List.of(modifiers));
+        }
+
+        @Override
+        public void serialize(@NotNull AddAttributesFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
+            JsonArray array = new JsonArray();
+            for (Modifier modifier : input.modifiers) {
+                array.add(modifier.serialize(loader));
+            }
+            result.add("modifiers", array);
+        }
+    };
+
     private final List<Modifier> modifiers;
 
     /**
@@ -204,30 +230,4 @@ public class AddAttributesFunction extends ConditionalLootFunction {
     public int hashCode() {
         return modifiers.hashCode() * 31 + conditions().hashCode();
     }
-
-    public static final @NotNull JsonLootConverter<AddAttributesFunction> CONVERTER = new JsonLootConverter<>(
-            NamespaceID.from("minecraft:set_attributes"), AddAttributesFunction.class) {
-        @Override
-        public @NotNull AddAttributesFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            List<LootCondition> conditions = ConditionalLootFunction.deserializeConditions(json, loader);
-
-            JsonArray array = JsonHelper.assureJsonArray(json.get("modifiers"), "modifiers");
-            Modifier[] modifiers = new Modifier[array.size()];
-            for (int i = 0; i < array.size(); i++) {
-                modifiers[i] = Modifier.deserialize(JsonHelper.assureJsonObject(array.get(i), "modifiers (while deserializing an element)"), loader);
-            }
-
-            return new AddAttributesFunction(conditions, List.of(modifiers));
-        }
-
-        @Override
-        public void serialize(@NotNull AddAttributesFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
-            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
-            JsonArray array = new JsonArray();
-            for (Modifier modifier : input.modifiers) {
-                array.add(modifier.serialize(loader));
-            }
-            result.add("modifiers", array);
-        }
-    };
 }

@@ -19,6 +19,25 @@ import java.util.List;
  */
 public class SequenceEntry extends CombinedEntry {
 
+    public static final @NotNull JsonLootConverter<SequenceEntry> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:sequence"), SequenceEntry.class) {
+        @Override
+        public @NotNull SequenceEntry deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new SequenceEntry(
+                    LootEntry.deserializeConditions(json, loader),
+                    LootEntry.deserializeFunctions(json, loader),
+                    LootEntry.deserializeWeight(json, loader),
+                    LootEntry.deserializeQuality(json, loader),
+                    CombinedEntry.deserializeChildren(json, loader)
+            );
+        }
+
+        @Override
+        public void serialize(@NotNull SequenceEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            CombinedEntry.serializeCombinedEntry(input, result, loader);
+        }
+    };
+
     /**
      * Initialize a new SequenceEntry with the provided conditions, functions, weight, quality, and children.
      */
@@ -47,24 +66,4 @@ public class SequenceEntry extends CombinedEntry {
     public String toString() {
         return "SequenceEntry[" + CombinedEntry.partialToString(this) + "]";
     }
-
-    public static final @NotNull JsonLootConverter<SequenceEntry> CONVERTER = new JsonLootConverter<>(
-            NamespaceID.from("minecraft:sequence"), SequenceEntry.class) {
-        @Override
-        public @NotNull SequenceEntry deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            return new SequenceEntry(
-                    LootEntry.deserializeConditions(json, loader),
-                    LootEntry.deserializeFunctions(json, loader),
-                    LootEntry.deserializeWeight(json, loader),
-                    LootEntry.deserializeQuality(json, loader),
-                    CombinedEntry.deserializeChildren(json, loader)
-            );
-        }
-
-        @Override
-        public void serialize(@NotNull SequenceEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
-            CombinedEntry.serializeCombinedEntry(input, result, loader);
-        }
-    };
-
 }

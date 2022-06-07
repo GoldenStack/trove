@@ -22,6 +22,42 @@ import java.util.Map;
  */
 public class SetEnchantmentsFunction extends ConditionalLootFunction {
 
+    public static final @NotNull JsonLootConverter<SetEnchantmentsFunction> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:set_enchantments"), SetEnchantmentsFunction.class) {
+        @Override
+        public @NotNull SetEnchantmentsFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
+
+            JsonObject object = JsonHelper.assureJsonObject(json.get("enchantments"), "enchantments");
+            Map<Enchantment, NumberProvider> map = new HashMap<>();
+            for (var entry : object.entrySet()){
+                NamespaceID namespaceID = NamespaceID.from(entry.getKey());
+
+                Enchantment enchantment = Enchantment.fromNamespaceId(namespaceID);
+                if (enchantment == null) {
+                    throw new JsonParseException("Invalid enchantment \"" + namespaceID + "\"! Did you initialize your enchantment manager correctly?");
+                }
+
+                map.put(enchantment, loader.getNumberProviderManager().deserialize(entry.getValue(), entry.getKey()));
+            }
+
+            boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
+
+            return new SetEnchantmentsFunction(list, map, add);
+        }
+
+        @Override
+        public void serialize(@NotNull SetEnchantmentsFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
+            JsonObject enchantments = new JsonObject();
+            for (var entry : input.enchantments.entrySet()){
+                enchantments.add(entry.getKey().name(), loader.getNumberProviderManager().serialize(entry.getValue()));
+            }
+            result.add("enchantments", enchantments);
+            result.addProperty("add", input.add);
+        }
+    };
+
     private final @NotNull Map<Enchantment, NumberProvider> enchantments;
     private final boolean add;
 
@@ -86,40 +122,4 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
     public int hashCode() {
         return enchantments.hashCode() * 31 + Boolean.hashCode(add);
     }
-
-    public static final @NotNull JsonLootConverter<SetEnchantmentsFunction> CONVERTER = new JsonLootConverter<>(
-            NamespaceID.from("minecraft:set_enchantments"), SetEnchantmentsFunction.class) {
-        @Override
-        public @NotNull SetEnchantmentsFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
-
-            JsonObject object = JsonHelper.assureJsonObject(json.get("enchantments"), "enchantments");
-            Map<Enchantment, NumberProvider> map = new HashMap<>();
-            for (var entry : object.entrySet()){
-                NamespaceID namespaceID = NamespaceID.from(entry.getKey());
-
-                Enchantment enchantment = Enchantment.fromNamespaceId(namespaceID);
-                if (enchantment == null) {
-                    throw new JsonParseException("Invalid enchantment \"" + namespaceID + "\"! Did you initialize your enchantment manager correctly?");
-                }
-
-                map.put(enchantment, loader.getNumberProviderManager().deserialize(entry.getValue(), entry.getKey()));
-            }
-
-            boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
-
-            return new SetEnchantmentsFunction(list, map, add);
-        }
-
-        @Override
-        public void serialize(@NotNull SetEnchantmentsFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
-            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
-            JsonObject enchantments = new JsonObject();
-            for (var entry : input.enchantments.entrySet()){
-                enchantments.add(entry.getKey().name(), loader.getNumberProviderManager().serialize(entry.getValue()));
-            }
-            result.add("enchantments", enchantments);
-            result.addProperty("add", input.add);
-        }
-    };
 }

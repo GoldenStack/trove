@@ -16,15 +16,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public record SurvivesExplosionCondition() implements LootCondition {
 
-    /**
-     * Returns true if a random float from {@code context} is less than {@code 1 / radius}, where radius is the value
-     * of the {@link LootContextParameter#EXPLOSION_RADIUS} parameter. If there is not a radius, it always returns true.
-     */
-    @Override
-    public boolean test(@NotNull LootContext context) {
-        return context.findRandom().nextFloat() <= (1.0f / context.assureParameter(LootContextParameter.EXPLOSION_RADIUS));
-    }
-
     public static final @NotNull JsonLootConverter<SurvivesExplosionCondition> CONVERTER = new JsonLootConverter<>(
             NamespaceID.from("minecraft:survives_explosion"), SurvivesExplosionCondition.class) {
         @Override
@@ -37,4 +28,13 @@ public record SurvivesExplosionCondition() implements LootCondition {
             // Nothing!
         }
     };
+
+    /**
+     * Returns true if a random float from {@code context} is less than {@code 1 / radius}, where radius is the value
+     * of the {@link LootContextParameter#EXPLOSION_RADIUS} parameter. If there is not a radius, it always returns true.
+     */
+    @Override
+    public boolean test(@NotNull LootContext context) {
+        return context.findRandom().nextFloat() <= (1.0f / context.assureParameter(LootContextParameter.EXPLOSION_RADIUS));
+    }
 }

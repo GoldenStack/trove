@@ -15,14 +15,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public record RandomChanceCondition(@NotNull NumberProvider probability) implements LootCondition {
 
-    /**
-     * Returns true if {@code context.findRandom().nextDouble() < this.probability.getDouble(context);}
-     */
-    @Override
-    public boolean test(@NotNull LootContext context) {
-        return context.findRandom().nextDouble() < this.probability.getDouble(context);
-    }
-
     public static final @NotNull JsonLootConverter<RandomChanceCondition> CONVERTER = new JsonLootConverter<>(
             NamespaceID.from("minecraft:random_chance"), RandomChanceCondition.class) {
         @Override
@@ -36,4 +28,11 @@ public record RandomChanceCondition(@NotNull NumberProvider probability) impleme
         }
     };
 
+    /**
+     * Returns true if {@code context.findRandom().nextDouble() < this.probability.getDouble(context);}
+     */
+    @Override
+    public boolean test(@NotNull LootContext context) {
+        return context.findRandom().nextDouble() < this.probability.getDouble(context);
+    }
 }

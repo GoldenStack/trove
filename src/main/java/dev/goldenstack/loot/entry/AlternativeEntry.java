@@ -17,6 +17,25 @@ import java.util.List;
  */
 public class AlternativeEntry extends CombinedEntry {
 
+    public static final @NotNull JsonLootConverter<AlternativeEntry> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:alternatives"), AlternativeEntry.class) {
+        @Override
+        public @NotNull AlternativeEntry deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new AlternativeEntry(
+                    LootEntry.deserializeConditions(json, loader),
+                    LootEntry.deserializeFunctions(json, loader),
+                    LootEntry.deserializeWeight(json, loader),
+                    LootEntry.deserializeQuality(json, loader),
+                    CombinedEntry.deserializeChildren(json, loader)
+            );
+        }
+
+        @Override
+        public void serialize(@NotNull AlternativeEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            CombinedEntry.serializeCombinedEntry(input, result, loader);
+        }
+    };
+
     /**
      * Initialize a new AlternativeEntry with the provided conditions, functions, weight, quality, and children.
      */
@@ -43,23 +62,4 @@ public class AlternativeEntry extends CombinedEntry {
     public String toString() {
         return "AlternativeEntry[" + CombinedEntry.partialToString(this) + "]";
     }
-
-    public static final @NotNull JsonLootConverter<AlternativeEntry> CONVERTER = new JsonLootConverter<>(
-            NamespaceID.from("minecraft:alternatives"), AlternativeEntry.class) {
-        @Override
-        public @NotNull AlternativeEntry deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            return new AlternativeEntry(
-                    LootEntry.deserializeConditions(json, loader),
-                    LootEntry.deserializeFunctions(json, loader),
-                    LootEntry.deserializeWeight(json, loader),
-                    LootEntry.deserializeQuality(json, loader),
-                    CombinedEntry.deserializeChildren(json, loader)
-            );
-        }
-
-        @Override
-        public void serialize(@NotNull AlternativeEntry input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
-            CombinedEntry.serializeCombinedEntry(input, result, loader);
-        }
-    };
 }

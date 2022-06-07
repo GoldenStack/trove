@@ -19,6 +19,25 @@ import java.util.List;
  */
 public class SetCountFunction extends ConditionalLootFunction {
 
+    public static final @NotNull JsonLootConverter<SetCountFunction> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:set_count"), SetCountFunction.class) {
+        @Override
+        public @NotNull SetCountFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new SetCountFunction(
+                    ConditionalLootFunction.deserializeConditions(json, loader),
+                    loader.getNumberProviderManager().deserialize(json.get("count"), "count"),
+                    JsonHelper.assureBoolean(json.get("add"), "add")
+            );
+        }
+
+        @Override
+        public void serialize(@NotNull SetCountFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
+            result.add("count", loader.getNumberProviderManager().serialize(input.count));
+            result.addProperty("add", input.add);
+        }
+    };
+
     private final @NotNull NumberProvider count;
     private final boolean add;
 
@@ -74,23 +93,4 @@ public class SetCountFunction extends ConditionalLootFunction {
     public int hashCode() {
         return count.hashCode() * 31 + Boolean.hashCode(this.add);
     }
-
-    public static final @NotNull JsonLootConverter<SetCountFunction> CONVERTER = new JsonLootConverter<>(
-            NamespaceID.from("minecraft:set_count"), SetCountFunction.class) {
-        @Override
-        public @NotNull SetCountFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            return new SetCountFunction(
-                    ConditionalLootFunction.deserializeConditions(json, loader),
-                    loader.getNumberProviderManager().deserialize(json.get("count"), "count"),
-                    JsonHelper.assureBoolean(json.get("add"), "add")
-            );
-        }
-
-        @Override
-        public void serialize(@NotNull SetCountFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
-            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
-            result.add("count", loader.getNumberProviderManager().serialize(input.count));
-            result.addProperty("add", input.add);
-        }
-    };
 }

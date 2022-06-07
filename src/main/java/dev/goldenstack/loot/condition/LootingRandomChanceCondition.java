@@ -15,15 +15,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public record LootingRandomChanceCondition(@NotNull NumberProvider chance, @NotNull NumberProvider lootingMultiplier) implements LootCondition {
 
-    /**
-     * Returns true if {@code context.findRandom().nextDouble() < this.chance.getDouble(context) + context.looting() *
-     * this.lootingMultiplier.getDouble(context);}
-     */
-    @Override
-    public boolean test(@NotNull LootContext context) {
-        return context.findRandom().nextDouble() < this.chance.getDouble(context) + context.looting() * this.lootingMultiplier.getDouble(context);
-    }
-
     public static final @NotNull JsonLootConverter<LootingRandomChanceCondition> CONVERTER = new JsonLootConverter<>(
             NamespaceID.from("minecraft:random_chance_with_looting"), LootingRandomChanceCondition.class) {
         @Override
@@ -40,4 +31,13 @@ public record LootingRandomChanceCondition(@NotNull NumberProvider chance, @NotN
             result.add("looting_multiplier", loader.getNumberProviderManager().serialize(input.lootingMultiplier));
         }
     };
+
+    /**
+     * Returns true if {@code context.findRandom().nextDouble() < this.chance.getDouble(context) + context.looting() *
+     * this.lootingMultiplier.getDouble(context);}
+     */
+    @Override
+    public boolean test(@NotNull LootContext context) {
+        return context.findRandom().nextDouble() < this.chance.getDouble(context) + context.looting() * this.lootingMultiplier.getDouble(context);
+    }
 }

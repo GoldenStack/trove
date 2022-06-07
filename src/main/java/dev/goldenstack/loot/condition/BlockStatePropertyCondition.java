@@ -22,22 +22,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public record BlockStatePropertyCondition(@Nullable NamespaceID block, @NotNull PropertiesCriterion properties) implements LootCondition {
 
-    /**
-     * Returns true if:
-     * <ul>
-     *     <li>{@link #block()} is null or the context's block's NamespaceID is equal to {@link #block()} and</li>
-     *     <li>There are no properties or all provided properties apply to the provided block</li>
-     * </ul>
-     */
-    @Override
-    public boolean test(@NotNull LootContext context) {
-        Block block = context.assureParameter(LootContextParameter.BLOCK_STATE);
-        if (this.block != null && !this.block.equals(block.registry().namespace())) {
-            return false;
-        }
-        return this.properties.test(block.properties());
-    }
-
     public static final @NotNull JsonLootConverter<BlockStatePropertyCondition> CONVERTER = new JsonLootConverter<>(
             NamespaceID.from("minecraft:block_state_property"), BlockStatePropertyCondition.class) {
         @Override
@@ -56,4 +40,20 @@ public record BlockStatePropertyCondition(@Nullable NamespaceID block, @NotNull 
             result.add("properties", input.properties.serialize());
         }
     };
+
+    /**
+     * Returns true if:
+     * <ul>
+     *     <li>{@link #block()} is null or the context's block's NamespaceID is equal to {@link #block()} and</li>
+     *     <li>There are no properties or all provided properties apply to the provided block</li>
+     * </ul>
+     */
+    @Override
+    public boolean test(@NotNull LootContext context) {
+        Block block = context.assureParameter(LootContextParameter.BLOCK_STATE);
+        if (this.block != null && !this.block.equals(block.registry().namespace())) {
+            return false;
+        }
+        return this.properties.test(block.properties());
+    }
 }

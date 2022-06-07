@@ -21,6 +21,19 @@ import java.util.Random;
  */
 public class ExplosionDecayFunction extends ConditionalLootFunction {
 
+    public static final @NotNull JsonLootConverter<ExplosionDecayFunction> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:explosion_decay"), ExplosionDecayFunction.class) {
+        @Override
+        public @NotNull ExplosionDecayFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new ExplosionDecayFunction(ConditionalLootFunction.deserializeConditions(json, loader));
+        }
+
+        @Override
+        public void serialize(@NotNull ExplosionDecayFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
+        }
+    };
+
     /**
      * Creates a new ExplosionDecayFunction with the provided conditions
      */
@@ -66,17 +79,4 @@ public class ExplosionDecayFunction extends ConditionalLootFunction {
     public int hashCode() {
         return conditions().hashCode() * 37;
     }
-
-    public static final @NotNull JsonLootConverter<ExplosionDecayFunction> CONVERTER = new JsonLootConverter<>(
-            NamespaceID.from("minecraft:explosion_decay"), ExplosionDecayFunction.class) {
-        @Override
-        public @NotNull ExplosionDecayFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            return new ExplosionDecayFunction(ConditionalLootFunction.deserializeConditions(json, loader));
-        }
-
-        @Override
-        public void serialize(@NotNull ExplosionDecayFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
-            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
-        }
-    };
 }

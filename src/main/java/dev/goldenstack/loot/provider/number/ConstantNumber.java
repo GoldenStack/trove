@@ -17,14 +17,6 @@ import java.util.function.BiFunction;
  * Represents a {@code NumberProvider} that is a constant value.
  */
 public record ConstantNumber(double value) implements NumberProvider {
-    /**
-     * {@inheritDoc}<br>
-     * For {@code ConstantNumber}s, the value should never change.
-     */
-    @Override
-    public double getDouble(@NotNull LootContext context) {
-        return value;
-    }
 
     public static final @NotNull BiFunction<JsonElement, JsonSerializationManager<? extends NumberProvider>, NumberProvider> DEFAULT_DESERIALIZER = (element, jsonSerializationManager) -> {
         if (element == null || !element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) {
@@ -45,4 +37,13 @@ public record ConstantNumber(double value) implements NumberProvider {
             result.addProperty("value", input.value);
         }
     };
+
+    /**
+     * {@inheritDoc}<br>
+     * For {@code ConstantNumber}s, the value should never change.
+     */
+    @Override
+    public double getDouble(@NotNull LootContext context) {
+        return value;
+    }
 }

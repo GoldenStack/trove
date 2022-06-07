@@ -19,6 +19,23 @@ import java.util.Objects;
  */
 public class LimitCountFunction extends ConditionalLootFunction {
 
+    public static final @NotNull JsonLootConverter<LimitCountFunction> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:limit_count"), LimitCountFunction.class) {
+        @Override
+        public @NotNull LimitCountFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new LimitCountFunction(
+                    ConditionalLootFunction.deserializeConditions(json, loader),
+                    NumberRange.deserialize(loader, json.get("limit"), "limit")
+            );
+        }
+
+        @Override
+        public void serialize(@NotNull LimitCountFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
+            result.add("limit", input.limiter.serialize(loader));
+        }
+    };
+
     private final NumberRange limiter;
 
     /**
@@ -61,21 +78,4 @@ public class LimitCountFunction extends ConditionalLootFunction {
     public int hashCode() {
         return Objects.hashCode(limiter);
     }
-
-    public static final @NotNull JsonLootConverter<LimitCountFunction> CONVERTER = new JsonLootConverter<>(
-            NamespaceID.from("minecraft:limit_count"), LimitCountFunction.class) {
-        @Override
-        public @NotNull LimitCountFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            return new LimitCountFunction(
-                    ConditionalLootFunction.deserializeConditions(json, loader),
-                    NumberRange.deserialize(loader, json.get("limit"), "limit")
-            );
-        }
-
-        @Override
-        public void serialize(@NotNull LimitCountFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
-            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
-            result.add("limit", input.limiter.serialize(loader));
-        }
-    };
 }

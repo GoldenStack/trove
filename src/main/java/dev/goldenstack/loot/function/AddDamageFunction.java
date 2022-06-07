@@ -20,6 +20,25 @@ import java.util.Objects;
  */
 public class AddDamageFunction extends ConditionalLootFunction {
 
+    public static final @NotNull JsonLootConverter<AddDamageFunction> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:set_damage"), AddDamageFunction.class) {
+        @Override
+        public @NotNull AddDamageFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new AddDamageFunction(
+                    ConditionalLootFunction.deserializeConditions(json, loader),
+                    loader.getNumberProviderManager().deserialize(json.get("damage"), "damage"),
+                    JsonHelper.assureBoolean(json.get("add"), "add")
+            );
+        }
+
+        @Override
+        public void serialize(@NotNull AddDamageFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
+            result.add("damage", loader.getNumberProviderManager().serialize(input.damage));
+            result.addProperty("add", input.add);
+        }
+    };
+
     private final NumberProvider damage;
     private final boolean add;
 
@@ -105,23 +124,4 @@ public class AddDamageFunction extends ConditionalLootFunction {
     public int hashCode() {
         return Objects.hashCode(damage) * 31 + Boolean.hashCode(add);
     }
-
-    public static final @NotNull JsonLootConverter<AddDamageFunction> CONVERTER = new JsonLootConverter<>(
-            NamespaceID.from("minecraft:set_damage"), AddDamageFunction.class) {
-        @Override
-        public @NotNull AddDamageFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            return new AddDamageFunction(
-                    ConditionalLootFunction.deserializeConditions(json, loader),
-                    loader.getNumberProviderManager().deserialize(json.get("damage"), "damage"),
-                    JsonHelper.assureBoolean(json.get("add"), "add")
-            );
-        }
-
-        @Override
-        public void serialize(@NotNull AddDamageFunction input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
-            ConditionalLootFunction.serializeConditionalLootFunction(input, result, loader);
-            result.add("damage", loader.getNumberProviderManager().serialize(input.damage));
-            result.addProperty("add", input.add);
-        }
-    };
 }

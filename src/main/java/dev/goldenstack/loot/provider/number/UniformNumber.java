@@ -13,6 +13,24 @@ import org.jetbrains.annotations.NotNull;
  * are uniformly generated (as suggested by the name).
  */
 public record UniformNumber(@NotNull NumberProvider min, @NotNull NumberProvider max) implements NumberProvider {
+
+    public static final @NotNull JsonLootConverter<UniformNumber> CONVERTER = new JsonLootConverter<>(
+            NamespaceID.from("minecraft:uniform"), UniformNumber.class) {
+        @Override
+        public @NotNull UniformNumber deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
+            return new UniformNumber(
+                    loader.getNumberProviderManager().deserialize(json.get("min"), "min"),
+                    loader.getNumberProviderManager().deserialize(json.get("max"), "max")
+            );
+        }
+
+        @Override
+        public void serialize(@NotNull UniformNumber input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
+            result.add("min", loader.getNumberProviderManager().serialize(input.min));
+            result.add("max", loader.getNumberProviderManager().serialize(input.max));
+        }
+    };
+
     /**
      * {@inheritDoc}<br>
      * For {@code UniformNumber}s, it's a uniform value between the minimum and the maximum.
@@ -33,21 +51,4 @@ public record UniformNumber(@NotNull NumberProvider min, @NotNull NumberProvider
         final int max = this.max.getInteger(context), min = this.min.getInteger(context);
         return context.findRandom().nextInt(max - min + 1) + min;
     }
-
-    public static final @NotNull JsonLootConverter<UniformNumber> CONVERTER = new JsonLootConverter<>(
-            NamespaceID.from("minecraft:uniform"), UniformNumber.class) {
-        @Override
-        public @NotNull UniformNumber deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            return new UniformNumber(
-                    loader.getNumberProviderManager().deserialize(json.get("min"), "min"),
-                    loader.getNumberProviderManager().deserialize(json.get("max"), "max")
-            );
-        }
-
-        @Override
-        public void serialize(@NotNull UniformNumber input, @NotNull JsonObject result, @NotNull ImmuTables loader) throws JsonParseException {
-            result.add("min", loader.getNumberProviderManager().serialize(input.min));
-            result.add("max", loader.getNumberProviderManager().serialize(input.max));
-        }
-    };
 }

@@ -19,24 +19,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public record TimeCheckCondition(@NotNull NumberRange range, @Nullable Number period) implements LootCondition {
 
-    /**
-     * Returns true if the context's instance has a time that fits in the range of {@link #range()}. If {@link #period()}
-     * is not null, the time is calculated with {@code time % period.longValue()}.<br>
-     * If the context does not have an instance, false is always returned.
-     */
-    @Override
-    public boolean test(@NotNull LootContext context) {
-        Instance instance = context.instance();
-        if (instance == null) {
-            return false;
-        }
-        long value = instance.getTime();
-        if (this.period != null) {
-            value %= this.period.longValue();
-        }
-        return this.range.predicate(context, value);
-    }
-
     public static final @NotNull JsonLootConverter<TimeCheckCondition> CONVERTER = new JsonLootConverter<>(
             NamespaceID.from("minecraft:time_check"), TimeCheckCondition.class) {
         @Override
@@ -55,5 +37,23 @@ public record TimeCheckCondition(@NotNull NumberRange range, @Nullable Number pe
             result.add("range", input.range.serialize(loader));
         }
     };
+
+    /**
+     * Returns true if the context's instance has a time that fits in the range of {@link #range()}. If {@link #period()}
+     * is not null, the time is calculated with {@code time % period.longValue()}.<br>
+     * If the context does not have an instance, false is always returned.
+     */
+    @Override
+    public boolean test(@NotNull LootContext context) {
+        Instance instance = context.instance();
+        if (instance == null) {
+            return false;
+        }
+        long value = instance.getTime();
+        if (this.period != null) {
+            value %= this.period.longValue();
+        }
+        return this.range.predicate(context, value);
+    }
 }
 

@@ -16,14 +16,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public record KilledByPlayerCondition() implements LootCondition {
 
-    /**
-     * Returns true if the context has a killer and the killer's EntityType is {@link EntityType#PLAYER}.
-     */
-    @Override
-    public boolean test(@NotNull LootContext context) {
-        return context.assureParameter(LootContextParameter.KILLER_ENTITY).getEntityType() == EntityType.PLAYER;
-    }
-
     public static final @NotNull JsonLootConverter<KilledByPlayerCondition> CONVERTER = new JsonLootConverter<>(
             NamespaceID.from("minecraft:killed_by_player"), KilledByPlayerCondition.class) {
         @Override
@@ -36,4 +28,12 @@ public record KilledByPlayerCondition() implements LootCondition {
             // Nothing!
         }
     };
+
+    /**
+     * Returns true if the context has a killer and the killer's EntityType is {@link EntityType#PLAYER}.
+     */
+    @Override
+    public boolean test(@NotNull LootContext context) {
+        return context.assureParameter(LootContextParameter.KILLER_ENTITY).getEntityType() == EntityType.PLAYER;
+    }
 }

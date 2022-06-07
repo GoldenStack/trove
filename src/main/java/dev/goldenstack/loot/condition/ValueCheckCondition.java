@@ -16,14 +16,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public record ValueCheckCondition(@NotNull NumberProvider value, @NotNull NumberRange range) implements LootCondition {
 
-    /**
-     * Returns true if the value of {@link #value()} fits in the range of {@link #range()}.
-     */
-    @Override
-    public boolean test(@NotNull LootContext context) {
-        return this.range.predicate(context, this.value.getDouble(context));
-    }
-
     public static final @NotNull JsonLootConverter<ValueCheckCondition> CONVERTER = new JsonLootConverter<>(
             NamespaceID.from("minecraft:value_check"), ValueCheckCondition.class) {
         @Override
@@ -40,4 +32,12 @@ public record ValueCheckCondition(@NotNull NumberProvider value, @NotNull Number
             result.add("range", input.range.serialize(loader));
         }
     };
+
+    /**
+     * Returns true if the value of {@link #value()} fits in the range of {@link #range()}.
+     */
+    @Override
+    public boolean test(@NotNull LootContext context) {
+        return this.range.predicate(context, this.value.getDouble(context));
+    }
 }
