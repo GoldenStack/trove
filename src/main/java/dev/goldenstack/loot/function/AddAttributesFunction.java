@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.StreamSupport;
 
 /**
  * Represents a {@code LootFunction} that adds attributes to the provided ItemStack.
@@ -159,7 +160,6 @@ public class AddAttributesFunction extends ConditionalLootFunction {
          * Deserializes the provided JsonObject into a Modifier.
          */
         public static @NotNull Modifier deserialize(@NotNull JsonObject object, @NotNull ImmuTables loader) throws JsonParseException {
-
             Attribute attribute = Attribute.fromKey(JsonHelper.assureString(object.get("attribute"), "attribute"));
             if (attribute == null) {
                 throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid attribute", "attribute", null));
@@ -170,14 +170,6 @@ public class AddAttributesFunction extends ConditionalLootFunction {
                 throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid attribute operation", "operation", null));
             }
 
-            final @NotNull NumberProvider amount = loader.getNumberProviderManager().deserialize(object.get("amount"), "amount");
-
-            JsonElement nameElement = object.get("name");
-            final @Nullable String name = (JsonHelper.isNull(nameElement) ? null : JsonHelper.assureString(nameElement, "name"));
-
-            JsonElement uuidElement = object.get("id");
-            final @Nullable UUID uuid = (JsonHelper.isNull(uuidElement) ? null : JsonHelper.assureUUID(uuidElement, "id"));
-
             JsonElement slotElement = JsonHelper.assureNotNull(object.get("slot"), "slot");
             List<AttributeSlot> slots;
 
@@ -187,9 +179,7 @@ public class AddAttributesFunction extends ConditionalLootFunction {
                 if (array == null) {
                     throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid attribute slot or an array of attribute slots", "slot", slotElement));
                 }
-                AttributeSlot[] slotArray = new AttributeSlot[array.size()];
-                for (int i = 0; i < array.size(); i++) {
-                    JsonElement element = array.get(i);
+                slots = StreamSupport.stream(array.spliterator(), false).map(element -> {
                     String slotString = JsonHelper.getAsString(element);
                     if (slotString == null) {
                         throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid attribute slot (while deserializing an element in an array)", "slot", element));
@@ -198,9 +188,8 @@ public class AddAttributesFunction extends ConditionalLootFunction {
                     if (slot == null) {
                         throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid attribute slot (while deserializing an element in an array)", "slot", element));
                     }
-                    slotArray[i] = slot;
-                }
-                slots = List.of(slotArray);
+                    return slot;
+                }).toList();
             } else {
                 AttributeSlot slot = EnumValues.ATTRIBUTE_SLOT.valueOf(string.toUpperCase(Locale.ROOT));
                 if (slot == null) {
@@ -209,7 +198,14 @@ public class AddAttributesFunction extends ConditionalLootFunction {
                 slots = List.of(slot);
             }
 
-            return new Modifier(attribute, slots, operation, amount, uuid, name);
+            return new Modifier(
+                    attribute,
+                    slots,
+                    operation,
+                    loader.getNumberProviderManager().deserialize(object.get("amount"), "amount"),
+                    JsonHelper.getAsUuid(object.get("id")),
+                    JsonHelper.getAsString(object.get("name"))
+            );
         }
     }
 

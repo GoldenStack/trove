@@ -27,7 +27,6 @@ public class ItemEntry extends ConstantChoiceEntry {
         public @NotNull ItemEntry deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
             JsonElement name = json.get("name");
             Material material = Material.fromNamespaceId(JsonHelper.assureNamespaceId(name, "name"));
-
             if (material == null) {
                 throw new JsonParseException(JsonHelper.createExpectedValueMessage("a valid material (as a NamespaceID)", "name", name));
             }

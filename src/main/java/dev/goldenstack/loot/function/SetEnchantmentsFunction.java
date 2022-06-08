@@ -26,24 +26,22 @@ public class SetEnchantmentsFunction extends ConditionalLootFunction {
             NamespaceID.from("minecraft:set_enchantments"), SetEnchantmentsFunction.class) {
         @Override
         public @NotNull SetEnchantmentsFunction deserialize(@NotNull JsonObject json, @NotNull ImmuTables loader) throws JsonParseException {
-            List<LootCondition> list = ConditionalLootFunction.deserializeConditions(json, loader);
-
-            JsonObject object = JsonHelper.assureJsonObject(json.get("enchantments"), "enchantments");
             Map<Enchantment, NumberProvider> map = new HashMap<>();
-            for (var entry : object.entrySet()){
+            for (var entry : JsonHelper.assureJsonObject(json.get("enchantments"), "enchantments").entrySet()){
                 NamespaceID namespaceID = NamespaceID.from(entry.getKey());
 
                 Enchantment enchantment = Enchantment.fromNamespaceId(namespaceID);
                 if (enchantment == null) {
                     throw new JsonParseException("Invalid enchantment \"" + namespaceID + "\"! Did you initialize your enchantment manager correctly?");
                 }
-
                 map.put(enchantment, loader.getNumberProviderManager().deserialize(entry.getValue(), entry.getKey()));
             }
 
-            boolean add = JsonHelper.assureBoolean(json.get("add"), "add");
-
-            return new SetEnchantmentsFunction(list, map, add);
+            return new SetEnchantmentsFunction(
+                    ConditionalLootFunction.deserializeConditions(json, loader),
+                    map,
+                    JsonHelper.assureBoolean(json.get("add"), "add")
+            );
         }
 
         @Override
