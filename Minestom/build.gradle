@@ -1,0 +1,8 @@
+repositories {
+    maven { url 'https://repo.spongepowered.org/maven' }
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    api 'com.github.Minestom:Minestom:-SNAPSHOT'
+}

@@ -1,31 +1,48 @@
-plugins {
-    id 'java-library'
-    id 'maven-publish'
+
+allprojects {
+    version = "1.0"
+    group = 'dev.goldenstack.loot'
 }
 
-sourceCompatibility = 17
-targetCompatibility = 17
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
 
-group 'dev.goldenstack.loot'
-version '1.0'
+    sourceCompatibility = 17
+    targetCompatibility = 17
 
-repositories {
-    mavenCentral()
-    maven { url 'https://repo.spongepowered.org/maven' }
-    maven { url 'https://jitpack.io' }
-}
+    repositories {
+        mavenCentral()
+    }
 
-dependencies {
-    api 'com.github.Minestom:Minestom:-SNAPSHOT'
-    api 'org.jetbrains:annotations:23.0.0'
-}
+    dependencies {
+        api 'org.jetbrains:annotations:23.0.0'
+        implementation 'com.google.code.gson:gson:2.9.0'
 
-publishing {
-    publications {
-        //noinspection GroovyAssignabilityCheck
-        mavenJava(MavenPublication) {
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    java {
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    publishing {
+        publications {
             //noinspection GroovyAssignabilityCheck
-            from components.java
+            mavenJava(MavenPublication) {
+                groupId project.group
+                artifactId project.name
+                version project.version
+                //noinspection GroovyAssignabilityCheck
+                from components.java
+            }
         }
     }
+
 }
