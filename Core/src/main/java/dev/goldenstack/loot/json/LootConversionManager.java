@@ -71,7 +71,7 @@ public class LootConversionManager<L, T extends LootAware<L>> {
      */
     public <N extends T> @NotNull JsonObject serialize(@NotNull N n) throws LootParsingException {
         JsonObject object = new JsonObject();
-        //noinspection unchecked - We, at this point, know that it must be a LootConverter<L, N>.
+        @SuppressWarnings("unchecked") // We, at this point, know that it must be a LootConverter<L, N>.
         LootConverter<L, N> converter = (LootConverter<L, N>) this.classRegistry.get(n.getClass());
         if (converter == null) {
             throw new LootParsingException("Could not find a LootConverter for class '" + n.getClass() + "'");
