@@ -4,5 +4,7 @@ repositories {
 }
 
 dependencies {
+    implementation project(path: ':Core')
+
     api 'com.github.Minestom:Minestom:-SNAPSHOT'
 }
