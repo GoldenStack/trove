@@ -19,6 +19,13 @@ public record LootContext(@NotNull Random random, @NotNull Map<Key<?>, Object> i
     }
 
     /**
+     * @return true if there is something stored at the provided key
+     */
+    public boolean has(@NotNull Key<?> key) {
+        return this.information.containsKey(key);
+    }
+
+    /**
      * @return the object stored at the specified key
      */
     public @Nullable Object getRaw(@NotNull Key<?> key) {
