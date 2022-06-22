@@ -32,7 +32,9 @@ public abstract class StandardLootEntry<L> implements LootEntry<L>, LootRequirem
      * @param weight see {@link #weight()}
      * @param quality see {@link #quality()}
      */
-    public StandardLootEntry(@NotNull List<LootRequirement<L>> requirements, @NotNull List<LootModifier<L>> modifiers, long weight, long quality) {
+    public StandardLootEntry(@NotNull List<LootRequirement<L>> requirements,
+                             @NotNull List<LootModifier<L>> modifiers,
+                             long weight, long quality) {
         this.requirements = List.copyOf(requirements);
         this.modifiers = List.copyOf(modifiers);
         this.weight = weight;

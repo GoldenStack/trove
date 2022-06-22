@@ -1,13 +1,16 @@
 package dev.goldenstack.loot.json;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.goldenstack.loot.ImmuTables;
+import dev.goldenstack.loot.util.JsonUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -89,9 +92,8 @@ public class LootConversionManager<L, T extends LootAware<L>> {
     public @NotNull T deserialize(@Nullable JsonElement element) throws LootParsingException {
         if (element != null && element.isJsonObject()){
             JsonObject object = element.getAsJsonObject();
-            JsonElement rawType = object.get(keyLocation);
-            if (rawType != null && rawType.isJsonPrimitive()){
-                String type = rawType.getAsString();
+            String type = JsonUtils.getAsString(object.get(keyLocation));
+            if (type != null){
                 LootConverter<L, ? extends T> t = this.keyRegistry.get(type);
                 if (t != null) {
                     return t.deserialize(object, this.owner);
@@ -106,6 +108,20 @@ public class LootConversionManager<L, T extends LootAware<L>> {
             }
         }
         throw new LootParsingException("Expected the provided element to not be null!");
+    }
+
+    /**
+     * Utility method to serialize a list of {@link T}
+     */
+    public @NotNull JsonArray serializeList(@NotNull List<T> list) throws LootParsingException {
+        return JsonUtils.serializeJsonArray(list, this::serialize);
+    }
+
+    /**
+     * Utility method to deserialize a list of {@link T}
+     */
+    public @NotNull List<T> deserializeList(@NotNull JsonArray array) throws LootParsingException {
+        return JsonUtils.deserializeJsonArray(array, null, (a, b) -> this.deserialize(a));
     }
 
     /**
