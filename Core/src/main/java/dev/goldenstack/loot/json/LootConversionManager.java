@@ -176,7 +176,7 @@ public class LootConversionManager<L, T extends LootAware<L>> {
         @Contract(" -> new")
         public @NotNull LootConversionManager<L, T> build() {
             Objects.requireNonNull(owner, "LootConversionManager instances cannot be built without an owner!");
-            Objects.requireNonNull(keyLocation, "LootConversionManager instances cannot be built without an owner!");
+            Objects.requireNonNull(keyLocation, "LootConversionManager instances cannot be built without a key location!");
             return new LootConversionManager<>(this);
         }
     }
