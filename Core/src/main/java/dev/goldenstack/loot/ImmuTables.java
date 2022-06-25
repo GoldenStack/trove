@@ -22,10 +22,10 @@ public class ImmuTables<L> {
     private final @NotNull LootConversionManager<L, LootNumber<L>> lootNumberManager;
 
     private ImmuTables(@NotNull Builder<L> builder) {
-        this.lootEntryManager = builder.lootEntryBuilder.build();
-        this.lootModifierManager = builder.lootModifierBuilder.build();
-        this.lootRequirementManager = builder.lootRequirementBuilder.build();
-        this.lootNumberManager = builder.lootNumberBuilder.build();
+        this.lootEntryManager = builder.lootEntryBuilder.owner(this).build();
+        this.lootModifierManager = builder.lootModifierBuilder.owner(this).build();
+        this.lootRequirementManager = builder.lootRequirementBuilder.owner(this).build();
+        this.lootNumberManager = builder.lootNumberBuilder.owner(this).build();
     }
 
     /**
