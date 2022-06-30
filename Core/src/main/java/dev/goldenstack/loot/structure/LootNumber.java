@@ -13,7 +13,7 @@ public interface LootNumber<L> extends LootAware<L> {
     /**
      * From the provided loot context, generates a long.
      */
-    int getLong(@NotNull LootContext context);
+    long getLong(@NotNull LootContext context);
 
     /**
      * From the provided loot context, generates a double.
