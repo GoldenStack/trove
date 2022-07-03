@@ -53,7 +53,7 @@ public abstract class LootConverter<L, T extends LootAware<L>> {
      * to avoid overwriting it. Additionally, it's not a good idea to rely on the state of the JSON object anyway.
      * @param input the input object that will be serialized
      * @param result the JSON object that should have fields added to it when serializing
-     * @param loader the loader, to use for any other required deserialization
+     * @param loader the loader, to use for any other required serialization
      * @throws LootParsingException if, for some reason, something goes wrong while serializing
      */
     public abstract void serialize(@NotNull T input, @NotNull JsonObject result, @NotNull ImmuTables<L> loader) throws LootParsingException;
