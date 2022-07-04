@@ -8,6 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Stores information meant to be used during conversion.
+ * @param loader the loader - it's used in most cases, so it's being stored here instead of in {@code information}.
+ * @param information the map that stores possibly required information
+ * @param <L> the loot item
+ */
 public record LootConversionContext<L>(@NotNull ImmuTables<L> loader, @NotNull Map<Key<?>, Object> information) implements GenericKeyedContext<LootConversionContext.Key<?>> {
 
     public LootConversionContext {
@@ -15,7 +21,7 @@ public record LootConversionContext<L>(@NotNull ImmuTables<L> loader, @NotNull M
     }
 
     /**
-     * Note: builders of this class are not thread-safe.
+     * Note: the returned builder is not thread-safe.
      * @return a new builder
      */
     @Contract(" -> new")

@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Random;
 
 /**
- * Stores information about some loot table that is being queried for loot items
+ * Stores information about some loot table that is being queried for loot items.
  * @param random the random number generator that will be used, potentially by actual loot modifiers, requirements,
  *               entries, numbers, or other sources
  * @param information the map that stores all extra information about this context
@@ -21,7 +21,7 @@ public record LootContext(@NotNull Random random, @NotNull Map<Key<?>, Object> i
     }
 
     /**
-     * Note: builders of this class are not thread-safe.
+     * Note: the returned builder is not thread-safe.
      * @return a new builder
      */
     @Contract(" -> new")
