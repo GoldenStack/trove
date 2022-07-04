@@ -1,6 +1,6 @@
 package dev.goldenstack.loot;
 
-import dev.goldenstack.loot.json.LootConversionManager;
+import dev.goldenstack.loot.conversion.LootConversionManager;
 import dev.goldenstack.loot.structure.LootEntry;
 import dev.goldenstack.loot.structure.LootModifier;
 import dev.goldenstack.loot.structure.LootNumber;

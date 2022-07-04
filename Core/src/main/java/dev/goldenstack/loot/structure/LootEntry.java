@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.structure;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.json.LootAware;
+import dev.goldenstack.loot.conversion.LootAware;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -24,7 +24,7 @@ public interface LootEntry<L> extends LootAware<L> {
 
         /**
          * <b>IMPORTANT: This number should not be below 1.</b>
-         * @return the weight of this option, to be used while choosing between options
+         * @return the weight of this option, which will be used while choosing between options
          */
         @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootContext context);
 

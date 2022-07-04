@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.util;
 
 import com.google.gson.*;
-import dev.goldenstack.loot.json.LootParsingException;
+import dev.goldenstack.loot.conversion.LootParsingException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.util;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.json.LootAware;
+import dev.goldenstack.loot.conversion.LootAware;
 import dev.goldenstack.loot.structure.LootRequirement;
 import org.jetbrains.annotations.NotNull;
 

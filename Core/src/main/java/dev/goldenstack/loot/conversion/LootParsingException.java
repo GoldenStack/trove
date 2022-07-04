@@ -1,4 +1,4 @@
-package dev.goldenstack.loot.json;
+package dev.goldenstack.loot.conversion;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

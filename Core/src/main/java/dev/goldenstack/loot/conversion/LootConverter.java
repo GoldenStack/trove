@@ -1,4 +1,4 @@
-package dev.goldenstack.loot.json;
+package dev.goldenstack.loot.conversion;
 
 import com.google.gson.JsonObject;
 import dev.goldenstack.loot.ImmuTables;
