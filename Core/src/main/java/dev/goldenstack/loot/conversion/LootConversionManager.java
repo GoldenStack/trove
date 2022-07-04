@@ -31,7 +31,7 @@ public class LootConversionManager<L, T extends LootAware<L>> {
         this.keyLocation = builder.keyLocation;
         this.keyRegistry = Map.copyOf(builder.keyRegistry);
         this.classRegistry = Map.copyOf(builder.classRegistry);
-        this.complexConverters = builder.complexConverters;
+        this.complexConverters = List.copyOf(builder.complexConverters);
     }
 
     /**
