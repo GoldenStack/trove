@@ -1,13 +1,11 @@
 package dev.goldenstack.loot;
 
 import dev.goldenstack.loot.conversion.LootConversionManager;
-import dev.goldenstack.loot.structure.LootEntry;
-import dev.goldenstack.loot.structure.LootModifier;
-import dev.goldenstack.loot.structure.LootNumber;
-import dev.goldenstack.loot.structure.LootRequirement;
+import dev.goldenstack.loot.structure.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -21,11 +19,17 @@ public class ImmuTables<L> {
     private final @NotNull LootConversionManager<L, LootRequirement<L>> lootRequirementManager;
     private final @NotNull LootConversionManager<L, LootNumber<L>> lootNumberManager;
 
+    private final LootTable.Converter<L> lootTableConverter;
+    private final LootPool.Converter<L> lootPoolConverter;
+
     private ImmuTables(@NotNull Builder<L> builder) {
         this.lootEntryManager = builder.lootEntryBuilder.owner(this).build();
         this.lootModifierManager = builder.lootModifierBuilder.owner(this).build();
         this.lootRequirementManager = builder.lootRequirementBuilder.owner(this).build();
         this.lootNumberManager = builder.lootNumberBuilder.owner(this).build();
+
+        this.lootTableConverter = builder.lootTableConverter;
+        this.lootPoolConverter = builder.lootPoolConverter;
     }
 
     /**
@@ -57,6 +61,20 @@ public class ImmuTables<L> {
     }
 
     /**
+     * @return the converter that will be used for loot tables
+     */
+    public @NotNull LootTable.Converter<L> lootTableConverter() {
+        return lootTableConverter;
+    }
+
+    /**
+     * @return the converter that will be used for loot pools
+     */
+    public @NotNull LootPool.Converter<L> lootPoolConverter() {
+        return lootPoolConverter;
+    }
+
+    /**
      * @return a new ImmuTables builder
      * @param <L> the loot item
      */
@@ -72,23 +90,10 @@ public class ImmuTables<L> {
         private final @NotNull LootConversionManager.Builder<L, LootRequirement<L>> lootRequirementBuilder = LootConversionManager.builder();
         private final @NotNull LootConversionManager.Builder<L, LootNumber<L>> lootNumberBuilder = LootConversionManager.builder();
 
+        private LootTable.Converter<L> lootTableConverter;
+        private LootPool.Converter<L> lootPoolConverter;
+
         private Builder() {}
-
-        public @NotNull LootConversionManager.Builder<L, LootEntry<L>> lootEntryBuilder() {
-            return lootEntryBuilder;
-        }
-
-        public @NotNull LootConversionManager.Builder<L, LootModifier<L>> lootModifierBuilder() {
-            return lootModifierBuilder;
-        }
-
-        public @NotNull LootConversionManager.Builder<L, LootRequirement<L>> lootRequirementBuilder() {
-            return lootRequirementBuilder;
-        }
-
-        public @NotNull LootConversionManager.Builder<L, LootNumber<L>> lootNumberBuilder() {
-            return lootNumberBuilder;
-        }
 
         @Contract("_ -> this")
         public @NotNull Builder<L> lootEntryBuilder(@NotNull Consumer<LootConversionManager.Builder<L, LootEntry<L>>> consumer) {
@@ -114,8 +119,22 @@ public class ImmuTables<L> {
             return this;
         }
 
+        @Contract("_ -> this")
+        public @NotNull Builder<L> lootTableConverter(@NotNull LootTable.Converter<L> lootTableConverter) {
+            this.lootTableConverter = lootTableConverter;
+            return this;
+        }
+
+        @Contract("_ -> this")
+        public @NotNull Builder<L> lootPoolConverter(@NotNull LootPool.Converter<L> lootPoolConverter) {
+            this.lootPoolConverter = lootPoolConverter;
+            return this;
+        }
+
         @Contract(" -> new")
         public @NotNull ImmuTables<L> build() {
+            Objects.requireNonNull(lootTableConverter, "ImmuTables instances cannot be built without a loot table converter!");
+            Objects.requireNonNull(lootPoolConverter, "ImmuTables instances cannot be built without a loot pool converter!");
             return new ImmuTables<>(this);
         }
     }

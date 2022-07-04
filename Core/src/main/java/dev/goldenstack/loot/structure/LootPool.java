@@ -1,10 +1,16 @@
 package dev.goldenstack.loot.structure;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
+import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.conversion.LootAware;
+import dev.goldenstack.loot.conversion.LootParsingException;
+import dev.goldenstack.loot.util.JsonUtils;
 import dev.goldenstack.loot.util.LootModifierHolder;
 import dev.goldenstack.loot.util.LootRequirementHolder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +24,35 @@ public record LootPool<L>(@NotNull List<LootEntry<L>> entries,
                           @NotNull List<LootRequirement<L>> requirements,
                           @NotNull List<LootModifier<L>> modifiers,
                           @NotNull LootNumber<L> rolls) implements LootRequirementHolder<L>, LootModifierHolder<L>, LootAware<L> {
+
+    /**
+     * Handles serialization for loot pools - it's not final so that custom implementations are possible
+     * @param <L> the loot item
+     */
+    public static class Converter<L> {
+        public @NotNull LootPool<L> deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootParsingException {
+            JsonObject object = JsonUtils.assureJsonObject(element, null);
+            return new LootPool<>(
+                    context.loader().lootEntryManager().deserializeList(JsonUtils.assureJsonArray(object.get("entries"), "entries"), context),
+                    object.has("requirements") ? context.loader().lootRequirementManager().deserializeList(JsonUtils.assureJsonArray(object.get("requirements"), "requirements"), context) : List.of(),
+                    object.has("modifiers") ? context.loader().lootModifierManager().deserializeList(JsonUtils.assureJsonArray(object.get("modifiers"), "modifiers"), context) : List.of(),
+                    context.loader().lootNumberManager().deserialize(object.get("rolls"), context)
+            );
+        }
+
+        public @NotNull JsonElement serialize(@NotNull LootPool<L> input, @NotNull LootConversionContext<L> context) throws LootParsingException {
+            JsonObject object = new JsonObject();
+            object.add("entries", context.loader().lootEntryManager().serializeList(input.entries(), context));
+            if (!input.requirements().isEmpty()) {
+                object.add("requirements", context.loader().lootRequirementManager().serializeList(input.requirements(), context));
+            }
+            if (!input.modifiers().isEmpty()) {
+                object.add("modifiers", context.loader().lootModifierManager().serializeList(input.modifiers(), context));
+            }
+            object.add("rolls", context.loader().lootNumberManager().serialize(input.rolls(), context));
+            return object;
+        }
+    }
 
     public LootPool {
         entries = List.copyOf(entries);

@@ -1,23 +1,50 @@
 package dev.goldenstack.loot.structure;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
+import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.conversion.LootAware;
+import dev.goldenstack.loot.conversion.LootParsingException;
+import dev.goldenstack.loot.util.JsonUtils;
 import dev.goldenstack.loot.util.LootModifierHolder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A loot table stores a list of loot pools, loot modifiers, and required criterion.
- * @param criterion stores the required loot context keys
  * @param pools the pools that will be asked for loot
  * @param modifiers modifiers to apply to each and every loot item that is generated from the pools
  * @param <L> the loot item
  */
-public record LootTable<L>(@NotNull LootContextCriterion criterion,
-                           @NotNull List<LootPool<L>> pools,
+public record LootTable<L>(@NotNull List<LootPool<L>> pools,
                            @NotNull List<LootModifier<L>> modifiers) implements LootAware<L>, LootModifierHolder<L> {
+
+    /**
+     * Handles serialization for loot tables - it's not final so that custom implementations are possible
+     * @param <L> the loot item
+     */
+    public static class Converter<L> {
+        public @NotNull LootTable<L> deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootParsingException {
+            JsonObject object = JsonUtils.assureJsonObject(element, null);
+            return new LootTable<>(
+                    JsonUtils.deserializeJsonArray(JsonUtils.assureJsonArray(object.get("pools"), "pools"), "pools", (e, k) -> context.loader().lootPoolConverter().deserialize(e, context)),
+                    object.has("modifiers") ? context.loader().lootModifierManager().deserializeList(JsonUtils.assureJsonArray(object.get("modifiers"), "modifiers"), context) : List.of()
+            );
+        }
+
+        public @NotNull JsonElement serialize(@NotNull LootTable<L> input, @NotNull LootConversionContext<L> context) throws LootParsingException {
+            JsonObject object = new JsonObject();
+            object.add("entries", JsonUtils.serializeJsonArray(input.pools(), pool -> context.loader().lootPoolConverter().serialize(pool, context)));
+            if (!input.modifiers().isEmpty()) {
+                object.add("modifiers", context.loader().lootModifierManager().serializeList(input.modifiers(), context));
+            }
+            return object;
+        }
+    }
 
     public LootTable {
         pools = List.copyOf(pools);
@@ -31,11 +58,7 @@ public record LootTable<L>(@NotNull LootContextCriterion criterion,
      * @param context the context to use for generation
      * @return every loot item that was generated
      */
-    public @NotNull List<L> generate(@NotNull LootContext context) throws IllegalArgumentException {
-        if (!criterion.fulfills(context)) {
-            throw new IllegalArgumentException("Invalid loot context: all keys in this table's criterion must be held by the provided loot context");
-        }
-
+    public @NotNull List<L> generate(@NotNull LootContext context) {
         // No loot can be generated
         if (this.pools.isEmpty()) {
             return List.of();
