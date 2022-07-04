@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.conversion;
 
 import com.google.gson.JsonObject;
-import dev.goldenstack.loot.ImmuTables;
+import dev.goldenstack.loot.context.LootConversionContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -40,11 +40,11 @@ public abstract class LootConverter<L, T extends LootAware<L>> {
      * Deserializes the provided JSON object into an instance of {@code T}. Although the JSON object is mutable, it's
      * not a good idea to modify fields on it without knowing specifically where its source is.
      * @param json the JSON object that should be deserialized
-     * @param loader the loader, to use for any other required deserialization
+     * @param context the context, to use for any other required information for deserialization
      * @return the instance of {@code T} that was deserialized
      * @throws LootParsingException if, for some reason, something goes wrong while deserializing
      */
-    public abstract @NotNull T deserialize(@NotNull JsonObject json, @NotNull ImmuTables<L> loader) throws LootParsingException;
+    public abstract @NotNull T deserialize(@NotNull JsonObject json, @NotNull LootConversionContext<L> context) throws LootParsingException;
 
     /**
      * Serializes the provided instance of {@code T} onto the provided JSON object. The JSON object will usually already
@@ -53,8 +53,8 @@ public abstract class LootConverter<L, T extends LootAware<L>> {
      * to avoid overwriting it. Additionally, it's not a good idea to rely on the state of the JSON object anyway.
      * @param input the input object that will be serialized
      * @param result the JSON object that should have fields added to it when serializing
-     * @param loader the loader, to use for any other required serialization
+     * @param context the context, to use for any other required information for serialization
      * @throws LootParsingException if, for some reason, something goes wrong while serializing
      */
-    public abstract void serialize(@NotNull T input, @NotNull JsonObject result, @NotNull ImmuTables<L> loader) throws LootParsingException;
+    public abstract void serialize(@NotNull T input, @NotNull JsonObject result, @NotNull LootConversionContext<L> context) throws LootParsingException;
 }

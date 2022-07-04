@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.goldenstack.loot.ImmuTables;
+import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.util.JsonUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -58,15 +59,16 @@ public class LootConversionManager<L, T extends LootAware<L>> {
     /**
      * Serializes the provided object into a JSON element.
      * @param s the object to serialize
+     * @param context the context to feed to converters for serialization
      * @return a JSON element representing the serialized state of the provided object
      * @param <S> the type of the object that will be serialized
      * @throws LootParsingException if something happens during serialization or if a valid loot converter couldn't be found
      */
-    public <S extends T> @NotNull JsonElement serialize(@NotNull S s) throws LootParsingException {
+    public <S extends T> @NotNull JsonElement serialize(@NotNull S s, @NotNull LootConversionContext<L> context) throws LootParsingException {
         if (!complexConverters.isEmpty()) {
             for (ComplexLootConverter<L, T> complexConverter : complexConverters) {
-                if (complexConverter.canSerialize(s, this)) {
-                    return complexConverter.serialize(s, this);
+                if (complexConverter.canSerialize(s, context)) {
+                    return complexConverter.serialize(s, context);
                 }
             }
         }
@@ -77,20 +79,21 @@ public class LootConversionManager<L, T extends LootAware<L>> {
         }
         JsonObject object = new JsonObject();
         object.addProperty(this.keyLocation, converter.key());
-        converter.serialize(s, object, this.owner);
+        converter.serialize(s, object, context);
         return object;
     }
 
     /**
      * Deserializes the provided element into an instance of something that extends {@link T}.
      * @param element the element to deserialize
+     * @param context the context to feed to converters for deserialization
      * @return the instance of something extending {@code T} that was deserialized
      */
-    public @NotNull T deserialize(@Nullable JsonElement element) throws LootParsingException {
+    public @NotNull T deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootParsingException {
         if (!complexConverters.isEmpty()) {
             for (ComplexLootConverter<L, T> complexConverter : complexConverters) {
-                if (complexConverter.canDeserialize(element, this)) {
-                    return complexConverter.deserialize(element, this);
+                if (complexConverter.canDeserialize(element, context)) {
+                    return complexConverter.deserialize(element, context);
                 }
             }
         }
@@ -100,21 +103,21 @@ public class LootConversionManager<L, T extends LootAware<L>> {
         if (t == null) {
             throw new LootParsingException("Could not find deserializer for type \"" + type + "\"!");
         }
-        return t.deserialize(object, this.owner);
+        return t.deserialize(object, context);
     }
 
     /**
      * Utility method to serialize a list of {@link T}
      */
-    public @NotNull JsonArray serializeList(@NotNull List<T> list) throws LootParsingException {
-        return JsonUtils.serializeJsonArray(list, this::serialize);
+    public @NotNull JsonArray serializeList(@NotNull List<T> list, @NotNull LootConversionContext<L> context) throws LootParsingException {
+        return JsonUtils.serializeJsonArray(list, a -> this.serialize(a, context));
     }
 
     /**
      * Utility method to deserialize a list of {@link T}
      */
-    public @NotNull List<T> deserializeList(@NotNull JsonArray array) throws LootParsingException {
-        return JsonUtils.deserializeJsonArray(array, null, (a, b) -> this.deserialize(a));
+    public @NotNull List<T> deserializeList(@NotNull JsonArray array, @NotNull LootConversionContext<L> context) throws LootParsingException {
+        return JsonUtils.deserializeJsonArray(array, null, (a, b) -> this.deserialize(a, context));
     }
 
     /**

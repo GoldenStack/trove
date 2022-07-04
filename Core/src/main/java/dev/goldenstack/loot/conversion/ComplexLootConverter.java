@@ -1,6 +1,7 @@
 package dev.goldenstack.loot.conversion;
 
 import com.google.gson.JsonElement;
+import dev.goldenstack.loot.context.LootConversionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,27 +15,27 @@ public abstract class ComplexLootConverter<L, T extends LootAware<L>> {
     /**
      * @return true if this converter should be used to deserialize the provided element
      */
-    public abstract boolean canDeserialize(@Nullable JsonElement element, @NotNull LootConversionManager<L, T> converter);
+    public abstract boolean canDeserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context);
 
     /**
      * @param element the element to deserialize
-     * @param converter the exact converter that is requesting deserialization
+     * @param context the context for this deserialization
      * @return the instance of {@link T} that was created
      * @throws LootParsingException if, for some reason, something goes wrong while deserializing
      */
-    public abstract @NotNull T deserialize(@Nullable JsonElement element, @NotNull LootConversionManager<L, T> converter) throws LootParsingException;
+    public abstract @NotNull T deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootParsingException;
 
     /**
      * @return true if this converter should be used to serialize the provided element
      */
-    public abstract boolean canSerialize(@NotNull T input, @NotNull LootConversionManager<L, T> converter);
+    public abstract boolean canSerialize(@NotNull T input, @NotNull LootConversionContext<L> context);
 
     /**
      * @param input the input that needs to be serialized
-     * @param converter the exact converter that is requesting serialization
+     * @param context the context for this serialization
      * @return the JSON element that was created
      * @throws LootParsingException if, for some reason, something goes wrong while serializing
      */
-    public abstract @NotNull JsonElement serialize(@NotNull T input, @NotNull LootConversionManager<L, T> converter) throws LootParsingException;
+    public abstract @NotNull JsonElement serialize(@NotNull T input, @NotNull LootConversionContext<L> context) throws LootParsingException;
 
 }

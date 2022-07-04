@@ -2,9 +2,11 @@ package dev.goldenstack.loot.context;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
 
 /**
  * Stores information about some loot table that is being queried for loot items
@@ -12,59 +14,10 @@ import java.util.*;
  *               entries, numbers, or other sources
  * @param information the map that stores all extra information about this context
  */
-public record LootContext(@NotNull Random random, @NotNull Map<Key<?>, Object> information) {
+public record LootContext(@NotNull Random random, @NotNull Map<Key<?>, Object> information) implements GenericKeyedContext<LootContext.Key<?>> {
 
     public LootContext {
         information = Map.copyOf(information);
-    }
-
-    /**
-     * @return true if there is something stored at the provided key
-     */
-    public boolean has(@NotNull Key<?> key) {
-        return this.information.containsKey(key);
-    }
-
-    /**
-     * @return the object stored at the specified key
-     */
-    public @Nullable Object getRaw(@NotNull Key<?> key) {
-        return this.information.get(key);
-    }
-
-    /**
-     * Gets the object stored with the provided key, returns null if there isn't an object, throws a
-     * {@link ClassCastException} if there is but it's a different type, and otherwise returns the actual object.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> @Nullable T get(@NotNull Key<T> key) {
-        Object object = this.information.get(key);
-        if (object == null) {
-            return null;
-        }
-        return (T) object;
-    }
-
-    /**
-     * Gets the object stored with the provided key, throws a {@link NoSuchElementException} if there isn't an object,
-     * throws a {@link ClassCastException} if there is but it's a different type, and otherwise returns the actual
-     * object.
-     */
-    @SuppressWarnings("unchecked")
-    public @NotNull <T> T assure(@NotNull Key<T> key) {
-        Object object = this.information.get(key);
-        if (object == null) {
-            throw new NoSuchElementException("Value for key \"" + key + "\" could not be found while reading a loot table");
-        }
-        return (T) object;
-    }
-
-    /**
-     * @return a new LootContext builder
-     */
-    @Contract(" -> new")
-    public @NotNull Builder toBuilder() {
-        return builder().random(this.random).addInformation(this.information);
     }
 
     /**
@@ -91,12 +44,6 @@ public record LootContext(@NotNull Random random, @NotNull Map<Key<?>, Object> i
         @Contract("_, _ -> this")
         public <T> @NotNull Builder addInformation(@NotNull Key<T> key, @NotNull T information) {
             this.information.put(key, information);
-            return this;
-        }
-
-        @Contract("_ -> this")
-        public <T> @NotNull Builder addInformation(@NotNull Map<Key<?>, Object> information) {
-            this.information.putAll(information);
             return this;
         }
 
