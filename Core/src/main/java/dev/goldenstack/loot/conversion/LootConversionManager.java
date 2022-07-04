@@ -3,7 +3,6 @@ package dev.goldenstack.loot.conversion;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.util.JsonUtils;
 import org.jetbrains.annotations.Contract;
@@ -19,7 +18,6 @@ import java.util.*;
  */
 public class LootConversionManager<L, T extends LootAware<L>> {
 
-    private final @NotNull ImmuTables<L> owner;
     private final @NotNull String keyLocation;
 
     private final @NotNull Map<String, LootConverter<L, ? extends T>> keyRegistry;
@@ -28,18 +26,10 @@ public class LootConversionManager<L, T extends LootAware<L>> {
     private final @NotNull List<ComplexLootConverter<L, T>> complexConverters;
 
     private LootConversionManager(@NotNull Builder<L, T> builder) {
-        this.owner = builder.owner;
         this.keyLocation = builder.keyLocation;
         this.keyRegistry = Map.copyOf(builder.keyRegistry);
         this.classRegistry = Map.copyOf(builder.classRegistry);
         this.complexConverters = List.copyOf(builder.complexConverters);
-    }
-
-    /**
-     * @return the owner of this manager
-     */
-    public @NotNull ImmuTables<L> owner() {
-        return owner;
     }
 
     /**
@@ -130,19 +120,12 @@ public class LootConversionManager<L, T extends LootAware<L>> {
 
     public static final class Builder<L, T extends LootAware<L>> {
 
-        private ImmuTables<L> owner;
         private String keyLocation;
         private final @NotNull Map<String, LootConverter<L, ? extends T>> keyRegistry = new HashMap<>();
         private final @NotNull Map<Class<? extends T>, LootConverter<L, ? extends T>> classRegistry = new HashMap<>();
         private final @NotNull List<ComplexLootConverter<L, T>> complexConverters = new ArrayList<>();
 
         private Builder() {}
-
-        @Contract("_ -> this")
-        public @NotNull Builder<L, T> owner(@NotNull ImmuTables<L> owner) {
-            this.owner = owner;
-            return this;
-        }
 
         @Contract("_ -> this")
         public @NotNull Builder<L, T> keyLocation(@NotNull String keyLocation) {
@@ -171,7 +154,6 @@ public class LootConversionManager<L, T extends LootAware<L>> {
 
         @Contract(" -> new")
         public @NotNull LootConversionManager<L, T> build() {
-            Objects.requireNonNull(owner, "LootConversionManager instances cannot be built without an owner!");
             Objects.requireNonNull(keyLocation, "LootConversionManager instances cannot be built without a key location!");
             return new LootConversionManager<>(this);
         }

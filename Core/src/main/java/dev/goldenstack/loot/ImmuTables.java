@@ -12,67 +12,12 @@ import java.util.function.Consumer;
  * Stores information about how to serialize and deserialize loot tables
  * @param <L> the loot item that gets generated
  */
-public class ImmuTables<L> {
-
-    private final @NotNull LootConversionManager<L, LootEntry<L>> lootEntryManager;
-    private final @NotNull LootConversionManager<L, LootModifier<L>> lootModifierManager;
-    private final @NotNull LootConversionManager<L, LootRequirement<L>> lootRequirementManager;
-    private final @NotNull LootConversionManager<L, LootNumber<L>> lootNumberManager;
-
-    private final LootTable.Converter<L> lootTableConverter;
-    private final LootPool.Converter<L> lootPoolConverter;
-
-    private ImmuTables(@NotNull Builder<L> builder) {
-        this.lootEntryManager = builder.lootEntryBuilder.owner(this).build();
-        this.lootModifierManager = builder.lootModifierBuilder.owner(this).build();
-        this.lootRequirementManager = builder.lootRequirementBuilder.owner(this).build();
-        this.lootNumberManager = builder.lootNumberBuilder.owner(this).build();
-
-        this.lootTableConverter = builder.lootTableConverter;
-        this.lootPoolConverter = builder.lootPoolConverter;
-    }
-
-    /**
-     * @return the LootConversionManager that handles loot entries
-     */
-    public @NotNull LootConversionManager<L, LootEntry<L>> lootEntryManager() {
-        return lootEntryManager;
-    }
-
-    /**
-     * @return the LootConversionManager that handles loot modifiers
-     */
-    public @NotNull LootConversionManager<L, LootModifier<L>> lootModifierManager() {
-        return lootModifierManager;
-    }
-
-    /**
-     * @return the LootConversionManager that handles loot requirements
-     */
-    public @NotNull LootConversionManager<L, LootRequirement<L>> lootRequirementManager() {
-        return lootRequirementManager;
-    }
-
-    /**
-     * @return the LootConversionManager that handles loot numbers
-     */
-    public @NotNull LootConversionManager<L, LootNumber<L>> lootNumberManager() {
-        return lootNumberManager;
-    }
-
-    /**
-     * @return the converter that will be used for loot tables
-     */
-    public @NotNull LootTable.Converter<L> lootTableConverter() {
-        return lootTableConverter;
-    }
-
-    /**
-     * @return the converter that will be used for loot pools
-     */
-    public @NotNull LootPool.Converter<L> lootPoolConverter() {
-        return lootPoolConverter;
-    }
+public record ImmuTables<L>(@NotNull LootConversionManager<L, LootEntry<L>> lootEntryManager,
+                            @NotNull LootConversionManager<L, LootModifier<L>> lootModifierManager,
+                            @NotNull LootConversionManager<L, LootRequirement<L>> lootRequirementManager,
+                            @NotNull LootConversionManager<L, LootNumber<L>> lootNumberManager,
+                            @NotNull LootTable.Converter<L> lootTableConverter,
+                            @NotNull LootPool.Converter<L> lootPoolConverter) {
 
     /**
      * @return a new ImmuTables builder
@@ -135,7 +80,14 @@ public class ImmuTables<L> {
         public @NotNull ImmuTables<L> build() {
             Objects.requireNonNull(lootTableConverter, "ImmuTables instances cannot be built without a loot table converter!");
             Objects.requireNonNull(lootPoolConverter, "ImmuTables instances cannot be built without a loot pool converter!");
-            return new ImmuTables<>(this);
+            return new ImmuTables<>(
+                lootEntryBuilder.build(),
+                lootModifierBuilder.build(),
+                lootRequirementBuilder.build(),
+                lootNumberBuilder.build(),
+                lootTableConverter,
+                lootPoolConverter
+            );
         }
     }
 
