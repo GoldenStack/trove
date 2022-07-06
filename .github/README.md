@@ -109,6 +109,9 @@ LootTable<L> table = ...;
 // Create the context here.
 // Additional information can be added to it with LootContext.Builder#addInformation.
 LootContext context = LootContext.builder().random(new Random()).build();
+
+// Generate the loot and do whatever you want with it
+List<L> loot = table.generate(context);
 ```
 
 ---
