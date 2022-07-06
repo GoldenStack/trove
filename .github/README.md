@@ -73,8 +73,8 @@ ImmuTables<L> loader = ImmuTables.<L>builder()
         builder.keyLocation("key here");
         // Modify the loot number builder here
     })
-    .lootPoolConverter(new LootPool.Converter<>())
-    .lootTableConverter(new LootTable.Converter<>())
+    .lootPoolConverter(new LootPool.Converter<>()) // Initialize the loot pool converter
+    .lootTableConverter(new LootTable.Converter<>()) // Initialize the loot table converter
     .build();
 ```
 
@@ -96,6 +96,7 @@ JsonElement element = ...;
 // Additional information can be added to it with LootConversionContext.Builder#addInformation.
 LootConversionContext<L> context = LootConversionContext.<L>builder().loader(loader).build();
 
+// Deserialize the table
 LootTable<L> table = loader.lootTableConverter().deserialize(element, context);
 ```
 
