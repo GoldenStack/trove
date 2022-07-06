@@ -2,33 +2,37 @@
 
 [![license](https://img.shields.io/github/license/GoldenStack/ImmuTables?style=for-the-badge&color=dd2233)](../LICENSE)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=for-the-badge)](https://github.com/RichardLitt/standard-readme)
+[![javadocs](https://img.shields.io/badge/documentation-javadocs-4d7a97?style=for-the-badge)](https://javadoc.jitpack.io/com/github/GoldenStack/ImmuTables/master-SNAPSHOT/javadoc/)
 
-[![Release](https://jitpack.io/v/GoldenStack/ImmuTables.svg)](https://jitpack.io/#GoldenStack/ImmuTables)
+ImmuTables is a platform-agnostic loot table library. Its concepts are similar to Minecraft's loot table system, but all
+the code is original.
 
-ImmuTables is a rewrite of the Minecraft loot table system, written for Minestom.
+It includes the basis for loot requirements, loot modifiers, loot entries, and other structural elements of loot tables.
+It's incredibly easy to add your own implementations of these, and it's even optional (but encouraged) to add JSON
+serialization and deserialization.
 
-This library includes many of the functions, conditions, and entries that default Minecraft has, but it also allows you
-to add your own implementations of them through an easy-to-use API.
+Because there are no static `ImmuTables` instances, each client of this library must use its own instance, preventing
+potential interference.
 
-Because there are no static `ImmuTables` instances, each extension, project, or library has to use its own instance.
-This prevents libraries from messing up other libraries.
+All classes that can be used to generate loot from a `LootTable` are fully immutable (unless implementations of them
+aren't, which is not recommended), so this library should be thread safe; however, builders of these immutable classes
+are not synchronized, so care must be taken when working with them.
 
-All classes that can be used to generate loot from a `LootTable` are immutable, so this library is completely
-thread-safe. Additionally, everything else should be synchronized, so there should be fewer issues there.
+---
 
 ## Table of Contents
 - [Install](#install)
 - [Usage](#usage)
-- [API](#api)
 - [Contributing](#contributing)
 - [License](#license)
 
+---
 
-# Install
+## Install
 
 To install, simply add the library via [JitPack](https://jitpack.io/#GoldenStack/ImmuTables/-SNAPSHOT):
 
-Gradle -
+Details for how to add this library with other build tools (such as Maven) can be found on the page linked above.
 ``` gradle
 repositories {
     ...
@@ -41,94 +45,84 @@ dependencies {
 }
 ```
 
-Maven -
-``` xml
-<repositories>
-    ...
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-</repositories>
-
-<dependencies>
-    ...
-    <dependency>
-        <groupId>com.github.GoldenStack</groupId>
-        <artifactId>ImmuTables</artifactId>
-        <version>-SNAPSHOT</version>
-    </dependency>
-</dependencies>
-```
+---
 
 ## Usage
 
-If you want to use this library, you will first have to set up your `ImmuTables` instance.
-
-The only information that is assigned through the builder and is immutable after is each element name, representing
-which key in each `JsonObject` is used to determine which type it is and which deserializer to use.
-
-The following code represents a pretty bare-bones way to create a working loader:
-
-``` java
-// Create the basic loader with element names
-ImmuTables loader = ImmuTables.builder().setDefaultValues().build();
-
-// Register all of the number providers, conditions, functions, and entries 
-ImmuTables.Builder.setupNumberProviderManager(loader.getNumberProviderManager());
-ImmuTables.Builder.setupLootConditionManager(loader.getLootConditionManager());
-ImmuTables.Builder.setupLootFunctionManager(loader.getLootFunctionManager());
-ImmuTables.Builder.setupLootEntryManager(loader.getLootEntryManager());
-
-// Register the default loot parameter groups to this loader
-LootParameterGroup.addDefaults(loader);
-```
-
-After that, your code is ready to use!
-
-To read a loot table, you can try this:
+###  Setup
+In order to actually use this library, you will almost definitely have to choose your own type for the generic.
+However, it's technically optional - the following code segment shows the bare minimum that is required for the code to
+compile and run; as demonstrated, you just have to give each builder an element name and provide loot table and loot
+pool conversion information.
 
 ``` java
-ImmuTables loader = ...; // Create this builder somewhere
-
-JsonObject object = ...; // Initialize this JsonObject to something that should be read as a loot table
-
-LootTable table = LootTable.deserialize(object, loader);
+ImmuTables<L> loader = ImmuTables.<L>builder()
+    .lootEntryBuilder(builder -> {
+        builder.keyLocation("key here");
+        // Modify the loot entry builder here
+    })
+    .lootModifierBuilder(builder -> {
+        builder.keyLocation("key here");
+        // Modify the loot modifier builder here
+    })
+    .lootRequirementBuilder(builder -> {
+        builder.keyLocation("key here");
+        // Modify the loot requirement builder here
+    })
+    .lootNumberBuilder(builder -> {
+        builder.keyLocation("key here");
+        // Modify the loot number builder here
+    })
+    .lootPoolConverter(new LootPool.Converter<>())
+    .lootTableConverter(new LootTable.Converter<>())
+    .build();
 ```
 
-This loot table can be used to generate loot by providing it a `LootContext`:
+The customizability required for actual functionality can be reached by using the additional methods in the provided
+builder or the ones contained inside it.
+
+### Conversion
+
+Here is a minimal working example of how you convert loot tables to and from JSON:
 
 ``` java
-LootTable table = ...; // Initialize the loot table here
+// Initialize the loader here
+ImmuTables<L> loader = ...;
 
-LootContext context = new LootContext();
-// Add parameters to the LootContext here
+// Put the element here
+JsonElement element = ...;
 
-List<ItemStack> loot = table.generateLoot(context);
+// Put the context here. The one here is the most barren contex that actually works.
+// Additional information can be added to it with LootConversionContext.Builder#addInformation.
+LootConversionContext<L> context = LootConversionContext.<L>builder().loader(loader).build();
 
-// Do something with this loot
+LootTable<L> table = loader.lootTableConverter().deserialize(element, context);
 ```
 
-## API
-For the simple usages of this library, you can just see the Usage section above.
-However, if you wish to add your own implementations, the following text should help you.
+### Generation
+Actual loot generation is fairly simple - you just need to call `LootTable#generate(LootContext)`.
 
-#### Adding your changes
-It's pretty simple to add your own implementations of any of the classes here. Unless you need to convert your class to
-or from JSON, you don't need to register it anywhere; you can just add it to somewhere that it could go.
+``` java
+// Initialize the loot table here
+LootTable<L> table = ...;
 
-If, however, you do need to deal with JSON, it's pretty simple to do it: just get, from an ImmuTables instance, the
-manager with the right type, and then register a `JsonLootConverter` with it. After that, everything else should be
-automatically handled when you call the appropriate serialization or deserialization methods.
+// Create the context here.
+// Additional information can be added to it with LootContext.Builder#addInformation.
+LootContext context = LootContext.builder().random(new Random()).build();
+```
 
-When implementing `LootFunction`, it is a good idea to extend `ConditionalLootFunction` instead of implementing the
-class directly because the class automatically handles adding `LootCondition`s to the function.
+---
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md)!
+Feel free to open a PR or an issue.
 
-Pull requests are very welcomed.
+Before starting large PRs, make sure to check that it's actually needed; try asking a maintainer.
+
+Before a PR is merged, all contributors must sign the [DCO](https://developercertificate.org/).
+We use [cla-assistant](https://github.com/cla-assistant/cla-assistant) to verify this.
+
+---
 
 ## License
 
