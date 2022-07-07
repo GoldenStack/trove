@@ -29,24 +29,41 @@ public record LootContext(@NotNull Random random, @NotNull Map<Key<?>, Object> i
         return new Builder();
     }
 
+    /**
+     * Utility class for creating {@link LootContext} instances.
+     */
     public static final class Builder {
         private Random random;
         private final @NotNull Map<Key<?>, Object> information = new HashMap<>();
 
         private Builder() {}
 
+        /**
+         * @param random the {@link Random} instance that will be used for generation
+         * @return this (for chaining)
+         */
         @Contract("_ -> this")
         public @NotNull Builder random(@NotNull Random random) {
             this.random = random;
             return this;
         }
 
+        /**
+         * @param key the key of the information
+         * @param information the actual information that will be stored
+         * @return this (for chaining)
+         * @param <T> the class of the key
+         */
         @Contract("_, _ -> this")
         public <T> @NotNull Builder addInformation(@NotNull Key<T> key, @NotNull T information) {
             this.information.put(key, information);
             return this;
         }
 
+        /**
+         * Note: it is safe to build this builder multiple times, but it is not recommended to do so.
+         * @return a new {@code LootContext} instance created from this builder.
+         */
         @Contract(" -> new")
         public @NotNull LootContext build() {
             Objects.requireNonNull(random, "Loot context instances cannot be built without a random number generator");

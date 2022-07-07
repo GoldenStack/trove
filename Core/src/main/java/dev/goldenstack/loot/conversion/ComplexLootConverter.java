@@ -13,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 public abstract class ComplexLootConverter<L, T extends LootAware<L>> {
 
     /**
+     * @param element the element that is being checked
+     * @param context the context object that stores extra data
      * @return true if this converter should be used to deserialize the provided element
      */
     public abstract boolean canDeserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context);
@@ -26,7 +28,9 @@ public abstract class ComplexLootConverter<L, T extends LootAware<L>> {
     public abstract @NotNull T deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootParsingException;
 
     /**
-     * @return true if this converter should be used to serialize the provided element
+     * @param input the input, which is the object to check
+     * @param context the context object that stores extra data
+     * @return true if this converter should be used to serialize the provided input
      */
     public abstract boolean canSerialize(@NotNull T input, @NotNull LootConversionContext<L> context);
 

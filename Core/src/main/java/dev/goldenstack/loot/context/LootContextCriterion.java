@@ -44,30 +44,49 @@ public record LootContextCriterion(@NotNull String key, @NotNull Set<LootContext
         return new Builder();
     }
 
+    /**
+     * Utility class for creating {@link LootContextCriterion} instances.
+     */
     public static final class Builder {
         private String key;
         private final @NotNull Set<LootContext.Key<?>> required = new HashSet<>();
 
         private Builder() {}
 
+        /**
+         * @param key the key of the built criterion
+         * @return this (for chaining)
+         */
         @Contract("_ -> this")
         public @NotNull Builder key(@NotNull String key) {
             this.key = key;
             return this;
         }
 
+        /**
+         * @param key a loot context key to require
+         * @return this (for chaining)
+         */
         @Contract("_ -> this")
         public @NotNull Builder require(@NotNull LootContext.Key<?> key) {
             this.required.add(key);
             return this;
         }
 
+        /**
+         * @param keys the loot context keys to require
+         * @return this (for chaining)
+         */
         @Contract("_ -> this")
         public @NotNull Builder require(@NotNull Set<LootContext.Key<?>> keys) {
             this.required.addAll(keys);
             return this;
         }
 
+        /**
+         * Note: it is safe to build this builder multiple times, but it is not recommended to do so.
+         * @return a new {@code LootContextCriterion} instance created from this builder.
+         */
         @Contract(" -> new")
         public @NotNull LootContextCriterion build() {
             return new LootContextCriterion(this.key, this.required);
