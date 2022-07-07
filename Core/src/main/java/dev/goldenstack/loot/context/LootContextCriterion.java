@@ -57,13 +57,13 @@ public record LootContextCriterion(@NotNull String key, @NotNull Set<LootContext
         }
 
         @Contract("_ -> this")
-        public <T> @NotNull Builder require(@NotNull LootContext.Key<T> key) {
+        public @NotNull Builder require(@NotNull LootContext.Key<?> key) {
             this.required.add(key);
             return this;
         }
 
         @Contract("_ -> this")
-        public <T> @NotNull Builder require(@NotNull Set<LootContext.Key<?>> keys) {
+        public @NotNull Builder require(@NotNull Set<LootContext.Key<?>> keys) {
             this.required.addAll(keys);
             return this;
         }
