@@ -19,7 +19,8 @@ public class JsonUtils {
     }
 
     /**
-     * @return true if the element is null or is an instance of JsonNull, otherwise false
+     * @param element the element that will be tested
+     * @return true if the element is null or is an instance of {@link JsonNull}, otherwise false
      */
     @Contract("null -> true")
     public static boolean isNull(@Nullable JsonElement element) {
@@ -27,6 +28,7 @@ public class JsonUtils {
     }
 
     /**
+     * @param element the element that will possibly be converted
      * @return the element as a JsonPrimitive, or null if it's not a JsonPrimitive
      */
     public static @Nullable JsonPrimitive getAsJsonPrimitive(@Nullable JsonElement element) {
@@ -34,6 +36,7 @@ public class JsonUtils {
     }
 
     /**
+     * @param element the element that will possibly be converted
      * @return The element as a JsonObject, or null if it's not a JsonObject
      */
     public static @Nullable JsonObject getAsJsonObject(@Nullable JsonElement element) {
@@ -41,6 +44,7 @@ public class JsonUtils {
     }
 
     /**
+     * @param element the element that will possibly be converted
      * @return The element as a JsonArray, or null if it's not a JsonArray
      */
     public static @Nullable JsonArray getAsJsonArray(@Nullable JsonElement element) {
@@ -48,6 +52,7 @@ public class JsonUtils {
     }
 
     /**
+     * @param element the element that will possibly be converted
      * @return the element as a Boolean, or null if it's not a Boolean
      */
     public static @Nullable Boolean getAsBoolean(@Nullable JsonElement element) {
@@ -62,6 +67,7 @@ public class JsonUtils {
     }
 
     /**
+     * @param element the element that will possibly be converted
      * @return the element as a Number, or null if it's not a Number
      */
     public static @Nullable Number getAsNumber(@Nullable JsonElement element) {
@@ -76,6 +82,7 @@ public class JsonUtils {
     }
 
     /**
+     * @param element the element that will possibly be converted
      * @return the element as a String, or null if it's not a String
      */
     public static @Nullable String getAsString(@Nullable JsonElement element) {
@@ -174,8 +181,9 @@ public class JsonUtils {
     }
 
     /**
-     * Returns {@link JsonNull#INSTANCE} if {@code element} is null. Otherwise, returns {@code element}.<br>
      * This is useful for distinguishing between an unknown element and a null element for {@link #createExpectedValueMessage(String, String, JsonElement)}.
+     * @param element the element to possibly convert to {@link JsonNull#INSTANCE}
+     * @return {@link JsonNull#INSTANCE} if {@code element} is null. Otherwise, returns {@code element}
      */
     public static @NotNull JsonElement jsonNullifNull(@Nullable JsonElement element) {
         return element == null ? JsonNull.INSTANCE : element;
@@ -183,6 +191,8 @@ public class JsonUtils {
 
     /**
      * Creates an error message as though the provided element was not supposed to be null.
+     * @param key the key of the element, which will be used to potentially provide more accurate error messages
+     * @param element the element that will be used for the error message
      * @return {@code createExpectedValueMessage("a not-null value", key, element);}
      */
     public static @NotNull String expectedNotNullMessage(@Nullable String key, @Nullable JsonElement element) {
@@ -191,6 +201,8 @@ public class JsonUtils {
 
     /**
      * Creates an error message as though the provided element was supposed to be null.
+     * @param key the key of the element, which will be used to potentially provide more accurate error messages
+     * @param element the element that will be used for the error message
      * @return {@code createExpectedValueMessage("a null value", key, element);}
      */
     public static @NotNull String expectedNullMessage(@Nullable String key, @Nullable JsonElement element) {
@@ -199,6 +211,8 @@ public class JsonUtils {
 
     /**
      * Creates an error message as though the provided element was supposed to be a JsonPrimitive.
+     * @param key the key of the element, which will be used to potentially provide more accurate error messages
+     * @param element the element that will be used for the error message
      * @return {@code createExpectedValueMessage("a primitive (string, number, or boolean)", key, element);}
      */
     public static @NotNull String expectedJsonPrimitiveMessage(@Nullable String key, @Nullable JsonElement element) {
@@ -207,6 +221,8 @@ public class JsonUtils {
 
     /**
      * Creates an error message as though the provided element was supposed to be a JsonObject.
+     * @param key the key of the element, which will be used to potentially provide more accurate error messages
+     * @param element the element that will be used for the error message
      * @return {@code createExpectedValueMessage("an object", key, element);}
      */
     public static @NotNull String expectedJsonObjectMessage(@Nullable String key, @Nullable JsonElement element) {
@@ -215,6 +231,8 @@ public class JsonUtils {
 
     /**
      * Creates an error message as though the provided element was supposed to be a JsonArray.
+     * @param key the key of the element, which will be used to potentially provide more accurate error messages
+     * @param element the element that will be used for the error message
      * @return {@code createExpectedValueMessage("an array", key, element);}
      */
     public static @NotNull String expectedJsonArrayMessage(@Nullable String key, @Nullable JsonElement element) {
@@ -223,6 +241,8 @@ public class JsonUtils {
 
     /**
      * Creates an error message as though the provided element was supposed to be a boolean.
+     * @param key the key of the element, which will be used to potentially provide more accurate error messages
+     * @param element the element that will be used for the error message
      * @return {@code createExpectedValueMessage("a boolean", key, element);}
      */
     public static @NotNull String expectedBooleanMessage(@Nullable String key, @Nullable JsonElement element) {
@@ -231,6 +251,8 @@ public class JsonUtils {
 
     /**
      * Creates an error message as though the provided element was supposed to be a number.
+     * @param key the key of the element, which will be used to potentially provide more accurate error messages
+     * @param element the element that will be used for the error message
      * @return {@code createExpectedValueMessage("a number", key, element);}
      */
     public static @NotNull String expectedNumberMessage(@Nullable String key, @Nullable JsonElement element) {
@@ -239,6 +261,8 @@ public class JsonUtils {
 
     /**
      * Creates an error message as though the provided element was supposed to be a string.
+     * @param key the key of the element, which will be used to potentially provide more accurate error messages
+     * @param element the element that will be used for the error message
      * @return {@code createExpectedValueMessage("a string", key, element);}
      */
     public static @NotNull String expectedStringMessage(@Nullable String key, @Nullable JsonElement element) {
@@ -358,7 +382,10 @@ public class JsonUtils {
 
     /**
      * Serializes the provided list into a JSON array
-     * @return the array of serialized items
+     * @param elements the elements to serialize into the array
+     * @param serializer the serializer that will be individually applied to each element in {@code elements}.
+     * @return the array of serialized elements
+     * @param <T> the class of the items that are being serialized
      */
     public static @NotNull <T> JsonArray serializeJsonArray(@NotNull List<T> elements, @NotNull UtilitySerializer<T> serializer) throws LootParsingException {
         final JsonArray array = new JsonArray();
@@ -371,6 +398,12 @@ public class JsonUtils {
     /**
      * Deserializes the provided JSON array into a list of elements via the provided deserializer. The returned list may
      * or may not be immutable.
+     * @param array the array that will hopefully be deserialized
+     * @param key the key of the array, which will be used for potentially more accurate error messages
+     * @param deserializer the deserializer that will be individually applied to each element in {@code array}.
+     * @return the list of deserialized elements
+     * @param <T> the class of the items that are being deserialized
+     * @throws LootParsingException if the deserializer throws any exceptions
      */
     public static @NotNull <T> List<T> deserializeJsonArray(@NotNull JsonArray array, @Nullable String key, @NotNull UtilityDeserializer<T> deserializer) throws LootParsingException {
         if (array.size() == 0) {

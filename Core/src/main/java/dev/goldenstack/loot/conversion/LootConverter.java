@@ -18,7 +18,7 @@ public abstract class LootConverter<L, T extends LootAware<L>> {
     private final @NotNull Class<T> convertedClass;
 
     /**
-     * Creates a new loot converter
+     * Creates a new loot converter with the provided information.
      * @param key the key (basically the ID) of the objects that will be converted
      * @param convertedClass the class object representing which class of object will be converted
      */
