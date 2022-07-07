@@ -386,6 +386,7 @@ public class JsonUtils {
      * @param serializer the serializer that will be individually applied to each element in {@code elements}.
      * @return the array of serialized elements
      * @param <T> the class of the items that are being serialized
+     * @throws LootParsingException if the serializer throws any exceptions
      */
     public static @NotNull <T> JsonArray serializeJsonArray(@NotNull List<T> elements, @NotNull UtilitySerializer<T> serializer) throws LootParsingException {
         final JsonArray array = new JsonArray();
@@ -417,14 +418,40 @@ public class JsonUtils {
     }
 
     // Unfortunately, this must be done because of checked exceptions
+
+    /**
+     * Note: this interface only exists because {@link LootParsingException} is a checked exception and, thus,
+     * {@link java.util.function.Function} can not be used.
+     * @param <T> the class that JSON elements will potentially be serialized to
+     */
     @FunctionalInterface
     public interface UtilitySerializer<T> {
+
+        /**
+         * @param t the instance of {@link T} that must be serialized
+         * @return the serialized element
+         * @throws LootParsingException if the input could not be serialized
+         */
         @NotNull JsonElement serialize(@NotNull T t) throws LootParsingException;
+
     }
 
+    /**
+     * Note: this interface only exists because {@link LootParsingException} is a checked exception and, thus,
+     * {@link java.util.function.BiFunction} can not be used.
+     * @param <T> the class that JSON elements will potentially be deserialized to
+     */
     @FunctionalInterface
     public interface UtilityDeserializer<T> {
+
+        /**
+         * @param element the element to deserialize into another object
+         * @param key the key of the element, which will be used for more informative error messages
+         * @return the deserialized object
+         * @throws LootParsingException if the element could not be deserialized
+         */
         @NotNull T deserialize(@NotNull JsonElement element, @Nullable String key) throws LootParsingException;
+
     }
 
 }

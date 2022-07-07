@@ -28,6 +28,14 @@ public record LootTable<L>(@NotNull List<LootPool<L>> pools,
      * @param <L> the loot item
      */
     public static class Converter<L> {
+
+        /**
+         * Override this method to provide a custom implementation.
+         * @param element the element to attempt to deserialize
+         * @param context the context, to use if required
+         * @return the loot table that was created,
+         * @throws LootParsingException if the element, in any way, could not be parsed to a valid loot table
+         */
         public @NotNull LootTable<L> deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootParsingException {
             JsonObject object = JsonUtils.assureJsonObject(element, null);
             return new LootTable<>(
@@ -36,6 +44,13 @@ public record LootTable<L>(@NotNull List<LootPool<L>> pools,
             );
         }
 
+        /**
+         * Override this method to provide a custom implementation.
+         * @param input the loot table to attempt to serialize
+         * @param context the context, to use if required
+         * @return the successfully serialized loot table
+         * @throws LootParsingException if something in the provided loot table could not be serialized
+         */
         public @NotNull JsonElement serialize(@NotNull LootTable<L> input, @NotNull LootConversionContext<L> context) throws LootParsingException {
             JsonObject object = new JsonObject();
             object.add("entries", JsonUtils.serializeJsonArray(input.pools(), pool -> context.loader().lootPoolConverter().serialize(pool, context)));
@@ -44,6 +59,7 @@ public record LootTable<L>(@NotNull List<LootPool<L>> pools,
             }
             return object;
         }
+
     }
 
     public LootTable {

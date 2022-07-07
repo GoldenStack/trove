@@ -40,7 +40,10 @@ public abstract class StandardLootModifier<L> implements LootModifier<L>, LootRe
     }
 
     /**
-     * The basic modification to objects that are provided
+     * The basic modification to objects that are provided.
+     * @param lootItem the item to potentially modify
+     * @param context the context to use for modification, if required
+     * @return the modified form of the item
      */
     protected abstract @NotNull L rawModify(@NotNull L lootItem, @NotNull LootContext context);
 }

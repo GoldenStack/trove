@@ -18,6 +18,7 @@ public record LootContextCriterion(@NotNull String key, @NotNull Set<LootContext
     }
 
     /**
+     * @param key the key to check against
      * @return true if the provided key is required according to {@link #required()}, otherwise false
      */
     public boolean isRequired(@NotNull LootContext.Key<?> key) {
@@ -25,6 +26,7 @@ public record LootContextCriterion(@NotNull String key, @NotNull Set<LootContext
     }
 
     /**
+     * @param context the LootContext object to verify
      * @return true if all of the required keys in this criterion are fulfilled in the provided context, otherwise false
      */
     public boolean fulfills(@NotNull LootContext context) {

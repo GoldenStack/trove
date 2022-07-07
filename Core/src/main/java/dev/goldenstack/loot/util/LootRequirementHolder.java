@@ -19,6 +19,7 @@ public interface LootRequirementHolder<L> extends LootAware<L> {
     @NotNull List<LootRequirement<L>> requirements();
 
     /**
+     * @param context the context to check the conditions with
      * @return true if all of the requirements pass, otherwise false
      */
     default boolean passes(@NotNull LootContext context) {

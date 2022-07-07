@@ -40,6 +40,7 @@ public class LootConversionManager<L, T extends LootAware<L>> {
     }
 
     /**
+     * @param key the key to get from this manager's internal map
      * @return the converter that is associated with the provided key
      */
     public @Nullable LootConverter<L, ? extends T> request(@NotNull String key) {
@@ -78,6 +79,7 @@ public class LootConversionManager<L, T extends LootAware<L>> {
      * @param element the element to deserialize
      * @param context the context to feed to converters for deserialization
      * @return the instance of something extending {@code T} that was deserialized
+     * @throws LootParsingException if something happens during deserialization or if a valid key couldn't be found in the element
      */
     public @NotNull T deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootParsingException {
         if (!complexConverters.isEmpty()) {
@@ -98,6 +100,11 @@ public class LootConversionManager<L, T extends LootAware<L>> {
 
     /**
      * Utility method to serialize a list of {@link T}
+     * @param list the list of {@link T} to attempt to serialize
+     * @param context the context to feed into {@link #serialize(LootAware, LootConversionContext)} when it is called on
+     *                each element
+     * @return the complete JsonArray of serialized elements
+     * @throws LootParsingException if one of the elements could not be serialized
      */
     public @NotNull JsonArray serializeList(@NotNull List<T> list, @NotNull LootConversionContext<L> context) throws LootParsingException {
         return JsonUtils.serializeJsonArray(list, a -> this.serialize(a, context));
@@ -105,6 +112,11 @@ public class LootConversionManager<L, T extends LootAware<L>> {
 
     /**
      * Utility method to deserialize a list of {@link T}
+     * @param array the JsonArray to attempt to deserialize
+     * @param context the context to feed into {@link #deserialize(JsonElement, LootConversionContext)} when it is
+     *                called on each element
+     * @return the complete list of deserialized elements
+     * @throws LootParsingException if one of the elements could not be deserialized
      */
     public @NotNull List<T> deserializeList(@NotNull JsonArray array, @NotNull LootConversionContext<L> context) throws LootParsingException {
         return JsonUtils.deserializeJsonArray(array, null, (a, b) -> this.deserialize(a, context));
@@ -112,12 +124,19 @@ public class LootConversionManager<L, T extends LootAware<L>> {
 
     /**
      * @return a new builder for manager instances
+     * @param <L> the loot item
+     * @param <T> the base class that will be serialized and deserialized
      */
     @Contract(" -> new")
     public static <L, T extends LootAware<L>> @NotNull Builder<L, T> builder() {
         return new Builder<>();
     }
 
+    /**
+     * Utility class for creating {@link LootConversionManager} instances.
+     * @param <L> the loot item
+     * @param <T> the base class that will be serialized and deserialized
+     */
     public static final class Builder<L, T extends LootAware<L>> {
 
         private String keyLocation;
@@ -127,12 +146,20 @@ public class LootConversionManager<L, T extends LootAware<L>> {
 
         private Builder() {}
 
+        /**
+         * @param keyLocation the new location of the {@link LootConverter#key()} for managers built with this builder
+         * @return this (for chaining)
+         */
         @Contract("_ -> this")
         public @NotNull Builder<L, T> keyLocation(@NotNull String keyLocation) {
             this.keyLocation = keyLocation;
             return this;
         }
 
+        /**
+         * @param converter the converter to register to any built managers
+         * @return this (for chaining)
+         */
         @Contract("_ -> this")
         public @NotNull Builder<L, T> addConverter(@NotNull LootConverter<L, ? extends T> converter) {
             if (this.keyRegistry.containsKey(converter.key())) {
@@ -146,12 +173,20 @@ public class LootConversionManager<L, T extends LootAware<L>> {
             return this;
         }
 
+        /**
+         * @param converter the (complex) converter to register to any built managers
+         * @return this (for chaining)
+         */
         @Contract("_ -> this")
         public @NotNull Builder<L, T> addComplexConverter(@NotNull ComplexLootConverter<L, T> converter) {
             this.complexConverters.add(converter);
             return this;
         }
 
+        /**
+         * Note: it is safe to build this builder multiple times, but it is not recommended to do so.
+         * @return a new {@code LootConversionManager} instance created from this builder.
+         */
         @Contract(" -> new")
         public @NotNull LootConversionManager<L, T> build() {
             Objects.requireNonNull(keyLocation, "LootConversionManager instances cannot be built without a key location!");

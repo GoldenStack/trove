@@ -19,6 +19,8 @@ public interface LootModifierHolder<L> extends LootAware<L> {
     @NotNull List<LootModifier<L>> modifiers();
 
     /**
+     * @param lootItem the item to give to all modifiers sequentially
+     * @param context the context to feed into {@link #modifiers()} to aid with modification
      * @return the combined result of all {@link #modifiers()} applied sequentially (i.e., in order of
      * {@code modifiers().iterator()}) to the provided loot item
      */

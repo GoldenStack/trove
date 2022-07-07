@@ -25,6 +25,7 @@ public interface LootRequirement<L> extends LootAware<L> {
      * @param context the context to feed into the requirements
      * @param requirements the requirements that will be tested
      * @return true if at least one of the provided requirements passed, and false if none did
+     * @param <L> the loot item
      */
     static <L> boolean or(@NotNull LootContext context, @NotNull List<LootRequirement<L>> requirements) {
         if (requirements.isEmpty()) {
@@ -44,6 +45,7 @@ public interface LootRequirement<L> extends LootAware<L> {
      * @param context the context to feed into the requirements
      * @param requirements the requirements that will be tested
      * @return true if all of the provided requirements passed, and false if at least one didn't
+     * @param <L> the loot item
      */
     static <L> boolean all(@NotNull LootContext context, @NotNull List<LootRequirement<L>> requirements) {
         if (requirements.isEmpty()) {
@@ -58,12 +60,13 @@ public interface LootRequirement<L> extends LootAware<L> {
     }
 
     /**
-     * Note: This method may end up calling any number of the requirements from the provided list. Do not rely on
-     * whether or not none, all, or any number of the specific requirements in this list are checked.
+     * Note: This method may end up calling any number of the requirements from the provided list. Do not rely on none,
+     * all, or any number of the specific requirements in this list are checked.
      * @param context the context to feed into the requirements
      * @param requirements the requirements that will be tested
      * @param required the required number of requirements to pass
      * @return true if at least {@code required} requirements passed, and false if not
+     * @param <L> the loot item
      */
     static <L> boolean some(@NotNull LootContext context, @NotNull List<LootRequirement<L>> requirements, int required) {
         if (required <= 0) {
