@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.conversion.LootAware;
-import dev.goldenstack.loot.conversion.LootParsingException;
+import dev.goldenstack.loot.conversion.LootConversionException;
 import dev.goldenstack.loot.util.JsonUtils;
 import dev.goldenstack.loot.util.LootModifierHolder;
 import dev.goldenstack.loot.util.LootRequirementHolder;
@@ -36,9 +36,9 @@ public record LootPool<L>(@NotNull List<LootEntry<L>> entries,
          * @param element the element to attempt to deserialize
          * @param context the context, to use if required
          * @return the loot pool that was created,
-         * @throws LootParsingException if the element, in any way, could not be parsed to a valid loot pool
+         * @throws LootConversionException if the element, in any way, could not be converted to a valid loot pool
          */
-        public @NotNull LootPool<L> deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootParsingException {
+        public @NotNull LootPool<L> deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootConversionException {
             JsonObject object = JsonUtils.assureJsonObject(element, null);
             return new LootPool<>(
                     context.loader().lootEntryManager().deserializeList(JsonUtils.assureJsonArray(object.get("entries"), "entries"), context),
@@ -53,9 +53,9 @@ public record LootPool<L>(@NotNull List<LootEntry<L>> entries,
          * @param input the loot pool to attempt to serialize
          * @param context the context, to use if required
          * @return the successfully serialized loot pool
-         * @throws LootParsingException if something in the provided loot pool could not be serialized
+         * @throws LootConversionException if something in the provided loot pool could not be serialized
          */
-        public @NotNull JsonElement serialize(@NotNull LootPool<L> input, @NotNull LootConversionContext<L> context) throws LootParsingException {
+        public @NotNull JsonElement serialize(@NotNull LootPool<L> input, @NotNull LootConversionContext<L> context) throws LootConversionException {
             JsonObject object = new JsonObject();
             object.add("entries", context.loader().lootEntryManager().serializeList(input.entries(), context));
             if (!input.requirements().isEmpty()) {

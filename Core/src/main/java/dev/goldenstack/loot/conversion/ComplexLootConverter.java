@@ -23,9 +23,9 @@ public abstract class ComplexLootConverter<L, T extends LootAware<L>> {
      * @param element the element to deserialize
      * @param context the context for this deserialization
      * @return the instance of {@link T} that was created
-     * @throws LootParsingException if, for some reason, something goes wrong while deserializing
+     * @throws LootConversionException if, for some reason, something goes wrong while deserializing
      */
-    public abstract @NotNull T deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootParsingException;
+    public abstract @NotNull T deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootConversionException;
 
     /**
      * @param input the input, which is the object to check
@@ -38,8 +38,8 @@ public abstract class ComplexLootConverter<L, T extends LootAware<L>> {
      * @param input the input that needs to be serialized
      * @param context the context for this serialization
      * @return the JSON element that was created
-     * @throws LootParsingException if, for some reason, something goes wrong while serializing
+     * @throws LootConversionException if, for some reason, something goes wrong while serializing
      */
-    public abstract @NotNull JsonElement serialize(@NotNull T input, @NotNull LootConversionContext<L> context) throws LootParsingException;
+    public abstract @NotNull JsonElement serialize(@NotNull T input, @NotNull LootConversionContext<L> context) throws LootConversionException;
 
 }

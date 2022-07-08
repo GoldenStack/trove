@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.util;
 
 import com.google.gson.*;
-import dev.goldenstack.loot.conversion.LootParsingException;
+import dev.goldenstack.loot.conversion.LootConversionException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -270,112 +270,112 @@ public class JsonUtils {
     }
 
     /**
-     * Throws a {@code LootParsingException} if the element is null according to {@link #isNull(JsonElement)}
+     * Throws a {@code LootConversionException} if the element is null according to {@link #isNull(JsonElement)}
      * @param element the element to test
      * @param key the key (optional, for creating the error message)
      * @return the element, if it's not null
-     * @throws LootParsingException if the element is null according to {@link #isNull(JsonElement)}
+     * @throws LootConversionException if the element is null according to {@link #isNull(JsonElement)}
      */
     @Contract("null, _ -> fail")
-    public static @NotNull JsonElement assureNotNull(@Nullable JsonElement element, @NotNull String key) throws LootParsingException {
+    public static @NotNull JsonElement assureNotNull(@Nullable JsonElement element, @NotNull String key) throws LootConversionException {
         if (isNull(element)){
-            throw new LootParsingException(expectedNotNullMessage(key, element));
+            throw new LootConversionException(expectedNotNullMessage(key, element));
         }
         return element;
     }
 
     /**
-     * Throws a {@code LootParsingException} if the element is not a JsonPrimitive
+     * Throws a {@code LootConversionException} if the element is not a JsonPrimitive
      * @param element the element to test
      * @param key the key (optional, for creating the error message)
      * @return the element as a JsonPrimitive
-     * @throws LootParsingException if the element was not a JsonPrimitive
+     * @throws LootConversionException if the element was not a JsonPrimitive
      */
     @Contract("null, _ -> fail")
-    public static @NotNull JsonPrimitive assureJsonPrimitive(@Nullable JsonElement element, @Nullable String key) throws LootParsingException {
+    public static @NotNull JsonPrimitive assureJsonPrimitive(@Nullable JsonElement element, @Nullable String key) throws LootConversionException {
         JsonPrimitive primitive = getAsJsonPrimitive(element);
         if (primitive == null) {
-            throw new LootParsingException(expectedJsonPrimitiveMessage(key, jsonNullifNull(element)));
+            throw new LootConversionException(expectedJsonPrimitiveMessage(key, jsonNullifNull(element)));
         }
         return primitive;
     }
 
     /**
-     * Throws a {@code LootParsingException} if the element is not a JsonObject
+     * Throws a {@code LootConversionException} if the element is not a JsonObject
      * @param element the element to test
      * @param key the key (optional, for creating the error message)
      * @return the element as a JsonObject
-     * @throws LootParsingException if the element was not a JsonObject
+     * @throws LootConversionException if the element was not a JsonObject
      */
     @Contract("null, _ -> fail")
-    public static @NotNull JsonObject assureJsonObject(@Nullable JsonElement element, @Nullable String key) throws LootParsingException {
+    public static @NotNull JsonObject assureJsonObject(@Nullable JsonElement element, @Nullable String key) throws LootConversionException {
         JsonObject object = getAsJsonObject(element);
         if (object == null) {
-            throw new LootParsingException(expectedJsonObjectMessage(key, jsonNullifNull(element)));
+            throw new LootConversionException(expectedJsonObjectMessage(key, jsonNullifNull(element)));
         }
         return object;
     }
 
     /**
-     * Throws a {@code LootParsingException} if the element is not a JsonArray
+     * Throws a {@code LootConversionException} if the element is not a JsonArray
      * @param element the element to test
      * @param key the key (optional, for creating the error message)
      * @return the element as a JsonArray
-     * @throws LootParsingException if the element was not a JsonArray
+     * @throws LootConversionException if the element was not a JsonArray
      */
     @Contract("null, _ -> fail")
-    public static @NotNull JsonArray assureJsonArray(@Nullable JsonElement element, @Nullable String key) throws LootParsingException {
+    public static @NotNull JsonArray assureJsonArray(@Nullable JsonElement element, @Nullable String key) throws LootConversionException {
         JsonArray array = getAsJsonArray(element);
         if (array == null) {
-            throw new LootParsingException(expectedJsonArrayMessage(key, jsonNullifNull(element)));
+            throw new LootConversionException(expectedJsonArrayMessage(key, jsonNullifNull(element)));
         }
         return array;
     }
 
     /**
-     * Throws a {@code LootParsingException} if the element is not a JsonPrimitive that is a boolean
+     * Throws a {@code LootConversionException} if the element is not a JsonPrimitive that is a boolean
      * @param element the element to test
      * @param key the key (optional, for creating the error message)
      * @return the element as a boolean
-     * @throws LootParsingException if the element was not a boolean
+     * @throws LootConversionException if the element was not a boolean
      */
     @Contract("null, _ -> fail")
-    public static boolean assureBoolean(@Nullable JsonElement element, @Nullable String key) throws LootParsingException {
+    public static boolean assureBoolean(@Nullable JsonElement element, @Nullable String key) throws LootConversionException {
         Boolean bool = getAsBoolean(element);
         if (bool == null) {
-            throw new LootParsingException(expectedBooleanMessage(key, jsonNullifNull(element)));
+            throw new LootConversionException(expectedBooleanMessage(key, jsonNullifNull(element)));
         }
         return bool;
     }
 
     /**
-     * Throws a {@code LootParsingException} if the element is not a JsonPrimitive that is a number
+     * Throws a {@code LootConversionException} if the element is not a JsonPrimitive that is a number
      * @param element the element to test
      * @param key the key (optional, for creating the error message)
      * @return the element as a number
-     * @throws LootParsingException if the element was not a number
+     * @throws LootConversionException if the element was not a number
      */
     @Contract("null, _ -> fail")
-    public static @NotNull Number assureNumber(@Nullable JsonElement element, @Nullable String key) throws LootParsingException {
+    public static @NotNull Number assureNumber(@Nullable JsonElement element, @Nullable String key) throws LootConversionException {
         Number number = getAsNumber(element);
         if (number == null) {
-            throw new LootParsingException(expectedNumberMessage(key, jsonNullifNull(element)));
+            throw new LootConversionException(expectedNumberMessage(key, jsonNullifNull(element)));
         }
         return number;
     }
 
     /**
-     * Throws a {@code LootParsingException} if the element is not a JsonPrimitive that is a string
+     * Throws a {@code LootConversionException} if the element is not a JsonPrimitive that is a string
      * @param element the element to test
      * @param key the key (optional, for creating the error message)
      * @return the element as a string
-     * @throws LootParsingException if the element was not a string
+     * @throws LootConversionException if the element was not a string
      */
     @Contract("null, _ -> fail")
-    public static @NotNull String assureString(@Nullable JsonElement element, @Nullable String key) throws LootParsingException {
+    public static @NotNull String assureString(@Nullable JsonElement element, @Nullable String key) throws LootConversionException {
         String string = getAsString(element);
         if (string == null) {
-            throw new LootParsingException(expectedStringMessage(key, jsonNullifNull(element)));
+            throw new LootConversionException(expectedStringMessage(key, jsonNullifNull(element)));
         }
         return string;
     }
@@ -386,9 +386,9 @@ public class JsonUtils {
      * @param serializer the serializer that will be individually applied to each element in {@code elements}.
      * @return the array of serialized elements
      * @param <T> the class of the items that are being serialized
-     * @throws LootParsingException if the serializer throws any exceptions
+     * @throws LootConversionException if the serializer throws any exceptions
      */
-    public static @NotNull <T> JsonArray serializeJsonArray(@NotNull List<T> elements, @NotNull UtilitySerializer<T> serializer) throws LootParsingException {
+    public static @NotNull <T> JsonArray serializeJsonArray(@NotNull List<T> elements, @NotNull UtilitySerializer<T> serializer) throws LootConversionException {
         final JsonArray array = new JsonArray();
         for (T item : elements) {
             array.add(serializer.serialize(item));
@@ -404,9 +404,9 @@ public class JsonUtils {
      * @param deserializer the deserializer that will be individually applied to each element in {@code array}.
      * @return the list of deserialized elements
      * @param <T> the class of the items that are being deserialized
-     * @throws LootParsingException if the deserializer throws any exceptions
+     * @throws LootConversionException if the deserializer throws any exceptions
      */
-    public static @NotNull <T> List<T> deserializeJsonArray(@NotNull JsonArray array, @Nullable String key, @NotNull UtilityDeserializer<T> deserializer) throws LootParsingException {
+    public static @NotNull <T> List<T> deserializeJsonArray(@NotNull JsonArray array, @Nullable String key, @NotNull UtilityDeserializer<T> deserializer) throws LootConversionException {
         if (array.size() == 0) {
             return List.of();
         }
@@ -420,7 +420,7 @@ public class JsonUtils {
     // Unfortunately, this must be done because of checked exceptions
 
     /**
-     * Note: this interface only exists because {@link LootParsingException} is a checked exception and, thus,
+     * Note: this interface only exists because {@link LootConversionException} is a checked exception and, thus,
      * {@link java.util.function.Function} can not be used.
      * @param <T> the class that JSON elements will potentially be serialized to
      */
@@ -430,14 +430,14 @@ public class JsonUtils {
         /**
          * @param t the instance of {@link T} that must be serialized
          * @return the serialized element
-         * @throws LootParsingException if the input could not be serialized
+         * @throws LootConversionException if the input could not be serialized
          */
-        @NotNull JsonElement serialize(@NotNull T t) throws LootParsingException;
+        @NotNull JsonElement serialize(@NotNull T t) throws LootConversionException;
 
     }
 
     /**
-     * Note: this interface only exists because {@link LootParsingException} is a checked exception and, thus,
+     * Note: this interface only exists because {@link LootConversionException} is a checked exception and, thus,
      * {@link java.util.function.BiFunction} can not be used.
      * @param <T> the class that JSON elements will potentially be deserialized to
      */
@@ -448,9 +448,9 @@ public class JsonUtils {
          * @param element the element to deserialize into another object
          * @param key the key of the element, which will be used for more informative error messages
          * @return the deserialized object
-         * @throws LootParsingException if the element could not be deserialized
+         * @throws LootConversionException if the element could not be deserialized
          */
-        @NotNull T deserialize(@NotNull JsonElement element, @Nullable String key) throws LootParsingException;
+        @NotNull T deserialize(@NotNull JsonElement element, @Nullable String key) throws LootConversionException;
 
     }
 
