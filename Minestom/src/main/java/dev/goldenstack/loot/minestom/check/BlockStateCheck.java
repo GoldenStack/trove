@@ -87,6 +87,23 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
     }
 
     /**
+     * @param check the block state check to serialize
+     * @param context the (currently unused in this method) context
+     * @return a JSON representing the provided check
+     * @throws LootConversionException if the provided check could not be correctly converted to JSON
+     */
+    public static @NotNull JsonElement serialize(@NotNull BlockStateCheck check, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
+        if (check.checks().isEmpty()) {
+            return JsonNull.INSTANCE;
+        }
+        JsonObject object = new JsonObject();
+        for (SingularCheck singularCheck : check.checks()) {
+            object.add(singularCheck.key(), singularCheck.serialize(context));
+        }
+        return object;
+    }
+
+    /**
      * @param element the element to try to deserialize
      * @param context the (currently unused in this method) context
      * @return the check that was created from the provided element
@@ -102,23 +119,6 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
             checks.add(SingularCheck.deserialize(entry.getValue(), entry.getKey(), context));
         }
         return new BlockStateCheck(checks);
-    }
-
-    /**
-     * @param check the block state check to serialize
-     * @param context the (currently unused in this method) context
-     * @return a JSON representing the provided check
-     * @throws LootConversionException if the provided check could not be correctly converted to JSON
-     */
-    public static @NotNull JsonElement serialize(@NotNull BlockStateCheck check, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-        if (check.checks().isEmpty()) {
-            return JsonNull.INSTANCE;
-        }
-        JsonObject object = new JsonObject();
-        for (SingularCheck singularCheck : check.checks()) {
-            object.add(singularCheck.key(), singularCheck.serialize(context));
-        }
-        return object;
     }
 
     public BlockStateCheck {
