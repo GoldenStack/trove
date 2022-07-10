@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -381,14 +382,14 @@ public class JsonUtils {
     }
 
     /**
-     * Serializes the provided list into a JSON array
+     * Serializes the provided collection into a JSON array
      * @param elements the elements to serialize into the array
      * @param serializer the serializer that will be individually applied to each element in {@code elements}.
      * @return the array of serialized elements
      * @param <T> the class of the items that are being serialized
      * @throws LootConversionException if the serializer throws any exceptions
      */
-    public static @NotNull <T> JsonArray serializeJsonArray(@NotNull List<T> elements, @NotNull UtilitySerializer<T> serializer) throws LootConversionException {
+    public static @NotNull <T> JsonArray serializeJsonArray(@NotNull Collection<T> elements, @NotNull UtilitySerializer<T> serializer) throws LootConversionException {
         final JsonArray array = new JsonArray();
         for (T item : elements) {
             array.add(serializer.serialize(item));
