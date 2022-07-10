@@ -34,9 +34,7 @@ public record EnchantmentCheck(@Nullable Enchantment enchantment, @NotNull LootN
 
     public static @NotNull EnchantmentCheck deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
         JsonObject object = JsonUtils.assureJsonObject(element, null);
-        LootNumberRange range = object.has("levels") ?
-                LootNumberRange.deserialize(object.get("levels"), context) :
-                new LootNumberRange(null, null);
+        LootNumberRange range = LootNumberRange.deserialize(object.get("levels"), context);
 
         JsonElement rawEnchantment = object.get("enchantment");
         if (JsonUtils.isNull(rawEnchantment)) {
