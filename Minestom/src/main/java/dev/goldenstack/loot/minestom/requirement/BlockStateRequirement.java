@@ -34,7 +34,7 @@ public record BlockStateRequirement(@NotNull Block block, @NotNull BlockStateChe
 
         @Override
         public void serialize(@NotNull BlockStateRequirement input, @NotNull JsonObject result, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-            result.addProperty("block", input.block().namespace().asString());
+            result.addProperty("block", input.block().name());
             if (!input.check().checks().isEmpty()) {
                 result.add("properties", BlockStateCheck.serialize(input.check(), context));
             }
