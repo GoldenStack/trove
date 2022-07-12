@@ -1,16 +1,14 @@
 package dev.goldenstack.loot.minestom.check;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.conversion.LootConversionException;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
-import dev.goldenstack.loot.util.JsonUtils;
 import net.minestom.server.item.Enchantment;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.Map;
 
@@ -23,28 +21,29 @@ import java.util.Map;
  */
 public record EnchantmentCheck(@Nullable Enchantment enchantment, @NotNull LootNumberRange range) {
 
-    public static @NotNull JsonElement serialize(@NotNull EnchantmentCheck check, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-        JsonObject object = new JsonObject();
+    public static @NotNull ConfigurationNode serialize(@NotNull EnchantmentCheck check, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+        ConfigurationNode node = context.loader().createNode();
         if (check.enchantment() != null) {
-            object.addProperty("enchantment", check.enchantment().name());
+            node.node("enchantment").set(check.enchantment().name());
         }
-        object.add("levels", LootNumberRange.serialize(check.range(), context));
-        return object;
+        node.node("levels").set(LootNumberRange.serialize(check.range(), context));
+        return node;
     }
 
-    public static @NotNull EnchantmentCheck deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-        JsonObject object = JsonUtils.assureJsonObject(element, null);
-        LootNumberRange range = LootNumberRange.deserialize(object.get("levels"), context);
+    public static @NotNull EnchantmentCheck deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+        var range = LootNumberRange.deserialize(node.node("levels"), context);
 
-        JsonElement rawEnchantment = object.get("enchantment");
-        if (JsonUtils.isNull(rawEnchantment)) {
+        var enchantmentNode = node.node("enchantment");
+        if (enchantmentNode.empty()) {
             return new EnchantmentCheck(null, range);
         }
-
-        String enchantmentId = JsonUtils.assureString(rawEnchantment, "enchantment");
-        Enchantment enchantment = Enchantment.fromNamespaceId(enchantmentId);
+        String id = enchantmentNode.getString();
+        if (id == null) {
+            throw new ConfigurateException(enchantmentNode, "Expected the provided node to be a string");
+        }
+        Enchantment enchantment = Enchantment.fromNamespaceId(id);
         if (enchantment == null) {
-            throw new LootConversionException("Invalid enchantment '" + enchantmentId + "'");
+            throw new ConfigurateException(enchantmentNode, "Invalid enchantment '" + id + "'");
         }
         return new EnchantmentCheck(enchantment, range);
     }

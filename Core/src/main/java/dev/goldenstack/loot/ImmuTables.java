@@ -4,9 +4,11 @@ import dev.goldenstack.loot.conversion.LootConversionManager;
 import dev.goldenstack.loot.structure.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Stores information about how to serialize and deserialize loot tables
@@ -17,7 +19,12 @@ public record ImmuTables<L>(@NotNull LootConversionManager<L, LootEntry<L>> loot
                             @NotNull LootConversionManager<L, LootRequirement<L>> lootRequirementManager,
                             @NotNull LootConversionManager<L, LootNumber<L>> lootNumberManager,
                             @NotNull LootTable.Converter<L> lootTableConverter,
-                            @NotNull LootPool.Converter<L> lootPoolConverter) {
+                            @NotNull LootPool.Converter<L> lootPoolConverter,
+                            @NotNull Supplier<ConfigurationNode> nodeProducer) {
+
+    public @NotNull ConfigurationNode createNode() {
+        return nodeProducer.get();
+    }
 
     /**
      * @return a new ImmuTables builder
@@ -41,6 +48,8 @@ public record ImmuTables<L>(@NotNull LootConversionManager<L, LootEntry<L>> loot
 
         private LootTable.Converter<L> lootTableConverter;
         private LootPool.Converter<L> lootPoolConverter;
+
+        private Supplier<ConfigurationNode> nodeProducer;
 
         private Builder() {}
 
@@ -105,6 +114,16 @@ public record ImmuTables<L>(@NotNull LootConversionManager<L, LootEntry<L>> loot
         }
 
         /**
+         * @param nodeProducer the node producer that converters may use
+         * @return this (for chaining)
+         */
+        @Contract("_ -> this")
+        public @NotNull Builder<L> nodeProducer(@NotNull Supplier<ConfigurationNode> nodeProducer) {
+            this.nodeProducer = nodeProducer;
+            return this;
+        }
+
+        /**
          * Note: it is safe to build this builder multiple times, but it is not recommended to do so.
          * @return a new {@code ImmuTables<L>} instance created from this builder.
          */
@@ -112,13 +131,15 @@ public record ImmuTables<L>(@NotNull LootConversionManager<L, LootEntry<L>> loot
         public @NotNull ImmuTables<L> build() {
             Objects.requireNonNull(lootTableConverter, "ImmuTables instances cannot be built without a loot table converter!");
             Objects.requireNonNull(lootPoolConverter, "ImmuTables instances cannot be built without a loot pool converter!");
+            Objects.requireNonNull(nodeProducer, "ImmuTables instances cannot be built without a node producer!");
             return new ImmuTables<>(
                 lootEntryBuilder.build(),
                 lootModifierBuilder.build(),
                 lootRequirementBuilder.build(),
                 lootNumberBuilder.build(),
                 lootTableConverter,
-                lootPoolConverter
+                lootPoolConverter,
+                nodeProducer
             );
         }
     }

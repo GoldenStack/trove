@@ -1,13 +1,14 @@
 package dev.goldenstack.loot.minestom.requirement;
 
-import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.conversion.LootConversionException;
-import dev.goldenstack.loot.conversion.LootConverter;
+import dev.goldenstack.loot.conversion.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootRequirement;
+import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 /**
  * Inverts the result of {@link #requirement()}.
@@ -15,15 +16,17 @@ import org.jetbrains.annotations.NotNull;
  */
 public record InvertedRequirement(@NotNull LootRequirement<ItemStack> requirement) implements LootRequirement<ItemStack> {
 
-    public static final @NotNull LootConverter<ItemStack, InvertedRequirement> CONVERTER = new LootConverter<>("minecraft:inverted", InvertedRequirement.class) {
+    public static final @NotNull KeyedLootConverter<ItemStack, InvertedRequirement> CONVERTER = new KeyedLootConverter<>("minecraft:inverted", TypeToken.get(InvertedRequirement.class)) {
         @Override
-        public @NotNull InvertedRequirement deserialize(@NotNull JsonObject json, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-            return new InvertedRequirement(context.loader().lootRequirementManager().deserialize(json.get("term"), context));
+        public @NotNull InvertedRequirement deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            return new InvertedRequirement(
+                    context.loader().lootRequirementManager().deserialize(node.node("term"), context)
+            );
         }
 
         @Override
-        public void serialize(@NotNull InvertedRequirement input, @NotNull JsonObject result, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-            result.add("term", context.loader().lootRequirementManager().serialize(input.requirement(), context));
+        public void serialize(@NotNull InvertedRequirement input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            result.node("term").set(context.loader().lootRequirementManager().serialize(input.requirement(), context));
         }
     };
 

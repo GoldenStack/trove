@@ -1,16 +1,14 @@
 package dev.goldenstack.loot.structure;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.conversion.LootAware;
-import dev.goldenstack.loot.conversion.LootConversionException;
-import dev.goldenstack.loot.util.JsonUtils;
 import dev.goldenstack.loot.util.LootModifierHolder;
 import dev.goldenstack.loot.util.LootRequirementHolder;
+import dev.goldenstack.loot.util.NodeUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,18 +31,17 @@ public record LootPool<L>(@NotNull List<LootEntry<L>> entries,
 
         /**
          * Override this method to provide a custom implementation.
-         * @param element the element to attempt to deserialize
+         * @param node the node to attempt to deserialize
          * @param context the context, to use if required
          * @return the loot pool that was created,
-         * @throws LootConversionException if the element, in any way, could not be converted to a valid loot pool
+         * @throws ConfigurateException if the element, in any way, could not be converted to a valid loot pool
          */
-        public @NotNull LootPool<L> deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootConversionException {
-            JsonObject object = JsonUtils.assureJsonObject(element, null);
+        public @NotNull LootPool<L> deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<L> context) throws ConfigurateException {
             return new LootPool<>(
-                    context.loader().lootEntryManager().deserializeList(JsonUtils.assureJsonArray(object.get("entries"), "entries"), context),
-                    object.has("requirements") ? context.loader().lootRequirementManager().deserializeList(JsonUtils.assureJsonArray(object.get("requirements"), "requirements"), context) : List.of(),
-                    object.has("modifiers") ? context.loader().lootModifierManager().deserializeList(JsonUtils.assureJsonArray(object.get("modifiers"), "modifiers"), context) : List.of(),
-                    context.loader().lootNumberManager().deserialize(object.get("rolls"), context)
+                    NodeUtils.deserializeList(node.node("entries"), context.loader().lootEntryManager()::deserialize, context),
+                    NodeUtils.deserializeList(node.node("requirements"), context.loader().lootRequirementManager()::deserialize, context),
+                    NodeUtils.deserializeList(node.node("modifiers"), context.loader().lootModifierManager()::deserialize, context),
+                    context.loader().lootNumberManager().deserialize(node.node("rolls"), context)
             );
         }
 
@@ -53,19 +50,15 @@ public record LootPool<L>(@NotNull List<LootEntry<L>> entries,
          * @param input the loot pool to attempt to serialize
          * @param context the context, to use if required
          * @return the successfully serialized loot pool
-         * @throws LootConversionException if something in the provided loot pool could not be serialized
+         * @throws ConfigurateException if something in the provided loot pool could not be serialized
          */
-        public @NotNull JsonElement serialize(@NotNull LootPool<L> input, @NotNull LootConversionContext<L> context) throws LootConversionException {
-            JsonObject object = new JsonObject();
-            object.add("entries", context.loader().lootEntryManager().serializeList(input.entries(), context));
-            if (!input.requirements().isEmpty()) {
-                object.add("requirements", context.loader().lootRequirementManager().serializeList(input.requirements(), context));
-            }
-            if (!input.modifiers().isEmpty()) {
-                object.add("modifiers", context.loader().lootModifierManager().serializeList(input.modifiers(), context));
-            }
-            object.add("rolls", context.loader().lootNumberManager().serialize(input.rolls(), context));
-            return object;
+        public @NotNull ConfigurationNode serialize(@NotNull LootPool<L> input, @NotNull LootConversionContext<L> context) throws ConfigurateException {
+            var node = context.loader().createNode();
+            node.node("entries").set(NodeUtils.serializeList(input.entries(), context.loader().lootEntryManager()::serialize, context));
+            node.node("requirements").set(NodeUtils.serializeList(input.requirements(), context.loader().lootRequirementManager()::serialize, context));
+            node.node("modifiers").set(NodeUtils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
+            node.node("rolls", context.loader().lootNumberManager().serialize(input.rolls(), context));
+            return node;
         }
     }
 

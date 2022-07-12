@@ -1,13 +1,12 @@
 package dev.goldenstack.loot.conversion;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.util.JsonUtils;
+import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.*;
 
@@ -18,22 +17,28 @@ import java.util.*;
  */
 public class LootConversionManager<L, T extends LootAware<L>> {
 
+    private final @NotNull TypeToken<T> baseType;
     private final @NotNull String keyLocation;
 
-    private final @NotNull Map<String, LootConverter<L, ? extends T>> keyRegistry;
-    private final @NotNull Map<Class<? extends T>, LootConverter<L, ? extends T>> classRegistry;
+    private final @NotNull Map<String, KeyedLootConverter<L, ? extends T>> keyRegistry;
+    private final @NotNull Map<TypeToken<? extends T>, KeyedLootConverter<L, ? extends T>> typeTokenRegistry;
 
     private final @NotNull List<ComplexLootConverter<L, T>> complexConverters;
 
     private LootConversionManager(@NotNull Builder<L, T> builder) {
+        this.baseType = builder.baseType;
         this.keyLocation = builder.keyLocation;
         this.keyRegistry = Map.copyOf(builder.keyRegistry);
-        this.classRegistry = Map.copyOf(builder.classRegistry);
+        this.typeTokenRegistry = Map.copyOf(builder.classRegistry);
         this.complexConverters = List.copyOf(builder.complexConverters);
     }
 
+    public @NotNull TypeToken<T> baseType() {
+        return baseType;
+    }
+
     /**
-     * @return the location in JSON objects at which keys will be searched for
+     * @return the location in nodes at which keys will be searched for
      */
     public @NotNull String keyLocation() {
         return keyLocation;
@@ -43,19 +48,19 @@ public class LootConversionManager<L, T extends LootAware<L>> {
      * @param key the key to get from this manager's internal map
      * @return the converter that is associated with the provided key
      */
-    public @Nullable LootConverter<L, ? extends T> request(@NotNull String key) {
+    public @Nullable KeyedLootConverter<L, ? extends T> request(@NotNull String key) {
         return keyRegistry.get(key);
     }
 
     /**
-     * Serializes the provided object into a JSON element.
+     * Serializes the provided object into a configuration node.
      * @param s the object to serialize
      * @param context the context to feed to converters for serialization
-     * @return a JSON element representing the serialized state of the provided object
+     * @return a configuration node representing the serialized state of the provided object
      * @param <S> the type of the object that will be serialized
-     * @throws LootConversionException if something happens during serialization or if a valid loot converter couldn't be found
+     * @throws ConfigurateException if something happens during serialization or if a valid loot converter couldn't be found
      */
-    public <S extends T> @NotNull JsonElement serialize(@NotNull S s, @NotNull LootConversionContext<L> context) throws LootConversionException {
+    public <S extends T> @NotNull ConfigurationNode serialize(@NotNull S s, @NotNull LootConversionContext<L> context) throws ConfigurateException {
         if (!complexConverters.isEmpty()) {
             for (ComplexLootConverter<L, T> complexConverter : complexConverters) {
                 if (complexConverter.canSerialize(s, context)) {
@@ -63,63 +68,43 @@ public class LootConversionManager<L, T extends LootAware<L>> {
                 }
             }
         }
-        @SuppressWarnings("unchecked") // We, at this point, know that it must be a LootConverter<L, S>.
-        LootConverter<L, S> converter = (LootConverter<L, S>) this.classRegistry.get(s.getClass());
+        @SuppressWarnings("unchecked") // We, at this point, know that it must be a KeyedLootConverter<L, S>.
+        KeyedLootConverter<L, S> converter = (KeyedLootConverter<L, S>) this.typeTokenRegistry.get(TypeToken.get(s.getClass()));
         if (converter == null) {
-            throw new LootConversionException("Could not find a LootConverter for class '" + s.getClass() + "'");
+            throw new ConfigurateException("Could not find a KeyedLootConverter for class '" + s.getClass() + "'");
         }
-        JsonObject object = new JsonObject();
-        object.addProperty(this.keyLocation, converter.key());
-        converter.serialize(s, object, context);
-        return object;
+        ConfigurationNode node = context.loader().createNode();
+        node.node(this.keyLocation).set(converter.key());
+        converter.serialize(s, node, context);
+        return node;
     }
 
     /**
-     * Deserializes the provided element into an instance of something that extends {@link T}.
-     * @param element the element to deserialize
+     * Deserializes the provided node into an instance of something that extends {@link T}.
+     * @param node the node to deserialize
      * @param context the context to feed to converters for deserialization
      * @return the instance of something extending {@code T} that was deserialized
-     * @throws LootConversionException if something happens during deserialization or if a valid key couldn't be found in the element
+     * @throws ConfigurateException if something happens during deserialization or if a valid key couldn't be found in the node
      */
-    public @NotNull T deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootConversionException {
+    public @NotNull T deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<L> context) throws ConfigurateException {
         if (!complexConverters.isEmpty()) {
             for (ComplexLootConverter<L, T> complexConverter : complexConverters) {
-                if (complexConverter.canDeserialize(element, context)) {
-                    return complexConverter.deserialize(element, context);
+                if (complexConverter.canDeserialize(node, context)) {
+                    return complexConverter.deserialize(node, context);
                 }
             }
         }
-        JsonObject object = JsonUtils.assureJsonObject(element, null);
-        String type = JsonUtils.assureString(object.get(keyLocation), keyLocation);
-        LootConverter<L, ? extends T> t = this.keyRegistry.get(type);
-        if (t == null) {
-            throw new LootConversionException("Could not find deserializer for type \"" + type + "\"!");
+        ConfigurationNode keyLocationNode = node.node(keyLocation);
+        String type = keyLocationNode.getString();
+        if (type == null) {
+            throw new ConfigurateException(keyLocationNode, "Expected a string at the key location");
         }
-        return t.deserialize(object, context);
-    }
-
-    /**
-     * Utility method to serialize a list of {@link T}
-     * @param list the list of {@link T} to attempt to serialize
-     * @param context the context to feed into {@link #serialize(LootAware, LootConversionContext)} when it is called on
-     *                each element
-     * @return the complete JsonArray of serialized elements
-     * @throws LootConversionException if one of the elements could not be serialized
-     */
-    public @NotNull JsonArray serializeList(@NotNull List<T> list, @NotNull LootConversionContext<L> context) throws LootConversionException {
-        return JsonUtils.serializeJsonArray(list, a -> this.serialize(a, context));
-    }
-
-    /**
-     * Utility method to deserialize a list of {@link T}
-     * @param array the JsonArray to attempt to deserialize
-     * @param context the context to feed into {@link #deserialize(JsonElement, LootConversionContext)} when it is
-     *                called on each element
-     * @return the complete list of deserialized elements
-     * @throws LootConversionException if one of the elements could not be deserialized
-     */
-    public @NotNull List<T> deserializeList(@NotNull JsonArray array, @NotNull LootConversionContext<L> context) throws LootConversionException {
-        return JsonUtils.deserializeJsonArray(array, null, (a, b) -> this.deserialize(a, context));
+        KeyedLootConverter<L, ? extends T> t = this.keyRegistry.get(type);
+        if (t == null) {
+            // todo
+            throw new ConfigurateException(keyLocationNode, "Could not find deserializer for type '" + type + "'");
+        }
+        return t.deserialize(node, context);
     }
 
     /**
@@ -139,15 +124,26 @@ public class LootConversionManager<L, T extends LootAware<L>> {
      */
     public static final class Builder<L, T extends LootAware<L>> {
 
+        private TypeToken<T> baseType = new TypeToken<>(){};
         private String keyLocation;
-        private final @NotNull Map<String, LootConverter<L, ? extends T>> keyRegistry = new HashMap<>();
-        private final @NotNull Map<Class<? extends T>, LootConverter<L, ? extends T>> classRegistry = new HashMap<>();
+        private final @NotNull Map<String, KeyedLootConverter<L, ? extends T>> keyRegistry = new HashMap<>();
+        private final @NotNull Map<TypeToken<? extends T>, KeyedLootConverter<L, ? extends T>> classRegistry = new HashMap<>();
         private final @NotNull List<ComplexLootConverter<L, T>> complexConverters = new ArrayList<>();
 
         private Builder() {}
 
         /**
-         * @param keyLocation the new location of the {@link LootConverter#key()} for managers built with this builder
+         * @param baseType the base type that everything registered must use or extend
+         * @return this (for chaining)
+         */
+        @Contract("_ -> this")
+        public @NotNull Builder<L, T> baseType(@NotNull TypeToken<T> baseType) {
+            this.baseType = baseType;
+            return this;
+        }
+
+        /**
+         * @param keyLocation the new location of the {@link KeyedLootConverter#key()} for managers built with this builder
          * @return this (for chaining)
          */
         @Contract("_ -> this")
@@ -161,15 +157,15 @@ public class LootConversionManager<L, T extends LootAware<L>> {
          * @return this (for chaining)
          */
         @Contract("_ -> this")
-        public @NotNull Builder<L, T> addConverter(@NotNull LootConverter<L, ? extends T> converter) {
+        public @NotNull Builder<L, T> addConverter(@NotNull KeyedLootConverter<L, ? extends T> converter) {
             if (this.keyRegistry.containsKey(converter.key())) {
                 throw new IllegalArgumentException("Cannot register value for key '" + converter.key() + "' as something with that key is already registered");
             }
-            if (this.classRegistry.containsKey(converter.convertedClass())) {
-                throw new IllegalArgumentException("Cannot register value for class '" + converter.convertedClass() + "' as something with that class is already registered");
+            if (this.classRegistry.containsKey(converter.typeToken())) {
+                throw new IllegalArgumentException("Cannot register value for class '" + converter.typeToken() + "' as something with that class is already registered");
             }
             this.keyRegistry.put(converter.key(), converter);
-            this.classRegistry.put(converter.convertedClass(), converter);
+            this.classRegistry.put(converter.typeToken(), converter);
             return this;
         }
 
@@ -189,6 +185,7 @@ public class LootConversionManager<L, T extends LootAware<L>> {
          */
         @Contract(" -> new")
         public @NotNull LootConversionManager<L, T> build() {
+            Objects.requireNonNull(baseType, "LootConversionManager instances cannot be built without a base type!");
             Objects.requireNonNull(keyLocation, "LootConversionManager instances cannot be built without a key location!");
             return new LootConversionManager<>(this);
         }

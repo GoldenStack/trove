@@ -1,15 +1,13 @@
 package dev.goldenstack.loot.structure;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.conversion.LootAware;
-import dev.goldenstack.loot.conversion.LootConversionException;
-import dev.goldenstack.loot.util.JsonUtils;
 import dev.goldenstack.loot.util.LootModifierHolder;
+import dev.goldenstack.loot.util.NodeUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,16 +29,15 @@ public record LootTable<L>(@NotNull List<LootPool<L>> pools,
 
         /**
          * Override this method to provide a custom implementation.
-         * @param element the element to attempt to deserialize
+         * @param node the node to attempt to deserialize
          * @param context the context, to use if required
          * @return the loot table that was created,
-         * @throws LootConversionException if the element, in any way, could not be converted to a valid loot table
+         * @throws ConfigurateException if the element, in any way, could not be converted to a valid loot table
          */
-        public @NotNull LootTable<L> deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootConversionException {
-            JsonObject object = JsonUtils.assureJsonObject(element, null);
+        public @NotNull LootTable<L> deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<L> context) throws ConfigurateException {
             return new LootTable<>(
-                    JsonUtils.deserializeJsonArray(JsonUtils.assureJsonArray(object.get("pools"), "pools"), "pools", (e, k) -> context.loader().lootPoolConverter().deserialize(e, context)),
-                    object.has("modifiers") ? context.loader().lootModifierManager().deserializeList(JsonUtils.assureJsonArray(object.get("modifiers"), "modifiers"), context) : List.of()
+                    NodeUtils.deserializeList(node.node("pools"), context.loader().lootPoolConverter()::deserialize, context),
+                    NodeUtils.deserializeList(node.node("modifiers"), context.loader().lootModifierManager()::deserialize, context)
             );
         }
 
@@ -49,15 +46,13 @@ public record LootTable<L>(@NotNull List<LootPool<L>> pools,
          * @param input the loot table to attempt to serialize
          * @param context the context, to use if required
          * @return the successfully serialized loot table
-         * @throws LootConversionException if something in the provided loot table could not be serialized
+         * @throws ConfigurateException if something in the provided loot table could not be serialized
          */
-        public @NotNull JsonElement serialize(@NotNull LootTable<L> input, @NotNull LootConversionContext<L> context) throws LootConversionException {
-            JsonObject object = new JsonObject();
-            object.add("entries", JsonUtils.serializeJsonArray(input.pools(), pool -> context.loader().lootPoolConverter().serialize(pool, context)));
-            if (!input.modifiers().isEmpty()) {
-                object.add("modifiers", context.loader().lootModifierManager().serializeList(input.modifiers(), context));
-            }
-            return object;
+        public @NotNull ConfigurationNode serialize(@NotNull LootTable<L> input, @NotNull LootConversionContext<L> context) throws ConfigurateException {
+            var node = context.loader().createNode();
+            node.node("pools").set(NodeUtils.serializeList(input.pools(), context.loader().lootPoolConverter()::serialize, context));
+            node.node("modifiers").set(NodeUtils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
+            return node;
         }
 
     }

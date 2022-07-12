@@ -1,14 +1,15 @@
 package dev.goldenstack.loot.minestom.requirement;
 
-import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.conversion.LootConversionException;
-import dev.goldenstack.loot.conversion.LootConverter;
+import dev.goldenstack.loot.conversion.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootRequirement;
-import dev.goldenstack.loot.util.JsonUtils;
+import dev.goldenstack.loot.util.NodeUtils;
+import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.List;
 
@@ -18,15 +19,17 @@ import java.util.List;
  */
 public record AlternativeRequirement(@NotNull List<LootRequirement<ItemStack>> terms) implements LootRequirement<ItemStack> {
 
-    public static final @NotNull LootConverter<ItemStack, AlternativeRequirement> CONVERTER = new LootConverter<>("minecraft:alternative", AlternativeRequirement.class) {
+    public static final @NotNull KeyedLootConverter<ItemStack, AlternativeRequirement> CONVERTER = new KeyedLootConverter<>("minecraft:alternative", TypeToken.get(AlternativeRequirement.class)) {
         @Override
-        public @NotNull AlternativeRequirement deserialize(@NotNull JsonObject json, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-            return new AlternativeRequirement(context.loader().lootRequirementManager().deserializeList(JsonUtils.assureJsonArray(json.get("terms"), "terms"), context));
+        public @NotNull AlternativeRequirement deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            return new AlternativeRequirement(
+                    NodeUtils.deserializeList(node.node("terms"), context.loader().lootRequirementManager()::deserialize, context)
+            );
         }
 
         @Override
-        public void serialize(@NotNull AlternativeRequirement input, @NotNull JsonObject result, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-            result.add("terms", context.loader().lootRequirementManager().serializeList(input.terms, context));
+        public void serialize(@NotNull AlternativeRequirement input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            result.node("terms").set(NodeUtils.serializeList(input.terms(), context.loader().lootRequirementManager()::serialize, context));
         }
     };
 

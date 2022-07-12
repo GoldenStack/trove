@@ -1,29 +1,30 @@
 package dev.goldenstack.loot.minestom.requirement;
 
-import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.conversion.LootConversionException;
-import dev.goldenstack.loot.conversion.LootConverter;
+import dev.goldenstack.loot.conversion.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootRequirement;
+import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 /**
  * Returns true if any provide context instances have {@link LootContextKeys#LAST_DAMAGE_PLAYER}.
  */
 public record KilledByPlayerRequirement() implements LootRequirement<ItemStack> {
 
-    public static final @NotNull LootConverter<ItemStack, KilledByPlayerRequirement> CONVERTER = new LootConverter<>("minecraft:killed_by_player", KilledByPlayerRequirement.class) {
+    public static final @NotNull KeyedLootConverter<ItemStack, KilledByPlayerRequirement> CONVERTER = new KeyedLootConverter<>("minecraft:killed_by_player", TypeToken.get(KilledByPlayerRequirement.class)) {
 
         @Override
-        public @NotNull KilledByPlayerRequirement deserialize(@NotNull JsonObject json, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
+        public @NotNull KilledByPlayerRequirement deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
             return new KilledByPlayerRequirement();
         }
 
         @Override
-        public void serialize(@NotNull KilledByPlayerRequirement input, @NotNull JsonObject result, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
+        public void serialize(@NotNull KilledByPlayerRequirement input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
 
         }
     };

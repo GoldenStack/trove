@@ -1,15 +1,16 @@
 package dev.goldenstack.loot.minestom.requirement;
 
-import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.conversion.LootConversionException;
-import dev.goldenstack.loot.conversion.LootConverter;
+import dev.goldenstack.loot.conversion.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import dev.goldenstack.loot.structure.LootNumber;
 import dev.goldenstack.loot.structure.LootRequirement;
+import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 /**
  * Assures that {@link #value()} is inside {@link #range()}
@@ -18,20 +19,19 @@ import org.jetbrains.annotations.NotNull;
  */
 public record InRangeRequirement(@NotNull LootNumber<ItemStack> value, @NotNull LootNumberRange range) implements LootRequirement<ItemStack> {
 
-    public static final @NotNull LootConverter<ItemStack, InRangeRequirement> CONVERTER = new LootConverter<>("minecraft:value_check", InRangeRequirement.class) {
-
+    public static final @NotNull KeyedLootConverter<ItemStack, InRangeRequirement> CONVERTER = new KeyedLootConverter<>("minecraft:value_check", TypeToken.get(InRangeRequirement.class)) {
         @Override
-        public @NotNull InRangeRequirement deserialize(@NotNull JsonObject json, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
+        public @NotNull InRangeRequirement deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
             return new InRangeRequirement(
-                    context.loader().lootNumberManager().deserialize(json.get("value"), context),
-                    LootNumberRange.deserialize(json.get("range"), context)
+                    context.loader().lootNumberManager().deserialize(node.node("value"), context),
+                    LootNumberRange.deserialize(node.node("range"), context)
             );
         }
 
         @Override
-        public void serialize(@NotNull InRangeRequirement input, @NotNull JsonObject result, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-            result.add("value", context.loader().lootNumberManager().serialize(input.value(), context));
-            result.add("range", LootNumberRange.serialize(input.range(), context));
+        public void serialize(@NotNull InRangeRequirement input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            result.node("value").set(context.loader().lootNumberManager().serialize(input.value(), context));
+            result.node("range").set(LootNumberRange.serialize(input.range(), context));
         }
     };
 

@@ -1,16 +1,13 @@
 package dev.goldenstack.loot.minestom.util;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.conversion.LootConversionException;
 import dev.goldenstack.loot.structure.LootNumber;
-import dev.goldenstack.loot.util.JsonUtils;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 /**
  * Represents a range between two loot numbers.
@@ -71,42 +68,32 @@ public record LootNumberRange(@Nullable LootNumber<ItemStack> min, @Nullable Loo
      * @param range the range to attempt to serialize
      * @param context the context, to use for serializing the minimum and maximum
      * @return the JSON element that was formed
-     * @throws LootConversionException if either the minimum or maximum could not be serialized
+     * @throws ConfigurateException if either the minimum or maximum could not be serialized
      */
-    public static @NotNull JsonElement serialize(@NotNull LootNumberRange range, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-        if (range.min() == null && range.max() == null) {
-            return JsonNull.INSTANCE;
-        }
-        JsonObject json = new JsonObject();
+    public static @NotNull ConfigurationNode serialize(@NotNull LootNumberRange range, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+        ConfigurationNode node = context.loader().createNode();
         if (range.min != null) {
-            json.add("min", context.loader().lootNumberManager().serialize(range.min, context));
+            node.node("min").set(context.loader().lootNumberManager().serialize(range.min, context));
         }
         if (range.max != null) {
-            json.add("max", context.loader().lootNumberManager().serialize(range.max, context));
+            node.node("max").set(context.loader().lootNumberManager().serialize(range.max, context));
         }
-        return json;
+        return node;
     }
 
     /**
-     * @param element the element to attempt to deserialize
+     * @param node the node to attempt to deserialize
      * @param context the context, to use for deserializing the minimum and maximum
      * @return the range that was created
-     * @throws LootConversionException if the element was not a valid loot number range
+     * @throws ConfigurateException if the element was not a valid loot number range
      */
-    public static @NotNull LootNumberRange deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-        if (JsonUtils.isNull(element)) {
+    public static @NotNull LootNumberRange deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+        if (node.empty()) {
             return new LootNumberRange(null, null);
         }
-        JsonObject json = JsonUtils.assureJsonObject(element, null);
-        JsonElement minElement = json.get("min"), maxElement = json.get("max");
-        LootNumber<ItemStack> min = null, max = null;
-
-        if (minElement != null) {
-            min = context.loader().lootNumberManager().deserialize(JsonUtils.assureJsonObject(minElement, "min"), context);
-        }
-        if (maxElement != null) {
-            max = context.loader().lootNumberManager().deserialize(JsonUtils.assureJsonObject(maxElement, "max"), context);
-        }
-        return new LootNumberRange(min, max);
+        return new LootNumberRange(
+                node.hasChild("min") ? context.loader().lootNumberManager().deserialize(node.node("min"), context) : null,
+                node.hasChild("max") ? context.loader().lootNumberManager().deserialize(node.node("max"), context) : null
+        );
     }
 }

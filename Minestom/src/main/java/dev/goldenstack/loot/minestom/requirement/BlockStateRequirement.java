@@ -1,17 +1,18 @@
 package dev.goldenstack.loot.minestom.requirement;
 
-import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.conversion.LootConversionException;
-import dev.goldenstack.loot.conversion.LootConverter;
+import dev.goldenstack.loot.conversion.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.check.BlockStateCheck;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
+import dev.goldenstack.loot.minestom.util.Converters;
 import dev.goldenstack.loot.structure.LootRequirement;
-import dev.goldenstack.loot.util.JsonUtils;
+import io.leangen.geantyref.TypeToken;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 /**
  * Assures that the block of each provided context matches {@link #block()} and that it passes {@link #check()}.
@@ -20,24 +21,19 @@ import org.jetbrains.annotations.NotNull;
  */
 public record BlockStateRequirement(@NotNull Block block, @NotNull BlockStateCheck check) implements LootRequirement<ItemStack> {
 
-    public static final @NotNull LootConverter<ItemStack, BlockStateRequirement> CONVERTER = new LootConverter<>("minecraft:block_state_property", BlockStateRequirement.class) {
+    public static final @NotNull KeyedLootConverter<ItemStack, BlockStateRequirement> CONVERTER = new KeyedLootConverter<>("minecraft:block_state_property", TypeToken.get(BlockStateRequirement.class)) {
         @Override
-        public @NotNull BlockStateRequirement deserialize(@NotNull JsonObject json, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-            String rawBlock = JsonUtils.assureString(json.get("block"), "block");
-            Block actualBlock = Block.fromNamespaceId(rawBlock);
-            if (actualBlock == null) {
-                throw new LootConversionException(JsonUtils.createExpectedValueMessage("a valid Block", "block", null));
-            }
-            BlockStateCheck check = BlockStateCheck.deserialize(json.get("properties"), context);
-            return new BlockStateRequirement(actualBlock, check);
+        public @NotNull BlockStateRequirement deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            return new BlockStateRequirement(
+                    Converters.BLOCK_CONVERTER.deserialize(node.node("block"), context),
+                    BlockStateCheck.deserialize(node.node("properties"), context)
+            );
         }
 
         @Override
-        public void serialize(@NotNull BlockStateRequirement input, @NotNull JsonObject result, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-            result.addProperty("block", input.block().name());
-            if (!input.check().checks().isEmpty()) {
-                result.add("properties", BlockStateCheck.serialize(input.check(), context));
-            }
+        public void serialize(@NotNull BlockStateRequirement input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            result.node("block").set(Converters.BLOCK_CONVERTER.serialize(input.block(), context));
+            result.node("properties").set(BlockStateCheck.serialize(input.check(), context));
         }
     };
 

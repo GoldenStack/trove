@@ -1,14 +1,15 @@
 package dev.goldenstack.loot.minestom.requirement;
 
-import com.google.gson.JsonObject;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.conversion.LootConversionException;
-import dev.goldenstack.loot.conversion.LootConverter;
+import dev.goldenstack.loot.conversion.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootRequirement;
+import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 /**
  * Randomly decides whether or not something survives an explosion. The formula is simple; the probability just
@@ -16,15 +17,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public record SurvivesExplosionRequirement() implements LootRequirement<ItemStack> {
 
-    public static final @NotNull LootConverter<ItemStack, SurvivesExplosionRequirement> CONVERTER = new LootConverter<>("minecraft:survives_explosion", SurvivesExplosionRequirement.class) {
+    public static final @NotNull KeyedLootConverter<ItemStack, SurvivesExplosionRequirement> CONVERTER = new KeyedLootConverter<>("minecraft:survives_explosion", TypeToken.get(SurvivesExplosionRequirement.class)) {
 
         @Override
-        public @NotNull SurvivesExplosionRequirement deserialize(@NotNull JsonObject json, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
+        public @NotNull SurvivesExplosionRequirement deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
             return new SurvivesExplosionRequirement();
         }
 
         @Override
-        public void serialize(@NotNull SurvivesExplosionRequirement input, @NotNull JsonObject result, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
+        public void serialize(@NotNull SurvivesExplosionRequirement input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
 
         }
     };

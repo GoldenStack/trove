@@ -1,31 +1,32 @@
 package dev.goldenstack.loot.conversion;
 
-import com.google.gson.JsonElement;
 import dev.goldenstack.loot.context.LootConversionContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 /**
  * Handles complex conversion where nothing is guaranteed about provided objects.
  * @param <L> the loot item
  * @param <T> the class of the object that will be provided
  */
-public abstract class ComplexLootConverter<L, T extends LootAware<L>> {
+public abstract class ComplexLootConverter<L, T extends LootAware<L>> implements LootConverter<L, T> {
 
     /**
-     * @param element the element that is being checked
+     * @param node the node that is being checked
      * @param context the context object that stores extra data
-     * @return true if this converter should be used to deserialize the provided element
+     * @return true if this converter should be used to deserialize the provided node
      */
-    public abstract boolean canDeserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context);
+    public abstract boolean canDeserialize(@Nullable ConfigurationNode node, @NotNull LootConversionContext<L> context);
 
     /**
-     * @param element the element to deserialize
+     * @param node the node to deserialize
      * @param context the context for this deserialization
      * @return the instance of {@link T} that was created
-     * @throws LootConversionException if, for some reason, something goes wrong while deserializing
+     * @throws ConfigurateException if, for some reason, something goes wrong while deserializing
      */
-    public abstract @NotNull T deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<L> context) throws LootConversionException;
+    public abstract @NotNull T deserialize(@Nullable ConfigurationNode node, @NotNull LootConversionContext<L> context) throws ConfigurateException;
 
     /**
      * @param input the input, which is the object to check
@@ -37,9 +38,9 @@ public abstract class ComplexLootConverter<L, T extends LootAware<L>> {
     /**
      * @param input the input that needs to be serialized
      * @param context the context for this serialization
-     * @return the JSON element that was created
-     * @throws LootConversionException if, for some reason, something goes wrong while serializing
+     * @return the configuration node that was created
+     * @throws ConfigurateException if, for some reason, something goes wrong while serializing
      */
-    public abstract @NotNull JsonElement serialize(@NotNull T input, @NotNull LootConversionContext<L> context) throws LootConversionException;
+    public abstract @NotNull ConfigurationNode serialize(@NotNull T input, @NotNull LootConversionContext<L> context) throws ConfigurateException;
 
 }

@@ -1,14 +1,10 @@
 package dev.goldenstack.loot.minestom.check;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.conversion.LootConversionException;
+import dev.goldenstack.loot.minestom.util.Converters;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
-import dev.goldenstack.loot.util.JsonUtils;
-import net.minestom.server.MinecraftServer;
+import dev.goldenstack.loot.util.NodeUtils;
 import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.item.ItemMeta;
 import net.minestom.server.item.ItemStack;
@@ -18,6 +14,8 @@ import net.minestom.server.item.metadata.PotionMeta;
 import net.minestom.server.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.List;
 import java.util.Set;
@@ -42,59 +40,30 @@ public record ItemCheck(@NotNull LootNumberRange count,
                         @NotNull NBTCheck nbtCheck,
                         @Nullable PotionType potionEffect) {
 
-    public static @NotNull JsonElement serialize(@NotNull ItemCheck check, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-        JsonObject object = new JsonObject();
-        object.add("count", LootNumberRange.serialize(check.count(), context));
-        object.add("durability", LootNumberRange.serialize(check.durability(), context));
-        object.add("enchantments", JsonUtils.serializeJsonArray(check.enchantmentChecks(), eCheck -> EnchantmentCheck.serialize(eCheck, context)));
-        object.add("stored_enchantments", JsonUtils.serializeJsonArray(check.storedEnchantmentChecks(), eCheck -> EnchantmentCheck.serialize(eCheck, context)));
-        if (check.tagGroup() != null) {
-            object.addProperty("tag", check.tagGroup().getName().asString());
-        }
-        if (check.validMaterials() != null) {
-            object.add("items", JsonUtils.serializeJsonArray(check.validMaterials(), material -> new JsonPrimitive(material.name())));
-        }
-        object.add("nbt", NBTCheck.serialize(check.nbtCheck(), context));
-        if (check.potionEffect() != null) {
-            object.addProperty("potion", check.potionEffect().name());
-        }
-        return object;
+    public static @NotNull ConfigurationNode serialize(@NotNull ItemCheck check, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+        ConfigurationNode node = context.loader().createNode();
+        node.node("count").set(LootNumberRange.serialize(check.count(), context));
+        node.node("durability").set(LootNumberRange.serialize(check.durability(), context));
+        node.node("enchantments").set(NodeUtils.serializeList(check.enchantmentChecks(), EnchantmentCheck::serialize, context));
+        node.node("stored_enchantments").set(NodeUtils.serializeList(check.storedEnchantmentChecks(), EnchantmentCheck::serialize, context));
+        node.node("tag").set(Converters.ITEM_TAG_CONVERTER.serializeNullable(check.tagGroup(), context));
+        node.node("items").set(NodeUtils.serializeList(check.validMaterials(), Converters.MATERIAL_CONVERTER::serialize, context));
+        node.node("nbt").set(NBTCheck.serialize(check.nbtCheck(), context));
+        node.node("potion").set(Converters.POTION_TYPE_CONVERTER.serializeNullable(check.potionEffect(), context));
+        return node;
     }
 
-    public static @NotNull ItemCheck deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-        JsonObject object = JsonUtils.assureJsonObject(element, null);
-
-        LootNumberRange count = LootNumberRange.deserialize(object.get("count"), context);
-        LootNumberRange durability = LootNumberRange.deserialize(object.get("durability"), context);
-        List<EnchantmentCheck> enchantmentChecks = object.has("enchantments") ?
-                JsonUtils.deserializeJsonArray(JsonUtils.assureJsonArray(object.get("enchantments"), "enchantments"),
-                        "enchantments", (e, k) -> EnchantmentCheck.deserialize(e, context)) :
-                List.of();
-        List<EnchantmentCheck> storedEnchantmentChecks = object.has("stored_enchantments") ?
-                JsonUtils.deserializeJsonArray(JsonUtils.assureJsonArray(object.get("stored_enchantments"), "stored_enchantments"),
-                        "stored_enchantments", (e, k) -> EnchantmentCheck.deserialize(e, context)) :
-                List.of();
-        Tag tagGroup = object.has("tag") ?
-                MinecraftServer.getTagManager().getTag(Tag.BasicType.ITEMS, JsonUtils.assureString(object.get("tag"), "tag")) :
-                null;
-        Set<Material> validMaterials = object.has("items") ?
-                Set.copyOf(JsonUtils.deserializeJsonArray(
-                        JsonUtils.assureJsonArray(object.get("items"), "items"),
-                        "context",
-                        (e, k) -> {
-                            String str = JsonUtils.assureString(e, k);
-                            var mat = Material.fromNamespaceId(str);
-                            if (mat == null) {
-                                throw new LootConversionException("Invalid material '" + str + "'");
-                            }
-                            return mat;
-                        })) :
-                null;
-        NBTCheck check = NBTCheck.deserialize(object.get("nbt"), context);
-        PotionType potionType = object.has("potion") ?
-                PotionType.fromNamespaceId(JsonUtils.assureString(object.get("potion"), "potion")) :
-                null;
-        return new ItemCheck(count, durability, enchantmentChecks, storedEnchantmentChecks, tagGroup, validMaterials, check, potionType);
+    public static @NotNull ItemCheck deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+        return new ItemCheck(
+                LootNumberRange.deserialize(node.node("count"), context),
+                LootNumberRange.deserialize(node.node("durability"), context),
+                NodeUtils.deserializeList(node.node("enchantments"), EnchantmentCheck::deserialize, context),
+                NodeUtils.deserializeList(node.node("stored_enchantments"), EnchantmentCheck::deserialize, context),
+                Converters.ITEM_TAG_CONVERTER.deserialize(node.node("tag"), context),
+                Set.copyOf(NodeUtils.deserializeList(node.node("items"), Converters.MATERIAL_CONVERTER::deserialize, context)),
+                NBTCheck.deserialize(node.node("nbt"), context),
+                Converters.POTION_TYPE_CONVERTER.deserializeNullable(node.node("potion"), context)
+        );
     }
 
     public ItemCheck {

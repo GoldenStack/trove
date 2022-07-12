@@ -1,20 +1,15 @@
 package dev.goldenstack.loot.minestom.check;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.conversion.LootConversionException;
-import dev.goldenstack.loot.util.JsonUtils;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Returns true if all of the {@link #checks()} return true for a provided block, and false if not.
@@ -28,20 +23,21 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
 
         boolean check(@NotNull Block block);
 
-        @NotNull JsonElement serialize(@NotNull LootConversionContext<ItemStack> context) throws LootConversionException;
+        @NotNull ConfigurationNode serialize(@NotNull LootConversionContext<ItemStack> context) throws ConfigurateException;
 
-        private static @NotNull SingularCheck deserialize(@NotNull JsonElement element, @NotNull String key, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-            if (element.isJsonPrimitive()) {
-                return new IdenticalState(key, element.getAsString());
+        private static @NotNull SingularCheck deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            if (node.isMap()) {
+                return new RangedLongState(
+                        String.valueOf(node.key()),
+                        node.hasChild("min") ? node.node("min").getLong() : null,
+                        node.hasChild("max") ? node.node("max").getLong() :  null
+                );
             }
-            JsonObject object = JsonUtils.assureJsonObject(element, key);
-            Number rawMin = JsonUtils.getAsNumber(object.get("min"));
-            Number rawMax = JsonUtils.getAsNumber(object.get("max"));
-            return new RangedLongState(
-                    key,
-                    rawMin == null ? null : rawMin.longValue(),
-                    rawMax == null ? null : rawMax.longValue()
-            );
+            String string = node.getString();
+            if (node.empty() || string == null) {
+                throw new ConfigurateException(node, "Expected the provided node to be a map or a string");
+            }
+            return new IdenticalState(String.valueOf(node.key()), string);
         }
 
     }
@@ -53,8 +49,8 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
         }
 
         @Override
-        public @NotNull JsonElement serialize(@NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-            return new JsonPrimitive(value);
+        public @NotNull ConfigurationNode serialize(@NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            return context.loader().createNode().set(value);
         }
     }
 
@@ -74,15 +70,11 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
         }
 
         @Override
-        public @NotNull JsonElement serialize(@NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-            JsonObject object = new JsonObject();
-            if (min != null) {
-                object.addProperty("min", min);
-            }
-            if (max != null) {
-                object.addProperty("max", max);
-            }
-            return object;
+        public @NotNull ConfigurationNode serialize(@NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            ConfigurationNode node = context.loader().createNode();
+            node.node("min").set(min);
+            node.node("max").set(max);
+            return node;
         }
     }
 
@@ -90,33 +82,29 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
      * @param check the block state check to serialize
      * @param context the (currently unused in this method) context
      * @return a JSON representing the provided check
-     * @throws LootConversionException if the provided check could not be correctly converted to JSON
+     * @throws ConfigurateException if the provided check could not be correctly converted to JSON
      */
-    public static @NotNull JsonElement serialize(@NotNull BlockStateCheck check, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-        if (check.checks().isEmpty()) {
-            return JsonNull.INSTANCE;
+    public static @NotNull ConfigurationNode serialize(@NotNull BlockStateCheck check, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+        ConfigurationNode node = context.loader().createNode();
+        for (var sCheck : check.checks()) {
+            node.node(sCheck.key()).set(sCheck.serialize(context));
         }
-        JsonObject object = new JsonObject();
-        for (SingularCheck singularCheck : check.checks()) {
-            object.add(singularCheck.key(), singularCheck.serialize(context));
-        }
-        return object;
+        return node;
     }
 
     /**
-     * @param element the element to try to deserialize
+     * @param node the node to try to deserialize
      * @param context the (currently unused in this method) context
      * @return the check that was created from the provided element
-     * @throws LootConversionException if the provided element was not a valid block state check
+     * @throws ConfigurateException if the provided element was not a valid block state check
      */
-    public static @NotNull BlockStateCheck deserialize(@Nullable JsonElement element, @NotNull LootConversionContext<ItemStack> context) throws LootConversionException {
-        if (JsonUtils.isNull(element)) {
+    public static @NotNull BlockStateCheck deserialize(@NotNull ConfigurationNode node, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+        if (node.empty()) {
             return new BlockStateCheck(List.of());
         }
-        JsonObject object = JsonUtils.assureJsonObject(element, null);
         List<SingularCheck> checks = new ArrayList<>();
-        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            checks.add(SingularCheck.deserialize(entry.getValue(), entry.getKey(), context));
+        for (var entry : node.childrenMap().entrySet()) {
+            checks.add(SingularCheck.deserialize(entry.getValue(), context));
         }
         return new BlockStateCheck(checks);
     }
