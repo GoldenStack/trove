@@ -10,7 +10,7 @@ import org.spongepowered.configurate.ConfigurationNode;
  * @param <L> the loot item type
  * @param <I> the type of input that is required for serialization
  */
-public interface Serializer<L, I> {
+public interface LootSerializer<L, I> {
 
     /**
      * Serializes an input object into a resulting node.<br>

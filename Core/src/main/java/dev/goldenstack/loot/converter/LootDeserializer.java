@@ -10,7 +10,7 @@ import org.spongepowered.configurate.ConfigurationNode;
  * @param <L> the loot item type
  * @param <O> the type of output that will be created
  */
-public interface Deserializer<L, O> {
+public interface LootDeserializer<L, O> {
 
     /**
      * Deserializes an input node into a resulting object.<br>
