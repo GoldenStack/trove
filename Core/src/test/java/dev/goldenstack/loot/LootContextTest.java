@@ -1,6 +1,8 @@
-package dev.goldenstack.loot.context;
+package dev.goldenstack.loot;
 
-import dev.goldenstack.loot.ImmuTables;
+import dev.goldenstack.loot.context.LootContext;
+import dev.goldenstack.loot.context.LootConversionContext;
+import dev.goldenstack.loot.context.LootGenerationContext;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -88,6 +90,21 @@ public class LootContextTest {
         map.put(type2, 2);
 
         assertEquals(Map.of(type2, 2), map);
+    }
+
+    @Test
+    public void testAllowingSubtypes() {
+        class SuperType {}
+        class SubType extends SuperType {}
+
+        var superTypeKey = new LootContext.Key<>("type", TypeToken.get(SuperType.class));
+        var subTypeKey = new LootContext.Key<>("type", TypeToken.get(SubType.class));
+
+        var context = new LootContextImpl(Map.of(superTypeKey, new SubType()));
+        assertNotNull(context.get(superTypeKey));
+
+        var context2 = new LootContextImpl(Map.of(superTypeKey, new SuperType()));
+        assertNull(context2.get(subTypeKey));
     }
 
     private <L> @NotNull ImmuTables<L> createLoader() {
