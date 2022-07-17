@@ -4,6 +4,7 @@ import dev.goldenstack.loot.ImmuTables;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.spongepowered.configurate.BasicConfigurationNode;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -19,7 +20,7 @@ public class LootContextTest {
         var key = new LootContext.Key<>("example_string", TypeToken.get(String.class));
 
         var conversion = LootConversionContext.builder()
-                .loader(new ImmuTables<>())
+                .loader(createLoader())
                 .addInformation(key, "value")
                 .build();
 
@@ -72,6 +73,10 @@ public class LootContextTest {
         assertEquals("value", context.assure(type1));
         assertThrows(NoSuchElementException.class, () -> context.assure(type2));
 
+    }
+
+    private <L> @NotNull ImmuTables<L> createLoader() {
+        return ImmuTables.<L>builder().nodeProducer(() -> BasicConfigurationNode.factory().createNode()).build();
     }
 
     private record LootContextImpl(@NotNull Map<LootContext.Key<?>, Object> information) implements LootContext {
