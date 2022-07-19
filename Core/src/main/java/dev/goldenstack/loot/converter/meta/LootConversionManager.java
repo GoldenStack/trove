@@ -33,13 +33,13 @@ public class LootConversionManager<L, V> {
         Map<TypeToken<? extends V>, KeyedLootConverter<L, ? extends V>> typeTokens = new HashMap<>();
         for (var converter : builder.keyedConverters) {
             if (!GenericTypeReflector.isSuperType(baseType.getType(), converter.convertedType().getType())) {
-                throw new IllegalArgumentException("Cannot register value with type '" + converter.convertedType() + "' as it is not a subtype of '" + baseType + "'");
+                throw new IllegalArgumentException("Cannot register value with type '" + converter.convertedType().getType() + "' as it is not a subtype of '" + baseType.getType() + "'");
             }
             if (directKeys.put(converter.key(), converter) != null) {
                 throw new IllegalArgumentException("Cannot register value with key '" + converter.key() + " as something with that key has already been registered");
             }
             if (typeTokens.put(converter.convertedType(), converter) != null) {
-                throw new IllegalArgumentException("Cannot register value with type '" + converter.convertedType() + "' as something with that type has already been registered");
+                throw new IllegalArgumentException("Cannot register value with type '" + converter.convertedType().getType() + "' as something with that type has already been registered");
             }
         }
 
