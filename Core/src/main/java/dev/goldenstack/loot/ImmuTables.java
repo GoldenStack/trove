@@ -16,6 +16,10 @@ import java.util.function.Supplier;
 /**
  * Stores information about how conversion of loot-related objects, such as tables and pools, should occur. Generally,
  * this should hold the basis for anything required to completely serialize and deserialize a loot table.
+ * @param lootEntryManager the conversion manager for loot entries or subtypes of them
+ * @param lootModifierManager the conversion manager for loot modifiers or subtypes of them
+ * @param lootConditionManager the conversion manager for loot conditions or subtypes of them
+ * @param lootNumberManager the conversion manager for loot numbers or subtypes of them
  * @param nodeProducer the supplier used for creating default nodes. This is likely shorter than creating a node without
  *                     it, and it's also more configurable.
  * @param <L> the loot item type
