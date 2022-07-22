@@ -1,10 +1,16 @@
 package dev.goldenstack.loot;
 
+import dev.goldenstack.loot.converter.meta.LootConversionManager;
+import dev.goldenstack.loot.structure.LootCondition;
+import dev.goldenstack.loot.structure.LootEntry;
+import dev.goldenstack.loot.structure.LootModifier;
+import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -15,6 +21,10 @@ import java.util.function.Supplier;
  * @param <L> the loot item type
  */
 public record ImmuTables<L>(
+        @NotNull LootConversionManager<L, LootEntry<L>> lootEntryManager,
+        @NotNull LootConversionManager<L, LootModifier<L>> lootModifierManager,
+        @NotNull LootConversionManager<L, LootCondition<L>> lootConditionManager,
+        @NotNull LootConversionManager<L, LootNumber<L>> lootNumberManager,
         @NotNull Supplier<ConfigurationNode> nodeProducer) {
 
     /**
@@ -39,7 +49,36 @@ public record ImmuTables<L>(
     public static final class Builder<L> {
         private Supplier<ConfigurationNode> nodeProducer;
 
+        private final @NotNull LootConversionManager.Builder<L, LootEntry<L>> lootEntryBuilder = LootConversionManager.builder();
+        private final @NotNull LootConversionManager.Builder<L, LootModifier<L>> lootModifierBuilder = LootConversionManager.builder();
+        private final @NotNull LootConversionManager.Builder<L, LootCondition<L>> lootConditionBuilder = LootConversionManager.builder();
+        private final @NotNull LootConversionManager.Builder<L, LootNumber<L>> lootNumberBuilder = LootConversionManager.builder();
+
         private Builder() {}
+
+        @Contract("_ -> this")
+        public @NotNull Builder<L> lootEntryBuilder(@NotNull Consumer<LootConversionManager.Builder<L, LootEntry<L>>> builderConsumer) {
+            builderConsumer.accept(this.lootEntryBuilder);
+            return this;
+        }
+
+        @Contract("_ -> this")
+        public @NotNull Builder<L> lootModifierBuilder(@NotNull Consumer<LootConversionManager.Builder<L, LootModifier<L>>> builderConsumer) {
+            builderConsumer.accept(this.lootModifierBuilder);
+            return this;
+        }
+
+        @Contract("_ -> this")
+        public @NotNull Builder<L> lootConditionBuilder(@NotNull Consumer<LootConversionManager.Builder<L, LootCondition<L>>> builderConsumer) {
+            builderConsumer.accept(this.lootConditionBuilder);
+            return this;
+        }
+
+        @Contract("_ -> this")
+        public @NotNull Builder<L> lootNumberBuilder(@NotNull Consumer<LootConversionManager.Builder<L, LootNumber<L>>> builderConsumer) {
+            builderConsumer.accept(this.lootNumberBuilder);
+            return this;
+        }
 
         @Contract("_ -> this")
         public @NotNull Builder<L> nodeProducer(@NotNull Supplier<ConfigurationNode> nodeProducer) {
@@ -50,7 +89,13 @@ public record ImmuTables<L>(
         @Contract(" -> new")
         public @NotNull ImmuTables<L> build() {
             Objects.requireNonNull(nodeProducer, "ImmuTables instances cannot be built without a node producer!");
-            return new ImmuTables<>(nodeProducer);
+            return new ImmuTables<>(
+                    lootEntryBuilder.build(),
+                    lootModifierBuilder.build(),
+                    lootConditionBuilder.build(),
+                    lootNumberBuilder.build(),
+                    nodeProducer
+                );
         }
     }
 }
