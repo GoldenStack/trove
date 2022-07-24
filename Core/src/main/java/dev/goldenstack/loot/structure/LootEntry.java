@@ -1,6 +1,7 @@
 package dev.goldenstack.loot.structure;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.generation.LootGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -23,7 +24,7 @@ public interface LootEntry<L> {
      * An option, generated from an entry, that could potentially be chosen.
      * @param <L> the loot item type
      */
-    interface Option<L> {
+    interface Option<L> extends LootGenerator<L> {
 
         /**
          * Calculates the weight of this option, to be used when choosing which options should be used.
@@ -34,13 +35,6 @@ public interface LootEntry<L> {
          * @return the weight of this option
          */
         @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootGenerationContext context);
-
-        /**
-         * Generates a list of loot based on the provided context.
-         * @param context the context object, to use if required
-         * @return the list of loot that was generated
-         */
-        @NotNull List<L> generate(@NotNull LootGenerationContext context);
 
     }
 
