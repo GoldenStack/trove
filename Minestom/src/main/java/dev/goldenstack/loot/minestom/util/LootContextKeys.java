@@ -34,6 +34,12 @@ public class LootContextKeys {
     public static final @NotNull LootContext.Key<DamageType> DAMAGE_SOURCE = key("minecraft:damage_source", DamageType.class);
 
     /**
+     * Represents the amount of luck that the context has. For loot tables, this is generally used to give better items,
+     * of course being based on what the loot table itself considers good.
+     */
+    public static final @NotNull LootContext.Key<Double> LUCK = key("minecraft:luck", Double.class);
+
+    /**
      * Represents the direct killer of whatever created this loot context. For example, this is the arrow that killed a
      * mob, {@link #KILLER_ENTITY} would be the entity that shot the arrow.
      */
