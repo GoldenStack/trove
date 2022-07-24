@@ -153,11 +153,11 @@ public class LootConversionManager<L, V> {
         ConfigurationNode keyNode = input.node(this.keyLocation);
         String actualKey = keyNode.getString();
         if (actualKey == null) {
-            throw new ConfigurateException("Expected a string at this manager's key location ('" + keyLocation + "')");
+            throw new ConfigurateException(keyNode, "Expected a string at this manager's key location ('" + keyLocation + "')");
         }
         KeyedLootConverter<L, ? extends V> converter = this.directKeyRegistry.get(actualKey);
         if (converter == null) {
-            throw new ConfigurateException("Could not find a valid keyed loot converter for key '" + actualKey + "'");
+            throw new ConfigurateException(keyNode, "Could not find a valid keyed loot converter for key '" + actualKey + "'");
         }
         return converter.deserialize(input, context);
     }
