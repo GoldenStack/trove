@@ -23,12 +23,12 @@ public interface LootCondition<L> {
      * verifies it, the others are skipped (as the result is already known), so do not rely on any specific number of
      * these conditions being called.<br>
      * If the provided list is empty, the result is always false.
-     * @param context the context, to feed to the conditions when they are being tested
      * @param conditions the collection of conditions to check
+     * @param context the context, to feed to the conditions when they are being tested
      * @return true if at least one condition in the provided collection verifies the provided context
      * @param <L> the loot item type
      */
-    static <L> boolean or(@NotNull LootGenerationContext context, @NotNull Collection<LootCondition<L>> conditions) {
+    static <L> boolean or(@NotNull Collection<LootCondition<L>> conditions, @NotNull LootGenerationContext context) {
         if (conditions.isEmpty()) {
             return false;
         }
@@ -45,12 +45,12 @@ public interface LootCondition<L> {
      * verify it, the others are skipped (as the result is already known), so do not rely on any specific number of
      * these conditions being called.<br>
      * If the provided list is empty, the result is always true.
-     * @param context the context, to feed to the conditions when they are being tested
      * @param conditions the collection of conditions to check
+     * @param context the context, to feed to the conditions when they are being tested
      * @return true if every condition in the provided collection verifies the provided context
      * @param <L> the loot item type
      */
-    static <L> boolean all(@NotNull LootGenerationContext context, @NotNull Collection<LootCondition<L>> conditions) {
+    static <L> boolean all(@NotNull Collection<LootCondition<L>> conditions, @NotNull LootGenerationContext context) {
         if (conditions.isEmpty()) {
             return true;
         }
@@ -67,21 +67,21 @@ public interface LootCondition<L> {
      * least the required number of conditions have returned true, or it is impossible for there to be enough conditions
      * that return true to have at least the required number, false is returned.<br>
      * Do not rely on any specific number of these conditions being called.
-     * @param context the context, to feed to the conditions when they are being tested
      * @param conditions the collection of conditions to check
      * @param required the minimum number of conditions in the provided collection that must verify the context
+     * @param context the context, to feed to the conditions when they are being tested
      * @return true if at least {@code required} conditions in the provided collection verify the context
      * @param <L> the loot item type
      */
-    static <L> boolean some(@NotNull LootGenerationContext context, @NotNull Collection<LootCondition<L>> conditions, int required) {
+    static <L> boolean some(@NotNull Collection<LootCondition<L>> conditions, int required, @NotNull LootGenerationContext context) {
         if (required <= 0) {
             return true;
         } else if (required > conditions.size()) {
             return false;
         } else if (required == 1) {
-            return or(context, conditions);
+            return or(conditions, context);
         } else if (required == conditions.size()) {
-            return all(context, conditions);
+            return all(conditions, context);
         }
 
         int passed = 0;
