@@ -69,6 +69,22 @@ public record ImmuTables<L>(
 
         private Builder() {}
 
+        public @NotNull LootConversionManager.Builder<L, LootEntry<L>> lootEntryBuilder() {
+            return lootEntryBuilder;
+        }
+
+        public @NotNull LootConversionManager.Builder<L, LootModifier<L>> lootModifierBuilder() {
+            return lootModifierBuilder;
+        }
+
+        public @NotNull LootConversionManager.Builder<L, LootCondition<L>> lootConditionBuilder() {
+            return lootConditionBuilder;
+        }
+
+        public @NotNull LootConversionManager.Builder<L, LootNumber<L>> lootNumberBuilder() {
+            return lootNumberBuilder;
+        }
+
         @Contract("_ -> this")
         public @NotNull Builder<L> lootEntryBuilder(@NotNull Consumer<LootConversionManager.Builder<L, LootEntry<L>>> builderConsumer) {
             builderConsumer.accept(this.lootEntryBuilder);
