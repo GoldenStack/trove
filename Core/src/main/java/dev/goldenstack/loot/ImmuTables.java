@@ -1,6 +1,9 @@
 package dev.goldenstack.loot;
 
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
+import dev.goldenstack.loot.generation.LootPool;
+import dev.goldenstack.loot.generation.LootTable;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
 import dev.goldenstack.loot.structure.LootModifier;
@@ -20,6 +23,8 @@ import java.util.function.Supplier;
  * @param lootModifierManager the conversion manager for loot modifiers or subtypes of them
  * @param lootConditionManager the conversion manager for loot conditions or subtypes of them
  * @param lootNumberManager the conversion manager for loot numbers or subtypes of them
+ * @param lootTableConverter the {@link LootConverter} for loot tables
+ * @param lootPoolConverter the {@link LootConverter} for loot pools
  * @param nodeProducer the supplier used for creating default nodes. This is likely shorter than creating a node without
  *                     it, and it's also more configurable.
  * @param <L> the loot item type
@@ -29,6 +34,8 @@ public record ImmuTables<L>(
         @NotNull LootConversionManager<L, LootModifier<L>> lootModifierManager,
         @NotNull LootConversionManager<L, LootCondition<L>> lootConditionManager,
         @NotNull LootConversionManager<L, LootNumber<L>> lootNumberManager,
+        @NotNull LootConverter<L, LootTable<L>> lootTableConverter,
+        @NotNull LootConverter<L, LootPool<L>> lootPoolConverter,
         @NotNull Supplier<ConfigurationNode> nodeProducer) {
 
     /**
@@ -51,12 +58,14 @@ public record ImmuTables<L>(
     }
 
     public static final class Builder<L> {
-        private Supplier<ConfigurationNode> nodeProducer;
-
         private final @NotNull LootConversionManager.Builder<L, LootEntry<L>> lootEntryBuilder = LootConversionManager.builder();
         private final @NotNull LootConversionManager.Builder<L, LootModifier<L>> lootModifierBuilder = LootConversionManager.builder();
         private final @NotNull LootConversionManager.Builder<L, LootCondition<L>> lootConditionBuilder = LootConversionManager.builder();
         private final @NotNull LootConversionManager.Builder<L, LootNumber<L>> lootNumberBuilder = LootConversionManager.builder();
+
+        private Supplier<ConfigurationNode> nodeProducer;
+        private LootConverter<L, LootTable<L>> lootTableConverter;
+        private LootConverter<L, LootPool<L>> lootPoolConverter;
 
         private Builder() {}
 
@@ -90,14 +99,30 @@ public record ImmuTables<L>(
             return this;
         }
 
+        @Contract("_ -> this")
+        public @NotNull Builder<L> lootTableConverter(@NotNull LootConverter<L, LootTable<L>> lootTableConverter) {
+            this.lootTableConverter = lootTableConverter;
+            return this;
+        }
+
+        @Contract("_ -> this")
+        public @NotNull Builder<L> lootPoolConverter(@NotNull LootConverter<L, LootPool<L>> lootPoolConverter) {
+            this.lootPoolConverter = lootPoolConverter;
+            return this;
+        }
+
         @Contract(" -> new")
         public @NotNull ImmuTables<L> build() {
             Objects.requireNonNull(nodeProducer, "ImmuTables instances cannot be built without a node producer!");
+            Objects.requireNonNull(lootTableConverter, "ImmuTables instances cannot be built without a loot table converter!");
+            Objects.requireNonNull(lootPoolConverter, "ImmuTables instances cannot be built without a loot pool converter!");
             return new ImmuTables<>(
                     lootEntryBuilder.build(),
                     lootModifierBuilder.build(),
                     lootConditionBuilder.build(),
                     lootNumberBuilder.build(),
+                    lootTableConverter,
+                    lootPoolConverter,
                     nodeProducer
                 );
         }
