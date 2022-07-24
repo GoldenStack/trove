@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.structure;
 
-import dev.goldenstack.loot.context.LootContext;
+import dev.goldenstack.loot.context.LootGenerationContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -16,7 +16,7 @@ public interface LootCondition<L> {
      * @param context the context object, to use if required
      * @return true if the provided loot context is valid according to this condition
      */
-    boolean verify(@NotNull LootContext context);
+    boolean verify(@NotNull LootGenerationContext context);
 
     /**
      * Checks to see if at least one condition in the provided collection verifies the context. After one condition
@@ -28,7 +28,7 @@ public interface LootCondition<L> {
      * @return true if at least one condition in the provided collection verifies the provided context
      * @param <L> the loot item type
      */
-    static <L> boolean or(@NotNull LootContext context, @NotNull Collection<LootCondition<L>> conditions) {
+    static <L> boolean or(@NotNull LootGenerationContext context, @NotNull Collection<LootCondition<L>> conditions) {
         if (conditions.isEmpty()) {
             return false;
         }
@@ -50,7 +50,7 @@ public interface LootCondition<L> {
      * @return true if every condition in the provided collection verifies the provided context
      * @param <L> the loot item type
      */
-    static <L> boolean all(@NotNull LootContext context, @NotNull Collection<LootCondition<L>> conditions) {
+    static <L> boolean all(@NotNull LootGenerationContext context, @NotNull Collection<LootCondition<L>> conditions) {
         if (conditions.isEmpty()) {
             return true;
         }
@@ -73,7 +73,7 @@ public interface LootCondition<L> {
      * @return true if at least {@code required} conditions in the provided collection verify the context
      * @param <L> the loot item type
      */
-    static <L> boolean some(@NotNull LootContext context, @NotNull Collection<LootCondition<L>> conditions, int required) {
+    static <L> boolean some(@NotNull LootGenerationContext context, @NotNull Collection<LootCondition<L>> conditions, int required) {
         if (required <= 0) {
             return true;
         } else if (required > conditions.size()) {

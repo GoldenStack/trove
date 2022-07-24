@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.generation;
 
-import dev.goldenstack.loot.context.LootContext;
+import dev.goldenstack.loot.context.LootGenerationContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -16,6 +16,6 @@ public interface LootGenerator<L> {
      * @param context the context, to use if needed
      * @return the list of generated loot
      */
-    @NotNull List<L> generate(@NotNull LootContext context);
+    @NotNull List<L> generate(@NotNull LootGenerationContext context);
 
 }

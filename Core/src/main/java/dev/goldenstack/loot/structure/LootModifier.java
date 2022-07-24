@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.structure;
 
-import dev.goldenstack.loot.context.LootContext;
+import dev.goldenstack.loot.context.LootGenerationContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,6 +16,6 @@ public interface LootModifier<L> {
      * @param context the context object, to use if required
      * @return the modified form of the input
      */
-    @NotNull L modify(@NotNull L input, @NotNull LootContext context);
+    @NotNull L modify(@NotNull L input, @NotNull LootGenerationContext context);
 
 }
