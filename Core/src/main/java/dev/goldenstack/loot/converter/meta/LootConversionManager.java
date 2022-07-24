@@ -202,7 +202,7 @@ public class LootConversionManager<L, V> {
         }
 
         @Contract("_ -> this")
-        public @NotNull Builder<L, V> addInitialConverters(@NotNull ConditionalLootConverter<L, V> converter) {
+        public @NotNull Builder<L, V> addInitialConverter(@NotNull ConditionalLootConverter<L, V> converter) {
             this.initialConverters.add(converter);
             return this;
         }

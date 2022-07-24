@@ -90,7 +90,7 @@ public class LootConversionManagerTest {
                 .keyLocation("location");
 
         builder.addConverter(createKeyedSerializer("a", A.class, A::new));
-        builder.addInitialConverters(createConditionalSerializer(B::new, true, true));
+        builder.addInitialConverter(createConditionalSerializer(B::new, true, true));
 
         var manager = builder.build();
 
@@ -105,7 +105,7 @@ public class LootConversionManagerTest {
                 .keyLocation("location");
 
         builder.addConverter(createKeyedSerializer("a", A.class, A::new));
-        builder.addInitialConverters(createConditionalSerializer(B::new, false, false));
+        builder.addInitialConverter(createConditionalSerializer(B::new, false, false));
 
         var manager = builder.build();
 
