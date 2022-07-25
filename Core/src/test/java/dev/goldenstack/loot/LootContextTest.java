@@ -1,17 +1,11 @@
 package dev.goldenstack.loot;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.context.LootGenerationContext;
-import io.leangen.geantyref.TypeToken;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
-import org.spongepowered.configurate.BasicConfigurationNode;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,21 +14,15 @@ public class LootContextTest {
 
     @Test
     public void testImplementationMapImmutability() {
-        var key = new LootContext.Key<>("example_string", TypeToken.get(String.class));
+        var key = TestUtils.key("example_string", String.class);
 
-        var conversion = LootConversionContext.builder()
-                .loader(createLoader())
-                .addInformation(key, "value")
-                .build();
+        var conversion = TestUtils.conversionContext(Map.of(key, "value"));
 
         assertThrows(UnsupportedOperationException.class, () -> conversion.information().clear());
         assertThrows(UnsupportedOperationException.class, () -> conversion.information().put(key, "new_value"));
         assertEquals("value", conversion.information().get(key));
 
-        var generation = LootGenerationContext.builder()
-                .random(new Random())
-                .addInformation(key, "value")
-                .build();
+        var generation = TestUtils.generationContext(Map.of(key, "value"));
 
         assertThrows(UnsupportedOperationException.class, () -> generation.information().clear());
         assertThrows(UnsupportedOperationException.class, () -> generation.information().put(key, "new_value"));
@@ -43,10 +31,10 @@ public class LootContextTest {
 
     @Test
     public void testDefaultImplementations() {
-        var key1 = new LootContext.Key<>("key1", TypeToken.get(String.class));
-        var key2 = new LootContext.Key<>("key2", TypeToken.get(String.class));
+        var key1 = TestUtils.key("key1", String.class);
+        var key2 = TestUtils.key("key2", String.class);
 
-        var context = new LootContextImpl(Map.of(key1, "value"));
+        var context = TestUtils.context(Map.of(key1, "value"));
 
         assertEquals(Map.of(key1, "value"), context.information());
 
@@ -62,10 +50,10 @@ public class LootContextTest {
 
     @Test
     public void testDifferentTypes() {
-        var type1 = new LootContext.Key<>("type", TypeToken.get(String.class));
-        var type2 = new LootContext.Key<>("type", TypeToken.get(Integer.class));
+        var type1 = TestUtils.key("type", String.class);
+        var type2 = TestUtils.key("type", Integer.class);
 
-        var context = new LootContextImpl(Map.of(type1, "value"));
+        var context = TestUtils.context(Map.of(type1, "value"));
 
         assertTrue(context.has(type1));
         assertFalse(context.has(type2));
@@ -80,8 +68,8 @@ public class LootContextTest {
 
     @Test
     public void testDifferentTypeEquality() {
-        var type1 = new LootContext.Key<>("type", TypeToken.get(String.class));
-        var type2 = new LootContext.Key<>("type", TypeToken.get(Integer.class));
+        var type1 = TestUtils.key("type", String.class);
+        var type2 = TestUtils.key("type", Integer.class);
 
         assertEquals(type1, type2);
 
@@ -97,23 +85,14 @@ public class LootContextTest {
         class SuperType {}
         class SubType extends SuperType {}
 
-        var superTypeKey = new LootContext.Key<>("type", TypeToken.get(SuperType.class));
-        var subTypeKey = new LootContext.Key<>("type", TypeToken.get(SubType.class));
+        var superTypeKey = TestUtils.key("type", SuperType.class);
+        var subTypeKey = TestUtils.key("type", SubType.class);
 
-        var context = new LootContextImpl(Map.of(superTypeKey, new SubType()));
+        var context = TestUtils.context(Map.of(superTypeKey, new SubType()));
         assertNotNull(context.get(superTypeKey));
 
-        var context2 = new LootContextImpl(Map.of(superTypeKey, new SuperType()));
+        var context2 = TestUtils.context(Map.of(superTypeKey, new SuperType()));
         assertNull(context2.get(subTypeKey));
     }
 
-    private <L> @NotNull ImmuTables<L> createLoader() {
-        return ImmuTables.<L>builder().nodeProducer(() -> BasicConfigurationNode.factory().createNode()).build();
-    }
-
-    private record LootContextImpl(@NotNull Map<LootContext.Key<?>, Object> information) implements LootContext {
-        public LootContextImpl {
-            information = Map.copyOf(information);
-        }
-    }
 }
