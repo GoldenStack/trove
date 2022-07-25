@@ -1,6 +1,7 @@
 package dev.goldenstack.loot.converter.meta;
 
 import dev.goldenstack.loot.context.LootConversionContext;
+import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;
@@ -151,10 +152,7 @@ public class LootConversionManager<L, V> {
             }
         }
         ConfigurationNode keyNode = input.node(this.keyLocation);
-        String actualKey = keyNode.getString();
-        if (actualKey == null) {
-            throw new ConfigurateException(keyNode, "Expected a string at this manager's key location ('" + keyLocation + "')");
-        }
+        String actualKey = Utils.require(keyNode, String.class);
         KeyedLootConverter<L, ? extends V> converter = this.directKeyRegistry.get(actualKey);
         if (converter == null) {
             throw new ConfigurateException(keyNode, "Could not find a valid keyed loot converter for key '" + actualKey + "'");
