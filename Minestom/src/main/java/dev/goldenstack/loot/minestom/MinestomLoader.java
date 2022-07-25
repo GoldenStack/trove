@@ -1,6 +1,7 @@
 package dev.goldenstack.loot.minestom;
 
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
+import dev.goldenstack.loot.minestom.number.BinomialNumber;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
@@ -69,6 +70,7 @@ public class MinestomLoader {
         // Registered converters
         builder.addInitialConverter(ConstantNumber.ACCURATE_CONVERTER);
         builder.addConverter(ConstantNumber.CONVERTER);
+        builder.addConverter(BinomialNumber.CONVERTER);
     };
 
 }
