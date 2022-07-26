@@ -34,8 +34,8 @@ public record ImmuTables<L>(
         @NotNull LootConversionManager<L, LootModifier<L>> lootModifierManager,
         @NotNull LootConversionManager<L, LootCondition<L>> lootConditionManager,
         @NotNull LootConversionManager<L, LootNumber<L>> lootNumberManager,
-        @NotNull LootConverter<L, LootTable<L>> lootTableConverter,
-        @NotNull LootConverter<L, LootPool<L>> lootPoolConverter,
+        @NotNull LootConverter<L, ? extends LootTable<L>> lootTableConverter,
+        @NotNull LootConverter<L, ? extends LootPool<L>> lootPoolConverter,
         @NotNull Supplier<ConfigurationNode> nodeProducer) {
 
     /**
@@ -64,8 +64,8 @@ public record ImmuTables<L>(
         private final @NotNull LootConversionManager.Builder<L, LootNumber<L>> lootNumberBuilder = LootConversionManager.builder();
 
         private Supplier<ConfigurationNode> nodeProducer;
-        private LootConverter<L, LootTable<L>> lootTableConverter;
-        private LootConverter<L, LootPool<L>> lootPoolConverter;
+        private LootConverter<L, ? extends LootTable<L>> lootTableConverter;
+        private LootConverter<L, ? extends LootPool<L>> lootPoolConverter;
 
         private Builder() {}
 
@@ -116,13 +116,13 @@ public record ImmuTables<L>(
         }
 
         @Contract("_ -> this")
-        public @NotNull Builder<L> lootTableConverter(@NotNull LootConverter<L, LootTable<L>> lootTableConverter) {
+        public @NotNull Builder<L> lootTableConverter(@NotNull LootConverter<L, ? extends LootTable<L>> lootTableConverter) {
             this.lootTableConverter = lootTableConverter;
             return this;
         }
 
         @Contract("_ -> this")
-        public @NotNull Builder<L> lootPoolConverter(@NotNull LootConverter<L, LootPool<L>> lootPoolConverter) {
+        public @NotNull Builder<L> lootPoolConverter(@NotNull LootConverter<L, ? extends LootPool<L>> lootPoolConverter) {
             this.lootPoolConverter = lootPoolConverter;
             return this;
         }
