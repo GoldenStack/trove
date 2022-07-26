@@ -18,7 +18,7 @@ import org.spongepowered.configurate.ConfigurationNode;
 public record BinomialNumber(@NotNull LootNumber<ItemStack> n, @NotNull LootNumber<ItemStack> p) implements LootNumber<ItemStack> {
 
     /**
-     * A converter for binomial numbers that serializes each field into a map node.
+     * A standard map-based converter for binomial numbers.
      */
     public static final @NotNull KeyedLootConverter<ItemStack, BinomialNumber> CONVERTER = new KeyedLootConverter<>("minecraft:binomial", TypeToken.get(BinomialNumber.class)) {
         @Override

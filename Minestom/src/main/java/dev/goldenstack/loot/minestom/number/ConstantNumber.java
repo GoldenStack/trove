@@ -45,8 +45,7 @@ public record ConstantNumber(double value) implements LootNumber<ItemStack> {
     };
 
     /**
-     * A converter for constant numbers that serializes to a map with the key "value" mapped to the constant's value and
-     * deserializes to the reverse of that.
+     * A standard map-based converter for constant numbers.
      */
     public static final @NotNull KeyedLootConverter<ItemStack, ConstantNumber> CONVERTER = new KeyedLootConverter<>("minecraft:constant", TypeToken.get(ConstantNumber.class)) {
         @Override
