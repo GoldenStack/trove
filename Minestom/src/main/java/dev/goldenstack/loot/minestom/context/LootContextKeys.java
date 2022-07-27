@@ -1,4 +1,4 @@
-package dev.goldenstack.loot.minestom.util;
+package dev.goldenstack.loot.minestom.context;
 
 import dev.goldenstack.loot.context.LootContext;
 import io.leangen.geantyref.TypeToken;
