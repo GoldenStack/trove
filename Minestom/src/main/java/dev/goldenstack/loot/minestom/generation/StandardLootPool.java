@@ -19,7 +19,7 @@ import org.spongepowered.configurate.ConfigurationNode;
 import java.util.List;
 
 /**
- * A standard loot pool implementation.
+ * A standard loot pool implementation for Minestom.
  * @param entries the entries to generate loot from
  * @param conditions the conditions that determine if any loot should be generated
  * @param modifiers the modifiers that are applied to each piece of loot
