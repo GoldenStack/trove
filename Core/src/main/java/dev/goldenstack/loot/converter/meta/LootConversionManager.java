@@ -26,8 +26,8 @@ public class LootConversionManager<L, V> {
     private final @NotNull Map<TypeToken<? extends V>, KeyedLootConverter<L, ? extends V>> typeTokenRegistry;
 
     private LootConversionManager(@NotNull Builder<L, V> builder) {
-        this.baseType = builder.baseType;
-        this.keyLocation = builder.keyLocation;
+        this.baseType = Objects.requireNonNull(builder.baseType, "LootConversionManager instances cannot be built without a base type!");
+        this.keyLocation = Objects.requireNonNull(builder.keyLocation, "LootConversionManager instances cannot be built without a key location!");
         this.keyedConverters = List.copyOf(builder.keyedConverters);
 
         Map<String, KeyedLootConverter<L, ? extends V>> directKeys = new HashMap<>();
@@ -207,8 +207,6 @@ public class LootConversionManager<L, V> {
 
         @Contract(" -> new")
         public @NotNull LootConversionManager<L, V> build() {
-            Objects.requireNonNull(baseType, "LootConversionManager instances cannot be built without a base type!");
-            Objects.requireNonNull(keyLocation, "LootConversionManager instances cannot be built without a key location!");
             return new LootConversionManager<>(this);
         }
     }

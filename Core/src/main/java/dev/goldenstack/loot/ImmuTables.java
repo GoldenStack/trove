@@ -128,17 +128,14 @@ public record ImmuTables<L>(
 
         @Contract(" -> new")
         public @NotNull ImmuTables<L> build() {
-            Objects.requireNonNull(nodeProducer, "ImmuTables instances cannot be built without a node producer!");
-            Objects.requireNonNull(lootTableConverter, "ImmuTables instances cannot be built without a loot table converter!");
-            Objects.requireNonNull(lootPoolConverter, "ImmuTables instances cannot be built without a loot pool converter!");
             return new ImmuTables<>(
                     lootEntryBuilder.build(),
                     lootModifierBuilder.build(),
                     lootConditionBuilder.build(),
                     lootNumberBuilder.build(),
-                    lootTableConverter,
-                    lootPoolConverter,
-                    nodeProducer
+                    Objects.requireNonNull(lootTableConverter, "ImmuTables instances cannot be built without a loot table converter!"),
+                    Objects.requireNonNull(lootPoolConverter, "ImmuTables instances cannot be built without a loot pool converter!"),
+                    Objects.requireNonNull(nodeProducer, "ImmuTables instances cannot be built without a node producer!")
                 );
         }
     }

@@ -141,10 +141,9 @@ public record StandardLootPool(@NotNull LootNumber<ItemStack> rolls,
 
         @Contract(" -> new")
         public @NotNull StandardLootPool build() {
-            Objects.requireNonNull(rolls, "Standard loot pools must have a number of rolls!");
             return new StandardLootPool(
-                    rolls,
-                    bonusRolls == null ? new ConstantNumber(0) : bonusRolls,
+                    Objects.requireNonNull(rolls, "Standard loot pools must have a number of rolls!"),
+                    Objects.requireNonNullElseGet(bonusRolls, () -> new ConstantNumber(0)),
                     entries,
                     conditions,
                     modifiers

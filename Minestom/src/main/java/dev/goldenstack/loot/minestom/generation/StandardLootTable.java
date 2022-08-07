@@ -113,9 +113,8 @@ public record StandardLootTable(@NotNull LootContextKeyGroup contextKeyGroup,
 
         @Contract(" -> new")
         public @NotNull StandardLootTable build() {
-            Objects.requireNonNull(contextKeyGroup, "Standard loot tables must have a context key group!");
             return new StandardLootTable(
-                    contextKeyGroup,
+                    Objects.requireNonNull(contextKeyGroup, "Standard loot tables must have a context key group!"),
                     pools,
                     modifiers
             );

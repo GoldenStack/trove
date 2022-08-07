@@ -53,8 +53,10 @@ public record LootConversionContext<L>(@NotNull ImmuTables<L> loader, @NotNull M
 
         @Contract(" -> new")
         public @NotNull LootConversionContext<L> build() {
-            Objects.requireNonNull(loader, "LootConversionContext instances cannot be built without a loader!");
-            return new LootConversionContext<>(loader, information);
+            return new LootConversionContext<>(
+                    Objects.requireNonNull(loader, "LootConversionContext instances cannot be built without a loader!"),
+                    information
+            );
         }
     }
 }

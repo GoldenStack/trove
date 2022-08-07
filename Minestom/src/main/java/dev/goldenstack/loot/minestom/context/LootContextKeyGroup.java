@@ -187,8 +187,11 @@ public record LootContextKeyGroup(@NotNull String id, @NotNull Set<LootContext.K
 
         @Contract(" -> new")
         public @NotNull LootContextKeyGroup build() {
-            Objects.requireNonNull(id, "Loot context key groups must have an identifier");
-            return new LootContextKeyGroup(id, expected, permitted);
+            return new LootContextKeyGroup(
+                    Objects.requireNonNull(id, "Loot context key groups must have an identifier"),
+                    expected,
+                    permitted
+            );
         }
     }
 
