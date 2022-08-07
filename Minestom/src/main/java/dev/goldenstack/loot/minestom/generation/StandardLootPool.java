@@ -110,13 +110,13 @@ public record StandardLootPool(@NotNull LootNumber<ItemStack> rolls,
         private Builder() {}
 
         @Contract("_ -> this")
-        public @NotNull Builder setRolls(@NotNull LootNumber<ItemStack> rolls) {
+        public @NotNull Builder rolls(@NotNull LootNumber<ItemStack> rolls) {
             this.rolls = rolls;
             return this;
         }
 
         @Contract("_ -> this")
-        public @NotNull Builder setBonusRolls(@NotNull LootNumber<ItemStack> bonusRolls) {
+        public @NotNull Builder bonusRolls(@NotNull LootNumber<ItemStack> bonusRolls) {
             this.bonusRolls = bonusRolls;
             return this;
         }

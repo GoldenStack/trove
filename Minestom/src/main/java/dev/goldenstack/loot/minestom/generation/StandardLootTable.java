@@ -94,7 +94,7 @@ public record StandardLootTable(@NotNull LootContextKeyGroup contextKeyGroup,
         private Builder() {}
 
         @Contract("_ -> this")
-        public @NotNull Builder setContextKeyGroup(@NotNull LootContextKeyGroup contextKeyGroup) {
+        public @NotNull Builder contextKeyGroup(@NotNull LootContextKeyGroup contextKeyGroup) {
             this.contextKeyGroup = contextKeyGroup;
             return this;
         }
