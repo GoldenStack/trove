@@ -12,11 +12,14 @@ import dev.goldenstack.loot.structure.LootModifier;
 import dev.goldenstack.loot.structure.LootNumber;
 import dev.goldenstack.loot.util.Utils;
 import net.minestom.server.item.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A standard loot pool implementation for Minestom.
@@ -84,5 +87,68 @@ public record StandardLootPool(@NotNull LootNumber<ItemStack> rolls,
             loot.replaceAll(lootItem -> LootModifier.applyAll(this.modifiers, lootItem, context));
         }
         return loot;
+    }
+
+    /**
+     * Creates a new builder for this class, with no entries, conditions, or modifiers, and null rolls and bonus rolls.
+     * When building, it's acceptable to leave {@link #bonusRolls} as null because it will be replaced with zero.<br>
+     * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
+     * @return a new StandardLootPool builder
+     */
+    @Contract(" -> new")
+    public static @NotNull Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private LootNumber<ItemStack> rolls, bonusRolls;
+        private final @NotNull List<LootEntry<ItemStack>> entries = new ArrayList<>();
+        private final @NotNull List<LootCondition<ItemStack>> conditions = new ArrayList<>();
+        private final @NotNull List<LootModifier<ItemStack>> modifiers = new ArrayList<>();
+
+        private Builder() {}
+
+        @Contract("_ -> this")
+        public @NotNull Builder setRolls(@NotNull LootNumber<ItemStack> rolls) {
+            this.rolls = rolls;
+            return this;
+        }
+
+        @Contract("_ -> this")
+        public @NotNull Builder setBonusRolls(@NotNull LootNumber<ItemStack> bonusRolls) {
+            this.bonusRolls = bonusRolls;
+            return this;
+        }
+
+        @Contract("_ -> this")
+        public @NotNull Builder addEntry(@NotNull LootEntry<ItemStack> entry) {
+            this.entries.add(entry);
+            return this;
+        }
+
+        @Contract("_ -> this")
+        public @NotNull Builder addCondition(@NotNull LootCondition<ItemStack> condition) {
+            this.conditions.add(condition);
+            return this;
+        }
+
+        @Contract("_ -> this")
+        public @NotNull Builder addModifier(@NotNull LootModifier<ItemStack> modifier) {
+            this.modifiers.add(modifier);
+            return this;
+        }
+
+        @Contract(" -> new")
+        public @NotNull StandardLootPool build() {
+            Objects.requireNonNull(rolls, "Standard loot pools must have a number of rolls!");
+            return new StandardLootPool(
+                    rolls,
+                    bonusRolls == null ? new ConstantNumber(0) : bonusRolls,
+                    entries,
+                    conditions,
+                    modifiers
+            );
+        }
+
     }
 }
