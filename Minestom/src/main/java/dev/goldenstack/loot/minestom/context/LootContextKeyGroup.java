@@ -6,49 +6,51 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static dev.goldenstack.loot.minestom.context.LootContextKeys.*;
 
 /**
- * A group of context keys. The expected keys are required, while the permitted keys are the only keys that the context
- * is allowed to have.
+ * A group of context keys that has an ID. The expected keys are required, while the permitted keys are the only keys
+ * that the context is allowed to have.
+ * @param id the identifier of this key group
  * @param expected the set of keys that are required in all contexts
  * @param permitted the set of keys that are allowed in all contexts. An empty set means that all are allowed.
  */
-public record LootContextKeyGroup(@NotNull Set<LootContext.Key<?>> expected, @NotNull Set<LootContext.Key<?>> permitted) {
+public record LootContextKeyGroup(@NotNull String id, @NotNull Set<LootContext.Key<?>> expected, @NotNull Set<LootContext.Key<?>> permitted) {
 
     /**
      * A LootContextKeyGroup with no required and no optional keys.
      */
     public static final @NotNull LootContextKeyGroup
-        EMPTY = builder().build(),
+        EMPTY = builder().id("minecraft:empty").build(),
         /**
          * A LootContextKeyGroup that represents what should be provided when a chest is opened. It includes a required
          * origin (where the chest was) and an optional entity (the entity that opened the chest).
          */
-        CHEST = builder().expect(ORIGIN).permit(THIS_ENTITY).build(),
+        CHEST = builder().id("minecraft:chest").expect(ORIGIN).permit(THIS_ENTITY).build(),
 
         /**
          * A LootContextKeyGroup that represents what should be provided when a command is run. It includes a required
          * origin (where the entity or command block that ran the command was) and an optional entity (the entity that
          * ran the command).
          */
-        COMMAND = builder().expect(ORIGIN).permit(THIS_ENTITY).build(),
+        COMMAND = builder().id("minecraft:command").expect(ORIGIN).permit(THIS_ENTITY).build(),
 
         /**
          * A LootContextKeyGroup that represents what should be provided when a selector is triggered. It includes a
          * required origin (where the entity or command block that triggered the selector was) and an optional entity
          * (the entity that triggered the selector).
          */
-        SELECTOR = builder().expect(ORIGIN).permit(THIS_ENTITY).build(),
+        SELECTOR = builder().id("minecraft:selector").expect(ORIGIN).permit(THIS_ENTITY).build(),
 
         /**
          * A LootContextKeyGroup that represents what should be provided when a fishing rod is pulled in. It includes a
          * required origin (where the bobber of the fishing rod was), a required tool (the fishing rod item), and an
          * optional entity (the entity that was fishing).
          */
-        FISHING = builder().expect(ORIGIN, TOOL).permit(THIS_ENTITY).build(),
+        FISHING = builder().id("minecraft:fishing").expect(ORIGIN, TOOL).permit(THIS_ENTITY).build(),
 
         /**
          * A LootContextKeyGroup that represents what should be provided when an entity is killed or something otherwise
@@ -57,38 +59,38 @@ public record LootContextKeyGroup(@NotNull Set<LootContext.Key<?>> expected, @No
          * the entity who actually killed it, such as the arrow that did the damage), and an optional last player damage
          * (the last damage that was dealt to the entity).
          */
-        ENTITY = builder().expect(THIS_ENTITY, ORIGIN, DAMAGE_SOURCE).permit(KILLER_ENTITY, DIRECT_KILLER_ENTITY, LAST_DAMAGE_PLAYER).build(),
+        ENTITY = builder().id("minecraft:entity").expect(THIS_ENTITY, ORIGIN, DAMAGE_SOURCE).permit(KILLER_ENTITY, DIRECT_KILLER_ENTITY, LAST_DAMAGE_PLAYER).build(),
 
         /**
          * A LootContextKeyGroup that represents when a villager gives a gift to a player. It requires the origin (the
          * location of the villager) and the required entity (the villager that is giving the gift).
          */
-        GIFT = builder().expect(ORIGIN, THIS_ENTITY).build(),
+        GIFT = builder().id("minecraft:gift").expect(ORIGIN, THIS_ENTITY).build(),
 
         /**
          * A LootContextKeyGroup that represents when a piglin is bartering. It requires the entity (the piglin that is
          * doing the bartering).
          */
-        BARTER = builder().expect(THIS_ENTITY).build(),
+        BARTER = builder().id("minecraft:barter").expect(THIS_ENTITY).build(),
 
         /**
          * A LootContextKeyGroup that represents when an entity gets advancement rewards. It requires the entity (the
          * entity that is getting the rewards) and a required origin (the position of the entity).
          */
-        ADVANCEMENT_REWARD = builder().expect(THIS_ENTITY, ORIGIN).build(),
+        ADVANCEMENT_REWARD = builder().id("minecraft:advancement_reward").expect(THIS_ENTITY, ORIGIN).build(),
 
         /**
          * A LootContextKeyGroup that represents when an advancement is granted to a target entity. It requires an entity
          * (the entity that is getting the advancement) and a required origin (the location of the entity that is granting the
          * advancement). The documentation for this may be unreliable.
          */
-        ADVANCEMENT_ENTITY = builder().expect(THIS_ENTITY, ORIGIN).build(),
+        ADVANCEMENT_ENTITY = builder().id("minecraft:advancement_entity").expect(THIS_ENTITY, ORIGIN).build(),
 
         /**
          * A LootContextKeyGroup that requires everything. This is not done dynamically, so if you add your own keys
          * you will need to create a new group with the extra ones.
          */
-        GENERIC = builder().expect(THIS_ENTITY, LAST_DAMAGE_PLAYER, DAMAGE_SOURCE, KILLER_ENTITY, DIRECT_KILLER_ENTITY, ORIGIN, BLOCK_STATE, BLOCK_ENTITY, TOOL, EXPLOSION_RADIUS).build(),
+        GENERIC = builder().id("minecraft:generic").expect(THIS_ENTITY, LAST_DAMAGE_PLAYER, DAMAGE_SOURCE, KILLER_ENTITY, DIRECT_KILLER_ENTITY, ORIGIN, BLOCK_STATE, BLOCK_ENTITY, TOOL, EXPLOSION_RADIUS).build(),
 
         /**
          * A LootContextKeyGroup that represents when something happens to a block. It requires the block state (the state
@@ -97,7 +99,7 @@ public record LootContextKeyGroup(@NotNull Set<LootContext.Key<?>> expected, @No
          * an optional block entity (the entity that the block was), and an optional explosion radius (the radius of the
          * explosion that caused whatever happened).
          */
-        BLOCK = builder().expect(BLOCK_STATE, ORIGIN, TOOL).permit(THIS_ENTITY, BLOCK_ENTITY, EXPLOSION_RADIUS).build();
+        BLOCK = builder().id("minecraft:block").expect(BLOCK_STATE, ORIGIN, TOOL).permit(THIS_ENTITY, BLOCK_ENTITY, EXPLOSION_RADIUS).build();
 
     public LootContextKeyGroup {
         expected = Set.copyOf(expected);
@@ -159,10 +161,17 @@ public record LootContextKeyGroup(@NotNull Set<LootContext.Key<?>> expected, @No
 
     public static final class Builder {
 
+        private String id;
         private final @NotNull Set<LootContext.Key<?>> expected = new HashSet<>();
         private final @NotNull Set<LootContext.Key<?>> permitted = new HashSet<>();
 
         private Builder() {}
+
+        @Contract("_ -> this")
+        public @NotNull Builder id(@NotNull String id) {
+            this.id = id;
+            return this;
+        }
 
         @Contract("_ -> this")
         public @NotNull Builder expect(@NotNull LootContext.Key<?> @NotNull ... expected) {
@@ -178,7 +187,8 @@ public record LootContextKeyGroup(@NotNull Set<LootContext.Key<?>> expected, @No
 
         @Contract(" -> new")
         public @NotNull LootContextKeyGroup build() {
-            return new LootContextKeyGroup(expected, permitted);
+            Objects.requireNonNull(id, "Loot context key groups must have an identifier");
+            return new LootContextKeyGroup(id, expected, permitted);
         }
     }
 
