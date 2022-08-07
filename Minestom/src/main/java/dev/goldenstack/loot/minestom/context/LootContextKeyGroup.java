@@ -150,7 +150,7 @@ public record LootContextKeyGroup(@NotNull String id, @NotNull Set<LootContext.K
     }
 
     /**
-     * Creates a new builder for this class, with no information and a null loader.<br>
+     * Creates a new builder for this class, with no expected or permitted keys and a null identifier.<br>
      * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
      * @return a new LootContextKeyGroup builder
      */

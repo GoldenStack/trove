@@ -47,7 +47,7 @@ public record ImmuTables<L>(
     }
 
     /**
-     * Creates a new builder for this class, with no information and a null loader.<br>
+     * Creates a new builder for this class, with all builders unmodified and everything else as null.<br>
      * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
      * @return a new ImmuTables builder
      * @param <L> the loot item type
@@ -62,7 +62,6 @@ public record ImmuTables<L>(
         private final @NotNull LootConversionManager.Builder<L, LootModifier<L>> lootModifierBuilder = LootConversionManager.builder();
         private final @NotNull LootConversionManager.Builder<L, LootCondition<L>> lootConditionBuilder = LootConversionManager.builder();
         private final @NotNull LootConversionManager.Builder<L, LootNumber<L>> lootNumberBuilder = LootConversionManager.builder();
-
         private Supplier<ConfigurationNode> nodeProducer;
         private LootConverter<L, LootTable<L>> lootTableConverter;
         private LootConverter<L, LootPool<L>> lootPoolConverter;

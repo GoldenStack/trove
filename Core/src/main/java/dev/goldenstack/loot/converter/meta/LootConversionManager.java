@@ -161,7 +161,7 @@ public class LootConversionManager<L, V> {
     }
 
     /**
-     * Creates a new builder for this class, with no information and a null loader.<br>
+     * Creates a new builder for this class, with empty lists of converters and all other fields as null.<br>
      * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
      * @return a new LootConversionManager builder
      * @param <L> the loot item type

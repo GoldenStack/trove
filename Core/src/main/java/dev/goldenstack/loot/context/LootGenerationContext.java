@@ -23,7 +23,7 @@ public record LootGenerationContext(@NotNull Random random, @NotNull Map<Key<?>,
     }
 
     /**
-     * Creates a new builder for this class, with no information and a null loader.<br>
+     * Creates a new builder for this class, with no information and a null random number generator.<br>
      * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
      * @return a new LootGenerationContext builder
      */
@@ -33,8 +33,8 @@ public record LootGenerationContext(@NotNull Random random, @NotNull Map<Key<?>,
     }
 
     public static final class Builder {
-        private final @NotNull Map<Key<?>, Object> information = new HashMap<>();
         private Random random;
+        private final @NotNull Map<Key<?>, Object> information = new HashMap<>();
 
         private Builder() {}
 
