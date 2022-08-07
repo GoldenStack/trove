@@ -20,17 +20,17 @@ import java.util.List;
 
 /**
  * A standard loot pool implementation for Minestom.
+ * @param rolls the normal number of rolls that should occur
+ * @param bonusRolls the number of extra rolls that will occur. This is multiplied by the context's luck.
  * @param entries the entries to generate loot from
  * @param conditions the conditions that determine if any loot should be generated
  * @param modifiers the modifiers that are applied to each piece of loot
- * @param rolls the normal number of rolls that should occur
- * @param bonusRolls the number of extra rolls that will occur. This is multiplied by the context's luck.
  */
-public record StandardLootPool(@NotNull List<LootEntry<ItemStack>> entries,
+public record StandardLootPool(@NotNull LootNumber<ItemStack> rolls,
+                               @NotNull LootNumber<ItemStack> bonusRolls,
+                               @NotNull List<LootEntry<ItemStack>> entries,
                                @NotNull List<LootCondition<ItemStack>> conditions,
-                               @NotNull List<LootModifier<ItemStack>> modifiers,
-                               @NotNull LootNumber<ItemStack> rolls,
-                               @NotNull LootNumber<ItemStack> bonusRolls) implements LootPool<ItemStack> {
+                               @NotNull List<LootModifier<ItemStack>> modifiers) implements LootPool<ItemStack> {
 
     public static final @NotNull LootConverter<ItemStack, LootPool<ItemStack>> CONVERTER = new LootConverter<>() {
         @Override
@@ -39,22 +39,22 @@ public record StandardLootPool(@NotNull List<LootEntry<ItemStack>> entries,
                 throw new ConfigurateException("Expected type " + StandardLootPool.class + " but found " + input.getClass() + " for the provided loot pool");
             }
             var node = context.loader().createNode();
-            node.node("entries").set(Utils.serializeList(pool.entries(), context.loader().lootEntryManager()::serialize, context));
-            node.node("conditions").set(Utils.serializeList(pool.conditions(), context.loader().lootConditionManager()::serialize, context));
-            node.node("functions").set(Utils.serializeList(pool.modifiers(), context.loader().lootModifierManager()::serialize, context));
             node.node("rolls").set(context.loader().lootNumberManager().serialize(pool.rolls(), context));
             node.node("bonus_rolls").set(context.loader().lootNumberManager().serialize(pool.bonusRolls(), context));
+            node.node("functions").set(Utils.serializeList(pool.modifiers(), context.loader().lootModifierManager()::serialize, context));
+            node.node("entries").set(Utils.serializeList(pool.entries(), context.loader().lootEntryManager()::serialize, context));
+            node.node("conditions").set(Utils.serializeList(pool.conditions(), context.loader().lootConditionManager()::serialize, context));
             return node;
         }
 
         @Override
         public @NotNull LootPool<ItemStack> deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
             return new StandardLootPool(
+                    context.loader().lootNumberManager().deserialize(input.node("rolls"), context),
+                    input.hasChild("bonus_rolls") ? context.loader().lootNumberManager().deserialize(input.node("bonus_rolls"), context) : new ConstantNumber(0),
                     Utils.deserializeList(input.node("entries"), context.loader().lootEntryManager()::deserialize, context),
                     Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context),
-                    Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
-                    context.loader().lootNumberManager().deserialize(input.node("rolls"), context),
-                    input.hasChild("bonus_rolls") ? context.loader().lootNumberManager().deserialize(input.node("bonus_rolls"), context) : new ConstantNumber(0)
+                    Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context)
             );
         }
     };
