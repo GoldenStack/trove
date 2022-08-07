@@ -28,7 +28,7 @@ public class MinestomLoader {
      * this class will need to be applied to it, and neither will {@link StandardLootPool#CONVERTER} and
      * {@link StandardLootTable#CONVERTER}.
      */
-    public static @NotNull Consumer<ImmuTables.Builder<ItemStack>> GENERAL_BUILDER_INITIALIZER = builder -> {
+    public static final @NotNull Consumer<ImmuTables.Builder<ItemStack>> GENERAL_BUILDER_INITIALIZER = builder -> {
         builder
                 .lootEntryBuilder(MinestomLoader.LOOT_ENTRY_INITIALIZER)
                 .lootModifierBuilder(MinestomLoader.LOOT_MODIFIER_INITIALIZER)
@@ -42,7 +42,7 @@ public class MinestomLoader {
      * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootEntryBuilder(Consumer)}, adds the required
      * information to the loader.
      */
-    public static @NotNull Consumer<LootConversionManager.Builder<ItemStack, LootEntry<ItemStack>>> LOOT_ENTRY_INITIALIZER = builder -> {
+    public static final @NotNull Consumer<LootConversionManager.Builder<ItemStack, LootEntry<ItemStack>>> LOOT_ENTRY_INITIALIZER = builder -> {
         // Basic data
         builder.baseType(new TypeToken<>(){}); // LootEntry<ItemStack>
         builder.keyLocation("type");
@@ -55,7 +55,7 @@ public class MinestomLoader {
      * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootModifierBuilder(Consumer)}, adds the required
      * information to the loader.
      */
-    public static @NotNull Consumer<LootConversionManager.Builder<ItemStack, LootModifier<ItemStack>>> LOOT_MODIFIER_INITIALIZER = builder -> {
+    public static final @NotNull Consumer<LootConversionManager.Builder<ItemStack, LootModifier<ItemStack>>> LOOT_MODIFIER_INITIALIZER = builder -> {
         // Basic data
         builder.baseType(new TypeToken<>(){}); // LootModifier<ItemStack>
         builder.keyLocation("function");
@@ -68,7 +68,7 @@ public class MinestomLoader {
      * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootConditionBuilder(Consumer)}, adds the required
      * information to the loader.
      */
-    public static @NotNull Consumer<LootConversionManager.Builder<ItemStack, LootCondition<ItemStack>>> LOOT_CONDITION_INITIALIZER = builder -> {
+    public static final @NotNull Consumer<LootConversionManager.Builder<ItemStack, LootCondition<ItemStack>>> LOOT_CONDITION_INITIALIZER = builder -> {
         // Basic data
         builder.baseType(new TypeToken<>(){}); // LootCondition<ItemStack>
         builder.keyLocation("condition");
@@ -81,7 +81,7 @@ public class MinestomLoader {
      * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootNumberBuilder(Consumer)}, adds the required
      * information to the loader.
      */
-    public static @NotNull Consumer<LootConversionManager.Builder<ItemStack, LootNumber<ItemStack>>> LOOT_NUMBER_INITIALIZER = builder -> {
+    public static final @NotNull Consumer<LootConversionManager.Builder<ItemStack, LootNumber<ItemStack>>> LOOT_NUMBER_INITIALIZER = builder -> {
         // Basic data
         builder.baseType(new TypeToken<>(){}); // LootNumber<ItemStack>
         builder.keyLocation("type");
