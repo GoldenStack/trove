@@ -4,6 +4,8 @@
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=for-the-badge)](https://github.com/RichardLitt/standard-readme)
 [![javadocs](https://img.shields.io/badge/documentation-javadocs-4d7a97?style=for-the-badge)](https://javadoc.jitpack.io/com/github/GoldenStack/ImmuTables/master-SNAPSHOT/javadoc/)
 
+## Note: This project is currently being heavily modified, so this file will generally be outdated.
+
 ImmuTables is a platform-agnostic loot table library. Its concepts are similar to Minecraft's loot table system, but all
 the code is original.
 
