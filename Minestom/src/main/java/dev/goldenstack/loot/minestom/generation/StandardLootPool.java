@@ -34,6 +34,17 @@ public record StandardLootPool(@NotNull List<LootEntry<ItemStack>> entries,
 
     public static final @NotNull LootConverter<ItemStack, StandardLootPool> CONVERTER = new LootConverter<>() {
         @Override
+        public @NotNull ConfigurationNode serialize(@NotNull StandardLootPool input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            var node = context.loader().createNode();
+            node.node("entries").set(Utils.serializeList(input.entries(), context.loader().lootEntryManager()::serialize, context));
+            node.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
+            node.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
+            node.node("rolls").set(context.loader().lootNumberManager().serialize(input.rolls(), context));
+            node.node("bonus_rolls").set(context.loader().lootNumberManager().serialize(input.bonusRolls(), context));
+            return node;
+        }
+
+        @Override
         public @NotNull StandardLootPool deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
             return new StandardLootPool(
                     Utils.deserializeList(input.node("entries"), context.loader().lootEntryManager()::deserialize, context),
@@ -42,17 +53,6 @@ public record StandardLootPool(@NotNull List<LootEntry<ItemStack>> entries,
                     context.loader().lootNumberManager().deserialize(input.node("rolls"), context),
                     input.hasChild("bonus_rolls") ? context.loader().lootNumberManager().deserialize(input.node("bonus_rolls"), context) : new ConstantNumber(0)
             );
-        }
-
-        @Override
-        public @NotNull ConfigurationNode serialize(@NotNull StandardLootPool input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            var node = context.loader().createNode();
-            node.node("entries").set(Utils.serializeList(input.entries(), context.loader().lootEntryManager()::serialize, context));
-            node.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
-            node.node("functions").set(Utils.serializeList(input.modifiers, context.loader().lootModifierManager()::serialize, context));
-            node.node("rolls").set(context.loader().lootNumberManager().serialize(input.rolls(), context));
-            node.node("bonus_rolls").set(context.loader().lootNumberManager().serialize(input.bonusRolls(), context));
-            return node;
         }
     };
 
