@@ -24,7 +24,7 @@ import java.util.List;
  * @param modifiers the modifiers that are applied to each piece of loot
  */
 public record StandardLootTable(@NotNull LootContextKeyGroup contextKeyGroup,
-                                @NotNull List<? extends LootPool<ItemStack>> pools,
+                                @NotNull List<LootPool<ItemStack>> pools,
                                 @NotNull List<LootModifier<ItemStack>> modifiers) implements LootTable<ItemStack> {
 
     public static final @NotNull LootConverter<ItemStack, LootTable<ItemStack>> CONVERTER = new LootConverter<>() {
@@ -35,7 +35,7 @@ public record StandardLootTable(@NotNull LootContextKeyGroup contextKeyGroup,
             }
             var node = context.loader().createNode();
             node.node("type").set(table.contextKeyGroup().id());
-            node.node("pools").set(Utils.serializeList(table.pools(), context.loader().lootPoolConverter()::serialize, context));
+            node.node("pools").set(Utils.serializeList(table.pools(), context.loader().lootPoolConverter(), context));
             node.node("functions").set(Utils.serializeList(table.modifiers(), context.loader().lootModifierManager()::serialize, context));
             return node;
         }
