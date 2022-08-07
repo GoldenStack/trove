@@ -1,6 +1,9 @@
 package dev.goldenstack.loot.minestom;
 
+import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
+import dev.goldenstack.loot.minestom.generation.StandardLootPool;
+import dev.goldenstack.loot.minestom.generation.StandardLootTable;
 import dev.goldenstack.loot.minestom.number.BinomialNumber;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.minestom.number.UniformNumber;
@@ -19,6 +22,21 @@ import java.util.function.Consumer;
  */
 public class MinestomLoader {
     private MinestomLoader() {}
+
+    /**
+     * The general initializer for ImmuTables builders. If this is applied to a builder, none of the other consumers in
+     * this class will need to be applied to it, and neither will {@link StandardLootPool#CONVERTER} and
+     * {@link StandardLootTable#CONVERTER}.
+     */
+    public static @NotNull Consumer<ImmuTables.Builder<ItemStack>> GENERAL_BUILDER_INITIALIZER = builder -> {
+        builder
+                .lootEntryBuilder(MinestomLoader.LOOT_ENTRY_INITIALIZER)
+                .lootModifierBuilder(MinestomLoader.LOOT_MODIFIER_INITIALIZER)
+                .lootConditionBuilder(MinestomLoader.LOOT_CONDITION_INITIALIZER)
+                .lootNumberBuilder(MinestomLoader.LOOT_NUMBER_INITIALIZER)
+                .lootPoolConverter(StandardLootPool.CONVERTER)
+                .lootTableConverter(StandardLootTable.CONVERTER);
+    };
 
     /**
      * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootEntryBuilder(Consumer)}, adds the required
