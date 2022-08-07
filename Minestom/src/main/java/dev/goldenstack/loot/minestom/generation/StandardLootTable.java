@@ -10,12 +10,14 @@ import dev.goldenstack.loot.minestom.context.LootConversionKeys;
 import dev.goldenstack.loot.structure.LootModifier;
 import dev.goldenstack.loot.util.Utils;
 import net.minestom.server.item.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A standard loot table implementation for Minestom.
@@ -72,5 +74,52 @@ public record StandardLootTable(@NotNull LootContextKeyGroup contextKeyGroup,
         }
 
         return items;
+    }
+
+    /**
+     * Creates a new builder for this class, with no pools and modifiers and a null context key group.<br>
+     * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
+     * @return a new StandardLootTable builder
+     */
+    @Contract(" -> new")
+    public static @NotNull Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private LootContextKeyGroup contextKeyGroup;
+        private final @NotNull List<LootPool<ItemStack>> pools = new ArrayList<>();
+        private final @NotNull List<LootModifier<ItemStack>> modifiers = new ArrayList<>();
+
+        private Builder() {}
+
+        @Contract("_ -> this")
+        public @NotNull Builder setContextKeyGroup(@NotNull LootContextKeyGroup contextKeyGroup) {
+            this.contextKeyGroup = contextKeyGroup;
+            return this;
+        }
+
+        @Contract("_ -> this")
+        public @NotNull Builder addPool(@NotNull LootPool<ItemStack> pool) {
+            this.pools.add(pool);
+            return this;
+        }
+
+        @Contract("_ -> this")
+        public @NotNull Builder addModifier(@NotNull LootModifier<ItemStack> modifier) {
+            this.modifiers.add(modifier);
+            return this;
+        }
+
+        @Contract(" -> new")
+        public @NotNull StandardLootTable build() {
+            Objects.requireNonNull(contextKeyGroup, "Standard loot tables must have a context key group!");
+            return new StandardLootTable(
+                    contextKeyGroup,
+                    pools,
+                    modifiers
+            );
+        }
+
     }
 }
