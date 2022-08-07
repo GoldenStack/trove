@@ -91,7 +91,8 @@ public record StandardLootPool(@NotNull LootNumber<ItemStack> rolls,
 
     /**
      * Creates a new builder for this class, with no entries, conditions, or modifiers, and null rolls and bonus rolls.
-     * When building, it's acceptable to leave {@link #bonusRolls} as null because it will be replaced with zero.<br>
+     * When building, it's acceptable to leave {@link Builder#bonusRolls} as null because it will be replaced with zero.
+     * <br>
      * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
      * @return a new StandardLootPool builder
      */
