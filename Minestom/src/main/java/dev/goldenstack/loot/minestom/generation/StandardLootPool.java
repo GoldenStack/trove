@@ -32,20 +32,23 @@ public record StandardLootPool(@NotNull List<LootEntry<ItemStack>> entries,
                                @NotNull LootNumber<ItemStack> rolls,
                                @NotNull LootNumber<ItemStack> bonusRolls) implements LootPool<ItemStack> {
 
-    public static final @NotNull LootConverter<ItemStack, StandardLootPool> CONVERTER = new LootConverter<>() {
+    public static final @NotNull LootConverter<ItemStack, LootPool<ItemStack>> CONVERTER = new LootConverter<>() {
         @Override
-        public @NotNull ConfigurationNode serialize(@NotNull StandardLootPool input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+        public @NotNull ConfigurationNode serialize(@NotNull LootPool<ItemStack> input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            if (!(input instanceof StandardLootPool pool)) {
+                throw new ConfigurateException("Expected type " + StandardLootPool.class + " but found " + input.getClass() + " for the provided loot pool");
+            }
             var node = context.loader().createNode();
-            node.node("entries").set(Utils.serializeList(input.entries(), context.loader().lootEntryManager()::serialize, context));
-            node.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
-            node.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
-            node.node("rolls").set(context.loader().lootNumberManager().serialize(input.rolls(), context));
-            node.node("bonus_rolls").set(context.loader().lootNumberManager().serialize(input.bonusRolls(), context));
+            node.node("entries").set(Utils.serializeList(pool.entries(), context.loader().lootEntryManager()::serialize, context));
+            node.node("conditions").set(Utils.serializeList(pool.conditions(), context.loader().lootConditionManager()::serialize, context));
+            node.node("functions").set(Utils.serializeList(pool.modifiers(), context.loader().lootModifierManager()::serialize, context));
+            node.node("rolls").set(context.loader().lootNumberManager().serialize(pool.rolls(), context));
+            node.node("bonus_rolls").set(context.loader().lootNumberManager().serialize(pool.bonusRolls(), context));
             return node;
         }
 
         @Override
-        public @NotNull StandardLootPool deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+        public @NotNull LootPool<ItemStack> deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
             return new StandardLootPool(
                     Utils.deserializeList(input.node("entries"), context.loader().lootEntryManager()::deserialize, context),
                     Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context),
