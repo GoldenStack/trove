@@ -29,15 +29,14 @@ public class MinestomLoader {
      * this class will need to be applied to it, and neither will {@link StandardLootPool#CONVERTER} and
      * {@link StandardLootTable#CONVERTER}.
      */
-    public static final @NotNull Consumer<ImmuTables.Builder<ItemStack>> GENERAL_BUILDER_INITIALIZER = builder -> {
-        builder
-                .lootEntryBuilder(MinestomLoader.LOOT_ENTRY_INITIALIZER)
-                .lootModifierBuilder(MinestomLoader.LOOT_MODIFIER_INITIALIZER)
-                .lootConditionBuilder(MinestomLoader.LOOT_CONDITION_INITIALIZER)
-                .lootNumberBuilder(MinestomLoader.LOOT_NUMBER_INITIALIZER)
-                .lootPoolConverter(StandardLootPool.CONVERTER)
-                .lootTableConverter(StandardLootTable.CONVERTER);
-    };
+    public static final @NotNull Consumer<ImmuTables.Builder<ItemStack>> GENERAL_BUILDER_INITIALIZER = builder ->
+            builder
+            .lootEntryBuilder(MinestomLoader.LOOT_ENTRY_INITIALIZER)
+            .lootModifierBuilder(MinestomLoader.LOOT_MODIFIER_INITIALIZER)
+            .lootConditionBuilder(MinestomLoader.LOOT_CONDITION_INITIALIZER)
+            .lootNumberBuilder(MinestomLoader.LOOT_NUMBER_INITIALIZER)
+            .lootPoolConverter(StandardLootPool.CONVERTER)
+            .lootTableConverter(StandardLootTable.CONVERTER);
 
     /**
      * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootEntryBuilder(Consumer)}, adds the required
