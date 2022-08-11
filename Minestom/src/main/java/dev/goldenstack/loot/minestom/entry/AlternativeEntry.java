@@ -40,6 +40,11 @@ public record AlternativeEntry(@NotNull List<LootEntry<ItemStack>> children, @No
         }
     };
 
+    public AlternativeEntry {
+        children = List.copyOf(children);
+        conditions = List.copyOf(conditions);
+    }
+
     @Override
     public @NotNull List<Option<ItemStack>> requestOptions(@NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context)) {

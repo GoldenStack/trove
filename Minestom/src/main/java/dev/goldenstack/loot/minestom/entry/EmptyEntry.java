@@ -48,6 +48,11 @@ public record EmptyEntry(long weight, long quality,
         }
     };
 
+    public EmptyEntry {
+        modifiers = List.copyOf(modifiers);
+        conditions = List.copyOf(conditions);
+    }
+
     @Override
     public @NotNull List<ItemStack> generate(@NotNull LootGenerationContext context) {
         return List.of();

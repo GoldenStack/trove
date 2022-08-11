@@ -59,6 +59,11 @@ public record ItemEntry(@NotNull ItemStack itemStack,
         }
     };
 
+    public ItemEntry {
+        modifiers = List.copyOf(modifiers);
+        conditions = List.copyOf(conditions);
+    }
+
     @Override
     public @NotNull List<ItemStack> generate(@NotNull LootGenerationContext context) {
         return LootCondition.all(conditions(), context) ?

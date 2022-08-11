@@ -41,6 +41,11 @@ public record GroupEntry(@NotNull List<LootEntry<ItemStack>> children, @NotNull 
         }
     };
 
+    public GroupEntry {
+        children = List.copyOf(children);
+        conditions = List.copyOf(conditions);
+    }
+
     @Override
     public @NotNull List<Option<ItemStack>> requestOptions(@NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context)) {

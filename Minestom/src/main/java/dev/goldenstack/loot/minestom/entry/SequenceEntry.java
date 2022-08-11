@@ -41,6 +41,11 @@ public record SequenceEntry(@NotNull List<LootEntry<ItemStack>> children, @NotNu
         }
     };
 
+    public SequenceEntry {
+        children = List.copyOf(children);
+        conditions = List.copyOf(conditions);
+    }
+
     @Override
     public @NotNull List<Option<ItemStack>> requestOptions(@NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context)) {
