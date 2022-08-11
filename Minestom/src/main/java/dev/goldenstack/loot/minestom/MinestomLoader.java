@@ -2,6 +2,9 @@ package dev.goldenstack.loot.minestom;
 
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
+import dev.goldenstack.loot.minestom.entry.AlternativeEntry;
+import dev.goldenstack.loot.minestom.entry.GroupEntry;
+import dev.goldenstack.loot.minestom.entry.SequenceEntry;
 import dev.goldenstack.loot.minestom.generation.StandardLootPool;
 import dev.goldenstack.loot.minestom.generation.StandardLootTable;
 import dev.goldenstack.loot.minestom.number.BinomialNumber;
@@ -48,7 +51,9 @@ public class MinestomLoader {
         builder.keyLocation("type");
 
         // Registered converters
-        // (none currently)
+        builder.addConverter(AlternativeEntry.CONVERTER);
+        builder.addConverter(GroupEntry.CONVERTER);
+        builder.addConverter(SequenceEntry.CONVERTER);
     };
 
     /**
