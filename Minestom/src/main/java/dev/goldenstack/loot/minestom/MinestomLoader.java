@@ -3,6 +3,7 @@ package dev.goldenstack.loot.minestom;
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
 import dev.goldenstack.loot.minestom.entry.AlternativeEntry;
+import dev.goldenstack.loot.minestom.entry.EmptyEntry;
 import dev.goldenstack.loot.minestom.entry.GroupEntry;
 import dev.goldenstack.loot.minestom.entry.SequenceEntry;
 import dev.goldenstack.loot.minestom.generation.StandardLootPool;
@@ -52,6 +53,7 @@ public class MinestomLoader {
 
         // Registered converters
         builder.addConverter(AlternativeEntry.CONVERTER);
+        builder.addConverter(EmptyEntry.CONVERTER);
         builder.addConverter(GroupEntry.CONVERTER);
         builder.addConverter(SequenceEntry.CONVERTER);
     };
