@@ -3,6 +3,7 @@ package dev.goldenstack.loot.minestom.entry;
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
 import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
@@ -15,13 +16,17 @@ import org.spongepowered.configurate.ConfigurationNode;
 import java.util.List;
 
 /**
- * An entry that always returns a singular item with the material {@link #itemMaterial()}
+ * An entry that always returns a singular item with the material {@link #itemMaterial()}.
  * @param itemMaterial the material of the singular generated item
  * @param weight the base weight of this entry - see {@link StandardWeightedOption#weight()}
  * @param quality the quality of this entry - see {@link StandardWeightedOption#quality()}
  * @param modifiers the modifiers that are applied to every item provided by this entry
+ * @param conditions the conditions that all must be met for any results to be generated
  */
-public record ItemEntry(@NotNull Material itemMaterial, long weight, long quality, @NotNull List<LootModifier<ItemStack>> modifiers) implements SingleOptionEntry<ItemStack>, StandardWeightedOption<ItemStack> {
+public record ItemEntry(@NotNull Material itemMaterial,
+                        long weight, long quality,
+                        @NotNull List<LootModifier<ItemStack>> modifiers,
+                        @NotNull List<LootCondition<ItemStack>> conditions) implements SingleOptionEntry<ItemStack>, StandardWeightedOption<ItemStack> {
 
     /**
      * A standard map-based converter for item entries.
@@ -33,6 +38,7 @@ public record ItemEntry(@NotNull Material itemMaterial, long weight, long qualit
             result.node("weight").set(input.weight);
             result.node("quality").set(input.quality);
             result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
+            result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
         }
 
         @Override
@@ -47,13 +53,16 @@ public record ItemEntry(@NotNull Material itemMaterial, long weight, long qualit
                     material,
                     input.node("weight").getLong(1),
                     input.node("quality").getLong(0),
-                    Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context)
+                    Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
+                    Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
             );
         }
     };
 
     @Override
     public @NotNull List<ItemStack> generate(@NotNull LootGenerationContext context) {
-        return List.of(ItemStack.of(itemMaterial));
+        return LootCondition.all(conditions(), context) ?
+                List.of(LootModifier.applyAll(modifiers(), ItemStack.of(itemMaterial), context)) :
+                List.of();
     }
 }

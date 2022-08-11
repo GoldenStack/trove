@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * A loot entry that will return the results of the first child that returns any results.
  * @param children the child entries to test
- * @param conditions the conditions that all must be met
+ * @param conditions the conditions that all must be met for any results to be generated
  */
 public record AlternativeEntry(@NotNull List<LootEntry<ItemStack>> children, @NotNull List<LootCondition<ItemStack>> conditions) implements LootEntry<ItemStack> {
 

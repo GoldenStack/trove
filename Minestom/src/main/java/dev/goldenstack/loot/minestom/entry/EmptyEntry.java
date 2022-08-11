@@ -3,6 +3,7 @@ package dev.goldenstack.loot.minestom.entry;
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
 import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
@@ -18,8 +19,11 @@ import java.util.List;
  * @param weight the base weight of this entry - see {@link StandardWeightedOption#weight()}
  * @param quality the quality of this entry - see {@link StandardWeightedOption#quality()}
  * @param modifiers the modifiers that are applied to every item provided by this entry
+ * @param conditions the conditions that all must be met for any results to be generated
  */
-public record EmptyEntry(long weight, long quality, @NotNull List<LootModifier<ItemStack>> modifiers) implements SingleOptionEntry<ItemStack>, StandardWeightedOption<ItemStack> {
+public record EmptyEntry(long weight, long quality,
+                         @NotNull List<LootModifier<ItemStack>> modifiers,
+                         @NotNull List<LootCondition<ItemStack>> conditions) implements SingleOptionEntry<ItemStack>, StandardWeightedOption<ItemStack> {
 
     /**
      * A standard map-based converter for empty entries.
@@ -30,6 +34,7 @@ public record EmptyEntry(long weight, long quality, @NotNull List<LootModifier<I
             result.node("weight").set(input.weight);
             result.node("quality").set(input.quality);
             result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
+            result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
         }
 
         @Override
@@ -37,7 +42,8 @@ public record EmptyEntry(long weight, long quality, @NotNull List<LootModifier<I
             return new EmptyEntry(
                     input.node("weight").getLong(1),
                     input.node("quality").getLong(0),
-                    Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context)
+                    Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
+                    Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
             );
         }
     };
