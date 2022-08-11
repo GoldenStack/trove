@@ -53,6 +53,7 @@ public class MinestomLoader {
         builder.addConverter(GroupEntry.CONVERTER);
         builder.addConverter(ItemEntry.CONVERTER);
         builder.addConverter(SequenceEntry.CONVERTER);
+        builder.addConverter(TableEntry.CONVERTER);
         builder.addConverter(TagEntry.CONVERTER);
     };
 
