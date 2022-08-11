@@ -82,11 +82,7 @@ public record StandardLootPool(@NotNull LootNumber<ItemStack> rolls,
         }
 
         List<ItemStack> loot = Utils.generateStandardLoot(this.entries, rolls, context);
-
-        if (!loot.isEmpty()) {
-            loot.replaceAll(lootItem -> LootModifier.applyAll(this.modifiers, lootItem, context));
-        }
-        return loot;
+        return LootModifier.applyAll(modifiers(), loot, context);
     }
 
     /**

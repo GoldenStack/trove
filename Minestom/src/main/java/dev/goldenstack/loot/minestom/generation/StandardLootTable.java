@@ -68,9 +68,7 @@ public record StandardLootTable(@NotNull LootContextKeyGroup contextKeyGroup,
 
         List<ItemStack> items = new ArrayList<>();
         for (var pool : pools) {
-            for (var item : pool.generate(context)) {
-                items.add(LootModifier.applyAll(modifiers(), item, context));
-            }
+            items.addAll(LootModifier.applyAll(modifiers(), pool.generate(context), context));
         }
 
         return items;
