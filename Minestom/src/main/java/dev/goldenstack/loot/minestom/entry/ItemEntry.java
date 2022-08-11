@@ -16,14 +16,14 @@ import org.spongepowered.configurate.ConfigurationNode;
 import java.util.List;
 
 /**
- * An entry that always returns a singular item with the material {@link #itemMaterial()}.
- * @param itemMaterial the material of the singular generated item
+ * An entry that always returns just {@link #itemStack()}.
+ * @param itemStack the item that is always returned
  * @param weight the base weight of this entry - see {@link StandardWeightedOption#weight()}
  * @param quality the quality of this entry - see {@link StandardWeightedOption#quality()}
  * @param modifiers the modifiers that are applied to every item provided by this entry
  * @param conditions the conditions that all must be met for any results to be generated
  */
-public record ItemEntry(@NotNull Material itemMaterial,
+public record ItemEntry(@NotNull ItemStack itemStack,
                         long weight, long quality,
                         @NotNull List<LootModifier<ItemStack>> modifiers,
                         @NotNull List<LootCondition<ItemStack>> conditions) implements SingleOptionEntry<ItemStack>, StandardWeightedOption<ItemStack> {
@@ -34,7 +34,7 @@ public record ItemEntry(@NotNull Material itemMaterial,
     public static final @NotNull KeyedLootConverter<ItemStack, ItemEntry> CONVERTER = new KeyedLootConverter<>("minecraft:item", TypeToken.get(ItemEntry.class)) {
         @Override
         public void serialize(@NotNull ItemEntry input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            result.node("name").set(input.itemMaterial.namespace().asString());
+            result.node("name").set(input.itemStack().material().namespace().asString());
             result.node("weight").set(input.weight);
             result.node("quality").set(input.quality);
             result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
@@ -50,7 +50,7 @@ public record ItemEntry(@NotNull Material itemMaterial,
                 throw new ConfigurateException(nameNode, "Expected the provided node to have a valid material, but found '" + name + "' instead.");
             }
             return new ItemEntry(
-                    material,
+                    ItemStack.of(material),
                     input.node("weight").getLong(1),
                     input.node("quality").getLong(0),
                     Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
@@ -62,7 +62,7 @@ public record ItemEntry(@NotNull Material itemMaterial,
     @Override
     public @NotNull List<ItemStack> generate(@NotNull LootGenerationContext context) {
         return LootCondition.all(conditions(), context) ?
-                List.of(LootModifier.applyAll(modifiers(), ItemStack.of(itemMaterial), context)) :
+                List.of(LootModifier.applyAll(modifiers(), itemStack, context)) :
                 List.of();
     }
 }
