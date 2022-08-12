@@ -32,7 +32,7 @@ public record TableEntry(@NotNull String tableIdentifier,
     /**
      * A standard map-based converter for table entries.
      */
-    public static final @NotNull KeyedLootConverter<ItemStack, TableEntry> CONVERTER = new KeyedLootConverter<>("minecraft:item", TypeToken.get(TableEntry.class)) {
+    public static final @NotNull KeyedLootConverter<ItemStack, TableEntry> CONVERTER = new KeyedLootConverter<>("minecraft:loot_table", TypeToken.get(TableEntry.class)) {
         @Override
         public void serialize(@NotNull TableEntry input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
             result.node("name").set(input.tableIdentifier);
