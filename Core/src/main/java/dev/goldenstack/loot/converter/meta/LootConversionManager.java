@@ -37,7 +37,7 @@ public class LootConversionManager<L, V> {
                 throw new IllegalArgumentException("Cannot register value with type '" + converter.convertedType().getType() + "' as it is not a subtype of '" + baseType.getType() + "'");
             }
             if (directKeys.put(converter.key(), converter) != null) {
-                throw new IllegalArgumentException("Cannot register value with key '" + converter.key() + " as something with that key has already been registered");
+                throw new IllegalArgumentException("Cannot register value with key '" + converter.key() + "' as something with that key has already been registered");
             }
             if (typeTokens.put(converter.convertedType(), converter) != null) {
                 throw new IllegalArgumentException("Cannot register value with type '" + converter.convertedType().getType() + "' as something with that type has already been registered");
