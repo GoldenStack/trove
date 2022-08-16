@@ -4,7 +4,6 @@ import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.converter.LootDeserializer;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 
 import java.lang.reflect.AnnotatedType;
@@ -16,7 +15,7 @@ import java.lang.reflect.AnnotatedType;
  * @param <L> the loot item type
  * @param <V> the type of object that will be serialized and deserialized
  */
-public abstract class KeyedLootConverter<L, V> implements LootDeserializer<L, V> {
+public abstract class KeyedLootConverter<L, V> implements LootDeserializer<L, V>, AdditiveLootSerializer<L, V> {
 
     private final @NotNull String key;
     private final @NotNull TypeToken<V> convertedType;
@@ -46,14 +45,4 @@ public abstract class KeyedLootConverter<L, V> implements LootDeserializer<L, V>
     public @NotNull TypeToken<V> convertedType() {
         return convertedType;
     }
-
-    /**
-     * Serializes an input object into a resulting node.<br>
-     * Note: it is valid, but not recommended, for the resulting node to be set to a non-map (including null) value.
-     * @param input the input object to serialize onto the node
-     * @param result the configuration node to serialize values onto. Importantly, this node might already have values.
-     * @param context the context object, to use if required
-     * @throws ConfigurateException if the input could not be serialized on to the provided object for some reason
-     */
-    public abstract void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<L> context) throws ConfigurateException;
 }
