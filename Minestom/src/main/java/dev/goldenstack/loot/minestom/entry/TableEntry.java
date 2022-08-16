@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.minestom.entry;
 
-import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.generation.LootTable;
@@ -11,8 +10,6 @@ import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.List;
 
@@ -32,27 +29,20 @@ public record TableEntry(@NotNull String tableIdentifier,
     /**
      * A standard map-based converter for table entries.
      */
-    public static final @NotNull KeyedLootConverter<ItemStack, TableEntry> CONVERTER = new KeyedLootConverter<>("minecraft:loot_table", TypeToken.get(TableEntry.class)) {
-        @Override
-        public void serialize(@NotNull TableEntry input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            result.node("name").set(input.tableIdentifier);
-            result.node("weight").set(input.weight);
-            result.node("quality").set(input.quality);
-            result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
-            result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
-        }
-
-        @Override
-        public @NotNull TableEntry deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-                return new TableEntry(
+    public static final @NotNull KeyedLootConverter<ItemStack, TableEntry> CONVERTER = Utils.createKeyedConverter("minecraft:loot_table", new TypeToken<>(){},
+            (input, result, context) -> {
+                result.node("name").set(input.tableIdentifier);
+                result.node("weight").set(input.weight);
+                result.node("quality").set(input.quality);
+                result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
+                result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
+            }, (input, context) -> new TableEntry(
                     Utils.require(input.node("name"), String.class),
                     input.node("weight").getLong(1),
                     input.node("quality").getLong(0),
                     Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
                     Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
-            );
-        }
-    };
+            ));
 
     public TableEntry {
         modifiers = List.copyOf(modifiers);

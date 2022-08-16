@@ -47,17 +47,12 @@ public record ConstantNumber(double value) implements LootNumber<ItemStack> {
     /**
      * A standard map-based converter for constant numbers.
      */
-    public static final @NotNull KeyedLootConverter<ItemStack, ConstantNumber> CONVERTER = new KeyedLootConverter<>("minecraft:constant", TypeToken.get(ConstantNumber.class)) {
-        @Override
-        public void serialize(@NotNull ConstantNumber input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            result.node("value").set(input.value());
-        }
-
-        @Override
-        public @NotNull ConstantNumber deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            return new ConstantNumber(Utils.require(input.node("value"), Number.class).doubleValue());
-        }
-    };
+    public static final @NotNull KeyedLootConverter<ItemStack, ConstantNumber> CONVERTER = Utils.createKeyedConverter("minecraft:constant", new TypeToken<>(){},
+            (input, result, context) ->
+                    result.node("value").set(input.value()),
+            (input, context) -> new ConstantNumber(
+                    Utils.require(input.node("value"), Number.class).doubleValue()
+            ));
 
     @Override
     public long getLong(@NotNull LootGenerationContext context) {

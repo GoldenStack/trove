@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.minestom.entry;
 
-import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -14,7 +13,6 @@ import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,35 +36,30 @@ public record TagEntry(@NotNull Tag tag, boolean expand,
     /**
      * A standard map-based converter for tag entries.
      */
-    public static final @NotNull KeyedLootConverter<ItemStack, TagEntry> CONVERTER = new KeyedLootConverter<>("minecraft:tag", TypeToken.get(TagEntry.class)) {
-        @Override
-        public void serialize(@NotNull TagEntry input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            result.node("name").set(input.tag().getName().asString());
-            result.node("expand").set(input.expand);
-            result.node("weight").set(input.weight);
-            result.node("quality").set(input.quality);
-            result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
-            result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
-        }
-
-        @Override
-        public @NotNull TagEntry deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            var nameNode = input.node("name");
-            String name = Utils.require(nameNode, String.class);
-            Tag tag = MinecraftServer.getTagManager().getTag(Tag.BasicType.ITEMS, name);
-            if (tag == null) {
-                throw new ConfigurateException(nameNode, "Expected the provided node to have a valid item tag, but found '" + name + "' instead.");
-            }
-            return new TagEntry(
-                    tag,
-                    input.node("expand").getBoolean(),
-                    input.node("weight").getLong(1),
-                    input.node("quality").getLong(0),
-                    Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
-                    Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
-            );
-        }
-    };
+    public static final @NotNull KeyedLootConverter<ItemStack, TagEntry> CONVERTER = Utils.createKeyedConverter("minecraft:tag", new TypeToken<>(){},
+            (input, result, context) -> {
+                result.node("name").set(input.tag().getName().asString());
+                result.node("expand").set(input.expand);
+                result.node("weight").set(input.weight);
+                result.node("quality").set(input.quality);
+                result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
+                result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
+            }, (input, context) -> {
+                var nameNode = input.node("name");
+                String name = Utils.require(nameNode, String.class);
+                Tag tag = MinecraftServer.getTagManager().getTag(Tag.BasicType.ITEMS, name);
+                if (tag == null) {
+                    throw new ConfigurateException(nameNode, "Expected the provided node to have a valid item tag, but found '" + name + "' instead.");
+                }
+                return new TagEntry(
+                        tag,
+                        input.node("expand").getBoolean(),
+                        input.node("weight").getLong(1),
+                        input.node("quality").getLong(0),
+                        Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
+                        Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
+                );
+            });
 
     public TagEntry {
         modifiers = List.copyOf(modifiers);

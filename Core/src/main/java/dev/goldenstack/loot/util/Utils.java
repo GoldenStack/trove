@@ -2,9 +2,14 @@ package dev.goldenstack.loot.util;
 
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.LootDeserializer;
 import dev.goldenstack.loot.converter.LootSerializer;
+import dev.goldenstack.loot.converter.meta.AdditiveLootSerializer;
+import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootEntry;
+import io.leangen.geantyref.TypeToken;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -135,5 +140,56 @@ public class Utils {
             throw new ConfigurateException(node, "Expected a value of type '" + type + "'");
         }
         return result;
+    }
+
+    /**
+     * Creates a new keyed loot converter out of the provided information. This just exists to reduce boilerplate code.
+     * @param id the string identifier of the created converter
+     * @param type the type token representing the converted type
+     * @param serializer the converter's serializer
+     * @param deserializer the converter's deserializer
+     * @return a new keyed loot converter based on the provided information
+     * @param <L> the loot item type
+     * @param <V> the converted type
+     */
+    @Contract(value = "_, _, _, _ -> new", pure = true)
+    public static <L, V> @NotNull KeyedLootConverter<L, V> createKeyedConverter(@NotNull String id, @NotNull TypeToken<V> type,
+                                                                                @NotNull AdditiveLootSerializer<L, V> serializer,
+                                                                                @NotNull LootDeserializer<L, V> deserializer) {
+        return new KeyedLootConverter<>(id, type) {
+            @Override
+            public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<L> context) throws ConfigurateException {
+                serializer.serialize(input, result, context);
+            }
+
+            @Override
+            public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<L> context) throws ConfigurateException {
+                return deserializer.deserialize(input, context);
+            }
+        };
+    }
+
+    /**
+     * Creates a new loot converter out of the provided serializer and deserializer. This just exists to reduce
+     * boilerplate code.
+     * @param serializer the converter's serializer
+     * @param deserializer the converter's deserializer
+     * @return a new loot converter based on the provided serializer and deserializer
+     * @param <L> the loot item type
+     * @param <V> the converted type
+     */
+    public static <L, V> @NotNull LootConverter<L, V> createConverter(@NotNull LootSerializer<L, V> serializer,
+                                                                      @NotNull LootDeserializer<L, V> deserializer) {
+        return new LootConverter<>() {
+            @Override
+            public @NotNull ConfigurationNode serialize(@NotNull V input, @NotNull LootConversionContext<L> context) throws ConfigurateException {
+                return serializer.serialize(input, context);
+            }
+
+            @Override
+            public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<L> context) throws ConfigurateException {
+                return deserializer.deserialize(input, context);
+            }
+        };
     }
 }

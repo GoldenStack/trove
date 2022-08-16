@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.minestom.entry;
 
-import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -9,8 +8,6 @@ import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.List;
 
@@ -28,25 +25,18 @@ public record EmptyEntry(long weight, long quality,
     /**
      * A standard map-based converter for empty entries.
      */
-    public static final @NotNull KeyedLootConverter<ItemStack, EmptyEntry> CONVERTER = new KeyedLootConverter<>("minecraft:empty", TypeToken.get(EmptyEntry.class)) {
-        @Override
-        public void serialize(@NotNull EmptyEntry input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            result.node("weight").set(input.weight);
-            result.node("quality").set(input.quality);
-            result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
-            result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
-        }
-
-        @Override
-        public @NotNull EmptyEntry deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            return new EmptyEntry(
+    public static final @NotNull KeyedLootConverter<ItemStack, EmptyEntry> CONVERTER = Utils.createKeyedConverter("minecraft:empty", new TypeToken<>(){},
+            (input, result, context) -> {
+                result.node("weight").set(input.weight);
+                result.node("quality").set(input.quality);
+                result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
+                result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
+            }, (input, context) -> new EmptyEntry(
                     input.node("weight").getLong(1),
                     input.node("quality").getLong(0),
                     Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
                     Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
-            );
-        }
-    };
+            ));
 
     public EmptyEntry {
         modifiers = List.copyOf(modifiers);

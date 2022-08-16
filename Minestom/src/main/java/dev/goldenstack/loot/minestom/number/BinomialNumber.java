@@ -1,14 +1,12 @@
 package dev.goldenstack.loot.minestom.number;
 
-import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootNumber;
+import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
 
 /**
  * Generates numbers that follow binomial distribution.
@@ -20,21 +18,14 @@ public record BinomialNumber(@NotNull LootNumber<ItemStack> n, @NotNull LootNumb
     /**
      * A standard map-based converter for binomial numbers.
      */
-    public static final @NotNull KeyedLootConverter<ItemStack, BinomialNumber> CONVERTER = new KeyedLootConverter<>("minecraft:binomial", TypeToken.get(BinomialNumber.class)) {
-        @Override
-        public void serialize(@NotNull BinomialNumber input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            result.node("n").set(context.loader().lootNumberManager().serialize(input.n(), context));
-            result.node("p").set(context.loader().lootNumberManager().serialize(input.n(), context));
-        }
-
-        @Override
-        public @NotNull BinomialNumber deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            return new BinomialNumber(
+    public static final @NotNull KeyedLootConverter<ItemStack, BinomialNumber> CONVERTER = Utils.createKeyedConverter("minecraft:binomial", new TypeToken<>(){},
+            (input, result, context) -> {
+                result.node("n").set(context.loader().lootNumberManager().serialize(input.n(), context));
+                result.node("p").set(context.loader().lootNumberManager().serialize(input.n(), context));
+            }, (input, context) -> new BinomialNumber(
                     context.loader().lootNumberManager().deserialize(input.node("n"), context),
                     context.loader().lootNumberManager().deserialize(input.node("p"), context)
-            );
-        }
-    };
+            ));
 
     @Override
     public long getLong(@NotNull LootGenerationContext context) {

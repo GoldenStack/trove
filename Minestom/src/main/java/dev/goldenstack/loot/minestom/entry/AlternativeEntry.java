@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.minestom.entry;
 
-import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -9,8 +8,6 @@ import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.List;
 
@@ -24,21 +21,14 @@ public record AlternativeEntry(@NotNull List<LootEntry<ItemStack>> children, @No
     /**
      * A standard map-based converter for alternative entries.
      */
-    public static final @NotNull KeyedLootConverter<ItemStack, AlternativeEntry> CONVERTER = new KeyedLootConverter<>("minecraft:alternatives", TypeToken.get(AlternativeEntry.class)) {
-        @Override
-        public void serialize(@NotNull AlternativeEntry input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            result.node("children").set(Utils.serializeList(input.children(), context.loader().lootEntryManager()::serialize, context));
-            result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
-        }
-
-        @Override
-        public @NotNull AlternativeEntry deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            return new AlternativeEntry(
+    public static final @NotNull KeyedLootConverter<ItemStack, AlternativeEntry> CONVERTER = Utils.createKeyedConverter("minecraft:alternatives", new TypeToken<>(){},
+            (input, result, context) -> {
+                result.node("children").set(Utils.serializeList(input.children(), context.loader().lootEntryManager()::serialize, context));
+                result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
+            }, (input, context) -> new AlternativeEntry(
                     Utils.deserializeList(input.node("children"), context.loader().lootEntryManager()::deserialize, context),
                     Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
-            );
-        }
-    };
+            ));
 
     public AlternativeEntry {
         children = List.copyOf(children);
