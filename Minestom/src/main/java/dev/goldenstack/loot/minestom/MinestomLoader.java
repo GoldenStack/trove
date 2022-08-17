@@ -2,6 +2,7 @@ package dev.goldenstack.loot.minestom;
 
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
+import dev.goldenstack.loot.minestom.condition.AlternativeCondition;
 import dev.goldenstack.loot.minestom.entry.*;
 import dev.goldenstack.loot.minestom.generation.StandardLootPool;
 import dev.goldenstack.loot.minestom.generation.StandardLootTable;
@@ -80,7 +81,7 @@ public class MinestomLoader {
         builder.keyLocation("condition");
 
         // Registered converters
-        // (none currently)
+        builder.addConverter(AlternativeCondition.CONVERTER);
     };
 
     /**
