@@ -2,10 +2,7 @@ package dev.goldenstack.loot.minestom;
 
 import dev.goldenstack.loot.ImmuTables;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
-import dev.goldenstack.loot.minestom.condition.AlternativeCondition;
-import dev.goldenstack.loot.minestom.condition.BlockStateCondition;
-import dev.goldenstack.loot.minestom.condition.InvertedCondition;
-import dev.goldenstack.loot.minestom.condition.KilledByPlayerCondition;
+import dev.goldenstack.loot.minestom.condition.*;
 import dev.goldenstack.loot.minestom.entry.*;
 import dev.goldenstack.loot.minestom.generation.StandardLootPool;
 import dev.goldenstack.loot.minestom.generation.StandardLootTable;
@@ -88,6 +85,7 @@ public class MinestomLoader {
         builder.addConverter(BlockStateCondition.CONVERTER);
         builder.addConverter(InvertedCondition.CONVERTER);
         builder.addConverter(KilledByPlayerCondition.CONVERTER);
+        builder.addConverter(RandomChanceCondition.CONVERTER);
     };
 
     /**
