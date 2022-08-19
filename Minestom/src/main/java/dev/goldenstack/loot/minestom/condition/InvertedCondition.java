@@ -9,7 +9,7 @@ import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Inverts the result of the child condition
+ * A condition that inverts the result of the child condition.
  * @param condition the condition to invert
  */
 public record InvertedCondition(@NotNull LootCondition<ItemStack> condition) implements LootCondition<ItemStack> {
