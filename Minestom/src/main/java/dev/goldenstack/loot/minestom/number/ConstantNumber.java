@@ -40,7 +40,7 @@ public record ConstantNumber(double value) implements LootNumber<ItemStack> {
 
         @Override
         public @NotNull LootNumber<ItemStack> deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            return new ConstantNumber(Utils.require(input, Number.class).doubleValue());
+            return new ConstantNumber(input.require(Double.class));
         }
     };
 
@@ -51,7 +51,7 @@ public record ConstantNumber(double value) implements LootNumber<ItemStack> {
             (input, result, context) ->
                     result.node("value").set(input.value()),
             (input, context) -> new ConstantNumber(
-                    Utils.require(input.node("value"), Number.class).doubleValue()
+                    input.node("value").require(Double.class)
             ));
 
     @Override

@@ -38,7 +38,7 @@ public record ItemEntry(@NotNull Material material,
                 result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
             }, (input, context) -> {
                 var nameNode = input.node("name");
-                String name = Utils.require(nameNode, String.class);
+                String name = nameNode.require(String.class);
                 Material material = Material.fromNamespaceId(name);
                 if (material == null) {
                     throw new ConfigurateException(nameNode, "Expected the provided node to have a valid material, but found '" + name + "' instead.");

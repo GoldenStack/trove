@@ -7,7 +7,6 @@ import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.serialize.Scalars;
 
 /**
  * A condition that returns true based on {@link #chance()}. A chance of 0 has a 0% chance to return true, and a
@@ -23,7 +22,7 @@ public record RandomChanceCondition(double chance) implements LootCondition<Item
             (input, result, context) ->
                     result.node("chance").set(input.chance()),
             (input, context) -> new RandomChanceCondition(
-                    Scalars.DOUBLE.deserialize(Number.class, input.node("chance"))
+                    input.node("chance").require(Double.class)
             ));
 
     @Override

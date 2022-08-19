@@ -45,7 +45,7 @@ public record StandardLootTable(@NotNull LootContextKeyGroup contextKeyGroup,
         @Override
         public @NotNull LootTable<ItemStack> deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
             return new StandardLootTable(
-                    context.assure(LootConversionKeys.CONTEXT_KEYS).get(Utils.require(input.node("type"), String.class)),
+                    context.assure(LootConversionKeys.CONTEXT_KEYS).get(input.node("type").require(String.class)),
                     Utils.deserializeList(input.node("pools"), context.loader().lootPoolConverter(),  context),
                     Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context)
             );

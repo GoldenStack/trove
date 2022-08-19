@@ -46,7 +46,7 @@ public record TagEntry(@NotNull Tag tag, boolean expand,
                 result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
             }, (input, context) -> {
                 var nameNode = input.node("name");
-                String name = Utils.require(nameNode, String.class);
+                String name = nameNode.require(String.class);
                 Tag tag = MinecraftServer.getTagManager().getTag(Tag.BasicType.ITEMS, name);
                 if (tag == null) {
                     throw new ConfigurateException(nameNode, "Expected the provided node to have a valid item tag, but found '" + name + "' instead.");

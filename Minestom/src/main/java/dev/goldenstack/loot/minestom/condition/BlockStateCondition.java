@@ -26,7 +26,7 @@ public record BlockStateCondition(@NotNull NamespaceID blockKey, @NotNull BlockS
                 result.node("block").set(input.blockKey.asString());
                 BlockStateCheck.serialize(input.check, result.node("properties"));
             }, (input, context) -> new BlockStateCondition(
-                    NamespaceID.from(Utils.require(input.node("block"), String.class)),
+                    NamespaceID.from(input.node("block").require(String.class)),
                     BlockStateCheck.deserialize(input.node("properties"))
             ));
 

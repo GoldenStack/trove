@@ -125,24 +125,6 @@ public class Utils {
     }
 
     /**
-     * Assures that the value of the provided node is an instance of {@link T}. This is different from
-     * {@link ConfigurationNode#require(Class)} because it throws an exception with the provided node as context,
-     * therefore having more accurate error messages.
-     * @param node the node to get the value of
-     * @param type the type to assure
-     * @return the guaranteed instance of {@code T}
-     * @param <T> the type to get
-     * @throws ConfigurateException if the node's value was not an instance of {@link T}
-     */
-    public static <T> @NotNull T require(@NotNull ConfigurationNode node, @NotNull Class<T> type) throws ConfigurateException {
-        T result = node.get(type);
-        if (result == null) {
-            throw new ConfigurateException(node, "Expected a value of type '" + type + "'");
-        }
-        return result;
-    }
-
-    /**
      * Creates a new keyed loot converter out of the provided information. This just exists to reduce boilerplate code.
      * @param id the string identifier of the created converter
      * @param type the type token representing the converted type
