@@ -33,6 +33,6 @@ public record BlockStateCondition(@NotNull NamespaceID blockKey, @NotNull BlockS
     @Override
     public boolean verify(@NotNull LootGenerationContext context) {
         var block = context.assure(LootContextKeys.BLOCK_STATE);
-        return block.namespace().equals(blockKey) && check.test(block);
+        return block.namespace().equals(blockKey) && check.verify(block);
     }
 }

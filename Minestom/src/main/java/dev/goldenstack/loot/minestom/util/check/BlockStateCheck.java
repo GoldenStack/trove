@@ -139,7 +139,7 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
      * @param block the block to check
      * @return true if the provided block was verified, and false if not
      */
-    public boolean test(@NotNull Block block) {
+    public boolean verify(@NotNull Block block) {
         if (checks.isEmpty()) {
             return true;
         }
