@@ -38,8 +38,8 @@ public record TableEntry(@NotNull String tableIdentifier,
                 result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
             }, (input, context) -> new TableEntry(
                     input.node("name").require(String.class),
-                    input.node("weight").getLong(1),
-                    input.node("quality").getLong(0),
+                    input.node("weight").require(Long.class),
+                    input.node("quality").require(Long.class),
                     Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
                     Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
             ));

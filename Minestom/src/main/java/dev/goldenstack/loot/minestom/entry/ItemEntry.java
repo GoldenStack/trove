@@ -45,8 +45,8 @@ public record ItemEntry(@NotNull Material material,
                 }
                 return new ItemEntry(
                         material,
-                        input.node("weight").getLong(1),
-                        input.node("quality").getLong(0),
+                        input.node("weight").require(Long.class),
+                        input.node("quality").require(Long.class),
                         Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
                         Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
                 );

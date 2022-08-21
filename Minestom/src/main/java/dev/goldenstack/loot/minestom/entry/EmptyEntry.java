@@ -32,8 +32,8 @@ public record EmptyEntry(long weight, long quality,
                 result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
                 result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
             }, (input, context) -> new EmptyEntry(
-                    input.node("weight").getLong(1),
-                    input.node("quality").getLong(0),
+                    input.node("weight").require(Long.class),
+                    input.node("quality").require(Long.class),
                     Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
                     Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
             ));
