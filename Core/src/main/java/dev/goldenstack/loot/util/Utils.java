@@ -21,7 +21,7 @@ public class Utils {
     private Utils() {}
 
     /**
-     * Serialzies the provided items into a list of {@link I}.
+     * Serializes the provided items into a list of {@link I}.
      * @param items the list of items to serialize
      * @param serializer the serializer that will be fed items
      * @param context the context, to feed into the serializer
