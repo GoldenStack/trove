@@ -51,7 +51,7 @@ public record TableEntry(@NotNull String tableIdentifier,
 
     @Override
     public @NotNull List<ItemStack> generate(@NotNull LootGenerationContext context) {
-        if (!LootCondition.all(conditions(), context)) {
+        if (!LootCondition.all(conditions(), context) || !context.has(LootContextKeys.REGISTERED_TABLES)) {
             return List.of();
         }
         LootTable<ItemStack> table = context.assure(LootContextKeys.REGISTERED_TABLES).get(tableIdentifier);
