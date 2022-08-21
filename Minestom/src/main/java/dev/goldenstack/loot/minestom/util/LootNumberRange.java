@@ -26,6 +26,9 @@ public record LootNumberRange(@Nullable LootNumber<ItemStack> min, @Nullable Loo
     public static final @NotNull LootConverter<ItemStack, LootNumberRange> CONVERTER = new LootConverter<>() {
         @Override
         public @NotNull LootNumberRange deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
+            if (input.isNull()) {
+                return new LootNumberRange(null, null);
+            }
             var number = input.get(Double.class);
             if (number != null) {
                 var constant = new ConstantNumber(number);
