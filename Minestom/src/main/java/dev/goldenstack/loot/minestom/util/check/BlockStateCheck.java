@@ -1,75 +1,70 @@
 package dev.goldenstack.loot.minestom.util.check;
 
+import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.util.Utils;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.Scalars;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A check that verifies the state of a block.
+ * A check that verifies the state of a block. See {@link #verify(Block)} for details.
  * @param checks the checks that must all pass
  */
 public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
 
     /**
-     * Attempts to deserialize the provided configuration node into a BlockStateCheck.
-     * @param node the node to deserialize
-     * @return the deserialized block state check
-     * @throws ConfigurateException if the node could not be deserialized into a valid block state check
+     * A standard map-based serializer for block state checks.
      */
-    public static @NotNull BlockStateCheck deserialize(@NotNull ConfigurationNode node) throws ConfigurateException {
-        if (node.empty()) {
-            return new BlockStateCheck(List.of());
-        }
-        if (!node.isMap()) {
-            throw new ConfigurateException(node, "Expected the node to be a map, but found another type");
-        }
-        List<SingularCheck> checks = new ArrayList<>();
-        for (var entry : node.childrenMap().entrySet()) {
-            if (entry.getValue().isMap()) {
-                checks.add(new RangedLongState(
-                        String.valueOf(entry.getKey()),
-                        Scalars.LONG.tryDeserialize(entry.getValue().node("min").rawScalar()),
-                        Scalars.LONG.tryDeserialize(entry.getValue().node("max").rawScalar())
-                ));
-            } else {
-                var scalar = entry.getValue().rawScalar();
-                if (scalar == null) {
-                    throw new ConfigurateException(entry.getValue(), "Expected the node to be a scalar or a map, but found another type");
+    public static final @NotNull LootConverter<ItemStack, BlockStateCheck> CONVERTER = Utils.createConverter(
+            (input, context) -> {
+                var node = context.loader().createNode();
+                if (input.checks.isEmpty()) {
+                    return node;
                 }
-                checks.add(new IdenticalState(String.valueOf(entry.getKey()), String.valueOf(scalar)));
+                for (var singular : input.checks) {
+                    var child = node.node(singular.key());
+                    if (singular instanceof IdenticalState identicalState) {
+                        child.set(identicalState.value);
+                    } else if (singular instanceof RangedLongState rangedLongState) {
+                        child.node("min").set(rangedLongState.min);
+                        child.node("max").set(rangedLongState.max);
+                    } else {
+                        throw new ConfigurateException("Expected check '" + singular + "' to be an identical check or a ranged check, but found neither!");
+                    }
+                }
+                return node;
+            }, (input, context) -> {
+                if (input.empty()) {
+                    return new BlockStateCheck(List.of());
+                }
+                if (!input.isMap()) {
+                    throw new ConfigurateException(input, "Expected the input to be a map, but found another type");
+                }
+                List<SingularCheck> checks = new ArrayList<>();
+                for (var entry : input.childrenMap().entrySet()) {
+                    if (entry.getValue().isMap()) {
+                        checks.add(new RangedLongState(
+                                String.valueOf(entry.getKey()),
+                                Scalars.LONG.tryDeserialize(entry.getValue().node("min").rawScalar()),
+                                Scalars.LONG.tryDeserialize(entry.getValue().node("max").rawScalar())
+                        ));
+                    } else {
+                        var scalar = entry.getValue().rawScalar();
+                        if (scalar == null) {
+                            throw new ConfigurateException(entry.getValue(), "Expected the node to be a scalar or a map, but found another type");
+                        }
+                        checks.add(new IdenticalState(String.valueOf(entry.getKey()), String.valueOf(scalar)));
+                    }
+                }
+                return new BlockStateCheck(checks);
             }
-        }
-        return new BlockStateCheck(checks);
-    }
-
-    /**
-     * Attempts to serialize the provided block state check onto the provided configuration node.
-     * @param check the check to serialize
-     * @param node the node to serialize properties onto
-     * @throws ConfigurateException if the check could not be serialized onto the provided node for some reason
-     */
-    public static void serialize(@NotNull BlockStateCheck check, @NotNull ConfigurationNode node) throws ConfigurateException {
-        if (check.checks.isEmpty()) {
-            return;
-        }
-        for (var singular : check.checks) {
-            var child = node.node(singular.key());
-            if (singular instanceof IdenticalState identicalState) {
-                child.set(identicalState.value);
-            } else if (singular instanceof RangedLongState rangedLongState) {
-                child.node("min").set(rangedLongState.min);
-                child.node("max").set(rangedLongState.max);
-            } else {
-                throw new ConfigurateException("Expected check '" + singular + "' to be an identical check or a ranged check, but found neither!");
-            }
-        }
-    }
+    );
 
     /**
      * The base check, which has a key and a simple `check` method.

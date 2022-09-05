@@ -24,10 +24,10 @@ public record BlockStateCondition(@NotNull NamespaceID blockKey, @NotNull BlockS
     public static final @NotNull KeyedLootConverter<ItemStack, BlockStateCondition> CONVERTER = Utils.createKeyedConverter("minecraft:block_state_property", new TypeToken<>(){},
             (input, result, context) -> {
                 result.node("block").set(input.blockKey.asString());
-                BlockStateCheck.serialize(input.check, result.node("properties"));
+                result.node("properties").set(BlockStateCheck.CONVERTER.serialize(input.check, context));
             }, (input, context) -> new BlockStateCondition(
                     NamespaceID.from(input.node("block").require(String.class)),
-                    BlockStateCheck.deserialize(input.node("properties"))
+                    BlockStateCheck.CONVERTER.deserialize(input.node("properties"), context)
             ));
 
     @Override
