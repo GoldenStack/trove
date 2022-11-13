@@ -12,8 +12,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Checks that the world's weather fits the required conditions.
- * @param raining the required value of the world's rain status, or null if not required
- * @param thundering the required value of the world's thunder status, or null if not required
+ * @param raining the (optional) required value of the world's rain status, or null if not required
+ * @param thundering the (optional) required value of the world's thunder status, or null if not required
  */
 public record WeatherCheckCondition(@Nullable Boolean raining, @Nullable Boolean thundering) implements LootCondition<ItemStack> {
 
