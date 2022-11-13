@@ -2,6 +2,7 @@ package dev.goldenstack.loot.minestom.context;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.generation.LootTable;
+import dev.goldenstack.loot.minestom.VanillaInterface;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
@@ -88,6 +89,12 @@ public class LootContextKeys {
      * with a tool, this key would hold the tool.
      */
     public static final @NotNull LootContext.Key<ItemStack> TOOL = key("minecraft:tool", new TypeToken<>(){});
+
+    /**
+     * Represents an instance of {@link VanillaInterface}, which is meant to provide, well, an interface to vanilla
+     * features without forcing any specific implementation.
+     */
+    public static final @NotNull LootContext.Key<VanillaInterface> VANILLA_INTERFACE = key("minecraft:vanilla_interface", new TypeToken<>(){});
 
     /**
      * Represents a map of all registered loot tables.

@@ -87,6 +87,7 @@ public class MinestomLoader {
         builder.addConverter(KilledByPlayerCondition.CONVERTER);
         builder.addConverter(RandomChanceCondition.CONVERTER);
         builder.addConverter(SurvivesExplosionCondition.CONVERTER);
+        builder.addConverter(WeatherCheckCondition.CONVERTER);
     };
 
     /**
