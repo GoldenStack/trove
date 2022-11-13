@@ -1,5 +1,6 @@
 package dev.goldenstack.loot.minestom;
 
+import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,5 +25,13 @@ public interface VanillaInterface {
      */
     default boolean isThundering(@NotNull Instance instance) {
         throw new UnsupportedOperationException("VanillaInterface#isThundering has not been implemented!");
+    }
+
+    /**
+     * @param entity the entity to check
+     * @return the level of looting of the provided entity
+     */
+    default int getLooting(@NotNull Entity entity) {
+        throw new UnsupportedOperationException("VanillaInterface#getLooting has not been implemented!");
     }
 }

@@ -85,6 +85,7 @@ public class MinestomLoader {
         builder.addConverter(BlockStateCondition.CONVERTER);
         builder.addConverter(InvertedCondition.CONVERTER);
         builder.addConverter(KilledByPlayerCondition.CONVERTER);
+        builder.addConverter(LootingRandomChanceCondition.CONVERTER);
         builder.addConverter(RandomChanceCondition.CONVERTER);
         builder.addConverter(SurvivesExplosionCondition.CONVERTER);
         builder.addConverter(WeatherCheckCondition.CONVERTER);
