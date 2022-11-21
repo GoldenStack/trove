@@ -3,6 +3,7 @@ package dev.goldenstack.loot.minestom.context;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.generation.LootTable;
 import dev.goldenstack.loot.minestom.VanillaInterface;
+import dev.goldenstack.loot.structure.LootCondition;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
@@ -11,6 +12,7 @@ import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -100,6 +102,11 @@ public class LootContextKeys {
      * Represents a map of all registered loot tables.
      */
     public static final @NotNull LootContext.Key<Map<String, LootTable<ItemStack>>> REGISTERED_TABLES = key("minecraft:registered_loot_tables", new TypeToken<>(){});
+
+    /**
+     * Represents a map of all registered loot conditions.
+     */
+    public static final @NotNull LootContext.Key<Map<NamespaceID, LootCondition<ItemStack>>> REGISTERED_CONDITIONS = key("minecraft:registered_loot_conditions", new TypeToken<>(){});
 
     @Contract("_, _ -> new")
     private static <T> LootContext.@NotNull Key<T> key(@NotNull String key, @NotNull TypeToken<T> typeToken) {
