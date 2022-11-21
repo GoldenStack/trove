@@ -9,19 +9,20 @@ import dev.goldenstack.loot.structure.LootModifier;
 import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 /**
- * An entry that is linked to a loot table using {@link LootContextKeys#REGISTERED_TABLES} and {@link #tableIdentifier()}.
+ * An entry that is dynamically linked to a loot table using {@link LootContextKeys#REGISTERED_TABLES} and {@link #tableIdentifier()}.
  * @param tableIdentifier the identifier to look for tables with
  * @param weight the base weight of this entry - see {@link StandardWeightedOption#weight()}
  * @param quality the quality of this entry - see {@link StandardWeightedOption#quality()}
  * @param modifiers the modifiers that are applied to every item provided by this entry
  * @param conditions the conditions that all must be met for any results to be generated
  */
-public record TableEntry(@NotNull String tableIdentifier,
+public record TableEntry(@NotNull NamespaceID tableIdentifier,
                         long weight, long quality,
                         @NotNull List<LootModifier<ItemStack>> modifiers,
                         @NotNull List<LootCondition<ItemStack>> conditions) implements SingleOptionEntry<ItemStack>, StandardWeightedOption<ItemStack> {
@@ -31,13 +32,13 @@ public record TableEntry(@NotNull String tableIdentifier,
      */
     public static final @NotNull KeyedLootConverter<ItemStack, TableEntry> CONVERTER = Utils.createKeyedConverter("minecraft:loot_table", new TypeToken<>(){},
             (input, result, context) -> {
-                result.node("name").set(input.tableIdentifier);
+                result.node("name").set(input.tableIdentifier.asString());
                 result.node("weight").set(input.weight);
                 result.node("quality").set(input.quality);
                 result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
                 result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
             }, (input, context) -> new TableEntry(
-                    input.node("name").require(String.class),
+                    NamespaceID.from(input.node("name").require(String.class)),
                     input.node("weight").require(Long.class),
                     input.node("quality").require(Long.class),
                     Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),

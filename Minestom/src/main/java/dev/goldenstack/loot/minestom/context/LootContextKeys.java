@@ -101,7 +101,7 @@ public class LootContextKeys {
     /**
      * Represents a map of all registered loot tables.
      */
-    public static final @NotNull LootContext.Key<Map<String, LootTable<ItemStack>>> REGISTERED_TABLES = key("minecraft:registered_loot_tables", new TypeToken<>(){});
+    public static final @NotNull LootContext.Key<Map<NamespaceID, LootTable<ItemStack>>> REGISTERED_TABLES = key("minecraft:registered_loot_tables", new TypeToken<>(){});
 
     /**
      * Represents a map of all registered loot conditions.
