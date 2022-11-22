@@ -7,22 +7,22 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 /**
- * An option that uses the standard method of generating weight - adding the {@link #weight()} to the {@link #quality()}
+ * A choice that uses the standard method of generating weight - adding the {@link #weight()} to the {@link #quality()}
  * where the quality is multiplied by the provided context's luck ({@link LootContextKeys#LUCK}).
  * @param <L> the loot item type
  */
-public interface StandardWeightedOption<L> extends LootEntry.Option<L> {
+public interface StandardWeightedChoice<L> extends LootEntry.Choice<L> {
 
     /**
-     * The weight of this option. When calculating the final weight, this value is simply added to the result.
-     * @return the base weight of this option
+     * The weight of this choice. When calculating the final weight, this value is simply added to the result.
+     * @return the base weight of this choice
      */
     @Range(from = 1L, to = Long.MAX_VALUE) long weight();
 
     /**
-     * The quality of the option. When calculating the final weight, this number is multiplied by the context's luck
+     * The quality of the choice. When calculating the final weight, this number is multiplied by the context's luck
      * value, which is stored at the key {@link LootContextKeys#LUCK}.
-     * @return the quality of the option
+     * @return the quality of the choice
      */
     @Range(from = 0L, to = Long.MAX_VALUE) long quality();
 

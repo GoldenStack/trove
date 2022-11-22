@@ -37,13 +37,13 @@ public record SequenceEntry(@NotNull List<LootEntry<ItemStack>> children, @NotNu
     }
 
     @Override
-    public @NotNull List<Option<ItemStack>> requestOptions(@NotNull LootGenerationContext context) {
+    public @NotNull List<Choice<ItemStack>> requestChoices(@NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return List.of();
         }
-        List<Option<ItemStack>> options = new ArrayList<>();
+        List<Choice<ItemStack>> options = new ArrayList<>();
         for (var entry : this.children()) {
-            var choices = entry.requestOptions(context);
+            var choices = entry.requestChoices(context);
             if (choices.isEmpty()) {
                 break;
             }

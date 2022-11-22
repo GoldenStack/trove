@@ -36,12 +36,12 @@ public record AlternativeEntry(@NotNull List<LootEntry<ItemStack>> children, @No
     }
 
     @Override
-    public @NotNull List<Option<ItemStack>> requestOptions(@NotNull LootGenerationContext context) {
+    public @NotNull List<Choice<ItemStack>> requestChoices(@NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return List.of();
         }
         for (var entry : this.children()) {
-            var options = entry.requestOptions(context);
+            var options = entry.requestChoices(context);
             if (!options.isEmpty()) {
                 return options;
             }

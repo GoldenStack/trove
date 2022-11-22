@@ -21,17 +21,17 @@ import java.util.Objects;
 /**
  * Adds items from the tag ({@link #tag()}. Invalid identifiers will be ignored.
  * @param tag the tag to get item IDs from.
- * @param expand true if each item in the tag should be its own option, and false if they should all be in the same
- *               option.
- * @param weight the base weight of this entry - see {@link StandardWeightedOption#weight()}
- * @param quality the quality of this entry - see {@link StandardWeightedOption#quality()}
+ * @param expand true if each item in the tag should be its own choice, and false if they should all be in the same
+ *               choice.
+ * @param weight the base weight of this entry - see {@link StandardWeightedChoice#weight()}
+ * @param quality the quality of this entry - see {@link StandardWeightedChoice#quality()}
  * @param modifiers the modifiers that are applied to every item provided by this entry
  * @param conditions the conditions that all must be met for any results to be generated
  */
 public record TagEntry(@NotNull Tag tag, boolean expand,
                        long weight, long quality,
                        @NotNull List<LootModifier<ItemStack>> modifiers,
-                       @NotNull List<LootCondition<ItemStack>> conditions) implements SingleOptionEntry<ItemStack>, StandardWeightedOption<ItemStack> {
+                       @NotNull List<LootCondition<ItemStack>> conditions) implements SingleChoiceEntry<ItemStack>, StandardWeightedChoice<ItemStack> {
 
     /**
      * A standard map-based converter for tag entries.
@@ -67,14 +67,14 @@ public record TagEntry(@NotNull Tag tag, boolean expand,
     }
 
     @Override
-    public @NotNull List<Option<ItemStack>> requestOptions(@NotNull LootGenerationContext context) {
+    public @NotNull List<Choice<ItemStack>> requestChoices(@NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return List.of();
         }
         if (expand) {
-            List<Option<ItemStack>> options = new ArrayList<>();
+            List<Choice<ItemStack>> choices = new ArrayList<>();
             for (ItemStack tagItem : generate(context)) {
-                options.add(new Option<>() {
+                choices.add(new Choice<>() {
                     @Override
                     public @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootGenerationContext context) {
                         return TagEntry.this.getWeight(context);
@@ -86,7 +86,7 @@ public record TagEntry(@NotNull Tag tag, boolean expand,
                     }
                 });
             }
-            return options;
+            return choices;
         } else {
             return List.of(this);
         }

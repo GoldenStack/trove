@@ -17,15 +17,15 @@ import java.util.List;
 /**
  * An entry that is dynamically linked to a loot table using {@link LootContextKeys#REGISTERED_TABLES} and {@link #tableIdentifier()}.
  * @param tableIdentifier the identifier to look for tables with
- * @param weight the base weight of this entry - see {@link StandardWeightedOption#weight()}
- * @param quality the quality of this entry - see {@link StandardWeightedOption#quality()}
+ * @param weight the base weight of this entry - see {@link StandardWeightedChoice#weight()}
+ * @param quality the quality of this entry - see {@link StandardWeightedChoice#quality()}
  * @param modifiers the modifiers that are applied to every item provided by this entry
  * @param conditions the conditions that all must be met for any results to be generated
  */
 public record TableEntry(@NotNull NamespaceID tableIdentifier,
                         long weight, long quality,
                         @NotNull List<LootModifier<ItemStack>> modifiers,
-                        @NotNull List<LootCondition<ItemStack>> conditions) implements SingleOptionEntry<ItemStack>, StandardWeightedOption<ItemStack> {
+                        @NotNull List<LootCondition<ItemStack>> conditions) implements SingleChoiceEntry<ItemStack>, StandardWeightedChoice<ItemStack> {
 
     /**
      * A standard map-based converter for table entries.

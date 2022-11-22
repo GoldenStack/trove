@@ -37,15 +37,15 @@ public record GroupEntry(@NotNull List<LootEntry<ItemStack>> children, @NotNull 
     }
 
     @Override
-    public @NotNull List<Option<ItemStack>> requestOptions(@NotNull LootGenerationContext context) {
+    public @NotNull List<Choice<ItemStack>> requestChoices(@NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return List.of();
         }
-        List<Option<ItemStack>> options = new ArrayList<>();
+        List<Choice<ItemStack>> choices = new ArrayList<>();
         for (var entry : this.children()) {
-            options.addAll(entry.requestOptions(context));
+            choices.addAll(entry.requestChoices(context));
         }
-        return options;
+        return choices;
     }
 
 }
