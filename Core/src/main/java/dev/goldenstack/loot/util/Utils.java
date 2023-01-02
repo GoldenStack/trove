@@ -33,19 +33,15 @@ public class Utils {
     public static <L, I> @NotNull ConfigurationNode serializeList(@NotNull List<I> items,
                                                                   @NotNull LootSerializer<L, I> serializer,
                                                                   @NotNull LootConversionContext<L> context) throws ConfigurateException {
-        var node = context.loader().createNode();
-        if (items.isEmpty()) {
-            return node; // Returns a node with no value
-        }
         List<ConfigurationNode> listChildren = new ArrayList<>();
         for (var item : items) {
             listChildren.add(serializer.serialize(item, context));
         }
-        return node.setList(ConfigurationNode.class, listChildren);
+        return context.loader().createNode().setList(ConfigurationNode.class, listChildren);
     }
 
     /**
-     * Deserializes the provided node into a list of {@link O}. If the returned list is empty, it may be immutable.
+     * Deserializes the provided node into a list of {@link O}.
      * @param input the node to deserialize
      * @param deserializer the deserializer that will be fed nodes
      * @param context the context, to feed into the serializer
@@ -58,14 +54,11 @@ public class Utils {
     public static <L, O> @NotNull List<O> deserializeList(@NotNull ConfigurationNode input,
                                                           @NotNull LootDeserializer<L, O> deserializer,
                                                           @NotNull LootConversionContext<L> context) throws ConfigurateException {
-        if (input.empty()) {
-            return List.of();
-        }
-        List<O> output = new ArrayList<>();
         List<ConfigurationNode> children = input.getList(ConfigurationNode.class);
         if (children == null) {
             throw new ConfigurateException(input, "Expected the value of the node to be a list of configuration nodes");
         }
+        List<O> output = new ArrayList<>();
         for (var child : children) {
             output.add(deserializer.deserialize(child, context));
         }
