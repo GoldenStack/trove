@@ -2,17 +2,19 @@ package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
-import dev.goldenstack.loot.generation.LootTable;
+import dev.goldenstack.loot.generation.LootBatch;
+import dev.goldenstack.loot.generation.LootGenerator;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
-import dev.goldenstack.loot.util.Utils;
-import io.leangen.geantyref.TypeToken;
-import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
 
 /**
  * An entry that is dynamically linked to a loot table using {@link LootContextKeys#REGISTERED_TABLES} and {@link #tableIdentifier()}.
@@ -24,26 +26,20 @@ import java.util.List;
  */
 public record TableEntry(@NotNull NamespaceID tableIdentifier,
                         long weight, long quality,
-                        @NotNull List<LootModifier<ItemStack>> modifiers,
-                        @NotNull List<LootCondition<ItemStack>> conditions) implements SingleChoiceEntry<ItemStack>, StandardWeightedChoice<ItemStack> {
+                        @NotNull List<LootModifier> modifiers,
+                        @NotNull List<LootCondition> conditions) implements SingleChoiceEntry, StandardWeightedChoice {
 
     /**
      * A standard map-based converter for table entries.
      */
-    public static final @NotNull KeyedLootConverter<ItemStack, TableEntry> CONVERTER = Utils.createKeyedConverter("minecraft:loot_table", new TypeToken<>(){},
-            (input, result, context) -> {
-                result.node("name").set(input.tableIdentifier.asString());
-                result.node("weight").set(input.weight);
-                result.node("quality").set(input.quality);
-                result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
-                result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
-            }, (input, context) -> new TableEntry(
-                    NamespaceID.from(input.node("name").require(String.class)),
-                    input.node("weight").require(Long.class),
-                    input.node("quality").require(Long.class),
-                    Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
-                    Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
-            ));
+    public static final @NotNull KeyedLootConverter<TableEntry> CONVERTER =
+            converter(TableEntry.class,
+                    namespaceId().name("tableIdentifier").nodeName("name"),
+                    implicit(long.class).name("weight").withDefault(1L),
+                    implicit(long.class).name("quality").withDefault(0L),
+                    modifier().list().name("modifiers").nodeName("functions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(ArrayList::new)
+            ).keyed("minecraft:loot_table");
 
     public TableEntry {
         modifiers = List.copyOf(modifiers);
@@ -51,11 +47,11 @@ public record TableEntry(@NotNull NamespaceID tableIdentifier,
     }
 
     @Override
-    public @NotNull List<ItemStack> generate(@NotNull LootGenerationContext context) {
+    public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context) || !context.has(LootContextKeys.REGISTERED_TABLES)) {
-            return List.of();
+            return LootBatch.of();
         }
-        LootTable<ItemStack> table = context.assure(LootContextKeys.REGISTERED_TABLES).get(tableIdentifier);
-        return table == null ? List.of() : LootModifier.applyAll(modifiers(), table.generate(context), context);
+        LootGenerator table = context.assure(LootContextKeys.REGISTERED_TABLES).get(tableIdentifier);
+        return table == null ? LootBatch.of() : LootModifier.applyAll(modifiers(), table.generate(context), context);
     }
 }

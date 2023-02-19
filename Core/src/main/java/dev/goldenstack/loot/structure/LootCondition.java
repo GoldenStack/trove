@@ -7,9 +7,8 @@ import java.util.Collection;
 
 /**
  * Verifies a loot context, potentially determining if something else should be done.
- * @param <L> the loot item type
  */
-public interface LootCondition<L> {
+public interface LootCondition {
 
     /**
      * Attempts to validate the provided loot context, returning the result.
@@ -26,9 +25,8 @@ public interface LootCondition<L> {
      * @param conditions the collection of conditions to check
      * @param context the context, to feed to the conditions when they are being tested
      * @return true if at least one condition in the provided collection verifies the provided context
-     * @param <L> the loot item type
      */
-    static <L> boolean or(@NotNull Collection<LootCondition<L>> conditions, @NotNull LootGenerationContext context) {
+    static boolean or(@NotNull Collection<LootCondition> conditions, @NotNull LootGenerationContext context) {
         if (conditions.isEmpty()) {
             return false;
         }
@@ -48,9 +46,8 @@ public interface LootCondition<L> {
      * @param conditions the collection of conditions to check
      * @param context the context, to feed to the conditions when they are being tested
      * @return true if every condition in the provided collection verifies the provided context
-     * @param <L> the loot item type
      */
-    static <L> boolean all(@NotNull Collection<LootCondition<L>> conditions, @NotNull LootGenerationContext context) {
+    static boolean all(@NotNull Collection<LootCondition> conditions, @NotNull LootGenerationContext context) {
         if (conditions.isEmpty()) {
             return true;
         }
@@ -71,9 +68,8 @@ public interface LootCondition<L> {
      * @param required the minimum number of conditions in the provided collection that must verify the context
      * @param context the context, to feed to the conditions when they are being tested
      * @return true if at least {@code required} conditions in the provided collection verify the context
-     * @param <L> the loot item type
      */
-    static <L> boolean some(@NotNull Collection<LootCondition<L>> conditions, int required, @NotNull LootGenerationContext context) {
+    static boolean some(@NotNull Collection<LootCondition> conditions, int required, @NotNull LootGenerationContext context) {
         if (required <= 0) {
             return true;
         } else if (required > conditions.size()) {

@@ -14,9 +14,8 @@ import java.util.Objects;
  * is being converted will require usage of it.
  * @param loader the loader to be used
  * @param information the context's internal information
- * @param <L> the loot item type
  */
-public record LootConversionContext<L>(@NotNull ImmuTables<L> loader, @NotNull Map<Key<?>, Object> information) implements LootContext {
+public record LootConversionContext(@NotNull ImmuTables loader, @NotNull Map<Key<?>, Object> information) implements LootContext {
 
     public LootConversionContext {
         information = Map.copyOf(information);
@@ -26,34 +25,33 @@ public record LootConversionContext<L>(@NotNull ImmuTables<L> loader, @NotNull M
      * Creates a new builder for this class, with no information and a null loader.<br>
      * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
      * @return a new LootConversionContext builder
-     * @param <L> the loot item type
      */
     @Contract(" -> new")
-    public static <L> @NotNull Builder<L> builder() {
-        return new Builder<>();
+    public static @NotNull Builder builder() {
+        return new Builder();
     }
 
-    public static final class Builder<L> {
+    public static final class Builder {
         private final @NotNull Map<Key<?>, Object> information = new HashMap<>();
-        private ImmuTables<L> loader;
+        private ImmuTables loader;
 
         private Builder() {}
 
         @Contract("_, _ -> this")
-        public <T> @NotNull Builder<L> addInformation(@NotNull Key<T> key, @NotNull T value) {
+        public <T> @NotNull Builder addInformation(@NotNull Key<T> key, @NotNull T value) {
             information.put(key, value);
             return this;
         }
 
         @Contract("_ -> this")
-        public @NotNull Builder<L> loader(@NotNull ImmuTables<L> loader) {
+        public @NotNull Builder loader(@NotNull ImmuTables loader) {
             this.loader = loader;
             return this;
         }
 
         @Contract(" -> new")
-        public @NotNull LootConversionContext<L> build() {
-            return new LootConversionContext<>(
+        public @NotNull LootConversionContext build() {
+            return new LootConversionContext(
                     Objects.requireNonNull(loader, "LootConversionContext instances cannot be built without a loader!"),
                     information
             );

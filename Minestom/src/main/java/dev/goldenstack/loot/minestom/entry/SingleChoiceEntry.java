@@ -8,12 +8,11 @@ import java.util.List;
 
 /**
  * An entry that always returns a single, constant choice. In this case, it returns a list containing just itself.
- * @param <L> the loot item type
  */
-public interface SingleChoiceEntry<L> extends LootEntry<L>, LootEntry.Choice<L> {
+public interface SingleChoiceEntry extends LootEntry, LootEntry.Choice {
 
     @Override
-    default @NotNull List<Choice<L>> requestChoices(@NotNull LootGenerationContext context) {
+    default @NotNull List<Choice> requestChoices(@NotNull LootGenerationContext context) {
         return List.of(this);
     }
 

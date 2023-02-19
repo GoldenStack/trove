@@ -3,12 +3,13 @@ package dev.goldenstack.loot;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.meta.ConditionalLootConverter;
+import dev.goldenstack.loot.converter.additive.AdditiveConditionalConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.BasicConfigurationNode;
+import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
@@ -20,8 +21,8 @@ import java.util.function.Supplier;
 public class TestUtils {
     private TestUtils() {}
 
-    public static <L> @NotNull ImmuTables<L> emptyLoader() {
-        return new ImmuTables<>(null, null, null, null, null, null, BasicConfigurationNode.factory()::createNode);
+    public static @NotNull ImmuTables emptyLoader() {
+        return new ImmuTables(null, null, null, null, BasicConfigurationNode.factory()::createNode);
     }
 
     public static @NotNull LootContext context(@NotNull Map<LootContext.Key<?>, Object> information) {
@@ -44,54 +45,54 @@ public class TestUtils {
         }
     }
 
-    public static <L> @NotNull LootConversionContext<L> emptyConversionContext() {
-        return new LootConversionContext<>(emptyLoader(), Map.of());
+    public static @NotNull LootConversionContext emptyConversionContext() {
+        return new LootConversionContext(emptyLoader(), Map.of());
     }
 
-    public static <L> @NotNull LootConversionContext<L> conversionContext(@NotNull Map<LootContext.Key<?>, Object> information) {
-        return new LootConversionContext<>(emptyLoader(), information);
+    public static @NotNull LootConversionContext conversionContext(@NotNull Map<LootContext.Key<?>, Object> information) {
+        return new LootConversionContext(emptyLoader(), information);
     }
 
     public static @NotNull LootGenerationContext generationContext(@NotNull Map<LootContext.Key<?>, Object> information) {
         return new LootGenerationContext(new Random(), information);
     }
 
-    public static <L, V> @NotNull ConditionalLootConverter<L, V> emptyConditionalSerializer(@NotNull Supplier<V> initializer,
-                                                                                            boolean canSerialize,
-                                                                                            boolean canDeserialize) {
-        return new ConditionalLootConverter<>() {
+    public static <V> @NotNull AdditiveConditionalConverter<V> emptyConditionalSerializer(@NotNull Supplier<V> initializer,
+                                                                                          boolean canSerialize,
+                                                                                          boolean canDeserialize) {
+        return new AdditiveConditionalConverter<>() {
             @Override
-            public boolean canSerialize(@NotNull V input, @NotNull LootConversionContext<L> context) {
+            public boolean canSerialize(@NotNull V input, @NotNull LootConversionContext context) {
                 return canSerialize;
             }
 
             @Override
-            public boolean canDeserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<L> context) {
+            public boolean canDeserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) {
                 return canDeserialize;
             }
 
             @Override
-            public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<L> context) {
+            public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) {
                 return initializer.get();
             }
 
             @Override
-            public @NotNull ConfigurationNode serialize(@NotNull V input, @NotNull LootConversionContext<L> context) {
-                return context.loader().createNode();
+            public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
+
             }
         };
     }
 
-    public static <L, V> @NotNull KeyedLootConverter<L, V> emptyKeyedSerializer(@NotNull String key,
+    public static <V> @NotNull KeyedLootConverter<V> emptyKeyedSerializer(@NotNull String key,
                                                                                 @NotNull Class<V> convertedType,
                                                                                 @NotNull Supplier<V> initializer) {
         return new KeyedLootConverter<>(key, TypeToken.get(convertedType)) {
             @Override
-            public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext<L> context) {
+            public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) {
             }
 
             @Override
-            public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<L> context) {
+            public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) {
                 return initializer.get();
             }
         };

@@ -1,57 +1,49 @@
 package dev.goldenstack.loot.minestom.util;
 
-import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.converter.additive.AdditiveConverter;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.structure.LootNumber;
-import net.minestom.server.item.ItemStack;
+import dev.goldenstack.loot.util.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
 
 /**
  * An inclusive number range based on loot numbers.
  * @param min the optional minimum value
  * @param max the optional maximum value
  */
-public record LootNumberRange(@Nullable LootNumber<ItemStack> min, @Nullable LootNumber<ItemStack> max) {
+public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max) {
 
     /**
      * A standard converter for loot number ranges that deserializes any numerical scalars to a range consisting of two
      * equivalent {@link ConstantNumber} instances holding the number, but otherwise handles it normally with map-based
      * values.
      */
-    public static final @NotNull LootConverter<ItemStack, LootNumberRange> CONVERTER = new LootConverter<>() {
-        @Override
-        public @NotNull LootNumberRange deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            if (input.isNull()) {
-                return new LootNumberRange(null, null);
+    public static final @NotNull AdditiveConverter<LootNumberRange> CONVERTER = Utils.createAdditive(
+            (input, result, context) -> {
+                if (input.min != null) {
+                    context.loader().lootNumberManager().serialize(input.min, result.node("min"), context);
+                }
+                if (input.max != null) {
+                    context.loader().lootNumberManager().serialize(input.max, result.node("min"), context);
+                }
+            },
+            (input, context) -> {
+                if (input.isNull()) {
+                    return new LootNumberRange(null, null);
+                }
+                var number = input.get(Double.class);
+                if (number != null) {
+                    var constant = new ConstantNumber(number);
+                    return new LootNumberRange(constant, constant);
+                }
+                return new LootNumberRange(
+                        context.loader().lootNumberManager().deserialize(input.node("min"), context),
+                        context.loader().lootNumberManager().deserialize(input.node("max"), context)
+                );
             }
-            var number = input.get(Double.class);
-            if (number != null) {
-                var constant = new ConstantNumber(number);
-                return new LootNumberRange(constant, constant);
-            }
-            return new LootNumberRange(
-                    context.loader().lootNumberManager().deserialize(input.node("min"), context),
-                    context.loader().lootNumberManager().deserialize(input.node("max"), context)
-            );
-        }
-
-        @Override
-        public @NotNull ConfigurationNode serialize(@NotNull LootNumberRange input, @NotNull LootConversionContext<ItemStack> context) throws ConfigurateException {
-            var node = context.loader().createNode();
-            if (input.min != null) {
-                node.node("min").set(context.loader().lootNumberManager().serialize(input.min, context));
-            }
-            if (input.max != null) {
-                node.node("max").set(context.loader().lootNumberManager().serialize(input.max, context));
-            }
-            return node;
-        }
-    };
+    );
 
     /**
      * Limits the provided value to between the minimum and maximum.<br>

@@ -9,9 +9,8 @@ import org.jetbrains.annotations.Range;
 /**
  * A choice that uses the standard method of generating weight - adding the {@link #weight()} to the {@link #quality()}
  * where the quality is multiplied by the provided context's luck ({@link LootContextKeys#LUCK}).
- * @param <L> the loot item type
  */
-public interface StandardWeightedChoice<L> extends LootEntry.Choice<L> {
+public interface StandardWeightedChoice extends LootEntry.Choice {
 
     /**
      * The weight of this choice. When calculating the final weight, this value is simply added to the result.

@@ -5,9 +5,8 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Generates numbers based on loot contexts that are provided.
- * @param <L> the loot item type
  */
-public interface LootNumber<L> {
+public interface LootNumber {
 
     /**
      * Generates a long depending on the information in the provided context.<br>

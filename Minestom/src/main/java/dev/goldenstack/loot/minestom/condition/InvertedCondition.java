@@ -3,29 +3,27 @@ package dev.goldenstack.loot.minestom.condition;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
-import dev.goldenstack.loot.util.Utils;
-import io.leangen.geantyref.TypeToken;
-import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
 
 /**
  * A condition that inverts the result of the child condition.
- * @param condition the condition to invert
+ * @param original the condition to invert
  */
-public record InvertedCondition(@NotNull LootCondition<ItemStack> condition) implements LootCondition<ItemStack> {
+public record InvertedCondition(@NotNull LootCondition original) implements LootCondition {
 
     /**
      * A standard map-based converter for inverted conditions.
      */
-    public static final @NotNull KeyedLootConverter<ItemStack, InvertedCondition> CONVERTER = Utils.createKeyedConverter("minecraft:inverted", new TypeToken<>(){},
-            (input, result, context) ->
-                    result.node("term").set(context.loader().lootConditionManager().serialize(input.condition, context)),
-            (input, context) -> new InvertedCondition(
-                    context.loader().lootConditionManager().deserialize(input.node("term"), context)
-            ));
+    public static final @NotNull KeyedLootConverter<InvertedCondition> CONVERTER =
+            converter(InvertedCondition.class,
+                    condition().name("original").nodeName("term")
+            ).keyed("minecraft:inverted");
 
     @Override
     public boolean verify(@NotNull LootGenerationContext context) {
-        return !condition.verify(context);
+        return !original.verify(context);
     }
 }

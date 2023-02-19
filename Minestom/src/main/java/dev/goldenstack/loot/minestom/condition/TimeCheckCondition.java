@@ -5,31 +5,28 @@ import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import dev.goldenstack.loot.structure.LootCondition;
-import dev.goldenstack.loot.util.Utils;
-import io.leangen.geantyref.TypeToken;
-import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.implicit;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.numberRange;
 
 /**
  * Assures that the world's time is within a certain range, obeying a certain period.
  * @param range the valid range of time
  * @param period the (optional) period of each day
  */
-public record TimeCheckCondition(@NotNull LootNumberRange range, @Nullable Long period) implements LootCondition<ItemStack> {
+public record TimeCheckCondition(@NotNull LootNumberRange range, @Nullable Long period) implements LootCondition {
 
     /**
      * A standard map-based converter for time check conditions.
      */
-    public static final @NotNull KeyedLootConverter<ItemStack, TimeCheckCondition> CONVERTER = Utils.createKeyedConverter("minecraft:time_check", new TypeToken<>(){},
-            (input, result, context) -> {
-                result.node("value").set(LootNumberRange.CONVERTER.serialize(input.range(), context));
-                result.node("period").set(input.period());
-            },
-            (input, context) -> new TimeCheckCondition(
-                    LootNumberRange.CONVERTER.deserialize(input.node("value"), context),
-                    input.node("period").getLong()
-            ));
+    public static final @NotNull KeyedLootConverter<TimeCheckCondition> CONVERTER =
+            converter(TimeCheckCondition.class,
+                    numberRange().name("range").nodeName("value"),
+                    implicit(Long.class).withDefault(() -> null).name("period")
+            ).keyed("minecraft:time_check");
 
     @Override
     public boolean verify(@NotNull LootGenerationContext context) {

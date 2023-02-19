@@ -7,10 +7,9 @@ import org.spongepowered.configurate.ConfigurationNode;
 
 /**
  * A standard representation of something that can serialize a specific type of object into a configuration node.
- * @param <L> the loot item type
  * @param <I> the type of input that is required for serialization
  */
-public interface LootSerializer<L, I> {
+public interface LootSerializer<I> {
 
     /**
      * Serializes an input object into a resulting node.<br>
@@ -20,6 +19,6 @@ public interface LootSerializer<L, I> {
      * @return the provided object serialized into a configuration node
      * @throws ConfigurateException if the input could not be serialized for some reason
      */
-    @NotNull ConfigurationNode serialize(@NotNull I input, @NotNull LootConversionContext<L> context) throws ConfigurateException;
+    @NotNull ConfigurationNode serialize(@NotNull I input, @NotNull LootConversionContext context) throws ConfigurateException;
 
 }

@@ -1,9 +1,8 @@
 package dev.goldenstack.loot.minestom.util.check;
 
-import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.converter.additive.AdditiveConverter;
 import dev.goldenstack.loot.util.Utils;
 import net.minestom.server.instance.block.Block;
-import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
@@ -21,14 +20,13 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
     /**
      * A standard map-based serializer for block state checks.
      */
-    public static final @NotNull LootConverter<ItemStack, BlockStateCheck> CONVERTER = Utils.createConverter(
-            (input, context) -> {
-                var node = context.loader().createNode();
+    public static final @NotNull AdditiveConverter<BlockStateCheck> CONVERTER = Utils.createAdditive(
+            (input, result, context) -> {
                 if (input.checks.isEmpty()) {
-                    return node;
+                    return;
                 }
                 for (var singular : input.checks) {
-                    var child = node.node(singular.key());
+                    var child = result.node(singular.key());
                     if (singular instanceof IdenticalState identicalState) {
                         child.set(identicalState.value);
                     } else if (singular instanceof RangedLongState rangedLongState) {
@@ -38,7 +36,6 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
                         throw new ConfigurateException("Expected check '" + singular + "' to be an identical check or a ranged check, but found neither!");
                     }
                 }
-                return node;
             }, (input, context) -> {
                 if (input.empty()) {
                     return new BlockStateCheck(List.of());

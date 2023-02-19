@@ -2,55 +2,40 @@ package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
-import dev.goldenstack.loot.util.Utils;
-import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.ConfigurateException;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
 
 /**
  * An entry that always returns an item of its material.
- * @param material the material that is used for items
+ * @param itemType the material that is used for items
  * @param weight the base weight of this entry - see {@link StandardWeightedChoice#weight()}
  * @param quality the quality of this entry - see {@link StandardWeightedChoice#quality()}
  * @param modifiers the modifiers that are applied to every item provided by this entry
  * @param conditions the conditions that all must be met for any results to be generated
  */
-public record ItemEntry(@NotNull Material material,
+public record ItemEntry(@NotNull Material itemType,
                         long weight, long quality,
-                        @NotNull List<LootModifier<ItemStack>> modifiers,
-                        @NotNull List<LootCondition<ItemStack>> conditions) implements SingleChoiceEntry<ItemStack>, StandardWeightedChoice<ItemStack> {
+                        @NotNull List<LootModifier> modifiers,
+                        @NotNull List<LootCondition> conditions) implements SingleChoiceEntry, StandardWeightedChoice {
 
-    /**
-     * A standard map-based converter for item entries.
-     */
-    public static final @NotNull KeyedLootConverter<ItemStack, ItemEntry> CONVERTER = Utils.createKeyedConverter("minecraft:item", new TypeToken<>(){},
-            (input, result, context) -> {
-                result.node("name").set(input.material.namespace().asString());
-                result.node("weight").set(input.weight);
-                result.node("quality").set(input.quality);
-                result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
-                result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
-            }, (input, context) -> {
-                var nameNode = input.node("name");
-                String name = nameNode.require(String.class);
-                Material material = Material.fromNamespaceId(name);
-                if (material == null) {
-                    throw new ConfigurateException(nameNode, "Expected the provided node to have a valid material, but found '" + name + "' instead.");
-                }
-                return new ItemEntry(
-                        material,
-                        input.node("weight").require(Long.class),
-                        input.node("quality").require(Long.class),
-                        Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
-                        Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
-                );
-            });
+    public static final @NotNull KeyedLootConverter<ItemEntry> CONVERTER =
+            converter(ItemEntry.class,
+                    material().name("itemType").nodeName("name"),
+                    implicit(long.class).name("weight").withDefault(1L),
+                    implicit(long.class).name("quality").withDefault(0L),
+                    modifier().list().name("modifiers").nodeName("functions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(ArrayList::new)
+            ).keyed("minecraft:item");
 
     public ItemEntry {
         modifiers = List.copyOf(modifiers);
@@ -58,9 +43,9 @@ public record ItemEntry(@NotNull Material material,
     }
 
     @Override
-    public @NotNull List<ItemStack> generate(@NotNull LootGenerationContext context) {
+    public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
         return LootCondition.all(conditions(), context) ?
-                List.of(LootModifier.applyAll(modifiers(), ItemStack.of(material), context)) :
-                List.of();
+                LootModifier.applyAll(modifiers(), LootBatch.of(ItemStack.of(itemType)), context) :
+                LootBatch.of();
     }
 }

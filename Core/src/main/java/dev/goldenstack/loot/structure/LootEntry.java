@@ -9,22 +9,20 @@ import java.util.List;
 
 /**
  * An entry in a loot table that can generate a list of {@link Choice choices} that each have their own loot and weight.
- * @param <L> the loot item type
  */
-public interface LootEntry<L> {
+public interface LootEntry {
 
     /**
      * Generates any number of possible choices to choose from when generating loot.
      * @param context the context object, to use if required
      * @return a list, with undetermined mutability, containing the options that were generated
      */
-    @NotNull List<Choice<L>> requestChoices(@NotNull LootGenerationContext context);
+    @NotNull List<Choice> requestChoices(@NotNull LootGenerationContext context);
 
     /**
      * A choice, generated from an entry, that could potentially be chosen.
-     * @param <L> the loot item type
      */
-    interface Choice<L> extends LootGenerator<L> {
+    interface Choice extends LootGenerator {
 
         /**
          * Calculates the weight of this choice, to be used when choosing which choices should be used.

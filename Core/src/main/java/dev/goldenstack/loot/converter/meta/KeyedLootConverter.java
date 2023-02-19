@@ -2,6 +2,7 @@ package dev.goldenstack.loot.converter.meta;
 
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.converter.LootDeserializer;
+import dev.goldenstack.loot.converter.additive.AdditiveLootSerializer;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -12,10 +13,9 @@ import java.lang.reflect.AnnotatedType;
  * Handles loot conversion where the exact deserializer will be determined from the key of the configuration node, where
  * values are determined from {@link #key()}, and where the exact serializer will be determined from a map lookup with
  * {@link #convertedType()}.
- * @param <L> the loot item type
  * @param <V> the type of object that will be serialized and deserialized
  */
-public abstract class KeyedLootConverter<L, V> implements LootDeserializer<L, V>, AdditiveLootSerializer<L, V> {
+public abstract class KeyedLootConverter<V> implements LootDeserializer<V>, AdditiveLootSerializer<V> {
 
     private final @NotNull String key;
     private final @NotNull TypeToken<V> convertedType;

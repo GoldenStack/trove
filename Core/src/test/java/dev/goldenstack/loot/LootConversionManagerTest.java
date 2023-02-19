@@ -9,6 +9,7 @@ import org.spongepowered.configurate.ConfigurateException;
 
 import java.util.Map;
 
+import static dev.goldenstack.loot.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("unchecked")
@@ -21,93 +22,99 @@ public class LootConversionManagerTest {
 
     @Test
     public void testBuilderSubtyping(){
-        var builder = LootConversionManager.<String, A>builder()
+        var builder = LootConversionManager.<A>builder()
                 .baseType(new TypeToken<>(){})
                 .keyLocation("location");
 
-        builder.addConverter(TestUtils.emptyKeyedSerializer("a", A.class, A::new));
+        builder.addConverter(emptyKeyedSerializer("a", A.class, A::new));
         assertDoesNotThrow(builder::build);
 
-        builder.addConverter(TestUtils.emptyKeyedSerializer("b", B.class, B::new));
+        builder.addConverter(emptyKeyedSerializer("b", B.class, B::new));
         assertDoesNotThrow(builder::build);
 
-        builder.addConverter((KeyedLootConverter<String, ? extends A>) (Object) TestUtils.emptyKeyedSerializer("x", X.class, X::new));
+        builder.addConverter((KeyedLootConverter<? extends A>) (Object) emptyKeyedSerializer("x", X.class, X::new));
         assertThrows(IllegalArgumentException.class, builder::build);
     }
 
     @Test
     public void testBaseTypeBypass() {
-        var builder = LootConversionManager.<String, A>builder()
+        var builder = LootConversionManager.<A>builder()
                 .baseType(new TypeToken<>(){})
                 .keyLocation("location");
 
-        builder.addConverter(TestUtils.emptyKeyedSerializer("a", A.class, A::new));
+        builder.addConverter(emptyKeyedSerializer("a", A.class, A::new));
         assertDoesNotThrow(builder::build);
 
-        var builder2 = ((LootConversionManager.Builder<String, X>) (Object) builder).baseType(new TypeToken<>(){});
+        var builder2 = ((LootConversionManager.Builder<X>) (Object) builder).baseType(new TypeToken<>(){});
 
-        builder2.addConverter(TestUtils.emptyKeyedSerializer("x", X.class, X::new));
+        builder2.addConverter(emptyKeyedSerializer("x", X.class, X::new));
         assertThrows(IllegalArgumentException.class, builder::build);
     }
 
     @Test
     public void testDuplicateKey() {
-        var builder = LootConversionManager.<String, A>builder()
+        var builder = LootConversionManager.<A>builder()
                 .baseType(new TypeToken<>(){})
                 .keyLocation("location");
 
-        builder.addConverter(TestUtils.emptyKeyedSerializer("a", A.class, A::new));
+        builder.addConverter(emptyKeyedSerializer("a", A.class, A::new));
         assertDoesNotThrow(builder::build);
 
-        builder.addConverter(TestUtils.emptyKeyedSerializer("a", B.class, B::new));
+        builder.addConverter(emptyKeyedSerializer("a", B.class, B::new));
         assertThrows(IllegalArgumentException.class, builder::build);
     }
 
     @Test
     public void testDuplicateType() {
-        var builder = LootConversionManager.<String, A>builder()
+        var builder = LootConversionManager.<A>builder()
                 .baseType(new TypeToken<>(){})
                 .keyLocation("location");
 
-        builder.addConverter(TestUtils.emptyKeyedSerializer("a", A.class, A::new));
+        builder.addConverter(emptyKeyedSerializer("a", A.class, A::new));
         assertDoesNotThrow(builder::build);
 
-        builder.addConverter(TestUtils.emptyKeyedSerializer("b", A.class, A::new));
+        builder.addConverter(emptyKeyedSerializer("b", A.class, A::new));
         assertThrows(IllegalArgumentException.class, builder::build);
     }
 
     @Test
     public void testActiveConditionalSerializer() throws ConfigurateException {
-        var builder = LootConversionManager.<String, A>builder()
+        var builder = LootConversionManager.<A>builder()
                 .baseType(new TypeToken<>(){})
                 .keyLocation("location");
 
-        builder.addConverter(TestUtils.emptyKeyedSerializer("a", A.class, A::new));
-        builder.addInitialConverter(TestUtils.emptyConditionalSerializer(B::new, true, true));
+        builder.addConverter(emptyKeyedSerializer("a", A.class, A::new));
+        builder.addInitialConverter(emptyConditionalSerializer(B::new, true, true));
 
         var manager = builder.build();
 
+        var node = node();
+        manager.serialize(new A(), node, emptyConversionContext());
+
         assertEquals(B.class, handle(manager, "a").getClass());
-        assertEquals(TestUtils.node(null), manager.serialize(new A(), TestUtils.emptyConversionContext()));
+        assertEquals(node(null), node);
     }
 
     @Test
     public void testInactiveConditionalSerializer() throws ConfigurateException {
-        var builder = LootConversionManager.<String, A>builder()
+        var builder = LootConversionManager.<A>builder()
                 .baseType(new TypeToken<>(){})
                 .keyLocation("location");
 
-        builder.addConverter(TestUtils.emptyKeyedSerializer("a", A.class, A::new));
-        builder.addInitialConverter(TestUtils.emptyConditionalSerializer(B::new, false, false));
+        builder.addConverter(emptyKeyedSerializer("a", A.class, A::new));
+        builder.addInitialConverter(emptyConditionalSerializer(B::new, false, false));
 
         var manager = builder.build();
 
+        var node = node();
+        manager.serialize(new A(), node, emptyConversionContext());
+
         assertEquals(A.class, handle(manager, "a").getClass());
-        assertEquals(TestUtils.node(Map.of("location", "a")), manager.serialize(new A(), TestUtils.emptyConversionContext()));
+        assertEquals(node(Map.of("location", "a")), node);
     }
 
-    private static <L, O> @NotNull O handle(@NotNull LootConversionManager<L, O> deserializer, @NotNull String keyValue) throws ConfigurateException {
-        return deserializer.deserialize(TestUtils.node(Map.of(deserializer.keyLocation(), keyValue)), TestUtils.emptyConversionContext());
+    private static <O> @NotNull O handle(@NotNull LootConversionManager<O> deserializer, @NotNull String keyValue) throws ConfigurateException {
+        return deserializer.deserialize(node(Map.of(deserializer.keyLocation(), keyValue)), emptyConversionContext());
     }
 
 }

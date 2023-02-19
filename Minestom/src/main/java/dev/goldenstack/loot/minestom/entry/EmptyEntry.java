@@ -2,14 +2,16 @@ package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
-import dev.goldenstack.loot.util.Utils;
-import io.leangen.geantyref.TypeToken;
-import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
 
 /**
  * An entry that always returns an empty list of items.
@@ -19,24 +21,19 @@ import java.util.List;
  * @param conditions the conditions that all must be met for any results to be generated
  */
 public record EmptyEntry(long weight, long quality,
-                         @NotNull List<LootModifier<ItemStack>> modifiers,
-                         @NotNull List<LootCondition<ItemStack>> conditions) implements SingleChoiceEntry<ItemStack>, StandardWeightedChoice<ItemStack> {
+                         @NotNull List<LootModifier> modifiers,
+                         @NotNull List<LootCondition> conditions) implements SingleChoiceEntry, StandardWeightedChoice {
 
     /**
      * A standard map-based converter for empty entries.
      */
-    public static final @NotNull KeyedLootConverter<ItemStack, EmptyEntry> CONVERTER = Utils.createKeyedConverter("minecraft:empty", new TypeToken<>(){},
-            (input, result, context) -> {
-                result.node("weight").set(input.weight);
-                result.node("quality").set(input.quality);
-                result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
-                result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
-            }, (input, context) -> new EmptyEntry(
-                    input.node("weight").require(Long.class),
-                    input.node("quality").require(Long.class),
-                    Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
-                    Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
-            ));
+    public static final @NotNull KeyedLootConverter<EmptyEntry> CONVERTER =
+            converter(EmptyEntry.class,
+                    implicit(long.class).name("weight").withDefault(1L),
+                    implicit(long.class).name("quality").withDefault(0L),
+                    modifier().list().name("modifiers").nodeName("functions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(ArrayList::new)
+            ).keyed("minecraft:empty");
 
     public EmptyEntry {
         modifiers = List.copyOf(modifiers);
@@ -44,7 +41,7 @@ public record EmptyEntry(long weight, long quality,
     }
 
     @Override
-    public @NotNull List<ItemStack> generate(@NotNull LootGenerationContext context) {
-        return List.of();
+    public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
+        return LootBatch.EMPTY;
     }
 }

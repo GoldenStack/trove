@@ -11,10 +11,9 @@ import org.spongepowered.configurate.ConfigurationNode;
  * Note: the behaviour of both {@link #serialize(Object, LootConversionContext)} and
  * {@link #deserialize(ConfigurationNode, LootConversionContext)} is undefined when their respective conditional
  * methods do not return true for the provided input.
- * @param <L> the loot item type
  * @param <V> the type of object that will be serialized and deserialized
  */
-public interface ConditionalLootConverter<L, V> extends LootConverter<L, V> {
+public interface ConditionalLootConverter<V> extends LootConverter<V> {
 
     /**
      * A method to test if {@link #serialize(Object, LootConversionContext)} should be called on the provided input.
@@ -22,7 +21,7 @@ public interface ConditionalLootConverter<L, V> extends LootConverter<L, V> {
      * @param context the context object, to use if required
      * @return true if this converter should be used to serialize the provided input, and false if otherwise
      */
-    boolean canSerialize(@NotNull V input, @NotNull LootConversionContext<L> context);
+    boolean canSerialize(@NotNull V input, @NotNull LootConversionContext context);
 
     /**
      * A method to test if {@link #deserialize(ConfigurationNode, LootConversionContext)} should be called on the provided input.
@@ -30,6 +29,6 @@ public interface ConditionalLootConverter<L, V> extends LootConverter<L, V> {
      * @param context the context object, to use if required
      * @return true if this converter should be used to deserialize the provided input, and false if otherwise
      */
-    boolean canDeserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<L> context);
+    boolean canDeserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context);
 
 }

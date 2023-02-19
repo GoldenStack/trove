@@ -1,11 +1,10 @@
 package dev.goldenstack.loot.minestom.util.check;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.converter.additive.AdditiveConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import dev.goldenstack.loot.util.Utils;
 import net.minestom.server.item.Enchantment;
-import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
@@ -23,14 +22,12 @@ public record EnchantmentCheck(@Nullable Enchantment enchantment, @NotNull LootN
     /**
      * A standard map-based serializer for enchantment checks.
      */
-    public static final @NotNull LootConverter<ItemStack, EnchantmentCheck> CONVERTER = Utils.createConverter(
-            (input, context) -> {
-                var node = context.loader().createNode();
+    public static final @NotNull AdditiveConverter<EnchantmentCheck> CONVERTER = Utils.createAdditive(
+            (input, result, context) -> {
                 if (input.enchantment != null) {
-                    node.node("enchantment").set(input.enchantment.namespace().asString());
+                    result.node("enchantment").set(input.enchantment.namespace().asString());
                 }
-                node.node("levels").set(LootNumberRange.CONVERTER.serialize(input.range, context));
-                return node;
+                LootNumberRange.CONVERTER.serialize(input.range, result.node("levels"), context);
             }, (input, context) -> {
                 var enchantmentNode = input.node("enchantment");
                 String rawEnchantment = enchantmentNode.getString();

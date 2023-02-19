@@ -7,10 +7,9 @@ import org.spongepowered.configurate.ConfigurationNode;
 
 /**
  * A standard representation of something that can deserialize a configuration node into a specific type of object.
- * @param <L> the loot item type
  * @param <O> the type of output that will be created
  */
-public interface LootDeserializer<L, O> {
+public interface LootDeserializer<O> {
 
     /**
      * Deserializes an input node into a resulting object.<br>
@@ -20,6 +19,6 @@ public interface LootDeserializer<L, O> {
      * @return the provided configuration node deserialized into an object
      * @throws ConfigurateException if the input could not be deserialized for some reason
      */
-    @NotNull O deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext<L> context) throws ConfigurateException;
+    @NotNull O deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException;
 
 }

@@ -2,21 +2,22 @@ package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
-import dev.goldenstack.loot.util.Utils;
-import io.leangen.geantyref.TypeToken;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
-import org.spongepowered.configurate.ConfigurateException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
 
 /**
  * Adds items from the tag ({@link #tag()}. Invalid identifiers will be ignored.
@@ -30,36 +31,23 @@ import java.util.Objects;
  */
 public record TagEntry(@NotNull Tag tag, boolean expand,
                        long weight, long quality,
-                       @NotNull List<LootModifier<ItemStack>> modifiers,
-                       @NotNull List<LootCondition<ItemStack>> conditions) implements SingleChoiceEntry<ItemStack>, StandardWeightedChoice<ItemStack> {
+                       @NotNull List<LootModifier> modifiers,
+                       @NotNull List<LootCondition> conditions) implements SingleChoiceEntry, StandardWeightedChoice {
 
     /**
      * A standard map-based converter for tag entries.
      */
-    public static final @NotNull KeyedLootConverter<ItemStack, TagEntry> CONVERTER = Utils.createKeyedConverter("minecraft:tag", new TypeToken<>(){},
-            (input, result, context) -> {
-                result.node("name").set(input.tag().getName().asString());
-                result.node("expand").set(input.expand);
-                result.node("weight").set(input.weight);
-                result.node("quality").set(input.quality);
-                result.node("functions").set(Utils.serializeList(input.modifiers(), context.loader().lootModifierManager()::serialize, context));
-                result.node("conditions").set(Utils.serializeList(input.conditions(), context.loader().lootConditionManager()::serialize, context));
-            }, (input, context) -> {
-                var nameNode = input.node("name");
-                String name = nameNode.require(String.class);
-                Tag tag = MinecraftServer.getTagManager().getTag(Tag.BasicType.ITEMS, name);
-                if (tag == null) {
-                    throw new ConfigurateException(nameNode, "Expected the provided node to have a valid item tag, but found '" + name + "' instead.");
-                }
-                return new TagEntry(
-                        tag,
-                        input.node("expand").getBoolean(),
-                        input.node("weight").getLong(1),
-                        input.node("quality").getLong(0),
-                        Utils.deserializeList(input.node("functions"), context.loader().lootModifierManager()::deserialize, context),
-                        Utils.deserializeList(input.node("conditions"), context.loader().lootConditionManager()::deserialize, context)
-                );
-            });
+    public static final @NotNull KeyedLootConverter<TagEntry> CONVERTER =
+            converter(TagEntry.class,
+                    implicit(String.class).name("tag").nodeName("name")
+                            .map(Tag.class, str -> MinecraftServer.getTagManager().getTag(Tag.BasicType.ITEMS, str),
+                                    tag -> tag.getName().asString()),
+                    implicit(boolean.class).name("expand"),
+                    implicit(long.class).name("weight").withDefault(1L),
+                    implicit(long.class).name("quality").withDefault(0L),
+                    modifier().list().name("modifiers").nodeName("functions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(ArrayList::new)
+            ).keyed("minecraft:tag");
 
     public TagEntry {
         modifiers = List.copyOf(modifiers);
@@ -67,22 +55,22 @@ public record TagEntry(@NotNull Tag tag, boolean expand,
     }
 
     @Override
-    public @NotNull List<Choice<ItemStack>> requestChoices(@NotNull LootGenerationContext context) {
+    public @NotNull List<Choice> requestChoices(@NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return List.of();
         }
         if (expand) {
-            List<Choice<ItemStack>> choices = new ArrayList<>();
-            for (ItemStack tagItem : generate(context)) {
-                choices.add(new Choice<>() {
+            List<Choice> choices = new ArrayList<>();
+            for (Object tagItem : generate(context).items()) {
+                choices.add(new Choice() {
                     @Override
                     public @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootGenerationContext context) {
                         return TagEntry.this.getWeight(context);
                     }
 
                     @Override
-                    public @NotNull List<ItemStack> generate(@NotNull LootGenerationContext context) {
-                        return List.of(tagItem);
+                    public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
+                        return LootBatch.of(tagItem);
                     }
                 });
             }
@@ -93,9 +81,9 @@ public record TagEntry(@NotNull Tag tag, boolean expand,
     }
 
     @Override
-    public @NotNull List<ItemStack> generate(@NotNull LootGenerationContext context) {
+    public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
         return LootModifier.applyAll(modifiers(),
-                tag.getValues().stream().map(Material::fromNamespaceId).filter(Objects::nonNull).map(ItemStack::of).toList(),
+                LootBatch.of(tag.getValues().stream().map(Material::fromNamespaceId).filter(Objects::nonNull).map(ItemStack::of).toList()),
                 context
         );
     }
