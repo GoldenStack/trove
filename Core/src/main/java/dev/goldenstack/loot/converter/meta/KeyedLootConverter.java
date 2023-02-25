@@ -1,8 +1,7 @@
 package dev.goldenstack.loot.converter.meta;
 
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.converter.LootDeserializer;
-import dev.goldenstack.loot.converter.additive.AdditiveLootSerializer;
+import dev.goldenstack.loot.converter.additive.AdditiveConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -15,7 +14,7 @@ import java.lang.reflect.AnnotatedType;
  * {@link #convertedType()}.
  * @param <V> the type of object that will be serialized and deserialized
  */
-public abstract class KeyedLootConverter<V> implements LootDeserializer<V>, AdditiveLootSerializer<V> {
+public abstract class KeyedLootConverter<V> implements AdditiveConverter<V> {
 
     private final @NotNull String key;
     private final @NotNull TypeToken<V> convertedType;

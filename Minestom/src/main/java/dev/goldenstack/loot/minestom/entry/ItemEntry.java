@@ -28,6 +28,9 @@ public record ItemEntry(@NotNull Material itemType,
                         @NotNull List<LootModifier> modifiers,
                         @NotNull List<LootCondition> conditions) implements SingleChoiceEntry, StandardWeightedChoice {
 
+    /**
+     * A standard map-based converter for item entries.
+     */
     public static final @NotNull KeyedLootConverter<ItemEntry> CONVERTER =
             converter(ItemEntry.class,
                     material().name("itemType").nodeName("name"),
