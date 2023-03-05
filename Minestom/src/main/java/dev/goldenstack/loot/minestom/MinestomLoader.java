@@ -30,18 +30,18 @@ public class MinestomLoader {
      * this class will need to be applied to it, and neither will {@link LootPool#CONVERTER} and
      * {@link LootTable#CONVERTER}.
      */
-    public static final @NotNull Consumer<ImmuTables.Builder> GENERAL_BUILDER_INITIALIZER = builder ->
-            builder
-            .lootEntryBuilder(MinestomLoader.LOOT_ENTRY_INITIALIZER)
-            .lootModifierBuilder(MinestomLoader.LOOT_MODIFIER_INITIALIZER)
-            .lootConditionBuilder(MinestomLoader.LOOT_CONDITION_INITIALIZER)
-            .lootNumberBuilder(MinestomLoader.LOOT_NUMBER_INITIALIZER);
+    public static void initializeBuilder(@NotNull ImmuTables.Builder builder) {
+        builder.lootEntryBuilder(MinestomLoader::initializeEntryBuilder)
+                .lootModifierBuilder(MinestomLoader::initializeModifierBuilder)
+                .lootConditionBuilder(MinestomLoader::initializeConditionBuilder)
+                .lootNumberBuilder(MinestomLoader::initializeNumberBuilder);
+    }
 
     /**
      * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootEntryBuilder(Consumer)}, adds the required
      * information to the loader.
      */
-    public static final @NotNull Consumer<LootConversionManager.Builder<LootEntry>> LOOT_ENTRY_INITIALIZER = builder -> {
+    public static void initializeEntryBuilder(@NotNull LootConversionManager.Builder<LootEntry> builder) {
         // Basic data
         builder.baseType(new TypeToken<>(){}); // LootEntry<ItemStack>
         builder.keyLocation("type");
@@ -54,26 +54,26 @@ public class MinestomLoader {
         builder.addConverter(SequenceEntry.CONVERTER);
         builder.addConverter(TableEntry.CONVERTER);
         builder.addConverter(TagEntry.CONVERTER);
-    };
+    }
 
     /**
      * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootModifierBuilder(Consumer)}, adds the required
      * information to the loader.
      */
-    public static final @NotNull Consumer<LootConversionManager.Builder<LootModifier>> LOOT_MODIFIER_INITIALIZER = builder -> {
+    public static void initializeModifierBuilder(@NotNull LootConversionManager.Builder<LootModifier> builder) {
         // Basic data
         builder.baseType(new TypeToken<>(){}); // LootModifier<ItemStack>
         builder.keyLocation("function");
 
         // Registered converters
         builder.addConverter(SetCountModifier.CONVERTER);
-    };
+    }
 
     /**
      * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootConditionBuilder(Consumer)}, adds the required
      * information to the loader.
      */
-    public static final @NotNull Consumer<LootConversionManager.Builder<LootCondition>> LOOT_CONDITION_INITIALIZER = builder -> {
+    public static void initializeConditionBuilder(@NotNull LootConversionManager.Builder<LootCondition> builder) {
         // Basic data
         builder.baseType(new TypeToken<>(){}); // LootCondition<ItemStack>
         builder.keyLocation("condition");
@@ -90,13 +90,13 @@ public class MinestomLoader {
         builder.addConverter(SurvivesExplosionCondition.CONVERTER);
         builder.addConverter(TimeCheckCondition.CONVERTER);
         builder.addConverter(WeatherCheckCondition.CONVERTER);
-    };
+    }
 
     /**
      * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootNumberBuilder(Consumer)}, adds the required
      * information to the loader.
      */
-    public static final @NotNull Consumer<LootConversionManager.Builder<LootNumber>> LOOT_NUMBER_INITIALIZER = builder -> {
+    public static void initializeNumberBuilder(@NotNull LootConversionManager.Builder<LootNumber> builder) {
         // Basic data
         builder.baseType(new TypeToken<>(){}); // LootNumber<ItemStack>
         builder.keyLocation("type");
@@ -106,6 +106,6 @@ public class MinestomLoader {
         builder.addConverter(ConstantNumber.CONVERTER);
         builder.addConverter(BinomialNumber.CONVERTER);
         builder.addConverter(UniformNumber.CONVERTER);
-    };
+    }
 
 }
