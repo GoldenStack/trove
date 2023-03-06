@@ -6,6 +6,7 @@ import dev.goldenstack.loot.minestom.condition.*;
 import dev.goldenstack.loot.minestom.entry.*;
 import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
+import dev.goldenstack.loot.minestom.modifier.LevelledEnchantModifier;
 import dev.goldenstack.loot.minestom.modifier.LimitCountModifier;
 import dev.goldenstack.loot.minestom.modifier.SetCountModifier;
 import dev.goldenstack.loot.minestom.number.BinomialNumber;
@@ -67,6 +68,7 @@ public class MinestomLoader {
         builder.keyLocation("function");
 
         // Registered converters
+        builder.addConverter(LevelledEnchantModifier.CONVERTER);
         builder.addConverter(LimitCountModifier.CONVERTER);
         builder.addConverter(SetCountModifier.CONVERTER);
     }
