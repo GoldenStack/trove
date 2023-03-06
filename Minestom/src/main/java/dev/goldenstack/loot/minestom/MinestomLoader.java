@@ -6,6 +6,7 @@ import dev.goldenstack.loot.minestom.condition.*;
 import dev.goldenstack.loot.minestom.entry.*;
 import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
+import dev.goldenstack.loot.minestom.modifier.LimitCountModifier;
 import dev.goldenstack.loot.minestom.modifier.SetCountModifier;
 import dev.goldenstack.loot.minestom.number.BinomialNumber;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
@@ -66,6 +67,7 @@ public class MinestomLoader {
         builder.keyLocation("function");
 
         // Registered converters
+        builder.addConverter(LimitCountModifier.CONVERTER);
         builder.addConverter(SetCountModifier.CONVERTER);
     }
 
