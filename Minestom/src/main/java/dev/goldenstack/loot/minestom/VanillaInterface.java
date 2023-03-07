@@ -4,6 +4,7 @@ import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
@@ -48,5 +49,15 @@ public interface VanillaInterface {
      */
     default @NotNull ItemStack enchantItem(@NotNull Random random, @NotNull ItemStack item, int levels, boolean permitTreasure) {
         throw new UnsupportedOperationException("VanillaInterface#enchantItem has not been implemented!");
+    }
+
+    /**
+     * Attempts to smelt an item. If the item cannot be smelted, or its recipe is invalid, or if there's anything else
+     * preventing a valid item from being returned, the result should be null.
+     * @param item the item to smelt
+     * @return the result of the smelting, or null if it could not be smelted for some reason
+     */
+    default @Nullable ItemStack smeltItem(@NotNull ItemStack item) {
+        throw new UnsupportedOperationException("VanillaInterface#smeltItem has not been implemented!");
     }
 }

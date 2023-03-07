@@ -9,6 +9,7 @@ import dev.goldenstack.loot.minestom.generation.LootTable;
 import dev.goldenstack.loot.minestom.modifier.LevelledEnchantModifier;
 import dev.goldenstack.loot.minestom.modifier.LimitCountModifier;
 import dev.goldenstack.loot.minestom.modifier.SetCountModifier;
+import dev.goldenstack.loot.minestom.modifier.SmeltItemModifier;
 import dev.goldenstack.loot.minestom.number.BinomialNumber;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.minestom.number.UniformNumber;
@@ -71,6 +72,7 @@ public class MinestomLoader {
         builder.addConverter(LevelledEnchantModifier.CONVERTER);
         builder.addConverter(LimitCountModifier.CONVERTER);
         builder.addConverter(SetCountModifier.CONVERTER);
+        builder.addConverter(SmeltItemModifier.CONVERTER);
     }
 
     /**
