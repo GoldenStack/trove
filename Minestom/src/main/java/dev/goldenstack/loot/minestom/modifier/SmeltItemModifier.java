@@ -26,8 +26,8 @@ public record SmeltItemModifier(@NotNull List<LootCondition> conditions) impleme
     /**
      * A standard map-based converter for item smelting modifiers.
      */
-    public static final @NotNull KeyedLootConverter<SetCountModifier> CONVERTER =
-            converter(SetCountModifier.class,
+    public static final @NotNull KeyedLootConverter<SmeltItemModifier> CONVERTER =
+            converter(SmeltItemModifier.class,
                     condition().list().name("conditions").withDefault(ArrayList::new)
             ).keyed("minecraft:furnace_smelt");
 

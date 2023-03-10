@@ -30,8 +30,8 @@ public record LevelledEnchantModifier(@NotNull List<LootCondition> conditions,
     /**
      * A standard map-based converter for enchant-with-levels modifiers.
      */
-    public static final @NotNull KeyedLootConverter<LimitCountModifier> CONVERTER =
-            converter(LimitCountModifier.class,
+    public static final @NotNull KeyedLootConverter<LevelledEnchantModifier> CONVERTER =
+            converter(LevelledEnchantModifier.class,
                     condition().list().name("conditions").withDefault(ArrayList::new),
                     number().name("levelRange").nodeName("range"),
                     implicit(boolean.class).name("permitTreasure").nodeName("treasureEnchantmentsAllowed").withDefault(false)

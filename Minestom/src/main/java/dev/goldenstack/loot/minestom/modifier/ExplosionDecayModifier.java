@@ -26,8 +26,8 @@ public record ExplosionDecayModifier(@NotNull List<LootCondition> conditions) im
     /**
      * A standard map-based converter for explosion decay modifiers.
      */
-    public static final @NotNull KeyedLootConverter<LimitCountModifier> CONVERTER =
-            converter(LimitCountModifier.class,
+    public static final @NotNull KeyedLootConverter<ExplosionDecayModifier> CONVERTER =
+            converter(ExplosionDecayModifier.class,
                     condition().list().name("conditions").withDefault(ArrayList::new)
             ).keyed("minecraft:explosion_decay");
 
