@@ -70,6 +70,7 @@ public class MinestomLoader {
         builder.addConverter(LevelledEnchantModifier.CONVERTER);
         builder.addConverter(LimitCountModifier.CONVERTER);
         builder.addConverter(SetCountModifier.CONVERTER);
+        builder.addConverter(SetNbtModifier.CONVERTER);
         builder.addConverter(SmeltItemModifier.CONVERTER);
     }
 

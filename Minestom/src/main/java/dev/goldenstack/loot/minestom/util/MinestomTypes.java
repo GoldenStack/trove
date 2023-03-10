@@ -11,6 +11,13 @@ import dev.goldenstack.loot.util.Utils;
 import net.minestom.server.item.Material;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
+import org.jglrxavpok.hephaistos.nbt.NBT;
+import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+import org.jglrxavpok.hephaistos.nbt.NBTException;
+import org.jglrxavpok.hephaistos.parser.SNBTParser;
+import org.spongepowered.configurate.ConfigurateException;
+
+import java.io.StringReader;
 
 /**
  * Utility for the creation of various types of Minestom-related fields.
@@ -68,5 +75,37 @@ public class MinestomTypes extends FieldTypes {
     public static @NotNull Field<LootTable> table() {
         return Field.field(LootTable.class, LootTable.CONVERTER);
     }
+
+    /**
+     * @return a field converting NBT
+     */
+    public static @NotNull Field<NBT> nbt() {
+        return Field.field(NBT.class, Utils.createAdditive(
+            (input, result, context) -> result.set(input.toSNBT()),
+            (input, context) -> {
+                var snbt = input.require(String.class);
+                var parser = new SNBTParser(new StringReader(snbt));
+
+                try {
+                    return parser.parse();
+                } catch (NBTException e) {
+                    throw new ConfigurateException(input, e);
+                }
+            }
+        ));
+    }
+
+    /**
+     * @return a field converting NBT compounds
+     */
+    public static @NotNull Field<NBTCompound> nbtCompound() {
+        return nbt().map(NBTCompound.class, input -> {
+            if (input instanceof NBTCompound compound) {
+                return compound;
+            }
+            throw new ConfigurateException("Expected a NBT compound but found raw NBT: " + input);
+        }, nbt -> nbt);
+    }
+
 
 }
