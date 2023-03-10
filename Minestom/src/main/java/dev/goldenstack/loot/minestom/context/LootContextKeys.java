@@ -48,7 +48,7 @@ public class LootContextKeys {
 
     /**
      * Represents the direct killer of whatever created this loot context. For example, this is the arrow that killed a
-     * mob, {@link #KILLER_ENTITY} would be the entity that shot the arrow.
+     * mob; {@link #KILLER_ENTITY} would be the entity that shot the arrow.
      */
     public static final @NotNull LootContext.Key<Entity> DIRECT_KILLER_ENTITY = key("minecraft:direct_killer_entity", new TypeToken<>(){});
 
