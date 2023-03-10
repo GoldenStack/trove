@@ -31,14 +31,13 @@ public record ExplosionDecayModifier(@NotNull List<LootCondition> conditions) im
                     condition().list().name("conditions").withDefault(ArrayList::new)
             ).keyed("minecraft:explosion_decay");
 
-    @SuppressWarnings("DataFlowIssue") // Should be safe because, at the warning, previously verified the key existing
     @Override
     public @Nullable Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context) || !context.has(LootContextKeys.EXPLOSION_RADIUS)) {
             return input;
         }
 
-        float radius = context.get(LootContextKeys.EXPLOSION_RADIUS);
+        float radius = context.assure(LootContextKeys.EXPLOSION_RADIUS);
 
         int newCount = 0;
         for (int i = 0; i < input.amount(); i++) {
