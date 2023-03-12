@@ -25,7 +25,7 @@ public record TimeCheckCondition(@NotNull LootNumberRange range, @Nullable Long 
     public static final @NotNull KeyedLootConverter<TimeCheckCondition> CONVERTER =
             converter(TimeCheckCondition.class,
                     numberRange().name("range").nodeName("value"),
-                    implicit(Long.class).withDefault(() -> null).name("period")
+                    implicit(Long.class).optional().name("period")
             ).keyed("minecraft:time_check");
 
     @Override

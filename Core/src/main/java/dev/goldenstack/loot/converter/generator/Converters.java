@@ -163,8 +163,8 @@ public class Converters {
         return new Producer<>(TypeToken.get(type), actualDeserializer, actualAdditiveSerializer);
     }
 
-    // Used to store a constant type parameter so that deserialization can actually occur
-    private static <T> @NotNull T deserialize(@NotNull Field<T> field, @NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException {
+    // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
+    private static <T> @Nullable T deserialize(@NotNull Field<T> field, @NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException {
         if (input.empty()) {
             if (field.defaultValue() == null) {
                 throw new ConfigurateException(input, "(Type: " + field.type().getType() + ") Input was empty and this field doesn't have a default value.");
@@ -174,17 +174,21 @@ public class Converters {
         return field.converter().deserialize(input, context);
     }
 
-    // Used to store a constant type parameter so that serialization can actually occur
+    // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
     @SuppressWarnings("unchecked")
     private static <T> void serialize(@NotNull Field<T> field, @Nullable Object input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
-        // It SHOULDN'T ever be null, but we should handle it anyway
         if (input == null) {
             if (field.defaultValue() == null) {
                 throw new ConfigurateException("(Type: " + field.type().getType() + ") Input was null and this field doesn't have a default value.");
             }
             input = field.defaultValue().get();
+
+            // Serialize nothing if the default value is null
+            if (input == null) {
+                return;
+            }
         }
-        // This cast is safe because we verified the return type previously
+        // This cast is safe because we grab the object directly from the field; it's just that Field#get always returns an object.
         field.converter().serialize((T) input, result, context);
     }
 

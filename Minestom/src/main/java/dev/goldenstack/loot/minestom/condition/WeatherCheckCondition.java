@@ -22,8 +22,8 @@ public record WeatherCheckCondition(@Nullable Boolean raining, @Nullable Boolean
      */
     public static final @NotNull KeyedLootConverter<WeatherCheckCondition> CONVERTER =
             converter(WeatherCheckCondition.class,
-                    implicit(Boolean.class).withDefault(() -> null).name("raining"),
-                    implicit(Boolean.class).withDefault(() -> null).name("thundering")
+                    implicit(Boolean.class).optional().name("raining"),
+                    implicit(Boolean.class).optional().name("thundering")
             ).keyed("minecraft:weather_check");
 
     @Override

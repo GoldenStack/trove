@@ -95,6 +95,14 @@ public record Field<T>(@NotNull TypeToken<T> type,
     }
 
     /**
+     * Makes this field nullable/optional. This is accomplished by simply setting the default value to null.
+     * @return a new field with the updated information
+     */
+    public @NotNull Field<T> optional() {
+        return withDefault(() -> null);
+    }
+
+    /**
      * Makes this field use a default value when serializing and deserializing.<br>
      * Be careful when providing a mutable object here, as it may have unexpected consequences.
      * @param defaultValue the new default value to use
