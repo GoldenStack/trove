@@ -131,6 +131,39 @@ public record Field<T>(@NotNull TypeToken<T> type,
     }
 
     /**
+     * Makes this field serialize and deserialize a list of this field's current type, allowing singular elements
+     * instead of a list to be treated as a list of one item. For example, if this is deserializing from an object, and
+     * it encounters an integer, and is attempting to deserialize lists of integers, it will be treated as deserializing
+     * a list containing one integer.
+     * @return a new field with the updated information
+     */
+    public @NotNull Field<List<T>> possibleList() {
+        var oldConverter = converter;
+
+        AdditiveConverter<List<T>> newConverter = Utils.createAdditive(
+                (input, result, context) -> {
+                    if (input.size() == 1) {
+                        oldConverter.serialize(input.get(0), result, context);
+                    } else {
+                        Utils.serializeAdditiveList(input, result, oldConverter, context);
+                    }
+                },
+                (input, context) -> {
+                    if (input.isList()) {
+                        return Utils.deserializeList(input, oldConverter, context);
+                    } else {
+                        return List.of(oldConverter.deserialize(input, context));
+                    }
+                }
+        );
+
+        @SuppressWarnings("unchecked") // This is safe because TypeFactory.parameterizedClass unfortunately just removes the generic
+        TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.type.getType()));
+
+        return new Field<>(newType, newConverter, localName, nodeName, null);
+    }
+
+    /**
      * Maps this field to a new type with the provided functions.<br>
      * Possesses identical semantics to {@link #map(TypeToken, FallibleFunction, FallibleFunction)}, except that it
      * automatically converts the class into a type token.<br>

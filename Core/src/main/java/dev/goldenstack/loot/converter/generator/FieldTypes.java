@@ -9,8 +9,14 @@ import dev.goldenstack.loot.structure.LootNumber;
 import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.ConfigurateException;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Utility for the creation of various types of fields.
@@ -40,6 +46,58 @@ public class FieldTypes {
                     (input, context) -> input.require(type)
                 )
         );
+    }
+
+    /**
+     * @return a field converting UUIDs
+     */
+    public static @NotNull Field<UUID> uuid() {
+        return Field.field(UUID.class, Utils.createAdditive(
+                (input, result, context) -> {
+                    result.set(input.toString());
+                },
+                (input, context) -> {
+                    try {
+                        return UUID.fromString(input.require(String.class));
+                    } catch (IllegalArgumentException e) {
+                        throw new ConfigurateException(input, "Could not read UUID from node", e);
+                    }
+                }
+        ));
+    }
+
+    /**
+     * Creates a field that converts every enum value from the provided type.
+     * @param type the type being converted
+     * @param namer the function that gets the names for each value
+     * @return a field converting whatever {@link <T>} is
+     * @param <T> the enumerated type
+     */
+    public static <T extends Enum<T>> @NotNull Field<T> enumerated(@NotNull Class<T> type, @NotNull Function<T, String> namer) {
+        return enumerated(type, Arrays.asList(type.getEnumConstants()), namer);
+    }
+
+    /**
+     * Creates a field that converts every value in the provided collection.
+     * @param type the type being converted
+     * @param values the list of values being converted
+     * @param namer the function that gets the names for each value
+     * @return a field converting whatever {@link <T>} is
+     * @param <T> the enumerated type
+     */
+    public static <T> @NotNull Field<T> enumerated(@NotNull Class<T> type, @NotNull Collection<T> values, @NotNull Function<T, String> namer) {
+        Map<String, T> mappings = values.stream().collect(Collectors.toMap(namer, Function.identity()));
+
+        return Field.field(type, Utils.createAdditive(
+                (input, result, context) -> result.set(type, namer.apply(input)),
+                (input, context) -> {
+                    var get = mappings.get(input.require(String.class));
+                    if (get == null) {
+                        throw new ConfigurateException(input, "Expected a value of " + type + " but found something else");
+                    }
+                    return get;
+                }
+        ));
     }
 
     /**

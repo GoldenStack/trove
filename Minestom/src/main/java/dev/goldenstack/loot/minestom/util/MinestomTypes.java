@@ -96,6 +96,55 @@ public class MinestomTypes extends FieldTypes {
     }
 
     /**
+     * Creates a field that basically treats the provided value and their identifiers as a registry, mapping them via
+     * {@link NamespaceID} instances.
+     * @param type the converted type
+     * @param values the list of possible values of the type
+     * @param identifier the function that generates the identifier for each value
+     * @return a field converting whatever {@link <T>} is
+     * @param <T> the type that will be converted
+     */
+    public static <T> @NotNull Field<T> identified(@NotNull Class<T> type, @NotNull Collection<T> values,
+                                                   @NotNull Function<T, NamespaceID> identifier) {
+        Map<NamespaceID, T> mappings = new HashMap<>();
+        for (var value : values) {
+            mappings.put(identifier.apply(value), value);
+        }
+
+        return Field.field(type, Utils.createAdditive(
+                (input, result, context) -> result.set(type, identifier.apply(input)),
+                (input, context) -> {
+                    var get = mappings.get(NamespaceID.from(input.require(String.class)));
+                    if (get == null) {
+                        throw new ConfigurateException(input, "Expected a value of " + type + " but found something else");
+                    }
+                    return get;
+                }
+        ));
+    }
+
+    /**
+     * @return a field converting attribute types
+     */
+    public static @NotNull Field<Attribute> attribute() {
+        return identified(Attribute.class, Attribute.values(), attribute -> NamespaceID.from(attribute.key()));
+    }
+
+    /**
+     * @return a field converting attribute operations
+     */
+    public static @NotNull Field<AttributeOperation> attributeOperation() {
+        return enumerated(AttributeOperation.class, operation -> operation.name().toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * @return a field converting attribute slots
+     */
+    public static @NotNull Field<AttributeSlot> attributeSlot() {
+        return enumerated(AttributeSlot.class, operation -> operation.name().toLowerCase(Locale.ROOT));
+    }
+
+    /**
      * @return a field converting NBT compounds
      */
     public static @NotNull Field<NBTCompound> nbtCompound() {
