@@ -6,7 +6,6 @@ import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.serialize.Scalars;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +47,8 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
                     if (entry.getValue().isMap()) {
                         checks.add(new RangedLongState(
                                 String.valueOf(entry.getKey()),
-                                Scalars.LONG.tryDeserialize(entry.getValue().node("min").rawScalar()),
-                                Scalars.LONG.tryDeserialize(entry.getValue().node("max").rawScalar())
+                                entry.getValue().node("min").get(Long.class),
+                                entry.getValue().node("max").get(Long.class)
                         ));
                     } else {
                         var scalar = entry.getValue().rawScalar();
