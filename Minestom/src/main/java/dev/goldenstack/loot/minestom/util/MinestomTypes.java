@@ -8,7 +8,10 @@ import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
 import dev.goldenstack.loot.minestom.util.check.BlockStateCheck;
 import dev.goldenstack.loot.util.Utils;
+import net.minestom.server.attribute.Attribute;
+import net.minestom.server.attribute.AttributeOperation;
 import net.minestom.server.item.Material;
+import net.minestom.server.item.attribute.AttributeSlot;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBT;
@@ -18,6 +21,11 @@ import org.jglrxavpok.hephaistos.parser.SNBTParser;
 import org.spongepowered.configurate.ConfigurateException;
 
 import java.io.StringReader;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Utility for the creation of various types of Minestom-related fields.
