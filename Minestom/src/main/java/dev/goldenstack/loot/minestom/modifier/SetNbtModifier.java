@@ -6,7 +6,6 @@ import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public record SetNbtModifier(@NotNull List<LootCondition> conditions, @NotNull N
             ).keyed("minecraft:set_nbt");
 
     @Override
-    public @Nullable Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
+    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return input;
         }

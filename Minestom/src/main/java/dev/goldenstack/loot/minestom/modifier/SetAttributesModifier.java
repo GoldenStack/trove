@@ -42,7 +42,7 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
             ).keyed("minecraft:set_attributes");
 
     @Override
-    public @Nullable Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
+    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return input;
         }

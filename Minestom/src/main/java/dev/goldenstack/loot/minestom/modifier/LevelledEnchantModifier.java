@@ -8,7 +8,6 @@ import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootNumber;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,7 @@ public record LevelledEnchantModifier(@NotNull List<LootCondition> conditions,
             ).keyed("minecraft:enchant_with_levels");
 
     @Override
-    public @Nullable Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
+    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return input;
         }
