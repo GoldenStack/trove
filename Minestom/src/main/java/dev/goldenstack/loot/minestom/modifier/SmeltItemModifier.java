@@ -3,14 +3,13 @@ package dev.goldenstack.loot.minestom.modifier;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
+import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
-import dev.goldenstack.loot.structure.LootModifier;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.StackingRule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +20,7 @@ import static dev.goldenstack.loot.converter.generator.FieldTypes.condition;
  * Smelts items provided to it, removing them if they couldn't be smelted.
  * @param conditions the conditions required for smelting
  */
-public record SmeltItemModifier(@NotNull List<LootCondition> conditions) implements LootModifier.Filtered<ItemStack> {
+public record SmeltItemModifier(@NotNull List<LootCondition> conditions) implements ItemStackModifier {
 
     /**
      * A standard map-based converter for item smelting modifiers.
@@ -50,8 +49,4 @@ public record SmeltItemModifier(@NotNull List<LootCondition> conditions) impleme
         return rule.apply(smelted, input.amount());
     }
 
-    @Override
-    public @NotNull Type filteredType() {
-        return ItemStack.class;
-    }
 }

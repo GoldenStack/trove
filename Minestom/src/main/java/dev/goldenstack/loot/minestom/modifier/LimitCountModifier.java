@@ -2,15 +2,14 @@ package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import dev.goldenstack.loot.structure.LootCondition;
-import dev.goldenstack.loot.structure.LootModifier;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.StackingRule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,7 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.numberRange;
  * @param limit the item count limiter
  */
 public record LimitCountModifier(@NotNull List<LootCondition> conditions,
-                                 @NotNull LootNumberRange limit) implements LootModifier.Filtered<ItemStack> {
+                                 @NotNull LootNumberRange limit) implements ItemStackModifier {
 
     /**
      * A standard map-based converter for limit count modifiers.
@@ -58,8 +57,4 @@ public record LimitCountModifier(@NotNull List<LootCondition> conditions,
         return null;
     }
 
-    @Override
-    public @NotNull Type filteredType() {
-        return ItemStack.class;
-    }
 }

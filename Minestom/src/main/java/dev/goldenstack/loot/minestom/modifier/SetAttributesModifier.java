@@ -3,9 +3,9 @@ package dev.goldenstack.loot.minestom.modifier;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.additive.AdditiveConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.minestom.util.MinestomTypes;
 import dev.goldenstack.loot.structure.LootCondition;
-import dev.goldenstack.loot.structure.LootModifier;
 import dev.goldenstack.loot.structure.LootNumber;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.attribute.AttributeOperation;
@@ -15,7 +15,6 @@ import net.minestom.server.item.attribute.ItemAttribute;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -31,7 +30,7 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
  * @param attributes the attributes to apply to each item
  */
 public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
-                                    @NotNull List<AttributeDirective> attributes) implements LootModifier.Filtered<ItemStack> {
+                                    @NotNull List<AttributeDirective> attributes) implements ItemStackModifier {
 
     /**
      * A standard map-based converter for set attribute modifiers.
@@ -59,11 +58,6 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
         }
 
         return input.withMeta(meta -> meta.attributes(appliedAttributes));
-    }
-
-    @Override
-    public @NotNull Type filteredType() {
-        return ItemStack.class;
     }
 
     /**

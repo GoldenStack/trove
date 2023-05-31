@@ -2,14 +2,13 @@ package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
-import dev.goldenstack.loot.structure.LootModifier;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +22,7 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.nbtCompound;
  * @param conditions the conditions required for use
  * @param nbt the nbt to set as the item's NBT
  */
-public record SetNbtModifier(@NotNull List<LootCondition> conditions, @NotNull NBTCompound nbt) implements LootModifier.Filtered<ItemStack> {
+public record SetNbtModifier(@NotNull List<LootCondition> conditions, @NotNull NBTCompound nbt) implements ItemStackModifier {
 
     /**
      * A standard map-based converter for NBT set modifiers.
@@ -46,11 +45,6 @@ public record SetNbtModifier(@NotNull List<LootCondition> conditions, @NotNull N
         return ItemStack.builder(input.material())
                 .amount(input.amount())
                 .meta(modifiedNbt).build();
-    }
-
-    @Override
-    public @NotNull Type filteredType() {
-        return ItemStack.class;
     }
 
     private static NBTCompound merge(NBTCompound base, NBTCompound changes) {

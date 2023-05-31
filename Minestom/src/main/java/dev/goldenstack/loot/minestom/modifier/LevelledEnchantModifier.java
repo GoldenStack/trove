@@ -3,14 +3,13 @@ package dev.goldenstack.loot.minestom.modifier;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
+import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
-import dev.goldenstack.loot.structure.LootModifier;
 import dev.goldenstack.loot.structure.LootNumber;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +24,7 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
  */
 public record LevelledEnchantModifier(@NotNull List<LootCondition> conditions,
                                       @NotNull LootNumber levelRange,
-                                      boolean permitTreasure) implements LootModifier.Filtered<ItemStack> {
+                                      boolean permitTreasure) implements ItemStackModifier {
 
     /**
      * A standard map-based converter for enchant-with-levels modifiers.
@@ -47,8 +46,4 @@ public record LevelledEnchantModifier(@NotNull List<LootCondition> conditions,
         return vanilla.enchantItem(context.random(), input, (int) levelRange.getLong(context), permitTreasure);
     }
 
-    @Override
-    public @NotNull Type filteredType() {
-        return ItemStack.class;
-    }
 }

@@ -3,13 +3,12 @@ package dev.goldenstack.loot.minestom.modifier;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
+import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
-import dev.goldenstack.loot.structure.LootModifier;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +20,7 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
  * explosion radius on the context.
  * @param conditions the conditions required for use
  */
-public record ExplosionDecayModifier(@NotNull List<LootCondition> conditions) implements LootModifier.Filtered<ItemStack> {
+public record ExplosionDecayModifier(@NotNull List<LootCondition> conditions) implements ItemStackModifier {
 
     /**
      * A standard map-based converter for explosion decay modifiers.
@@ -48,8 +47,4 @@ public record ExplosionDecayModifier(@NotNull List<LootCondition> conditions) im
         return input.withAmount(newCount);
     }
 
-    @Override
-    public @NotNull Type filteredType() {
-        return ItemStack.class;
-    }
 }
