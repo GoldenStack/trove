@@ -66,6 +66,7 @@ public class MinestomLoader {
         builder.keyLocation("function");
 
         // Registered converters
+        builder.addConverter(ApplyLootingModifier.CONVERTER);
         builder.addConverter(ExplosionDecayModifier.CONVERTER);
         builder.addConverter(LevelledEnchantModifier.CONVERTER);
         builder.addConverter(LimitCountModifier.CONVERTER);
