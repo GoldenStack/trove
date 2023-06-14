@@ -10,6 +10,7 @@ import dev.goldenstack.loot.minestom.util.check.BlockStateCheck;
 import dev.goldenstack.loot.util.Utils;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.attribute.AttributeOperation;
+import net.minestom.server.item.Enchantment;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.attribute.AttributeSlot;
 import net.minestom.server.utils.NamespaceID;
@@ -43,7 +44,14 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting materials
      */
     public static @NotNull Field<Material> material() {
-        return implicit(String.class).map(Material.class, Material::fromNamespaceId, Material::toString);
+        return implicit(String.class).map(Material.class, Material::fromNamespaceId, Material::name);
+    }
+
+    /**
+     * @return a field converting enchantments
+     */
+    public static @NotNull Field<Enchantment> enchantment() {
+        return implicit(String.class).map(Enchantment.class, Enchantment::fromNamespaceId, Enchantment::name);
     }
 
     /**
