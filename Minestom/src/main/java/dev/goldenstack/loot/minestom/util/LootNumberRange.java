@@ -32,16 +32,16 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
             (input, context) -> {
                 if (input.isNull()) {
                     return new LootNumberRange(null, null);
-                }
-                var number = input.get(Double.class);
-                if (number != null) {
+                } else if (input.isMap()) {
+                    return new LootNumberRange(
+                            context.loader().lootNumberManager().deserialize(input.node("min"), context),
+                            context.loader().lootNumberManager().deserialize(input.node("max"), context)
+                    );
+                } else { // Is either invalid or a number, so we can assume here
+                    var number = input.require(Double.class);
                     var constant = new ConstantNumber(number);
                     return new LootNumberRange(constant, constant);
                 }
-                return new LootNumberRange(
-                        context.loader().lootNumberManager().deserialize(input.node("min"), context),
-                        context.loader().lootNumberManager().deserialize(input.node("max"), context)
-                );
             }
     );
 
