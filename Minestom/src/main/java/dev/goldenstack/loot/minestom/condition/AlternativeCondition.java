@@ -5,6 +5,7 @@ import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
@@ -21,7 +22,7 @@ public record AlternativeCondition(@NotNull List<LootCondition> conditions) impl
      */
     public static final @NotNull KeyedLootConverter<AlternativeCondition> CONVERTER =
             converter(AlternativeCondition.class,
-                    condition().list().name("conditions")
+                    condition().list().name("conditions").withDefault(ArrayList::new)
             ).keyed("minecraft:alternative");
 
     @Override
