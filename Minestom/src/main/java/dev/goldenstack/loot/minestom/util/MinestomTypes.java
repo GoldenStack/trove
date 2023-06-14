@@ -2,6 +2,7 @@ package dev.goldenstack.loot.minestom.util;
 
 import dev.goldenstack.loot.converter.generator.Field;
 import dev.goldenstack.loot.converter.generator.FieldTypes;
+import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.context.LootConversionKeys;
@@ -13,7 +14,6 @@ import io.leangen.geantyref.TypeToken;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.attribute.AttributeOperation;
 import net.minestom.server.item.Enchantment;
-import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.attribute.AttributeSlot;
 import net.minestom.server.utils.NamespaceID;
@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * Utility for the creation of various types of Minestom-related fields.
@@ -75,14 +74,29 @@ public class MinestomTypes extends FieldTypes {
     /**
      * @return a field converting item predicates
      */
-    public static @NotNull Field<Predicate<ItemStack>> itemPredicate() {
-        return Field.field(new TypeToken<Predicate<ItemStack>>() {}, Utils.createAdditive(
+    public static @NotNull Field<VanillaInterface.ItemPredicate> itemPredicate() {
+        return Field.field(new TypeToken<VanillaInterface.ItemPredicate>() {}, Utils.createAdditive(
                 (input, result, context) -> {
                     var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
                     vanilla.itemPredicateConverter().serialize(input, result, context);
                 }, (input, context) -> {
                     var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
                     return vanilla.itemPredicateConverter().deserialize(input, context);
+                }
+        ));
+    }
+
+    /**
+     * @return a field converting location predicates
+     */
+    public static @NotNull Field<VanillaInterface.LocationPredicate> locationPredicate() {
+        return Field.field(new TypeToken<VanillaInterface.LocationPredicate>() {}, Utils.createAdditive(
+                (input, result, context) -> {
+                    var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
+                    vanilla.locationPredicateConverter().serialize(input, result, context);
+                }, (input, context) -> {
+                    var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
+                    return vanilla.locationPredicateConverter().deserialize(input, context);
                 }
         ));
     }

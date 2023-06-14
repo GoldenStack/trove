@@ -1,6 +1,7 @@
 package dev.goldenstack.loot.minestom;
 
 import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
@@ -16,6 +17,22 @@ import java.util.function.Predicate;
  * Default implementations of these methods will throw {@link UnsupportedOperationException}.
  */
 public interface VanillaInterface {
+
+    /**
+     * Verifies that the provided item fits some predicate.
+     */
+    interface ItemPredicate extends Predicate<ItemStack> {
+
+    }
+
+    /**
+     * Verifies that the provided location in the world fits some predicate.
+     */
+    interface LocationPredicate {
+
+        boolean test(@NotNull Instance world, @NotNull Pos location);
+
+    }
 
     /**
      * @param instance the instance to check
@@ -68,7 +85,16 @@ public interface VanillaInterface {
      * of circumstances.
      * @return the converter for item predicates
      */
-    default @NotNull AdditiveConverter<Predicate<ItemStack>> itemPredicateConverter() {
+    default @NotNull AdditiveConverter<ItemPredicate> itemPredicateConverter() {
         throw new UnsupportedOperationException("VanillaInterface#itemPredicateConverter has not been implemented!");
+    }
+
+    /**
+     * Provides the converter for location predicates. These are the predicates that Minecraft uses for locations, such
+     * as for advancements and loot tables.
+     * @return the converter for location predicates
+     */
+    default @NotNull AdditiveConverter<LocationPredicate> locationPredicateConverter() {
+        throw new UnsupportedOperationException("VanillaInterface#locationPredicateConverter has not been implemented!");
     }
 }
