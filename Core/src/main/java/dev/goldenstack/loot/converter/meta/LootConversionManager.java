@@ -152,7 +152,7 @@ public class LootConversionManager<V> {
         String actualKey = keyNode.require(String.class);
         KeyedLootConverter<? extends V> converter = this.directKeyRegistry.get(actualKey);
         if (converter == null) {
-            throw new ConfigurateException(keyNode, "Could not find a valid keyed loot converter for key '" + actualKey + "'");
+            throw new ConfigurateException(keyNode, "Could not find a valid keyed loot converter for type '" + actualKey + "' (base type: " + baseType().getType() + ")");
         }
         return converter.deserialize(input, context);
     }

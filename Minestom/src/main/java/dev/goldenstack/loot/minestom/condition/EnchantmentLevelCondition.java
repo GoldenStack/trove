@@ -26,7 +26,7 @@ public record EnchantmentLevelCondition(@NotNull Enchantment enchantment,
     public static final @NotNull KeyedLootConverter<BlockStateCondition> CONVERTER =
             converter(BlockStateCondition.class,
                 MinestomTypes.enchantment().name("enchantment"),
-                implicit(float.class).list().name("chances")
+                implicit(Double.class).list().name("chances")
             ).keyed("minecraft:table_bonus");
 
     @Override
