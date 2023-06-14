@@ -7,6 +7,7 @@ import dev.goldenstack.loot.structure.LootNumber;
 import dev.goldenstack.loot.util.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.ConfigurateException;
 
 /**
  * An inclusive number range based on loot numbers.
@@ -38,7 +39,11 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
                             context.loader().lootNumberManager().deserialize(input.node("max"), context)
                     );
                 } else { // Is either invalid or a number, so we can assume here
-                    var number = input.require(Double.class);
+                    var number = input.get(Double.class);
+
+                    if (number == null) {
+                        throw new ConfigurateException(input, "Expected null, a map, or a scalar");
+                    }
                     var constant = new ConstantNumber(number);
                     return new LootNumberRange(constant, constant);
                 }
