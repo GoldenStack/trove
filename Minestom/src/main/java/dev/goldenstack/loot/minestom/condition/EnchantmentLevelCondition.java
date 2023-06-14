@@ -23,8 +23,8 @@ public record EnchantmentLevelCondition(@NotNull Enchantment enchantment,
     /**
      * A standard map-based converter for enchantment level conditions.
      */
-    public static final @NotNull KeyedLootConverter<BlockStateCondition> CONVERTER =
-            converter(BlockStateCondition.class,
+    public static final @NotNull KeyedLootConverter<EnchantmentLevelCondition> CONVERTER =
+            converter(EnchantmentLevelCondition.class,
                 MinestomTypes.enchantment().name("enchantment"),
                 implicit(Double.class).list().name("chances")
             ).keyed("minecraft:table_bonus");
