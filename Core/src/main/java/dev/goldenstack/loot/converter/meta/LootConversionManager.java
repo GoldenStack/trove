@@ -119,7 +119,7 @@ public class LootConversionManager<V> {
         @SuppressWarnings("unchecked")
         KeyedLootConverter<R> converter = (KeyedLootConverter<R>) this.typeTokenRegistry.get(TypeToken.get(input.getClass()));
         if (converter == null) {
-            throw new ConfigurateException("Could not find a valid keyed loot converter for type '" + input.getClass() + "'");
+            throw new ConfigurateException("Could not find a valid keyed loot converter for type '" + input.getClass() + "' (base type: " + baseType().getType() + ")");
         }
         result.node(this.keyLocation).set(converter.key());
         converter.serialize(input, result, context);
