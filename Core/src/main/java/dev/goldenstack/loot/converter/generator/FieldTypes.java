@@ -70,7 +70,7 @@ public class FieldTypes {
      * Creates a field that converts every enum value from the provided type.
      * @param type the type being converted
      * @param namer the function that gets the names for each value
-     * @return a field converting whatever <T> is
+     * @return a field converting whatever &lt;T&gt; is
      * @param <T> the enumerated type
      */
     public static <T extends Enum<T>> @NotNull Field<T> enumerated(@NotNull Class<T> type, @NotNull Function<T, String> namer) {
@@ -82,7 +82,7 @@ public class FieldTypes {
      * @param type the type being converted
      * @param values the list of values being converted
      * @param namer the function that gets the names for each value
-     * @return a field converting whatever <T> is
+     * @return a field converting whatever &lt;T&gt; is
      * @param <T> the enumerated type
      */
     public static <T> @NotNull Field<T> enumerated(@NotNull Class<T> type, @NotNull Collection<T> values, @NotNull Function<T, String> namer) {
