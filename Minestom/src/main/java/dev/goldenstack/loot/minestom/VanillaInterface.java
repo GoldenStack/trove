@@ -1,5 +1,6 @@
 package dev.goldenstack.loot.minestom;
 
+import dev.goldenstack.loot.converter.additive.AdditiveConverter;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
@@ -7,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
+import java.util.function.Predicate;
 
 /**
  * An interface to the features of vanilla Minecraft that are required for specific loot-related features, not forcing
@@ -59,5 +61,14 @@ public interface VanillaInterface {
      */
     default @Nullable ItemStack smeltItem(@NotNull ItemStack item) {
         throw new UnsupportedOperationException("VanillaInterface#smeltItem has not been implemented!");
+    }
+
+    /**
+     * Provides the converter for item predicates. These are the predicates that Minecraft uses for items in a variety
+     * of circumstances.
+     * @return the converter for item predicates
+     */
+    default @NotNull AdditiveConverter<Predicate<ItemStack>> itemPredicateConverter() {
+        throw new UnsupportedOperationException("VanillaInterface#itemPredicateConverter has not been implemented!");
     }
 }

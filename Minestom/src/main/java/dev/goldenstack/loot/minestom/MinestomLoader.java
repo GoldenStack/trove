@@ -97,6 +97,7 @@ public class MinestomLoader {
         builder.addConverter(ReferenceCondition.CONVERTER);
         builder.addConverter(SurvivesExplosionCondition.CONVERTER);
         builder.addConverter(TimeCheckCondition.CONVERTER);
+        builder.addConverter(ToolPredicateCondition.CONVERTER);
         builder.addConverter(WeatherCheckCondition.CONVERTER);
     }
 

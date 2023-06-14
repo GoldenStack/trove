@@ -3,14 +3,17 @@ package dev.goldenstack.loot.minestom.util;
 import dev.goldenstack.loot.converter.generator.Field;
 import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
+import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.context.LootConversionKeys;
 import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
 import dev.goldenstack.loot.minestom.util.check.BlockStateCheck;
 import dev.goldenstack.loot.util.Utils;
+import io.leangen.geantyref.TypeToken;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.attribute.AttributeOperation;
 import net.minestom.server.item.Enchantment;
+import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.attribute.AttributeSlot;
 import net.minestom.server.utils.NamespaceID;
@@ -27,6 +30,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Utility for the creation of various types of Minestom-related fields.
@@ -66,6 +70,21 @@ public class MinestomTypes extends FieldTypes {
      */
     public static @NotNull Field<BlockStateCheck> blockStateCheck() {
         return Field.field(BlockStateCheck.class, BlockStateCheck.CONVERTER);
+    }
+
+    /**
+     * @return a field converting item predicates
+     */
+    public static @NotNull Field<Predicate<ItemStack>> itemPredicate() {
+        return Field.field(new TypeToken<Predicate<ItemStack>>() {}, Utils.createAdditive(
+                (input, result, context) -> {
+                    var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
+                    vanilla.itemPredicateConverter().serialize(input, result, context);
+                }, (input, context) -> {
+                    var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
+                    return vanilla.itemPredicateConverter().deserialize(input, context);
+                }
+        ));
     }
 
     /**
