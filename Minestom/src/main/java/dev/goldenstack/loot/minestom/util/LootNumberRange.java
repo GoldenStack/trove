@@ -35,8 +35,8 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
                     return new LootNumberRange(null, null);
                 } else if (input.isMap()) {
                     return new LootNumberRange(
-                            context.loader().lootNumberManager().deserialize(input.node("min"), context),
-                            context.loader().lootNumberManager().deserialize(input.node("max"), context)
+                            input.hasChild("min") ? null : context.loader().lootNumberManager().deserialize(input.node("min"), context),
+                            input.hasChild("max") ? null : context.loader().lootNumberManager().deserialize(input.node("max"), context)
                     );
                 } else { // Is either invalid or a number, so we can assume here
                     var number = input.get(Double.class);
