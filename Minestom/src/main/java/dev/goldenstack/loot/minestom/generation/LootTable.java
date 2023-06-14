@@ -30,7 +30,7 @@ public record LootTable(@NotNull LootContextKeyGroup contextKeyGroup,
     public static final @NotNull AdditiveConverter<LootTable> CONVERTER =
             converter(LootTable.class,
                     keyGroup().name("contextKeyGroup").nodeName("type"),
-                    pool().list().name("pools"),
+                    pool().list().name("pools").withDefault(ArrayList::new),
                     modifier().list().name("modifiers").nodeName("functions").withDefault(ArrayList::new)
             ).additive();
 
