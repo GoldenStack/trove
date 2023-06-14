@@ -109,7 +109,7 @@ public class MinestomTypes extends FieldTypes {
      * @param type the converted type
      * @param values the list of possible values of the type
      * @param identifier the function that generates the identifier for each value
-     * @return a field converting whatever {@link <T>} is
+     * @return a field converting whatever &lt;T&gt; is
      * @param <T> the type that will be converted
      */
     public static <T> @NotNull Field<T> identified(@NotNull Class<T> type, @NotNull Collection<T> values,
