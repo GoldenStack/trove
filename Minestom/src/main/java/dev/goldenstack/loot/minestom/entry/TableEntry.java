@@ -34,10 +34,10 @@ public record TableEntry(@NotNull NamespaceID tableIdentifier,
      */
     public static final @NotNull KeyedLootConverter<TableEntry> CONVERTER =
             converter(TableEntry.class,
-                    namespaceId().name("tableIdentifier").nodeName("name"),
+                    namespaceId().name("tableIdentifier").nodePath("name"),
                     implicit(long.class).name("weight").withDefault(1L),
                     implicit(long.class).name("quality").withDefault(0L),
-                    modifier().list().name("modifiers").nodeName("functions").withDefault(ArrayList::new),
+                    modifier().list().name("modifiers").nodePath("functions").withDefault(ArrayList::new),
                     condition().list().name("conditions").withDefault(ArrayList::new)
             ).keyed("minecraft:loot_table");
 

@@ -21,7 +21,7 @@ public record ToolPredicateCondition(@NotNull VanillaInterface.ItemPredicate too
      */
     public static final @NotNull KeyedLootConverter<ToolPredicateCondition> CONVERTER =
             converter(ToolPredicateCondition.class,
-                    itemPredicate().name("toolPredicate").nodeName("predicate")
+                    itemPredicate().name("toolPredicate").nodePath("predicate")
             ).keyed("minecraft:match_tool");
 
     @Override

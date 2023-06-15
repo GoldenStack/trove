@@ -24,8 +24,8 @@ public record BlockStateCondition(@NotNull NamespaceID blockKey, @NotNull BlockS
      */
     public static final @NotNull KeyedLootConverter<BlockStateCondition> CONVERTER =
             converter(BlockStateCondition.class,
-                    namespaceId().name("blockKey").nodeName("block"),
-                    blockStateCheck().name("check").nodeName("properties")
+                    namespaceId().name("blockKey").nodePath("block"),
+                    blockStateCheck().name("check").nodePath("properties")
             ).keyed("minecraft:block_state_property");
 
     @Override

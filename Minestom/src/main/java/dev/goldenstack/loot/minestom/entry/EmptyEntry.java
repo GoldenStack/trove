@@ -31,7 +31,7 @@ public record EmptyEntry(long weight, long quality,
             converter(EmptyEntry.class,
                     implicit(long.class).name("weight").withDefault(1L),
                     implicit(long.class).name("quality").withDefault(0L),
-                    modifier().list().name("modifiers").nodeName("functions").withDefault(ArrayList::new),
+                    modifier().list().name("modifiers").nodePath("functions").withDefault(ArrayList::new),
                     condition().list().name("conditions").withDefault(ArrayList::new)
             ).keyed("minecraft:empty");
 

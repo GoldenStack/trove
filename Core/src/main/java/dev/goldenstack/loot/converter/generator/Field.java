@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  * @param localName the local name of this field, used for finding constructor parameters and for finding the actual
  *                  field to read. This can be null, but it's not allowed to be null when passing this field into
  *                  functions like {@link Converters#converter(Class, Field[])}.
- * @param nodeName the node name of this field, used for finding the configuration node that needs to be deserialized
+ * @param nodePath the node path of this field, used for finding the configuration node that needs to be deserialized
  *                 and for adding the information of instances back onto nodes when serializing. Just like
  *                 {@code localName}, this can be null but should not be if passing into relevant methods.
  * @param defaultValue the default value of this field; used for serialization and deserialization. Be careful when
@@ -28,7 +28,8 @@ import java.util.function.Supplier;
  */
 public record Field<T>(@NotNull TypeToken<T> type,
                        @NotNull AdditiveConverter<T> converter,
-                       @UnknownNullability String localName, @UnknownNullability String nodeName,
+                       @UnknownNullability String localName,
+                       @UnknownNullability List<Object> nodePath,
                        @Nullable Supplier<T> defaultValue) {
 
     /**
@@ -57,13 +58,19 @@ public record Field<T>(@NotNull TypeToken<T> type,
         return field(TypeToken.get(type), converter);
     }
 
+    public Field {
+        if (nodePath != null) {
+            nodePath = List.copyOf(nodePath);
+        }
+    }
+
     /**
-     * Updates both names of this field - see {@link #localName(String)} and {@link #nodeName(String)}.
-     * @param name the new local and node name to use
+     * Updates both names of this field - see {@link #localName(String)} and {@link #nodePath(Object...)} )}.
+     * @param name the new local name and node path to use
      * @return a new field with the updated information
      */
     public @NotNull Field<T> name(@NotNull String name) {
-        return new Field<>(type, converter, name, name, defaultValue);
+        return new Field<>(type, converter, name, List.of(name), defaultValue);
     }
 
     /**
@@ -72,16 +79,25 @@ public record Field<T>(@NotNull TypeToken<T> type,
      * @return a new field with the updated information
      */
     public @NotNull Field<T> localName(@NotNull String name) {
-        return new Field<>(type, converter, name, nodeName, defaultValue);
+        return new Field<>(type, converter, name, nodePath, defaultValue);
     }
 
     /**
-     * Sets the name that will be used on the configuration node when serializing and deserializing.
-     * @param name the new node name to use
+     * Sets the path that will be used on the configuration node when serializing and deserializing.
+     * @param path the new path to use
      * @return a new field with the updated information
      */
-    public @NotNull Field<T> nodeName(@NotNull String name) {
-        return new Field<>(type, converter, localName, name, defaultValue);
+    public @NotNull Field<T> nodePath(@NotNull List<@NotNull Object> path) {
+        return new Field<>(type, converter, localName, List.copyOf(path), defaultValue);
+    }
+
+    /**
+     * Sets the path that will be used on the configuration node when serializing and deserializing.
+     * @param path the new path to use
+     * @return a new field with the updated information
+     */
+    public @NotNull Field<T> nodePath(@NotNull Object @NotNull ... path) {
+        return new Field<>(type, converter, localName, List.of(path), defaultValue);
     }
 
     /**
@@ -91,7 +107,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
      * @return a new field with the updated information
      */
     public @NotNull Field<T> withDefault(@NotNull Supplier<T> defaultValue) {
-        return new Field<>(type, converter, localName, nodeName, defaultValue);
+        return new Field<>(type, converter, localName, nodePath, defaultValue);
     }
 
     /**
@@ -127,7 +143,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
         @SuppressWarnings("unchecked") // This is safe because TypeFactory.parameterizedClass unfortunately just removes the generic
         TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.type.getType()));
 
-        return new Field<>(newType, newConverter, localName, nodeName, null);
+        return new Field<>(newType, newConverter, localName, nodePath, null);
     }
 
     /**
@@ -160,7 +176,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
         @SuppressWarnings("unchecked") // This is safe because TypeFactory.parameterizedClass unfortunately just removes the generic
         TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.type.getType()));
 
-        return new Field<>(newType, newConverter, localName, nodeName, null);
+        return new Field<>(newType, newConverter, localName, nodePath, null);
     }
 
     /**
@@ -198,7 +214,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
                 (input, result, context) -> oldConverter.serialize(fromNew.apply(input), result, context),
                 (input, context) -> toNew.apply(oldConverter.deserialize(input, context))
         );
-        return new Field<>(newType, newConverter, localName, nodeName, null);
+        return new Field<>(newType, newConverter, localName, nodePath, null);
     }
 
 }

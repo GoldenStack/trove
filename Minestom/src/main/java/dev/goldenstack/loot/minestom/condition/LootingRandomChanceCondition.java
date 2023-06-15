@@ -24,7 +24,7 @@ public record LootingRandomChanceCondition(double chance, double lootingCoeffici
     public static final @NotNull KeyedLootConverter<LootingRandomChanceCondition> CONVERTER =
             converter(LootingRandomChanceCondition.class,
                     implicit(double.class).name("chance"),
-                    implicit(double.class).name("lootingCoefficient").nodeName("looting_multiplier")
+                    implicit(double.class).name("lootingCoefficient").nodePath("looting_multiplier")
             ).keyed("minecraft:random_chance_with_looting");
 
     @Override

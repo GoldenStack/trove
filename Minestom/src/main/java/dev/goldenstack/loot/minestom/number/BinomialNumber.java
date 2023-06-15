@@ -20,8 +20,8 @@ public record BinomialNumber(@NotNull LootNumber trials, @NotNull LootNumber pro
      */
     public static final @NotNull KeyedLootConverter<BinomialNumber> CONVERTER =
             converter(BinomialNumber.class,
-                    number().name("trials").nodeName("n"),
-                    number().name("probability").nodeName("p")
+                    number().name("trials").nodePath("n"),
+                    number().name("probability").nodePath("p")
             ).keyed("minecraft:binomial");
 
     @Override

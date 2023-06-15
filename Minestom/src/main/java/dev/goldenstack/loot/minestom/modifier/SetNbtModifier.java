@@ -29,7 +29,7 @@ public record SetNbtModifier(@NotNull List<LootCondition> conditions, @NotNull N
     public static final @NotNull KeyedLootConverter<SetNbtModifier> CONVERTER =
             converter(SetNbtModifier.class,
                     condition().list().name("conditions").withDefault(ArrayList::new),
-                    nbtCompound().name("nbt").nodeName("tag")
+                    nbtCompound().name("nbt").nodePath("tag")
             ).keyed("minecraft:set_nbt");
 
     @Override

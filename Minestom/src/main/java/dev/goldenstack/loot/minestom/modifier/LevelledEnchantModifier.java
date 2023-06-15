@@ -31,8 +31,8 @@ public record LevelledEnchantModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull KeyedLootConverter<LevelledEnchantModifier> CONVERTER =
             converter(LevelledEnchantModifier.class,
                     condition().list().name("conditions").withDefault(ArrayList::new),
-                    number().name("levelRange").nodeName("range"),
-                    implicit(boolean.class).name("permitTreasure").nodeName("treasureEnchantmentsAllowed").withDefault(false)
+                    number().name("levelRange").nodePath("range"),
+                    implicit(boolean.class).name("permitTreasure").nodePath("treasureEnchantmentsAllowed").withDefault(false)
             ).keyed("minecraft:enchant_with_levels");
 
     @Override

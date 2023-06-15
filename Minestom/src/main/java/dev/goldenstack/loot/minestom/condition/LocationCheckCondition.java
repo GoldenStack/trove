@@ -24,9 +24,9 @@ public record LocationCheckCondition(@NotNull VanillaInterface.LocationPredicate
     public static final @NotNull KeyedLootConverter<LocationCheckCondition> CONVERTER =
             converter(LocationCheckCondition.class,
                     locationPredicate().name("predicate"),
-                    implicit(double.class).name("xOffset").nodeName("offsetX").withDefault(0d),
-                    implicit(double.class).name("yOffset").nodeName("offsetY").withDefault(0d),
-                    implicit(double.class).name("zOffset").nodeName("offsetZ").withDefault(0d)
+                    implicit(double.class).name("xOffset").nodePath("offsetX").withDefault(0d),
+                    implicit(double.class).name("yOffset").nodePath("offsetY").withDefault(0d),
+                    implicit(double.class).name("zOffset").nodePath("offsetZ").withDefault(0d)
             ).keyed("minecraft:location_check");
 
     @Override

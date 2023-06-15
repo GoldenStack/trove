@@ -29,9 +29,9 @@ public record LootTable(@NotNull LootContextKeyGroup contextKeyGroup,
 
     public static final @NotNull AdditiveConverter<LootTable> CONVERTER =
             converter(LootTable.class,
-                    keyGroup().name("contextKeyGroup").nodeName("type"),
+                    keyGroup().name("contextKeyGroup").nodePath("type"),
                     pool().list().name("pools").withDefault(ArrayList::new),
-                    modifier().list().name("modifiers").nodeName("functions").withDefault(ArrayList::new)
+                    modifier().list().name("modifiers").nodePath("functions").withDefault(ArrayList::new)
             ).additive();
 
     public LootTable {

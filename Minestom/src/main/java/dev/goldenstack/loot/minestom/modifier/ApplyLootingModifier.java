@@ -35,8 +35,8 @@ public record ApplyLootingModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull KeyedLootConverter<ApplyLootingModifier> CONVERTER =
             converter(ApplyLootingModifier.class,
                     condition().list().name("conditions").withDefault(ArrayList::new),
-                    number().name("lootingMultiplier").nodeName("count"),
-                    implicit(int.class).name("limiter").nodeName("limit").withDefault(0)
+                    number().name("lootingMultiplier").nodePath("count"),
+                    implicit(int.class).name("limiter").nodePath("limit").withDefault(0)
             ).keyed("minecraft:looting_enchant");
 
     @Override

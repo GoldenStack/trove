@@ -111,8 +111,8 @@ public class Converters {
                                                      @NotNull FallibleFunction<Object[], V> constructor,
                                                      @NotNull List<Field<?>> fields) {
         for (var field : fields) {
-            Objects.requireNonNull(field.localName(), "Field must have a local name name!");
-            Objects.requireNonNull(field.nodeName(), "Field must have a node name name!");
+            Objects.requireNonNull(field.localName(), "Field must have a local name!");
+            Objects.requireNonNull(field.nodePath(), "Field must have a node path!");
         }
 
         LootDeserializer<V> actualDeserializer = (input, context) -> {
@@ -120,7 +120,7 @@ public class Converters {
 
             for (int i = 0; i < fields.size(); i++) {
                 var field = fields.get(i);
-                objects[i] = deserialize(field, input.node(field.nodeName()), context);
+                objects[i] = deserialize(field, input.node(field.nodePath()), context);
             }
 
             return constructor.apply(objects);
@@ -156,7 +156,7 @@ public class Converters {
                     throw new ConfigurateException("(Type: " + type + ") Could not execute serializer because the value of field '" + actualFields[i] + "' could not be retrieved.", e);
                 }
 
-                serialize(field, fieldValue, result.node(field.nodeName()), context);
+                serialize(field, fieldValue, result.node(field.nodePath()), context);
             }
         };
 

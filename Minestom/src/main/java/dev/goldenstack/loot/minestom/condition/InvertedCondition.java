@@ -19,7 +19,7 @@ public record InvertedCondition(@NotNull LootCondition original) implements Loot
      */
     public static final @NotNull KeyedLootConverter<InvertedCondition> CONVERTER =
             converter(InvertedCondition.class,
-                    condition().name("original").nodeName("term")
+                    condition().name("original").nodePath("term")
             ).keyed("minecraft:inverted");
 
     @Override

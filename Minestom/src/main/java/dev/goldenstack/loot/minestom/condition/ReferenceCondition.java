@@ -21,7 +21,7 @@ public record ReferenceCondition(@NotNull NamespaceID id) implements LootConditi
      */
     public static final @NotNull KeyedLootConverter<ReferenceCondition> CONVERTER =
             converter(ReferenceCondition.class,
-                    namespaceId().name("id").nodeName("name")
+                    namespaceId().name("id").nodePath("name")
             ).keyed("minecraft:reference");
 
     @Override

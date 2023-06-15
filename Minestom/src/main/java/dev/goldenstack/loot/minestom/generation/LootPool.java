@@ -38,10 +38,10 @@ public record LootPool(@NotNull LootNumber rolls,
     public static final @NotNull AdditiveConverter<LootPool> CONVERTER =
             converter(LootPool.class,
                     number().name("rolls"),
-                    number().name("bonusRolls").nodeName("bonus_rolls").withDefault(new ConstantNumber(0)),
+                    number().name("bonusRolls").nodePath("bonus_rolls").withDefault(new ConstantNumber(0)),
                     entry().list().name("entries"),
                     condition().list().name("conditions").withDefault(ArrayList::new),
-                    modifier().list().name("modifiers").nodeName("functions").withDefault(ArrayList::new)
+                    modifier().list().name("modifiers").nodePath("functions").withDefault(ArrayList::new)
             ).additive();
 
     public LootPool {
