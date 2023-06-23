@@ -88,6 +88,26 @@ public interface LootContext {
     }
 
     /**
+     * Gets the value from this map associated with the provided key if its type is a supertype of or is equal to the
+     * provided key's type, and returns the default value if there wasn't one. Check {@link #has(Key)} for more specific
+     * information on what this entails.
+     * @param key the key, to attempt to retrieve the value from
+     * @param defaultValue the value to use if there is no value for the provided key
+     * @return the instance of {@link T} that is associated with the provided key, or the default value if there was not
+     *         one
+     * @param <T> the type of the key to search for values of
+     */
+    @SuppressWarnings("unchecked")
+    @Contract(pure = true)
+    default <T> @NotNull T get(@NotNull Key<T> key, @NotNull T defaultValue) {
+        Object object = information().get(key);
+        if (object != null && GenericTypeReflector.isSuperType(key.token().getType(), object.getClass())) {
+            return (T) object;
+        }
+        return defaultValue;
+    }
+
+    /**
      * Assures that there is a value, of a type that works with the key's type, stored at the provided key. Refer to
      * {@link #get(Key)} and {@link #has(Key)} for more specific information.
      * @param key the key, to attempt to retrieve the value from

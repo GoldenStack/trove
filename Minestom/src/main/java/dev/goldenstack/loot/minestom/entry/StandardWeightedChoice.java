@@ -27,7 +27,7 @@ public interface StandardWeightedChoice extends LootEntry.Choice {
 
     @Override
     default @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootGenerationContext context) {
-        return Math.max(1, (long) Math.floor(weight() + quality() * context.assure(LootContextKeys.LUCK)));
+        return Math.max(1, (long) Math.floor(weight() + quality() * context.get(LootContextKeys.LUCK, 0d)));
     }
 
 }
