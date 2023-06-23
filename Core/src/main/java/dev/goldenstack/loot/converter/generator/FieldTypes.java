@@ -1,7 +1,5 @@
 package dev.goldenstack.loot.converter.generator;
 
-import dev.goldenstack.loot.ImmuTables;
-import dev.goldenstack.loot.converter.meta.LootConversionManager;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
 import dev.goldenstack.loot.structure.LootModifier;
@@ -104,39 +102,37 @@ public class FieldTypes {
      * @return a field converting loot conditions
      */
     public static @NotNull Field<LootCondition> condition() {
-        return converterOfManager(LootCondition.class, ImmuTables::lootConditionManager);
+        return loader(LootCondition.class);
     }
 
     /**
      * @return a field converting loot entries
      */
     public static @NotNull Field<LootEntry> entry() {
-        return converterOfManager(LootEntry.class, ImmuTables::lootEntryManager);
+        return loader(LootEntry.class);
     }
 
     /**
      * @return a field converting loot modifiers
      */
     public static @NotNull Field<LootModifier> modifier() {
-        return converterOfManager(LootModifier.class, ImmuTables::lootModifierManager);
+        return loader(LootModifier.class);
     }
 
     /**
      * @return a field converting loot numbers
      */
     public static @NotNull Field<LootNumber> number() {
-        return converterOfManager(LootNumber.class, ImmuTables::lootNumberManager);
+        return loader(LootNumber.class);
     }
 
-    private static <T> @NotNull Field<T> converterOfManager(@NotNull Class<T> type, @NotNull Function<ImmuTables, LootConversionManager<T>> getter) {
+    public static <T> @NotNull Field<T> loader(@NotNull Class<T> type) {
         return Field.field(type,
                 Utils.createAdditive(
-                    (input, result, context) -> getter.apply(context.loader()).serialize(input, result, context),
-                    (input, context) -> getter.apply(context.loader()).deserialize(input, context)
+                        (input, result, context) -> context.loader().requireConverter(type).serialize(input, result, context),
+                        (input, context) -> context.loader().requireConverter(type).deserialize(input, context)
                 )
         );
     }
-
-
 
 }

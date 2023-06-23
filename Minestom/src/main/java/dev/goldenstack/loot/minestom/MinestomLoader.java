@@ -31,14 +31,14 @@ public class MinestomLoader {
      * {@link LootTable#CONVERTER}.
      */
     public static void initializeBuilder(@NotNull ImmuTables.Builder builder) {
-        builder.lootEntryBuilder(MinestomLoader::initializeEntryBuilder)
-                .lootModifierBuilder(MinestomLoader::initializeModifierBuilder)
-                .lootConditionBuilder(MinestomLoader::initializeConditionBuilder)
-                .lootNumberBuilder(MinestomLoader::initializeNumberBuilder);
+        builder.newBuilder(MinestomLoader::initializeEntryBuilder)
+                .newBuilder(MinestomLoader::initializeModifierBuilder)
+                .newBuilder(MinestomLoader::initializeConditionBuilder)
+                .newBuilder(MinestomLoader::initializeNumberBuilder);
     }
 
     /**
-     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootEntryBuilder(Consumer)}, adds the required
+     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#newBuilder(Consumer)}, adds the required
      * information to the loader.
      */
     public static void initializeEntryBuilder(@NotNull LootConversionManager.Builder<LootEntry> builder) {
@@ -57,7 +57,7 @@ public class MinestomLoader {
     }
 
     /**
-     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootModifierBuilder(Consumer)}, adds the required
+     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#newBuilder(Consumer)}, adds the required
      * information to the loader.
      */
     public static void initializeModifierBuilder(@NotNull LootConversionManager.Builder<LootModifier> builder) {
@@ -80,7 +80,7 @@ public class MinestomLoader {
     }
 
     /**
-     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootConditionBuilder(Consumer)}, adds the required
+     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#newBuilder(Consumer)}, adds the required
      * information to the loader.
      */
     public static void initializeConditionBuilder(@NotNull LootConversionManager.Builder<LootCondition> builder) {
@@ -106,7 +106,7 @@ public class MinestomLoader {
     }
 
     /**
-     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#lootNumberBuilder(Consumer)}, adds the required
+     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#newBuilder(Consumer)}, adds the required
      * information to the loader.
      */
     public static void initializeNumberBuilder(@NotNull LootConversionManager.Builder<LootNumber> builder) {

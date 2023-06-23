@@ -2,6 +2,7 @@ package dev.goldenstack.loot.minestom.util;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.converter.meta.LootConversionManager;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.structure.LootNumber;
 import dev.goldenstack.loot.util.Utils;
@@ -24,19 +25,20 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
     public static final @NotNull AdditiveConverter<LootNumberRange> CONVERTER = Utils.createAdditive(
             (input, result, context) -> {
                 if (input.min != null) {
-                    context.loader().lootNumberManager().serialize(input.min, result.node("min"), context);
+                    context.loader().requireConverter(LootNumber.class).serialize(input.min, result.node("min"), context);
                 }
                 if (input.max != null) {
-                    context.loader().lootNumberManager().serialize(input.max, result.node("min"), context);
+                    context.loader().requireConverter(LootNumber.class).serialize(input.max, result.node("min"), context);
                 }
             },
             (input, context) -> {
                 if (input.isNull()) {
                     return new LootNumberRange(null, null);
                 } else if (input.isMap()) {
+                    LootConversionManager<LootNumber> converter = context.loader().requireConverter(LootNumber.class);
                     return new LootNumberRange(
-                            input.hasChild("min") ? context.loader().lootNumberManager().deserialize(input.node("min"), context) : null,
-                            input.hasChild("max") ? context.loader().lootNumberManager().deserialize(input.node("max"), context) : null
+                            input.hasChild("min") ? converter.deserialize(input.node("min"), context) : null,
+                            input.hasChild("max") ? converter.deserialize(input.node("max"), context) : null
                     );
                 } else { // Is either invalid or a number, so we can assume here
                     var number = input.get(Double.class);

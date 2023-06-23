@@ -1,33 +1,34 @@
 package dev.goldenstack.loot;
 
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
-import dev.goldenstack.loot.structure.LootCondition;
-import dev.goldenstack.loot.structure.LootEntry;
-import dev.goldenstack.loot.structure.LootModifier;
-import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 
-import java.util.Objects;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
  * Stores information about how conversion of loot-related objects, such as tables and pools, should occur. Generally,
  * this should hold the basis for anything required to completely serialize and deserialize a loot table.
- * @param lootEntryManager the conversion manager for loot entries or subtypes of them
- * @param lootModifierManager the conversion manager for loot modifiers or subtypes of them
- * @param lootConditionManager the conversion manager for loot conditions or subtypes of them
- * @param lootNumberManager the conversion manager for loot numbers or subtypes of them
+ * @param converters the map of converters that this loader manages
  * @param nodeProducer the supplier used for creating default nodes. This is likely shorter than creating a node without
  *                     it, and it's also more configurable.
  */
-public record ImmuTables(@NotNull LootConversionManager<LootEntry> lootEntryManager,
-                         @NotNull LootConversionManager<LootModifier> lootModifierManager,
-                         @NotNull LootConversionManager<LootCondition> lootConditionManager,
-                         @NotNull LootConversionManager<LootNumber> lootNumberManager,
+public record ImmuTables(@NotNull List<LootConversionManager<?>> converters,
                          @NotNull Supplier<ConfigurationNode> nodeProducer) {
+
+    public ImmuTables {
+        Set<Type> types = new HashSet<>();
+        for (var manager : converters) {
+            if (!types.add(manager.baseType().getType())) {
+                throw new IllegalArgumentException("Loader instance was provided multiple converters of type " + manager.baseType().getType());
+            }
+        }
+    }
 
     /**
      * Shortcut for {@code nodeProducer().get()} for convenience.
@@ -35,6 +36,44 @@ public record ImmuTables(@NotNull LootConversionManager<LootEntry> lootEntryMana
      */
     public @NotNull ConfigurationNode createNode() {
         return nodeProducer().get();
+    }
+
+    /**
+     * Attempts to retrieve a manager that converts the provided type, returning null if there is not one.
+     * @param type the type to convert
+     * @return a valid converter, or null if there is not one
+     */
+    @SuppressWarnings("unchecked")
+    public <T> @Nullable LootConversionManager<T> getConverter(@NotNull Type type) {
+        for (var converter : converters) {
+            if (converter.baseType().getType() == type) {
+                // This is safe as their types must be identical
+                return (LootConversionManager<T>) converter;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns a valid manager that converts the provided type, throwing an exception if there is not one.
+     * @param type the type to convert
+     * @return a valid manager
+     */
+    public <T> @NotNull LootConversionManager<T> requireConverter(@NotNull Type type) {
+        var get = this.<T>getConverter(type);
+        if (get != null) {
+            return get;
+        }
+        throw new IllegalArgumentException("Could not find converter manager of type " + type);
+    }
+
+    /**
+     * Returns a valid manager that converts the provided type, throwing an exception if there is not one.
+     * @param type the type to convert
+     * @return a valid manager
+     */
+    public <T> @NotNull LootConversionManager<T> requireConverter(@NotNull Class<T> type) {
+        return requireConverter((Type) type);
     }
 
     /**
@@ -48,52 +87,28 @@ public record ImmuTables(@NotNull LootConversionManager<LootEntry> lootEntryMana
     }
 
     public static final class Builder {
-        private final @NotNull LootConversionManager.Builder<LootEntry> lootEntryBuilder = LootConversionManager.builder();
-        private final @NotNull LootConversionManager.Builder<LootModifier> lootModifierBuilder = LootConversionManager.builder();
-        private final @NotNull LootConversionManager.Builder<LootCondition> lootConditionBuilder = LootConversionManager.builder();
-        private final @NotNull LootConversionManager.Builder<LootNumber> lootNumberBuilder = LootConversionManager.builder();
+        private final @NotNull Set<Type> addedTypes = new HashSet<>();
+        private final @NotNull List<LootConversionManager<?>> managers = new ArrayList<>();
         private Supplier<ConfigurationNode> nodeProducer;
 
         private Builder() {}
 
-        public @NotNull LootConversionManager.Builder<LootEntry> lootEntryBuilder() {
-            return lootEntryBuilder;
-        }
-
-        public @NotNull LootConversionManager.Builder<LootModifier> lootModifierBuilder() {
-            return lootModifierBuilder;
-        }
-
-        public @NotNull LootConversionManager.Builder<LootCondition> lootConditionBuilder() {
-            return lootConditionBuilder;
-        }
-
-        public @NotNull LootConversionManager.Builder<LootNumber> lootNumberBuilder() {
-            return lootNumberBuilder;
-        }
-
         @Contract("_ -> this")
-        public @NotNull Builder lootEntryBuilder(@NotNull Consumer<LootConversionManager.Builder<LootEntry>> builderConsumer) {
-            builderConsumer.accept(this.lootEntryBuilder);
+        public @NotNull Builder newBuilder(@NotNull LootConversionManager.Builder<?> builder) {
+            var built = builder.build();
+            if (addedTypes.contains(built.baseType().getType())) {
+                throw new IllegalArgumentException("Cannot add a LootConversionManager of a type that is already present!");
+            }
+            this.managers.add(built);
+            this.addedTypes.add(built.baseType().getType());
             return this;
         }
 
         @Contract("_ -> this")
-        public @NotNull Builder lootModifierBuilder(@NotNull Consumer<LootConversionManager.Builder<LootModifier>> builderConsumer) {
-            builderConsumer.accept(this.lootModifierBuilder);
-            return this;
-        }
-
-        @Contract("_ -> this")
-        public @NotNull Builder lootConditionBuilder(@NotNull Consumer<LootConversionManager.Builder<LootCondition>> builderConsumer) {
-            builderConsumer.accept(this.lootConditionBuilder);
-            return this;
-        }
-
-        @Contract("_ -> this")
-        public @NotNull Builder lootNumberBuilder(@NotNull Consumer<LootConversionManager.Builder<LootNumber>> builderConsumer) {
-            builderConsumer.accept(this.lootNumberBuilder);
-            return this;
+        public <T> @NotNull Builder newBuilder(@NotNull Consumer<LootConversionManager.Builder<T>> builderConsumer) {
+            LootConversionManager.Builder<T> builder = LootConversionManager.builder();
+            builderConsumer.accept(builder);
+            return newBuilder(builder);
         }
 
         @Contract("_ -> this")
@@ -105,10 +120,7 @@ public record ImmuTables(@NotNull LootConversionManager<LootEntry> lootEntryMana
         @Contract(" -> new")
         public @NotNull ImmuTables build() {
             return new ImmuTables(
-                    lootEntryBuilder.build(),
-                    lootModifierBuilder.build(),
-                    lootConditionBuilder.build(),
-                    lootNumberBuilder.build(),
+                    List.copyOf(managers),
                     Objects.requireNonNull(nodeProducer, "ImmuTables instances cannot be built without a node producer!")
                 );
         }
