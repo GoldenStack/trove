@@ -108,7 +108,7 @@ public class Converters {
      * @param <V> the type of object that will be converted
      */
     public static <V> @NotNull Producer<V> converter(@NotNull Class<V> type,
-                                                     @NotNull FallibleFunction<Object[], V> constructor,
+                                                     @NotNull FallibleFunction<Object @NotNull [], @NotNull V> constructor,
                                                      @NotNull List<Field<?>> fields) {
         for (var field : fields) {
             Objects.requireNonNull(field.localName(), "Field must have a local name!");

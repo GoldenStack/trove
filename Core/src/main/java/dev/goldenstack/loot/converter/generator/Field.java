@@ -8,6 +8,7 @@ import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -182,7 +183,8 @@ public record Field<T>(@NotNull TypeToken<T> type,
     /**
      * Maps this field to a new type with the provided functions.<br>
      * Possesses identical semantics to {@link #map(TypeToken, FallibleFunction, FallibleFunction)}, except that it
-     * automatically converts the class into a type token.<br>
+     * automatically converts the class into a type token. If either of the provided functions returns null (i.e. the
+     * provided instance could not be converted) an exception will be thrown.<br>
      * <b>This should only be used when the type doesn't have any type arguments; information will be lost if you omit
      * them and provide solely the class.</b>
      * @param newType the token of the new type
@@ -192,13 +194,14 @@ public record Field<T>(@NotNull TypeToken<T> type,
      * @param <N> the new type
      */
     public <N> @NotNull Field<N> map(@NotNull Class<N> newType,
-                                     @NotNull FallibleFunction<T, N> toNew,
-                                     @NotNull FallibleFunction<N, T> fromNew) {
+                                     @NotNull FallibleFunction<@NotNull T, @Nullable N> toNew,
+                                     @NotNull FallibleFunction<@NotNull N, @Nullable T> fromNew) {
         return map(TypeToken.get(newType), toNew, fromNew);
     }
 
     /**
-     * Maps this field to a new type with the provided functions.
+     * Maps this field to a new type with the provided functions. If either of the provided functions returns null (i.e.
+     * the provided instance could not be converted) an exception will be thrown.
      * @param newType the token of the new type
      * @param toNew the function that maps the old type to the new type
      * @param fromNew the function that maps the new type to the old type
@@ -206,13 +209,26 @@ public record Field<T>(@NotNull TypeToken<T> type,
      * @param <N> the new type
      */
     public <N> @NotNull Field<N> map(@NotNull TypeToken<N> newType,
-                                     @NotNull FallibleFunction<T, N> toNew,
-                                     @NotNull FallibleFunction<N, T> fromNew) {
+                                     @NotNull FallibleFunction<@NotNull T, @Nullable N> toNew,
+                                     @NotNull FallibleFunction<@NotNull N, @Nullable T> fromNew) {
         var oldConverter = converter;
 
         AdditiveConverter<N> newConverter = Utils.createAdditive(
-                (input, result, context) -> oldConverter.serialize(fromNew.apply(input), result, context),
-                (input, context) -> toNew.apply(oldConverter.deserialize(input, context))
+                (input, result, context) -> {
+                    var applied = fromNew.apply(input);
+                    if (applied == null) {
+                        throw new SerializationException(type.getType(), "'" + input + "' has an invalid type '" + newType.getType() + "'");
+                    }
+                    oldConverter.serialize(applied, result, context);
+                },
+                (input, context) -> {
+                    var preliminaryObject = oldConverter.deserialize(input, context);
+                    var result = toNew.apply(preliminaryObject);
+                    if (result == null) {
+                        throw new SerializationException(input, newType.getType(), "'" + preliminaryObject + "' has an invalid type type '" + type + "'");
+                    }
+                    return result;
+                }
         );
         return new Field<>(newType, newConverter, localName, nodePath, null);
     }

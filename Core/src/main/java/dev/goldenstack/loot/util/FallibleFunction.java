@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.util;
 
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
 
 /**
@@ -18,6 +17,6 @@ public interface FallibleFunction<I, O> {
      * @return the arbitrary output of the function
      * @throws ConfigurateException if there was some error while trying to perform the operation
      */
-    @NotNull O apply(@NotNull I input) throws ConfigurateException;
+    O apply(I input) throws ConfigurateException;
 
 }
