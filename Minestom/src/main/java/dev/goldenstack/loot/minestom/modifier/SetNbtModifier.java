@@ -3,6 +3,7 @@ package dev.goldenstack.loot.minestom.modifier;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
+import dev.goldenstack.loot.minestom.util.nbt.NBTUtils;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -38,23 +39,11 @@ public record SetNbtModifier(@NotNull List<LootCondition> conditions, @NotNull N
             return input;
         }
 
-        var modifiedNbt = merge(input.meta().toNBT(), nbt);
+        var modifiedNbt = NBTUtils.merge(input.meta().toNBT(), nbt);
 
         // Create a builder of the same material and amount, but with the new, merged NBT.
         return ItemStack.builder(input.material())
                 .amount(input.amount())
                 .meta(modifiedNbt).build();
-    }
-
-    private static NBTCompound merge(NBTCompound base, NBTCompound changes) {
-        return base.modify(mutable -> {
-            for (var entry : changes) {
-                var value = (mutable.get(entry.getKey()) instanceof NBTCompound baseCompound &&
-                             entry.getValue() instanceof NBTCompound changeCompound) ?
-                        merge(baseCompound, changeCompound) : entry.getValue();
-
-                mutable.set(entry.getKey(), value);
-            }
-        });
     }
 }
