@@ -4,6 +4,7 @@ import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import net.minestom.server.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents some arbitrary entity that is relevant to the loot drop.
@@ -39,6 +40,20 @@ public enum RelevantEntity {
     RelevantEntity(@NotNull String id, @NotNull LootContext.Key<? extends Entity> key) {
         this.id = id;
         this.key = key;
+    }
+
+    /**
+     * Retrieves the RelevantEntity with the {@link #id()} equal to the provided one.
+     * @param id the id to check
+     * @return the RelevantEntity representing the id, or null if there is not one
+     */
+    public static @Nullable RelevantEntity ofId(@NotNull String id) {
+        for (var value : values()) {
+            if (value.id().equals(id)) {
+                return value;
+            }
+        }
+        return null;
     }
 
     /**

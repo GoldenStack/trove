@@ -7,6 +7,9 @@ import dev.goldenstack.loot.minestom.entry.*;
 import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
 import dev.goldenstack.loot.minestom.modifier.*;
+import dev.goldenstack.loot.minestom.nbt.ContextNBT;
+import dev.goldenstack.loot.minestom.nbt.LootNBT;
+import dev.goldenstack.loot.minestom.nbt.StorageNBT;
 import dev.goldenstack.loot.minestom.number.BinomialNumber;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.minestom.number.UniformNumber;
@@ -34,7 +37,8 @@ public class MinestomLoader {
         builder.newBuilder(MinestomLoader::initializeEntryBuilder)
                 .newBuilder(MinestomLoader::initializeModifierBuilder)
                 .newBuilder(MinestomLoader::initializeConditionBuilder)
-                .newBuilder(MinestomLoader::initializeNumberBuilder);
+                .newBuilder(MinestomLoader::initializeNumberBuilder)
+                .newBuilder(MinestomLoader::initializeNbtBuilder);
     }
 
     /**
@@ -119,6 +123,21 @@ public class MinestomLoader {
         builder.addConverter(ConstantNumber.CONVERTER);
         builder.addConverter(BinomialNumber.CONVERTER);
         builder.addConverter(UniformNumber.CONVERTER);
+    }
+
+    /**
+     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#newBuilder(Consumer)}, adds the required
+     * information to the loader.
+     */
+    public static void initializeNbtBuilder(@NotNull LootConversionManager.Builder<LootNBT> builder) {
+        // Basic data
+        builder.baseType(new TypeToken<>(){});
+        builder.keyLocation("type");
+
+        // Registered converters
+        builder.addInitialConverter(ContextNBT.ACCURATE_CONVERTER);
+        builder.addConverter(ContextNBT.CONVERTER);
+        builder.addConverter(StorageNBT.CONVERTER);
     }
 
 }

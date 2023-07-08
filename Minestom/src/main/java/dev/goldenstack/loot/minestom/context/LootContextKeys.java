@@ -5,6 +5,7 @@ import dev.goldenstack.loot.generation.LootGenerator;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.structure.LootCondition;
 import io.leangen.geantyref.TypeToken;
+import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
@@ -25,10 +26,18 @@ public class LootContextKeys {
     private LootContextKeys() {}
 
     /**
-     * Represents the block entity (block with NBT) that is related to a loot context. Importantly, in Minestom, all
-     * blocks may have NBT, so this might have slightly different behaviour.
+     * Contains information about a block entity.
+     * @param position the position of the block
+     * @param block the actual block data
      */
-    public static final @NotNull LootContext.Key<Block> BLOCK_ENTITY = key("minecraft:block_entity", new TypeToken<>(){});
+    public record BlockEntity(@NotNull Point position, @NotNull Block block) {}
+
+    /**
+     * Represents the block entity (block with NBT) that is related to a loot context. However, because Minestom allows
+     * all blocks to possess NBT, the only data that is missing is the position, which is contained within
+     * {@link BlockEntity}.
+     */
+    public static final @NotNull LootContext.Key<BlockEntity> BLOCK_ENTITY = key("minecraft:block_entity", new TypeToken<>(){});
 
     /**
      * Represents the block state that is related to a loot context.

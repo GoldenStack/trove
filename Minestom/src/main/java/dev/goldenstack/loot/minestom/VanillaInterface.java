@@ -5,8 +5,10 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.Random;
 import java.util.function.Predicate;
@@ -96,5 +98,25 @@ public interface VanillaInterface {
      */
     default @NotNull AdditiveConverter<LocationPredicate> locationPredicateConverter() {
         throw new UnsupportedOperationException("VanillaInterface#locationPredicateConverter has not been implemented!");
+    }
+
+    /**
+     * Converts the provided entity into an NBT compound representing it.
+     * @param entity the entity to convert to NBT
+     * @return NBT representing the entity
+     */
+    default @NotNull NBTCompound getEntityNBT(@NotNull Entity entity) {
+        throw new UnsupportedOperationException("VanillaInterface#getEntityNBT has not been implemented!");
+    }
+
+    /**
+     * Retrieves the value in command storage that is stored under the provided key. Implementation-wise, this is
+     * allowed to return null if there is nothing stored under the key, or it may return a default; both are equally
+     * valid.
+     * @param key the key to query
+     * @return the value stored in command storage at the provided key
+     */
+    default @Nullable NBTCompound getCommandStorageValue(@NotNull NamespaceID key) {
+        throw new UnsupportedOperationException("VanillaInterface#getCommandStorageValue has not been implemented!");
     }
 }
