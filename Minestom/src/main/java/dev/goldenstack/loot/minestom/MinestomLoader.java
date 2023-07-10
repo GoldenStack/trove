@@ -73,6 +73,7 @@ public class MinestomLoader {
         builder.addConverter(ApplyLootingModifier.CONVERTER);
         builder.addConverter(BonusCountModifier.CONVERTER);
         builder.addConverter(CopyNameModifier.CONVERTER);
+        builder.addConverter(CopyNbtModifier.CONVERTER);
         builder.addConverter(ExplosionDecayModifier.CONVERTER);
         builder.addConverter(LevelledEnchantModifier.CONVERTER);
         builder.addConverter(LimitCountModifier.CONVERTER);
