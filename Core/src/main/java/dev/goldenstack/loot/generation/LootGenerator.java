@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public interface LootGenerator {
 
     /**
-     * Generates a (possibly empty) list of loot items from the provided context. Its mutability is unspecified.
+     * Generates a (possibly empty) batch of loot items from the provided context.
      * @param context the context, to use if needed
      * @return the list of generated loot
      */
