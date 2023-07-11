@@ -1,15 +1,16 @@
 package dev.goldenstack.loot.minestom.util.nbt;
 
+import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBT;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
-import org.jglrxavpok.hephaistos.nbt.NBTException;
-import org.jglrxavpok.hephaistos.nbt.NBTList;
+import org.jglrxavpok.hephaistos.nbt.*;
 import org.jglrxavpok.hephaistos.parser.SNBTParser;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Contains various NBT-related utilities
@@ -123,6 +124,56 @@ public class NBTUtils {
 
         }
 
+    }
+
+    /**
+     * Converts the provided list of items into a NBTList of them, each containing the item NBT and the slot index.
+     * @param items the items to convert to NBT
+     * @return the NBT list representing the items
+     */
+    @SuppressWarnings("UnstableApiUsage")
+    public static @NotNull NBTList<NBTCompound> itemsToList(@NotNull List<ItemStack> items) {
+        List<NBTCompound> compounds = new ArrayList<>();
+
+        for(int i = 0; i < items.size(); ++i) {
+            ItemStack item = items.get(i);
+            if (!item.isAir()) {
+                byte slotIndex = (byte) i;
+                var itemNBT = item.toItemNBT().modify(mut -> mut.setByte("Slot", slotIndex));
+
+                compounds.add(itemNBT);
+            }
+        }
+
+        return new NBTList<>(NBTType.TAG_Compound, compounds);
+    }
+
+    /**
+     * Converts the provided NBT list into a list of items, using the byte stored under the {@code Slot} key in each
+     * compound as its index, but falling back to its actual index in the list if it does not have the slot stored.
+     * @param itemNBT the NBT list representing the items
+     * @return the items converted from NBT
+     */
+    @SuppressWarnings("UnstableApiUsage")
+    public static @NotNull List<ItemStack> listToItems(@NotNull NBTList<NBTCompound> itemNBT) {
+        int itemCount = 0;
+        for (var compound : itemNBT) {
+            Byte slot = compound.getByte("Slot");
+            itemCount = Math.max(itemCount, slot != null ? slot : 0);
+        }
+
+        List<ItemStack> items = new ArrayList<>(itemCount);
+        Collections.fill(items, ItemStack.AIR);
+
+        // Iterate with a normal loop so we can use the index as a fallback.
+        for (int i = 0; i < itemNBT.getSize(); i++) {
+            Byte slot = itemNBT.get(i).getByte("Slot");
+
+            var item = ItemStack.fromItemNBT(itemNBT.get(i));
+            items.set(slot != null ? slot : i, item);
+        }
+
+        return items;
     }
 
 }

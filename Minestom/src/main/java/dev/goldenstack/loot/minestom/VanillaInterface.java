@@ -10,7 +10,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -119,4 +122,14 @@ public interface VanillaInterface {
     default @Nullable NBTCompound getCommandStorageValue(@NotNull NamespaceID key) {
         throw new UnsupportedOperationException("VanillaInterface#getCommandStorageValue has not been implemented!");
     }
+
+    /**
+     * Returns the map that provides dynamic drop calculators based on each provided ID. This is used in
+     * {@link dev.goldenstack.loot.minestom.entry.DynamicEntry}.
+     * @return the dynamic drop provider map
+     */
+    default @NotNull Map<NamespaceID, Function<NBTCompound, List<ItemStack>>> getDynamicDropProvider() {
+        throw new UnsupportedOperationException("VanillaInterface#getDynamicDropProvider has not been implemented!");
+    }
+
 }

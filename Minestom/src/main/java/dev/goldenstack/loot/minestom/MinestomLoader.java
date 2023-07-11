@@ -52,6 +52,7 @@ public class MinestomLoader {
 
         // Registered converters
         builder.addConverter(AlternativeEntry.CONVERTER);
+        builder.addConverter(DynamicEntry.CONVERTER);
         builder.addConverter(EmptyEntry.CONVERTER);
         builder.addConverter(GroupEntry.CONVERTER);
         builder.addConverter(ItemEntry.CONVERTER);
