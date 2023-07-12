@@ -37,7 +37,7 @@ public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull KeyedLootConverter<SetStewEffectModifier> CONVERTER =
             converter(SetStewEffectModifier.class,
-                    condition().list().name("conditions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(List::of),
                     field(StewEffect.class, StewEffect.CONVERTER).list().name("effects")
             ).keyed("minecraft:set_stew_effect");
 

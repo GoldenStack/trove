@@ -10,7 +10,6 @@ import net.minestom.server.item.StackingRule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
@@ -27,7 +26,7 @@ public record SmeltItemModifier(@NotNull List<LootCondition> conditions) impleme
      */
     public static final @NotNull KeyedLootConverter<SmeltItemModifier> CONVERTER =
             converter(SmeltItemModifier.class,
-                    condition().list().name("conditions").withDefault(ArrayList::new)
+                    condition().list().name("conditions").withDefault(List::of)
             ).keyed("minecraft:furnace_smelt");
 
     @Override

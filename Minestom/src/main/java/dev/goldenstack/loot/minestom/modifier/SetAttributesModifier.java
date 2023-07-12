@@ -37,7 +37,7 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull KeyedLootConverter<SetAttributesModifier> CONVERTER =
             converter(SetAttributesModifier.class,
-                    condition().list().name("conditions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(List::of),
                     field(AttributeDirective.class, AttributeDirective.CONVERTER).list().name("attributes").nodePath("modifiers")
             ).keyed("minecraft:set_attributes");
 

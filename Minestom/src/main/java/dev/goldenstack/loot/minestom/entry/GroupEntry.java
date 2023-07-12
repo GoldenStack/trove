@@ -26,7 +26,7 @@ public record GroupEntry(@NotNull List<LootEntry> children, @NotNull List<LootCo
     public static final @NotNull KeyedLootConverter<GroupEntry> CONVERTER =
             converter(GroupEntry.class,
                     entry().list().name("children"),
-                    condition().list().name("conditions").withDefault(ArrayList::new)
+                    condition().list().name("conditions").withDefault(List::of)
             ).keyed("minecraft:group");
 
     public GroupEntry {

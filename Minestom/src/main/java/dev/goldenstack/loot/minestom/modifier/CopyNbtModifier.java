@@ -39,7 +39,7 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
      */
     public static final @NotNull KeyedLootConverter<CopyNbtModifier> CONVERTER =
             converter(CopyNbtModifier.class,
-                    condition().list().name("conditions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(List::of),
                     loader(LootNBT.class).name("source"),
                     field(Operation.class, Operation.CONVERTER).list().name("operations").nodePath("ops")
             ).keyed("minecraft:copy_nbt");

@@ -10,7 +10,6 @@ import net.minestom.server.item.StackingRule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
@@ -30,7 +29,7 @@ public record SetCountModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull KeyedLootConverter<SetCountModifier> CONVERTER =
             converter(SetCountModifier.class,
-                    condition().list().name("conditions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(List::of),
                     number().name("count"),
                     implicit(boolean.class).name("add")
             ).keyed("minecraft:set_count");

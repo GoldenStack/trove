@@ -45,8 +45,8 @@ public record TagEntry(@NotNull Tag tag, boolean expand,
                     implicit(boolean.class).name("expand"),
                     implicit(long.class).name("weight").withDefault(1L),
                     implicit(long.class).name("quality").withDefault(0L),
-                    modifier().list().name("modifiers").nodePath("functions").withDefault(ArrayList::new),
-                    condition().list().name("conditions").withDefault(ArrayList::new)
+                    modifier().list().name("modifiers").nodePath("functions").withDefault(List::of),
+                    condition().list().name("conditions").withDefault(List::of)
             ).keyed("minecraft:tag");
 
     public TagEntry {

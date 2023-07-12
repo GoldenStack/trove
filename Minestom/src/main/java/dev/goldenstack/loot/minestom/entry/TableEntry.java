@@ -10,7 +10,6 @@ import dev.goldenstack.loot.structure.LootModifier;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
@@ -37,8 +36,8 @@ public record TableEntry(@NotNull NamespaceID tableIdentifier,
                     namespaceId().name("tableIdentifier").nodePath("name"),
                     implicit(long.class).name("weight").withDefault(1L),
                     implicit(long.class).name("quality").withDefault(0L),
-                    modifier().list().name("modifiers").nodePath("functions").withDefault(ArrayList::new),
-                    condition().list().name("conditions").withDefault(ArrayList::new)
+                    modifier().list().name("modifiers").nodePath("functions").withDefault(List::of),
+                    condition().list().name("conditions").withDefault(List::of)
             ).keyed("minecraft:loot_table");
 
     public TableEntry {

@@ -8,7 +8,6 @@ import dev.goldenstack.loot.structure.LootNumber;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
@@ -32,7 +31,7 @@ public record SetDamageModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull KeyedLootConverter<SetDamageModifier> CONVERTER =
             converter(SetDamageModifier.class,
-                    condition().list().name("conditions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(List::of),
                     number().name("modifiedDurability").nodePath("damage"),
                     implicit(boolean.class).name("add").withDefault(false)
             ).keyed("minecraft:set_damage");

@@ -9,7 +9,6 @@ import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
@@ -29,7 +28,7 @@ public record SetNbtModifier(@NotNull List<LootCondition> conditions, @NotNull N
      */
     public static final @NotNull KeyedLootConverter<SetNbtModifier> CONVERTER =
             converter(SetNbtModifier.class,
-                    condition().list().name("conditions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(List::of),
                     nbtCompound().name("nbt").nodePath("tag")
             ).keyed("minecraft:set_nbt");
 

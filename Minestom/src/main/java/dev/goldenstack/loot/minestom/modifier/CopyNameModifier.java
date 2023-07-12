@@ -13,7 +13,6 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.tag.Tag;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
@@ -33,7 +32,7 @@ public record CopyNameModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull KeyedLootConverter<CopyNameModifier> CONVERTER =
             converter(CopyNameModifier.class,
-                    condition().list().name("conditions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(List::of),
                     enumerated(RelevantKey.class, source -> source.name).name("source")
             ).keyed("minecraft:copy_name");
 

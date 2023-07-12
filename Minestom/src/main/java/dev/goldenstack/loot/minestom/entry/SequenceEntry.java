@@ -26,7 +26,7 @@ public record SequenceEntry(@NotNull List<LootEntry> children, @NotNull List<Loo
     public static final @NotNull KeyedLootConverter<SequenceEntry> CONVERTER =
             converter(SequenceEntry.class,
                     entry().list().name("children"),
-                    condition().list().name("conditions").withDefault(ArrayList::new)
+                    condition().list().name("conditions").withDefault(List::of)
             ).keyed("minecraft:sequence");
 
     public SequenceEntry {

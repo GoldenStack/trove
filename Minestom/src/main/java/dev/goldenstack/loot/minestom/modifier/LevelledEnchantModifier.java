@@ -9,7 +9,6 @@ import dev.goldenstack.loot.structure.LootNumber;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
@@ -30,7 +29,7 @@ public record LevelledEnchantModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull KeyedLootConverter<LevelledEnchantModifier> CONVERTER =
             converter(LevelledEnchantModifier.class,
-                    condition().list().name("conditions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(List::of),
                     number().name("levelRange").nodePath("levels"),
                     implicit(boolean.class).name("permitTreasure").nodePath("treasureEnchantmentsAllowed").withDefault(false)
             ).keyed("minecraft:enchant_with_levels");

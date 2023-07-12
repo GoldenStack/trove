@@ -12,7 +12,6 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
@@ -39,8 +38,8 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
                     namespaceId().name("dynamicChoiceId").nodePath("name"),
                     implicit(long.class).name("weight").withDefault(1L),
                     implicit(long.class).name("quality").withDefault(0L),
-                    modifier().list().name("modifiers").nodePath("functions").withDefault(ArrayList::new),
-                    condition().list().name("conditions").withDefault(ArrayList::new)
+                    modifier().list().name("modifiers").nodePath("functions").withDefault(List::of),
+                    condition().list().name("conditions").withDefault(List::of)
             ).keyed("minecraft:dynamic");
 
     public DynamicEntry {

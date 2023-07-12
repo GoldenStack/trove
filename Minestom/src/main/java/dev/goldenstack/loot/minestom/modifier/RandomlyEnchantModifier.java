@@ -35,8 +35,8 @@ public record RandomlyEnchantModifier(@NotNull List<LootCondition> conditions, @
      */
     public static final @NotNull KeyedLootConverter<RandomlyEnchantModifier> CONVERTER =
             converter(RandomlyEnchantModifier.class,
-                    condition().list().name("conditions").withDefault(ArrayList::new),
-                    enchantment().list().name("validEnchantments").nodePath("enchantments").withDefault(ArrayList::new)
+                    condition().list().name("conditions").withDefault(List::of),
+                    enchantment().list().name("validEnchantments").nodePath("enchantments").withDefault(List::of)
             ).keyed("minecraft:enchant_randomly");
 
     @SuppressWarnings("UnstableApiUsage")

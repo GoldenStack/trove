@@ -12,7 +12,6 @@ import net.minestom.server.item.Enchantment;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -46,7 +45,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull KeyedLootConverter<BonusCountModifier> CONVERTER =
             converter(BonusCountModifier.class,
-                    condition().list().name("conditions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(List::of),
                     enchantment().name("addedEnchantment").nodePath("enchantment"),
                     field(BonusType.class, Utils.createAdditive(TYPE_CONVERTER::serialize, TYPE_CONVERTER::deserialize))
                             .name("bonus").nodePath(List.of())

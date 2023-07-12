@@ -11,7 +11,6 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.StackingRule;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
@@ -34,7 +33,7 @@ public record ApplyLootingModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull KeyedLootConverter<ApplyLootingModifier> CONVERTER =
             converter(ApplyLootingModifier.class,
-                    condition().list().name("conditions").withDefault(ArrayList::new),
+                    condition().list().name("conditions").withDefault(List::of),
                     number().name("lootingMultiplier").nodePath("count"),
                     implicit(int.class).name("limiter").nodePath("limit").withDefault(0)
             ).keyed("minecraft:looting_enchant");

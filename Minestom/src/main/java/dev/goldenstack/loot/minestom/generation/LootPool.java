@@ -40,8 +40,8 @@ public record LootPool(@NotNull LootNumber rolls,
                     number().name("rolls"),
                     number().name("bonusRolls").nodePath("bonus_rolls").withDefault(new ConstantNumber(0)),
                     entry().list().name("entries"),
-                    condition().list().name("conditions").withDefault(ArrayList::new),
-                    modifier().list().name("modifiers").nodePath("functions").withDefault(ArrayList::new)
+                    condition().list().name("conditions").withDefault(List::of),
+                    modifier().list().name("modifiers").nodePath("functions").withDefault(List::of)
             ).additive();
 
     public LootPool {
