@@ -10,7 +10,6 @@ import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
 import dev.goldenstack.loot.minestom.util.check.BlockStateCheck;
 import dev.goldenstack.loot.util.Utils;
-import io.leangen.geantyref.TypeToken;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.attribute.AttributeOperation;
 import net.minestom.server.item.Enchantment;
@@ -75,30 +74,31 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting item predicates
      */
     public static @NotNull Field<VanillaInterface.ItemPredicate> itemPredicate() {
-        return Field.field(new TypeToken<VanillaInterface.ItemPredicate>() {}, Utils.createAdditive(
-                (input, result, context) -> {
-                    var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
-                    vanilla.itemPredicateConverter().serialize(input, result, context);
-                }, (input, context) -> {
-                    var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
-                    return vanilla.itemPredicateConverter().deserialize(input, context);
-                }
-        ));
+        return Field.field(VanillaInterface.ItemPredicate.class,
+                Utils.additiveFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).itemPredicateConverter()));
     }
 
     /**
      * @return a field converting location predicates
      */
     public static @NotNull Field<VanillaInterface.LocationPredicate> locationPredicate() {
-        return Field.field(new TypeToken<VanillaInterface.LocationPredicate>() {}, Utils.createAdditive(
-                (input, result, context) -> {
-                    var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
-                    vanilla.locationPredicateConverter().serialize(input, result, context);
-                }, (input, context) -> {
-                    var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
-                    return vanilla.locationPredicateConverter().deserialize(input, context);
-                }
-        ));
+        return Field.field(VanillaInterface.LocationPredicate.class,
+                Utils.additiveFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).locationPredicateConverter()));
+    }
+
+    /**
+     * @return a field converting entity predicates
+     */
+    public static @NotNull Field<VanillaInterface.EntityPredicate> entityPredicate() {
+        return Field.field(VanillaInterface.EntityPredicate.class,
+                Utils.additiveFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).entityPredicateConverter()));
+    }
+
+    /**
+     * @return a field converting relevant entities
+     */
+    public static @NotNull Field<RelevantEntity> relevantEntity() {
+        return enumerated(RelevantEntity.class, RelevantEntity::id);
     }
 
     /**

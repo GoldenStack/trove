@@ -18,6 +18,7 @@ import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class Utils {
     private Utils() {}
@@ -203,6 +204,19 @@ public class Utils {
                 serializer.serialize(input, result, context);
             }
         };
+    }
+
+    /**
+     * Creates an additive converter proxied by the converter returned by {@code converterFinder}.
+     * @param converterFinder the function that gets the additive converter
+     * @return a new additive converter that uses the finder to determine which one it is proxying
+     * @param <V> the converted type
+     */
+    public static <V> @NotNull AdditiveConverter<V> additiveFromContext(@NotNull Function<LootConversionContext, AdditiveConverter<V>> converterFinder) {
+        return createAdditive(
+                (input, result, context) -> converterFinder.apply(context).serialize(input, result, context),
+                (input, context) -> converterFinder.apply(context).deserialize(input, context)
+        );
     }
 
 }

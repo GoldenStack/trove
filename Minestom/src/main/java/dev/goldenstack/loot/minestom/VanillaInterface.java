@@ -40,6 +40,14 @@ public interface VanillaInterface {
     }
 
     /**
+     * Verifies that the provided entity, world, and position fit some predicate.
+     */
+    interface EntityPredicate {
+
+        boolean test(@NotNull Instance world, @Nullable Pos location, @Nullable Entity entity);
+    }
+
+    /**
      * @param instance the instance to check
      * @return true if the provided instance is raining
      */
@@ -101,6 +109,15 @@ public interface VanillaInterface {
      */
     default @NotNull AdditiveConverter<LocationPredicate> locationPredicateConverter() {
         throw new UnsupportedOperationException("VanillaInterface#locationPredicateConverter has not been implemented!");
+    }
+
+    /**
+     * Provides the converter for entity predicates. These are the predicates that Minecraft uses for entities, such as
+     * in loot tables and various game mechanics.
+     * @return the converter for entities
+     */
+    default @NotNull AdditiveConverter<EntityPredicate> entityPredicateConverter() {
+        throw new UnsupportedOperationException("VanillaInterface#entityPredicateConverter has not been implemented!");
     }
 
     /**

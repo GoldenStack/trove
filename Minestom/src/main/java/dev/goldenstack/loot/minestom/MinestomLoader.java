@@ -98,6 +98,7 @@ public class MinestomLoader {
         builder.addConverter(AlternativeCondition.CONVERTER);
         builder.addConverter(BlockStateCondition.CONVERTER);
         builder.addConverter(EnchantmentLevelCondition.CONVERTER);
+        builder.addConverter(EntityCheckCondition.CONVERTER);
         builder.addConverter(InvertedCondition.CONVERTER);
         builder.addConverter(KilledByPlayerCondition.CONVERTER);
         builder.addConverter(LocationCheckCondition.CONVERTER);
