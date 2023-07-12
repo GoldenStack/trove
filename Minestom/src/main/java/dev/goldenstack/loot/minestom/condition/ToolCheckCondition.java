@@ -14,13 +14,13 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.itemPredicate;
 /**
  * Verifies that all provided contexts have a tool that passes the {@link #toolPredicate()}.
  */
-public record ToolPredicateCondition(@NotNull VanillaInterface.ItemPredicate toolPredicate) implements LootCondition {
+public record ToolCheckCondition(@NotNull VanillaInterface.ItemPredicate toolPredicate) implements LootCondition {
 
     /**
      * A standard map-based converter for tool predicate conditions.
      */
-    public static final @NotNull KeyedLootConverter<ToolPredicateCondition> CONVERTER =
-            converter(ToolPredicateCondition.class,
+    public static final @NotNull KeyedLootConverter<ToolCheckCondition> CONVERTER =
+            converter(ToolCheckCondition.class,
                     itemPredicate().name("toolPredicate").nodePath("predicate")
             ).keyed("minecraft:match_tool");
 
