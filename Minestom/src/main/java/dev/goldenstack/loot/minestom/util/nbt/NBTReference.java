@@ -15,11 +15,9 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * Represents a reference to some NBT instance. This is meant as a way to implement to achieve deep mutability of NBT.
- * @param getter the getter for values of this reference
- * @param setter the setter for values of this reference
+ * Refers to some NBT instance. This is meant as a way to implement to achieve deep mutability of NBT.
  */
-public record NBTReference(@NotNull Supplier<NBT> getter, @NotNull Consumer<NBT> setter) {
+public sealed interface NBTReference permits NBTReferenceImpl {
 
     /**
      * Creates a new reference to the provided NBT. Currently, this uses an {@link AtomicReference} with its get and set
@@ -27,32 +25,28 @@ public record NBTReference(@NotNull Supplier<NBT> getter, @NotNull Consumer<NBT>
      * @param nbt the nbt to wrap
      * @return a reference to the provided NBT
      */
-    public static @NotNull NBTReference of(@NotNull NBT nbt) {
+    static @NotNull NBTReference of(@NotNull NBT nbt) {
         AtomicReference<NBT> reference = new AtomicReference<>(nbt);
-        return new NBTReference(reference::get, reference::set);
+        return new NBTReferenceImpl(reference::get, reference::set);
     }
 
     /**
-     * Gets the value of this reference via {@link #getter()}.
-     * @return the value of this reference
+     * Gets the value of this NBT reference.
+     * @return the current value of this reference
      */
-    public NBT get() {
-        return getter.get();
-    }
+    NBT get();
 
     /**
-     * Sets the value of this reference via {@link #setter()}.
+     * Sets the value of this NBT reference.
      * @param nbt the new value of this reference
      */
-    public void set(NBT nbt) {
-        setter.accept(nbt);
-    }
+    void set(NBT nbt);
 
     /**
      * Returns the size of this element if it is a list, or -1 if this is not a list.
      * @return the size of this list, or -1
      */
-    public int listSize() {
+    default int listSize() {
         return get() instanceof NBTList<?> list ? list.getSize() : -1;
     }
 
@@ -60,7 +54,7 @@ public record NBTReference(@NotNull Supplier<NBT> getter, @NotNull Consumer<NBT>
      * Returns a stream containing a reference to each child of this list, or an empty stream if it is not a list.
      * @return a stream representing this element
      */
-    public @NotNull Stream<NBTReference> asStream() {
+    default @NotNull Stream<NBTReference> asStream() {
         return get() instanceof NBTList<?> list ?
                 IntStream.range(0, list.getSize()).mapToObj(this::get) : Stream.empty();
     }
@@ -69,7 +63,7 @@ public record NBTReference(@NotNull Supplier<NBT> getter, @NotNull Consumer<NBT>
      * Adds the provided value to this element if this is a list of the same type as the element
      * @param value the value to try to add
      */
-    public void tryListAdd(@NotNull NBT value) {
+    default void tryListAdd(@NotNull NBT value) {
         if (get() instanceof NBTList<?> list && (list.isEmpty() || list.getSubtagType() == value.getID())) {
             List<NBT> newList = new ArrayList<>(list.asListView());
             newList.add(value);
@@ -82,7 +76,7 @@ public record NBTReference(@NotNull Supplier<NBT> getter, @NotNull Consumer<NBT>
      * @param key the key to check
      * @return true if the element is a NBT compound and the compound contains the provided key
      */
-    public boolean has(@NotNull String key) {
+    default boolean has(@NotNull String key) {
         return get() instanceof NBTCompound compound && compound.containsKey(key);
     }
 
@@ -92,8 +86,8 @@ public record NBTReference(@NotNull Supplier<NBT> getter, @NotNull Consumer<NBT>
      * @param key the key to get a reference of
      * @return a new reference that refers to the provided key on this reference's NBT
      */
-    public NBTReference get(@NotNull String key) {
-        return new NBTReference(() -> tryCompoundGet(key), nbt -> tryCompoundSet(key, nbt));
+    default NBTReference get(@NotNull String key) {
+        return new NBTReferenceImpl(() -> tryCompoundGet(key), nbt -> tryCompoundSet(key, nbt));
     }
 
     /**
@@ -102,8 +96,8 @@ public record NBTReference(@NotNull Supplier<NBT> getter, @NotNull Consumer<NBT>
      * @param index the index to get a reference of
      * @return a new reference that refers to the provided index on this reference's NBT
      */
-    public NBTReference get(int index) {
-        return new NBTReference(() -> tryListGet(index), nbt -> tryListSet(index, nbt));
+    default NBTReference get(int index) {
+        return new NBTReferenceImpl(() -> tryListGet(index), nbt -> tryListSet(index, nbt));
     }
 
     private @Nullable NBT tryCompoundGet(@NotNull String key) {
@@ -132,4 +126,17 @@ public record NBTReference(@NotNull Supplier<NBT> getter, @NotNull Consumer<NBT>
         }
     }
 
+}
+
+record NBTReferenceImpl(@NotNull Supplier<NBT> getter, @NotNull Consumer<NBT> setter) implements NBTReference {
+
+    @Override
+    public NBT get() {
+        return getter.get();
+    }
+
+    @Override
+    public void set(NBT nbt) {
+        setter.accept(nbt);
+    }
 }
