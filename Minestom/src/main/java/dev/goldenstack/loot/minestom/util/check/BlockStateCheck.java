@@ -36,7 +36,7 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
                     }
                 }
             }, (input, context) -> {
-                if (input.empty()) {
+                if (input.isNull()) {
                     return new BlockStateCheck(List.of());
                 }
                 if (!input.isMap()) {

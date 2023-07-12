@@ -165,7 +165,7 @@ public class Converters {
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
     private static <T> @Nullable T deserialize(@NotNull Field<T> field, @NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException {
-        if (input.empty()) {
+        if (input.isNull()) {
             if (field.defaultValue() == null) {
                 throw new ConfigurateException(input, "(Type: " + field.type().getType() + ") Input was empty and this field doesn't have a default value.");
             }
