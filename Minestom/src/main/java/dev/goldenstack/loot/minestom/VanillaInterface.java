@@ -4,6 +4,7 @@ import dev.goldenstack.loot.converter.additive.AdditiveConverter;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.item.Enchantment;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
@@ -81,6 +82,16 @@ public interface VanillaInterface {
      */
     default @NotNull ItemStack enchantItem(@NotNull Random random, @NotNull ItemStack item, int levels, boolean permitTreasure) {
         throw new UnsupportedOperationException("VanillaInterface#enchantItem has not been implemented!");
+    }
+
+    /**
+     * Returns whether or not the provided item is allowed to be enchanted with the provided enchantment.
+     * @param item the item to check
+     * @param enchantment the enchantment that could potentially be applied
+     * @return true if the enchantment can be applied, false if not
+     */
+    default boolean canApplyEnchantment(@NotNull ItemStack item, @NotNull Enchantment enchantment) {
+        throw new UnsupportedOperationException("VanillaInterface#canSupplyEnchantment has not been implemented!");
     }
 
     /**
