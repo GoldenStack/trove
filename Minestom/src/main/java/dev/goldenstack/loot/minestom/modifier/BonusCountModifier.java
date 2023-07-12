@@ -5,7 +5,6 @@ import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
-import dev.goldenstack.loot.minestom.util.MinestomTypes;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
@@ -21,16 +20,17 @@ import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Field.field;
 import static dev.goldenstack.loot.converter.generator.FieldTypes.implicit;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.enchantment;
 
 /**
  * Modifies the count of each provided item based on the {@link #bonus()} and the enchantment level on the
  * {@link LootContextKeys#TOOL}.
  * @param conditions the conditions required for modification
- * @param enchantment the enchantment to be given to the bonus finder
+ * @param addedEnchantment the enchantment to be given to the bonus finder
  * @param bonus the equation that determines the bonus based on the provided factors
  */
 public record BonusCountModifier(@NotNull List<LootCondition> conditions,
-                                 @NotNull Enchantment enchantment,
+                                 @NotNull Enchantment addedEnchantment,
                                  @NotNull BonusType bonus) implements ItemStackModifier {
 
     public static final LootConversionManager<BonusType> TYPE_CONVERTER = LootConversionManager.<BonusType>builder()
@@ -47,7 +47,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull KeyedLootConverter<BonusCountModifier> CONVERTER =
             converter(BonusCountModifier.class,
                     condition().list().name("conditions").withDefault(ArrayList::new),
-                    MinestomTypes.enchantment().name("enchantment"),
+                    enchantment().name("addedEnchantment").nodePath("enchantment"),
                     field(BonusType.class, Utils.createAdditive(TYPE_CONVERTER::serialize, TYPE_CONVERTER::deserialize))
                             .name("bonus").nodePath(List.of())
             ).keyed("minecraft:apply_bonus");
@@ -135,7 +135,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
         }
 
         ItemStack tool = context.assure(LootContextKeys.TOOL);
-        int level = tool.meta().getEnchantmentMap().getOrDefault(enchantment, (short) 0);
+        int level = tool.meta().getEnchantmentMap().getOrDefault(addedEnchantment, (short) 0);
         return input.withAmount(this.bonus.calculateNewValue(context.random(), input.amount(), level));
     }
 

@@ -4,37 +4,38 @@ import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
-import dev.goldenstack.loot.minestom.util.MinestomTypes;
 import dev.goldenstack.loot.minestom.util.RelevantEntity;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.entityPredicate;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.relevantEntity;
 
 /**
- * Checks the {@link #relevantEntity()} with the {@link #entityPredicate()}.
- * @param relevantEntity the specific entity to select
- * @param entityPredicate the predicate that checks the entity
+ * Checks the {@link #chosenEntity()} with the {@link #entityChecker()}.
+ * @param chosenEntity the specific entity to select
+ * @param entityChecker the predicate that checks the entity
  */
-public record EntityCheckCondition(@NotNull RelevantEntity relevantEntity,
-                                   @NotNull VanillaInterface.EntityPredicate entityPredicate) implements LootCondition {
+public record EntityCheckCondition(@NotNull RelevantEntity chosenEntity,
+                                   @NotNull VanillaInterface.EntityPredicate entityChecker) implements LootCondition {
 
     /**
      * A standard map-based converter entity check conditions.
      */
     public static final @NotNull KeyedLootConverter<EntityCheckCondition> CONVERTER =
             converter(EntityCheckCondition.class,
-                    MinestomTypes.relevantEntity().name("relevantEntity").nodePath("entity"),
-                    MinestomTypes.entityPredicate().name("entityPredicate").nodePath("predicate")
+                    relevantEntity().name("chosenEntity").nodePath("entity"),
+                    entityPredicate().name("entityChecker").nodePath("predicate")
             ).keyed("minecraft:entity_properties");
 
     @Override
     public boolean verify(@NotNull LootGenerationContext context) {
-        var entity = context.get(relevantEntity.key());
+        var entity = context.get(chosenEntity.key());
         var origin = context.get(LootContextKeys.ORIGIN);
 
         var world = context.assure(LootContextKeys.WORLD);
 
-        return entityPredicate.test(world, origin, entity);
+        return entityChecker.test(world, origin, entity);
     }
 }

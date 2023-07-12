@@ -3,7 +3,6 @@ package dev.goldenstack.loot.minestom.condition;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
-import dev.goldenstack.loot.minestom.util.MinestomTypes;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.item.Enchantment;
 import org.jetbrains.annotations.NotNull;
@@ -11,13 +10,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.enchantment;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.implicit;
 
 /**
- * Verifies each context based on the chance of the level of {@link #enchantment()} on {@link LootContextKeys#TOOL} in
- * {@link #chances()}.
+ * Verifies each context based on the chance of the level of {@link #addedEnchantment()} on {@link LootContextKeys#TOOL}
+ * in {@link #chances()}.
  */
-public record EnchantmentLevelCondition(@NotNull Enchantment enchantment,
+public record EnchantmentLevelCondition(@NotNull Enchantment addedEnchantment,
                                         @NotNull List<Double> chances) implements LootCondition {
 
     /**
@@ -25,7 +25,7 @@ public record EnchantmentLevelCondition(@NotNull Enchantment enchantment,
      */
     public static final @NotNull KeyedLootConverter<EnchantmentLevelCondition> CONVERTER =
             converter(EnchantmentLevelCondition.class,
-                MinestomTypes.enchantment().name("enchantment"),
+                enchantment().name("addedEnchantment").nodePath("enchantment"),
                 implicit(Double.class).list().name("chances")
             ).keyed("minecraft:table_bonus");
 
@@ -33,7 +33,7 @@ public record EnchantmentLevelCondition(@NotNull Enchantment enchantment,
     public boolean verify(@NotNull LootGenerationContext context) {
         var tool = context.get(LootContextKeys.TOOL);
 
-        int level = tool != null ? tool.meta().getEnchantmentMap().getOrDefault(this.enchantment, (short) 0) : 0;
+        int level = tool != null ? tool.meta().getEnchantmentMap().getOrDefault(this.addedEnchantment, (short) 0) : 0;
 
         double chance = chances.get(Math.min(level, chances.size() - 1));
 

@@ -30,6 +30,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
+import static dev.goldenstack.loot.converter.generator.Field.field;
+
 /**
  * Utility for the creation of various types of Minestom-related fields.
  */
@@ -39,7 +41,7 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting number ranges
      */
     public static @NotNull Field<LootNumberRange> numberRange() {
-        return Field.field(LootNumberRange.class, LootNumberRange.CONVERTER);
+        return field(LootNumberRange.class, LootNumberRange.CONVERTER);
     }
 
     /**
@@ -67,14 +69,14 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting block state checks
      */
     public static @NotNull Field<BlockStateCheck> blockStateCheck() {
-        return Field.field(BlockStateCheck.class, BlockStateCheck.CONVERTER);
+        return field(BlockStateCheck.class, BlockStateCheck.CONVERTER);
     }
 
     /**
      * @return a field converting item predicates
      */
     public static @NotNull Field<VanillaInterface.ItemPredicate> itemPredicate() {
-        return Field.field(VanillaInterface.ItemPredicate.class,
+        return field(VanillaInterface.ItemPredicate.class,
                 Utils.additiveFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).itemPredicateConverter()));
     }
 
@@ -82,7 +84,7 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting location predicates
      */
     public static @NotNull Field<VanillaInterface.LocationPredicate> locationPredicate() {
-        return Field.field(VanillaInterface.LocationPredicate.class,
+        return field(VanillaInterface.LocationPredicate.class,
                 Utils.additiveFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).locationPredicateConverter()));
     }
 
@@ -90,7 +92,7 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting entity predicates
      */
     public static @NotNull Field<VanillaInterface.EntityPredicate> entityPredicate() {
-        return Field.field(VanillaInterface.EntityPredicate.class,
+        return field(VanillaInterface.EntityPredicate.class,
                 Utils.additiveFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).entityPredicateConverter()));
     }
 
@@ -105,7 +107,7 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting context key groups
      */
     public static @NotNull Field<LootContextKeyGroup> keyGroup() {
-        return Field.field(LootContextKeyGroup.class, Utils.createAdditive(
+        return field(LootContextKeyGroup.class, Utils.createAdditive(
                 (input, result, context) -> result.set(input.id()),
                 (input, context) -> context.assure(LootConversionKeys.CONTEXT_KEYS).get(input.require(String.class))
         ));
@@ -115,21 +117,21 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting loot pools
      */
     public static @NotNull Field<LootPool> pool() {
-        return Field.field(LootPool.class, LootPool.CONVERTER);
+        return field(LootPool.class, LootPool.CONVERTER);
     }
 
     /**
      * @return a field converting loot tables
      */
     public static @NotNull Field<LootTable> table() {
-        return Field.field(LootTable.class, LootTable.CONVERTER);
+        return field(LootTable.class, LootTable.CONVERTER);
     }
 
     /**
      * @return a field converting NBT
      */
     public static @NotNull Field<NBT> nbt() {
-        return Field.field(NBT.class, Utils.createAdditive(
+        return field(NBT.class, Utils.createAdditive(
             (input, result, context) -> result.set(input.toSNBT()),
             (input, context) -> {
                 var snbt = input.require(String.class);
@@ -160,7 +162,7 @@ public class MinestomTypes extends FieldTypes {
             mappings.put(identifier.apply(value), value);
         }
 
-        return Field.field(type, Utils.createAdditive(
+        return field(type, Utils.createAdditive(
                 (input, result, context) -> result.set(type, identifier.apply(input)),
                 (input, context) -> {
                     var get = mappings.get(NamespaceID.from(input.require(String.class)));
