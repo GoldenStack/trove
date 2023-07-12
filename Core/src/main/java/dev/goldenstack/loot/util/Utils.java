@@ -72,12 +72,12 @@ public class Utils {
     public static <O> @NotNull List<O> deserializeList(@NotNull ConfigurationNode input,
                                                           @NotNull LootDeserializer<O> deserializer,
                                                           @NotNull LootConversionContext context) throws ConfigurateException {
-        List<ConfigurationNode> children = input.getList(ConfigurationNode.class);
-        if (children == null) {
+        if (!input.isList()) {
             throw new ConfigurateException(input, "Expected the value of the node to be a list of configuration nodes");
         }
+
         List<O> output = new ArrayList<>();
-        for (var child : children) {
+        for (var child : input.childrenList()) {
             output.add(deserializer.deserialize(child, context));
         }
         return output;
