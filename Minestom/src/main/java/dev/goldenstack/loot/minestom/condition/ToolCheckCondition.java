@@ -17,7 +17,7 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.itemPredicate;
 public record ToolCheckCondition(@NotNull VanillaInterface.ItemPredicate toolPredicate) implements LootCondition {
 
     /**
-     * A standard map-based converter for tool predicate conditions.
+     * A standard map-based converter for tool check conditions.
      */
     public static final @NotNull KeyedLootConverter<ToolCheckCondition> CONVERTER =
             converter(ToolCheckCondition.class,
