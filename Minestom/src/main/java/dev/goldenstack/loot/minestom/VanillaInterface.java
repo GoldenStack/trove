@@ -91,7 +91,7 @@ public interface VanillaInterface {
      * @return true if the enchantment can be applied, false if not
      */
     default boolean canApplyEnchantment(@NotNull ItemStack item, @NotNull Enchantment enchantment) {
-        throw new UnsupportedOperationException("VanillaInterface#canSupplyEnchantment has not been implemented!");
+        throw new UnsupportedOperationException("VanillaInterface#canApplyEnchantment has not been implemented!");
     }
 
     /**
