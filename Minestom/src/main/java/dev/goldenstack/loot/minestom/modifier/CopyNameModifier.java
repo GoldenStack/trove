@@ -36,7 +36,7 @@ public record CopyNameModifier(@NotNull List<LootCondition> conditions,
                     enumerated(RelevantKey.class, source -> source.name).name("source")
             ).keyed("minecraft:copy_name");
 
-    private static final @NotNull Tag<Component> COMPONENT_TAG = Tag.Component("CustomName");
+    private static final @NotNull Tag<Component> BLOCK_CUSTOM_NAME = Tag.Component("CustomName");
 
     /**
      * Stores the relevant loot context key. This is different from {@link dev.goldenstack.loot.minestom.util.RelevantEntity}
@@ -68,8 +68,8 @@ public record CopyNameModifier(@NotNull List<LootCondition> conditions,
         Component customName;
         if (key instanceof Entity entity && entity.getCustomName() != null) {
             customName = entity.getCustomName();
-        } else if (key instanceof Block block && block.hasTag(COMPONENT_TAG)) {
-            customName = block.getTag(COMPONENT_TAG);
+        } else if (key instanceof Block block && block.hasTag(BLOCK_CUSTOM_NAME)) {
+            customName = block.getTag(BLOCK_CUSTOM_NAME);
         } else {
             return input;
         }
