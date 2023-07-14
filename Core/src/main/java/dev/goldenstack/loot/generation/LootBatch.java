@@ -11,14 +11,14 @@ import java.util.function.Function;
  * Holds a collection of arbitrary items that will be handled by the various components of loot tables.
  * @param items the various items in this batch
  */
-public record LootBatch(@NotNull List<Object> items) {
+public record LootBatch(@NotNull List<?> items) {
 
     /**
      * Creates a batch containing the provided items.
      * @param items the items that the batch will hold
      * @return a new batch of the items
      */
-    public static @NotNull LootBatch of(@NotNull List<@NotNull Object> items) {
+    public static @NotNull LootBatch of(@NotNull List<?> items) {
         return new LootBatch(items);
     }
 
