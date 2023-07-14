@@ -52,7 +52,7 @@ public interface LootProcessor {
         @SuppressWarnings("unchecked")
         @Contract("_, _ -> this")
         public <T> @NotNull Builder processClass(@NotNull Class<T> type, @NotNull Consumer<T> consumer) {
-            processors.add(new IndividualProcessor(o -> type.equals(o.getClass()), o -> consumer.accept((T) o)));
+            processors.add(new IndividualProcessor(type::isInstance, o -> consumer.accept((T) o)));
             return this;
         }
 
