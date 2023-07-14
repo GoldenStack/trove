@@ -6,7 +6,6 @@ import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.structure.LootCondition;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.coordinate.Point;
-import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.damage.DamageType;
@@ -87,7 +86,7 @@ public class LootContextKeys {
      * Represents the origin point of the source event. For example, this could be the location of the block that was
      * mined, the chest that was opened, or the entity that was killed.
      */
-    public static final @NotNull LootContext.Key<Pos> ORIGIN = key("minecraft:origin", new TypeToken<>(){});
+    public static final @NotNull LootContext.Key<Point> ORIGIN = key("minecraft:origin", new TypeToken<>(){});
 
     /**
      * Represents the entity, if it exists, that was the source of the event. For example, if a mob is killed, this
