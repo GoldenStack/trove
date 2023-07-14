@@ -44,7 +44,7 @@ public interface LootModifier {
                 if (GenericTypeReflector.isSuperType(filteredType(), item.getClass())) {
                     var modified = modify((T) item, context);
                     if (modified != null) {
-                        filtered.add(item);
+                        filtered.add(modified);
                     }
                 } else {
                     filtered.add(item);
