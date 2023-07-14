@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom;
 
 import dev.goldenstack.loot.converter.additive.AdditiveConverter;
-import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.Enchantment;
@@ -36,7 +36,7 @@ public interface VanillaInterface {
      */
     interface LocationPredicate {
 
-        boolean test(@NotNull Instance world, @NotNull Pos location);
+        boolean test(@NotNull Instance world, @NotNull Point location);
 
     }
 
@@ -45,7 +45,7 @@ public interface VanillaInterface {
      */
     interface EntityPredicate {
 
-        boolean test(@NotNull Instance world, @Nullable Pos location, @Nullable Entity entity);
+        boolean test(@NotNull Instance world, @Nullable Point location, @Nullable Entity entity);
     }
 
     /**
