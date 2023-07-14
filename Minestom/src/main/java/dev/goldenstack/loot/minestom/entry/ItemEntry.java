@@ -25,7 +25,7 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
 public record ItemEntry(@NotNull Material itemType,
                         long weight, long quality,
                         @NotNull List<LootModifier> modifiers,
-                        @NotNull List<LootCondition> conditions) implements SingleChoiceEntry, StandardWeightedChoice {
+                        @NotNull List<LootCondition> conditions) implements StandardSingleChoice {
 
     /**
      * A standard map-based converter for item entries.
@@ -45,9 +45,12 @@ public record ItemEntry(@NotNull Material itemType,
     }
 
     @Override
+    public boolean shouldGenerate(@NotNull LootGenerationContext context) {
+        return LootCondition.all(conditions(), context);
+    }
+
+    @Override
     public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
-        return LootCondition.all(conditions(), context) ?
-                LootModifier.applyAll(modifiers(), LootBatch.of(ItemStack.of(itemType)), context) :
-                LootBatch.of();
+        return LootModifier.applyAll(modifiers(), LootBatch.of(ItemStack.of(itemType)), context);
     }
 }

@@ -28,7 +28,7 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.namespaceId;
  */
 public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, long quality,
                            @NotNull List<LootCondition> conditions,
-                           @NotNull List<LootModifier> modifiers) implements SingleChoiceEntry, StandardWeightedChoice {
+                           @NotNull List<LootModifier> modifiers) implements StandardSingleChoice {
 
     /**
      * A standard map-based converter for dynamic entries.
@@ -48,6 +48,11 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
     }
 
     @Override
+    public boolean shouldGenerate(@NotNull LootGenerationContext context) {
+        return LootCondition.all(conditions(), context);
+    }
+
+    @Override
     public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
         var block = context.assure(LootContextKeys.BLOCK_ENTITY).block();
         var blockNBT = block.hasNbt() ? block.nbt() : new NBTCompound();
@@ -56,8 +61,6 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
 
         List<ItemStack> items = dynamicDropProvider.getOrDefault(dynamicChoiceId, nbt -> List.of()).apply(blockNBT);
 
-        return LootCondition.all(conditions(), context) ?
-                LootModifier.applyAll(modifiers(), LootBatch.of(items), context) :
-                LootBatch.of();
+        return LootModifier.applyAll(modifiers(), LootBatch.of(items), context);
     }
 }

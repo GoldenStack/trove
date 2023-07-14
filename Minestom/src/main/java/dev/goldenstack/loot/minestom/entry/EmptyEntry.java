@@ -21,7 +21,7 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
  */
 public record EmptyEntry(long weight, long quality,
                          @NotNull List<LootModifier> modifiers,
-                         @NotNull List<LootCondition> conditions) implements SingleChoiceEntry, StandardWeightedChoice {
+                         @NotNull List<LootCondition> conditions) implements StandardSingleChoice {
 
     /**
      * A standard map-based converter for empty entries.
@@ -37,6 +37,11 @@ public record EmptyEntry(long weight, long quality,
     public EmptyEntry {
         modifiers = List.copyOf(modifiers);
         conditions = List.copyOf(conditions);
+    }
+
+    @Override
+    public boolean shouldGenerate(@NotNull LootGenerationContext context) {
+        return LootCondition.all(conditions(), context);
     }
 
     @Override
