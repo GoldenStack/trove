@@ -142,11 +142,6 @@ public record LootContextKeyGroup(@NotNull String id, @NotNull Set<LootContext.K
                 throw new IllegalArgumentException("Provided context does not have key '" + key.key() + "'");
             }
         }
-        for (var key : information.keySet()) {
-            if (!permitted.contains(key)) {
-                throw new IllegalArgumentException("Provided context has key '" + key + "' but it is not allowed");
-            }
-        }
     }
 
     /**
