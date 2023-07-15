@@ -1,0 +1,98 @@
+package dev.goldenstack.loot.minestom.util;
+
+import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.minestom.VanillaInterface;
+import dev.goldenstack.loot.minestom.util.nbt.NBTUtils;
+import dev.goldenstack.loot.util.Utils;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.LivingEntity;
+import net.minestom.server.instance.Instance;
+import net.minestom.server.item.Enchantment;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.utils.NamespaceID;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+import org.jglrxavpok.hephaistos.nbt.NBTList;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.function.Function;
+
+/**
+ * A vanilla interface implementation that provides sensible defaults for each method.
+ */
+public interface FallbackVanillaInterface extends VanillaInterface {
+
+    @Override
+    default boolean isRaining(@NotNull Instance instance) {
+        return false;
+    }
+
+    @Override
+    default boolean isThundering(@NotNull Instance instance) {
+        return false;
+    }
+
+    @Override
+    default int getLooting(@NotNull Entity entity) {
+        if (!(entity instanceof LivingEntity living)) {
+            return 0;
+        }
+
+        return living.getItemInMainHand().meta().getEnchantmentMap().getOrDefault(Enchantment.LOOTING, (short) 0);
+    }
+
+    @Override
+    default @NotNull ItemStack enchantItem(@NotNull Random random, @NotNull ItemStack item, int levels, boolean permitTreasure) {
+        return item;
+    }
+
+    @Override
+    default boolean canApplyEnchantment(@NotNull ItemStack item, @NotNull Enchantment enchantment) {
+        return true;
+    }
+
+    @Override
+    default @Nullable ItemStack smeltItem(@NotNull ItemStack item) {
+        return item;
+    }
+
+    @Override
+    default @NotNull AdditiveConverter<LocationPredicate> locationPredicateConverter() {
+        return Utils.createAdditive(
+                (input, result, context) -> {},
+                (input, context) -> (world, position) -> false
+        );
+    }
+
+    @Override
+    default @NotNull AdditiveConverter<EntityPredicate> entityPredicateConverter() {
+        return Utils.createAdditive(
+                (input, result, context) -> {},
+                (input, context) -> (world, location, entity) -> false
+        );
+    }
+
+    @Override
+    default @NotNull NBTCompound getEntityNBT(@NotNull Entity entity) {
+        return new NBTCompound();
+    }
+
+    @Override
+    default @Nullable NBTCompound getCommandStorageValue(@NotNull NamespaceID key) {
+        return null;
+    }
+
+    @Override
+    @NotNull
+    default Map<NamespaceID, Function<NBTCompound, List<ItemStack>>> getDynamicDropProvider() {
+        return Map.of(
+            NamespaceID.from("minecraft:contents"), nbt -> {
+                NBTList<NBTCompound> contents = nbt.getList("Items");
+                return (contents != null) ? NBTUtils.listToItems(contents) : List.of();
+            }
+        );
+    }
+}
