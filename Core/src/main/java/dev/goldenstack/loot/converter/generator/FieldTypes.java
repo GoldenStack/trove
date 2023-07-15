@@ -17,6 +17,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static dev.goldenstack.loot.converter.generator.Field.field;
+
 /**
  * Utility for the creation of various types of fields.
  */
@@ -39,7 +41,7 @@ public class FieldTypes {
      * @param <T> the type to convert
      */
     public static <T> @NotNull Field<T> implicit(@NotNull TypeToken<T> type) {
-        return Field.field(type,
+        return field(type,
                 Utils.createAdditive(
                     (input, result, context) -> result.set(type, input),
                     (input, context) -> {
@@ -57,16 +59,13 @@ public class FieldTypes {
      * @return a field converting UUIDs
      */
     public static @NotNull Field<UUID> uuid() {
-        return Field.field(UUID.class, Utils.createAdditive(
-                (input, result, context) -> result.set(input.toString()),
-                (input, context) -> {
-                    try {
-                        return UUID.fromString(input.require(String.class));
-                    } catch (IllegalArgumentException e) {
-                        throw new ConfigurateException(input, "Could not read UUID from node", e);
-                    }
-                }
-        ));
+        return implicit(String.class).map(UUID.class, string -> {
+            try {
+                return UUID.fromString(string);
+            } catch (IllegalArgumentException e) {
+                throw new ConfigurateException("Could not read UUID from node", e);
+            }
+        }, UUID::toString);
     }
 
     /**
@@ -91,16 +90,13 @@ public class FieldTypes {
     public static <T> @NotNull Field<T> enumerated(@NotNull Class<T> type, @NotNull Collection<T> values, @NotNull Function<T, String> namer) {
         Map<String, T> mappings = values.stream().collect(Collectors.toMap(namer, Function.identity()));
 
-        return Field.field(type, Utils.createAdditive(
-                (input, result, context) -> result.set(type, namer.apply(input)),
-                (input, context) -> {
-                    var get = mappings.get(input.require(String.class));
-                    if (get == null) {
-                        throw new ConfigurateException(input, "Expected a value of " + type + " but found something else");
-                    }
-                    return get;
-                }
-        ));
+        return implicit(String.class).map(type, string -> {
+            var get = mappings.get(string);
+            if (get == null) {
+                throw new ConfigurateException("Expected a value of " + type + " but found something else");
+            }
+            return get;
+        }, namer::apply);
     }
 
     /**
