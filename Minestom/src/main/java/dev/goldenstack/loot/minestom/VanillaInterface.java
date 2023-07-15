@@ -25,13 +25,6 @@ import java.util.function.Predicate;
 public interface VanillaInterface {
 
     /**
-     * Verifies that the provided item fits some predicate.
-     */
-    interface ItemPredicate extends Predicate<ItemStack> {
-
-    }
-
-    /**
      * Verifies that the provided location in the world fits some predicate.
      */
     interface LocationPredicate {
@@ -102,15 +95,6 @@ public interface VanillaInterface {
      */
     default @Nullable ItemStack smeltItem(@NotNull ItemStack item) {
         throw new UnsupportedOperationException("VanillaInterface#smeltItem has not been implemented!");
-    }
-
-    /**
-     * Provides the converter for item predicates. These are the predicates that Minecraft uses for items in a variety
-     * of circumstances.
-     * @return the converter for item predicates
-     */
-    default @NotNull AdditiveConverter<ItemPredicate> itemPredicateConverter() {
-        throw new UnsupportedOperationException("VanillaInterface#itemPredicateConverter has not been implemented!");
     }
 
     /**

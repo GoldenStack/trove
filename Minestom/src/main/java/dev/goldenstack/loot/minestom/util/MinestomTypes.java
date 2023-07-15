@@ -81,14 +81,6 @@ public class MinestomTypes extends FieldTypes {
     }
 
     /**
-     * @return a field converting item predicates
-     */
-    public static @NotNull Field<VanillaInterface.ItemPredicate> itemPredicate() {
-        return field(VanillaInterface.ItemPredicate.class,
-                Utils.additiveFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).itemPredicateConverter()));
-    }
-
-    /**
      * @return a field converting location predicates
      */
     public static @NotNull Field<VanillaInterface.LocationPredicate> locationPredicate() {
