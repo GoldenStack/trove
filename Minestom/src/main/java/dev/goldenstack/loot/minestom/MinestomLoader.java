@@ -85,6 +85,7 @@ public class MinestomLoader {
         builder.addConverter(SetCountModifier.CONVERTER);
         builder.addConverter(SetDamageModifier.CONVERTER);
         builder.addConverter(SetNbtModifier.CONVERTER);
+        builder.addConverter(SetPotionModifier.CONVERTER);
         builder.addConverter(SetStewEffectModifier.CONVERTER);
         builder.addConverter(SmeltItemModifier.CONVERTER);
     }

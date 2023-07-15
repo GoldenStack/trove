@@ -16,6 +16,7 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.Enchantment;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.attribute.AttributeSlot;
+import net.minestom.server.potion.PotionType;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBT;
@@ -64,6 +65,13 @@ public class MinestomTypes extends FieldTypes {
      */
     public static @NotNull Field<Enchantment> enchantment() {
         return implicit(String.class).map(Enchantment.class, Enchantment::fromNamespaceId, Enchantment::name);
+    }
+
+    /**
+     * @return a field converting potion types
+     */
+    public static @NotNull Field<PotionType> potionType() {
+        return implicit(String.class).map(PotionType.class, PotionType::fromNamespaceId, PotionType::name);
     }
 
     /**
