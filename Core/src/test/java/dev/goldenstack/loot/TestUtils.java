@@ -22,7 +22,7 @@ public class TestUtils {
     private TestUtils() {}
 
     public static @NotNull ImmuTables emptyLoader() {
-        return new ImmuTables(null, null, null, null, BasicConfigurationNode.factory()::createNode);
+        return ImmuTables.builder().nodeProducer(BasicConfigurationNode.factory()::createNode).build();
     }
 
     public static @NotNull LootContext context(@NotNull Map<LootContext.Key<?>, Object> information) {

@@ -7,7 +7,6 @@ import dev.goldenstack.loot.structure.LootNumber;
 import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Arrays;

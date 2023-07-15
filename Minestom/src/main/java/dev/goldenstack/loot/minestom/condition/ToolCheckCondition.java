@@ -21,7 +21,7 @@ public record ToolCheckCondition(@NotNull ItemCheck toolCheck) implements LootCo
      */
     public static final @NotNull KeyedLootConverter<ToolCheckCondition> CONVERTER =
             converter(ToolCheckCondition.class,
-                    field(ItemCheck.class, ItemCheck.CONVERTER).name("toolCheck").nodePath("predicate")
+                    field(ItemCheck.class, ItemCheck.CONVERTER).name("toolCheck").nodePath("predicate").withDefault(ItemCheck.EMPTY)
             ).keyed("minecraft:match_tool");
 
     @Override

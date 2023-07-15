@@ -57,7 +57,7 @@ public record ItemCheck(@NotNull NBTCheck nbtCheck,
                     field(EnchantmentCheck.class, EnchantmentCheck.CONVERTER).list().withDefault(List::of)
                             .name("storedEnchantmentChecks").nodePath("stored_enchantments"),
                     material().list().name("validMaterials").nodePath("items").optional(),
-                    tag(Tag.BasicType.ITEMS).name("materialTag").nodePath("tag"),
+                    tag(Tag.BasicType.ITEMS).name("materialTag").nodePath("tag").optional(),
                     namespaceId().name("potionId").nodePath("potion").optional()
             ).additive();
 
