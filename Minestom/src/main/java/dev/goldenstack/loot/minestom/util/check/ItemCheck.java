@@ -3,7 +3,6 @@ package dev.goldenstack.loot.minestom.util.check;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.additive.AdditiveConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
@@ -16,7 +15,6 @@ import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Field.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.implicit;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
 
 /**
@@ -59,9 +57,7 @@ public record ItemCheck(@NotNull NBTCheck nbtCheck,
                     field(EnchantmentCheck.class, EnchantmentCheck.CONVERTER).list().withDefault(List::of)
                             .name("storedEnchantmentChecks").nodePath("stored_enchantments"),
                     material().list().name("validMaterials").nodePath("items").optional(),
-                    implicit(String.class).name("materialTag").nodePath("tag")
-                            .map(Tag.class, str -> MinecraftServer.getTagManager().getTag(Tag.BasicType.ITEMS, str),
-                                    tag -> tag.getName().asString()).optional(),
+                    tag(Tag.BasicType.ITEMS).name("materialTag").nodePath("tag"),
                     namespaceId().name("potionId").nodePath("potion").optional()
             ).additive();
 

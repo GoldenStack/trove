@@ -5,7 +5,6 @@ import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
@@ -20,8 +19,8 @@ import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
 
 /**
- * Adds items from the tag ({@link #tag()}. Invalid identifiers will be ignored.
- * @param tag the tag to get item IDs from.
+ * Adds items from the tag ({@link #itemTag()}. Invalid identifiers will be ignored.
+ * @param itemTag the tag to get item IDs from.
  * @param expand true if each item in the tag should be its own choice, and false if they should all be in the same
  *               choice.
  * @param weight the base weight of this entry - see {@link StandardWeightedChoice#weight()}
@@ -29,7 +28,7 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
  * @param modifiers the modifiers that are applied to every item provided by this entry
  * @param conditions the conditions that all must be met for any results to be generated
  */
-public record TagEntry(@NotNull Tag tag, boolean expand,
+public record TagEntry(@NotNull Tag itemTag, boolean expand,
                        long weight, long quality,
                        @NotNull List<LootModifier> modifiers,
                        @NotNull List<LootCondition> conditions) implements StandardSingleChoice {
@@ -39,9 +38,7 @@ public record TagEntry(@NotNull Tag tag, boolean expand,
      */
     public static final @NotNull KeyedLootConverter<TagEntry> CONVERTER =
             converter(TagEntry.class,
-                    implicit(String.class).name("tag").nodePath("name")
-                            .map(Tag.class, str -> MinecraftServer.getTagManager().getTag(Tag.BasicType.ITEMS, str),
-                                    tag -> tag.getName().asString()),
+                    tag(Tag.BasicType.ITEMS).name("itemTag").nodePath("name"),
                     implicit(boolean.class).name("expand"),
                     implicit(long.class).name("weight").withDefault(1L),
                     implicit(long.class).name("quality").withDefault(0L),
@@ -83,7 +80,7 @@ public record TagEntry(@NotNull Tag tag, boolean expand,
     @Override
     public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
         return LootModifier.applyAll(modifiers(),
-                LootBatch.of(tag.getValues().stream().map(Material::fromNamespaceId).filter(Objects::nonNull).map(ItemStack::of).toList()),
+                LootBatch.of(itemTag.getValues().stream().map(Material::fromNamespaceId).filter(Objects::nonNull).map(ItemStack::of).toList()),
                 context
         );
     }

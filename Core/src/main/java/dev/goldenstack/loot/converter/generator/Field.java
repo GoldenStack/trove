@@ -217,7 +217,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
                 (input, result, context) -> {
                     var applied = fromNew.apply(input);
                     if (applied == null) {
-                        throw new SerializationException(type.getType(), "'" + input + "' has an invalid type '" + newType.getType() + "'");
+                        throw new SerializationException(type.getType(), "'" + input + "' has an invalid type '" + newType.getType() + "' or could not be otherwise serialized");
                     }
                     oldConverter.serialize(applied, result, context);
                 },
@@ -225,7 +225,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
                     var preliminaryObject = oldConverter.deserialize(input, context);
                     var result = toNew.apply(preliminaryObject);
                     if (result == null) {
-                        throw new SerializationException(input, newType.getType(), "'" + preliminaryObject + "' has an invalid type type '" + type + "'");
+                        throw new SerializationException(input, newType.getType(), "'" + preliminaryObject + "' has an invalid type '" + type + "' or could not be otherwise deserialized");
                     }
                     return result;
                 }

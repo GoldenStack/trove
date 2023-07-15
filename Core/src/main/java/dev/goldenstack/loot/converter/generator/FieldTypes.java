@@ -63,7 +63,7 @@ public class FieldTypes {
             try {
                 return UUID.fromString(string);
             } catch (IllegalArgumentException e) {
-                throw new ConfigurateException("Could not read UUID from node", e);
+                return null;
             }
         }, UUID::toString);
     }
@@ -89,14 +89,7 @@ public class FieldTypes {
      */
     public static <T> @NotNull Field<T> enumerated(@NotNull Class<T> type, @NotNull Collection<T> values, @NotNull Function<T, String> namer) {
         Map<String, T> mappings = values.stream().collect(Collectors.toMap(namer, Function.identity()));
-
-        return implicit(String.class).map(type, string -> {
-            var get = mappings.get(string);
-            if (get == null) {
-                throw new ConfigurateException("Expected a value of " + type + " but found something else");
-            }
-            return get;
-        }, namer::apply);
+        return implicit(String.class).map(type, mappings::get, namer::apply);
     }
 
     /**

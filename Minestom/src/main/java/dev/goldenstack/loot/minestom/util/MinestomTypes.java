@@ -10,8 +10,10 @@ import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
 import dev.goldenstack.loot.minestom.util.check.BlockStateCheck;
 import dev.goldenstack.loot.util.Utils;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.attribute.AttributeOperation;
+import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.Enchantment;
 import net.minestom.server.item.Material;
@@ -122,6 +124,16 @@ public class MinestomTypes extends FieldTypes {
     }
 
     /**
+     * @return a field converting the provided basic tag type
+     */
+    public static @NotNull Field<Tag> tag(@NotNull Tag.BasicType tagType) {
+        return implicit(String.class).map(Tag.class,
+                str -> MinecraftServer.getTagManager().getTag(tagType, str),
+                tag -> tag.getName().asString()
+        );
+    }
+
+    /**
      * @return a field converting loot pools
      */
     public static @NotNull Field<LootPool> pool() {
@@ -207,12 +219,7 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting NBT compounds
      */
     public static @NotNull Field<NBTCompound> nbtCompound() {
-        return nbt().map(NBTCompound.class, input -> {
-            if (input instanceof NBTCompound compound) {
-                return compound;
-            }
-            throw new ConfigurateException("Expected a NBT compound but found raw NBT: " + input);
-        }, nbt -> nbt);
+        return nbt().map(NBTCompound.class, input -> input instanceof NBTCompound compound ? compound : null, nbt -> nbt);
     }
 
 

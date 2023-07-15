@@ -48,7 +48,11 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
         @SuppressWarnings("DataFlowIssue")
         @Override
         public @NotNull LootNBT deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException {
-            return new ContextNBT(fromString(input.getString()));
+            var target = fromString(input.getString());
+            if (target == null) {
+                throw new ConfigurateException(input, "Could not read block entity or a RelevantEntity from the provided node");
+            }
+            return new ContextNBT(target);
         }
     };
 
@@ -60,16 +64,13 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
                     implicit(String.class).map(NBTTarget.class, ContextNBT::fromString, NBTTarget::serializedString).name("target")
             ).keyed("minecraft:context");
 
-    private static @NotNull NBTTarget fromString(@NotNull String id) throws ConfigurateException {
+    private static @Nullable NBTTarget fromString(@NotNull String id) {
         if (id.equals("block_entity")) {
             return new BlockEntityTarget();
         }
         var relevant = RelevantEntity.ofId(id);
 
-        if (relevant == null) {
-            throw new ConfigurateException("Could not read block entity or a RelevantEntity from the id '" + id + "'");
-        }
-        return new EntityTarget(relevant);
+        return relevant != null ? new EntityTarget(relevant) : null;
     }
 
     /**
