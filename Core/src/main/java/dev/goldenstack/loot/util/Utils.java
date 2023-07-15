@@ -74,7 +74,7 @@ public class Utils {
                                                           @NotNull LootDeserializer<O> deserializer,
                                                           @NotNull LootConversionContext context) throws ConfigurateException {
         if (!input.isList()) {
-            throw new ConfigurateException(input, "Expected the value of the node to be a list of configuration nodes");
+            throw new ConfigurateException(input, "Expected the value of the node to be a list");
         }
 
         List<O> output = new ArrayList<>();

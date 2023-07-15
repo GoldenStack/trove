@@ -8,6 +8,7 @@ import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,7 +42,13 @@ public class FieldTypes {
         return Field.field(type,
                 Utils.createAdditive(
                     (input, result, context) -> result.set(type, input),
-                    (input, context) -> input.require(type)
+                    (input, context) -> {
+                        var instance = input.get(type);
+                        if (instance == null) {
+                            throw new SerializationException(input, type.getType(), "Could not deserialize a node");
+                        }
+                        return instance;
+                    }
                 )
         );
     }
@@ -51,9 +58,7 @@ public class FieldTypes {
      */
     public static @NotNull Field<UUID> uuid() {
         return Field.field(UUID.class, Utils.createAdditive(
-                (input, result, context) -> {
-                    result.set(input.toString());
-                },
+                (input, result, context) -> result.set(input.toString()),
                 (input, context) -> {
                     try {
                         return UUID.fromString(input.require(String.class));
