@@ -59,11 +59,12 @@ public record EnchantmentCheck(@Nullable Enchantment enchantment, @NotNull LootN
             return level != null && range.check(context, level);
         }
         for (var entry : enchantments.entrySet()) {
-            if (!range.check(context, entry.getValue())) {
-                return false;
+            if (range.check(context, entry.getValue())) {
+                return true;
             }
         }
-        return true;
+        // If this is true, then the list was empty and so we should always return true anyway.
+        return range().min() == null && range.max() == null;
     }
 
 }
