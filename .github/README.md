@@ -1,19 +1,19 @@
-# ImmuTables
+# Trove
 
-[![license](https://img.shields.io/github/license/GoldenStack/ImmuTables?style=for-the-badge&color=dd2233)](../LICENSE)
+[![license](https://img.shields.io/github/license/GoldenStack/Trove?style=for-the-badge&color=dd2233)](../LICENSE)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=for-the-badge)](https://github.com/RichardLitt/standard-readme)
-[![javadocs](https://img.shields.io/badge/documentation-javadocs-4d7a97?style=for-the-badge)](https://javadoc.jitpack.io/com/github/GoldenStack/ImmuTables/master-SNAPSHOT/javadoc/)
+[![javadocs](https://img.shields.io/badge/documentation-javadocs-4d7a97?style=for-the-badge)](https://javadoc.jitpack.io/com/github/GoldenStack/Trove/master-SNAPSHOT/javadoc/)
 
 ## Note: This project is currently being heavily modified, so this file will generally be outdated.
 
-ImmuTables is a platform-agnostic loot table library. Its concepts are similar to Minecraft's loot table system, but all
+Trove is a platform-agnostic loot table library. Its concepts are similar to Minecraft's loot table system, but all
 the code is original.
 
 It includes the basis for loot requirements, loot modifiers, loot entries, and other structural elements of loot tables.
 It's incredibly easy to add your own implementations of these, and it's even optional (but encouraged) to add JSON
 serialization and deserialization.
 
-Because there are no static `ImmuTables` instances, each client of this library must use its own instance, preventing
+Because there are no static `Trove` instances, each client of this library must use its own instance, preventing
 potential interference.
 
 All classes that can be used to generate loot from a `LootTable` are fully immutable (unless implementations of them
@@ -32,7 +32,7 @@ are not synchronized, so care must be taken when working with them.
 
 ## Install
 
-To install, simply add the library via [JitPack](https://jitpack.io/#GoldenStack/ImmuTables/-SNAPSHOT):
+To install, simply add the library via [JitPack](https://jitpack.io/#GoldenStack/Trove/-SNAPSHOT):
 
 Details for how to add this library with other build tools (such as Maven) can be found on the page linked above.
 ``` gradle
@@ -43,7 +43,7 @@ repositories {
 
 dependencies {
     ...
-    implementation 'com.github.GoldenStack:ImmuTables:-SNAPSHOT'
+    implementation 'com.github.GoldenStack:Trove:-SNAPSHOT'
 }
 ```
 
@@ -58,7 +58,7 @@ compile and run; as demonstrated, you just have to give each builder an element 
 pool conversion information.
 
 ``` java
-ImmuTables<L> loader = ImmuTables.<L>builder()
+Trove<L> loader = Trove.<L>builder()
     .lootEntryBuilder(builder -> {
         builder.keyLocation("key here");
         // Modify the loot entry builder here
@@ -89,7 +89,7 @@ Here is a minimal working example of how you convert loot tables to and from JSO
 
 ``` java
 // Initialize the loader here
-ImmuTables<L> loader = ...;
+Trove<L> loader = ...;
 
 // Put the element here
 JsonElement element = ...;

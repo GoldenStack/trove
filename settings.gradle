@@ -1,4 +1,4 @@
-rootProject.name = 'ImmuTables'
+rootProject.name = 'Trove'
 include 'Core'
 include 'Minestom'
 

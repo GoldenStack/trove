@@ -21,8 +21,8 @@ import java.util.function.Supplier;
 public class TestUtils {
     private TestUtils() {}
 
-    public static @NotNull ImmuTables emptyLoader() {
-        return ImmuTables.builder().nodeProducer(BasicConfigurationNode.factory()::createNode).build();
+    public static @NotNull Trove emptyLoader() {
+        return Trove.builder().nodeProducer(BasicConfigurationNode.factory()::createNode).build();
     }
 
     public static @NotNull LootContext context(@NotNull Map<LootContext.Key<?>, Object> information) {

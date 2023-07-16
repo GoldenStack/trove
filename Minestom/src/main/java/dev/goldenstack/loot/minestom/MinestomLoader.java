@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom;
 
-import dev.goldenstack.loot.ImmuTables;
+import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
 import dev.goldenstack.loot.minestom.condition.*;
 import dev.goldenstack.loot.minestom.entry.*;
@@ -23,17 +23,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 
 /**
- * Utilities and functions to initialize ImmuTables instances for Minestom.
+ * Utilities and functions to initialize Trove instances for Minestom.
  */
 public class MinestomLoader {
     private MinestomLoader() {}
 
     /**
-     * The general initializer for ImmuTables builders. If this is applied to a builder, none of the other consumers in
+     * The general initializer for Trove builders. If this is applied to a builder, none of the other consumers in
      * this class will need to be applied to it, and neither will {@link LootPool#CONVERTER} and
      * {@link LootTable#CONVERTER}.
      */
-    public static void initializeBuilder(@NotNull ImmuTables.Builder builder) {
+    public static void initializeBuilder(@NotNull Trove.Builder builder) {
         builder.newBuilder(MinestomLoader::initializeEntryBuilder)
                 .newBuilder(MinestomLoader::initializeModifierBuilder)
                 .newBuilder(MinestomLoader::initializeConditionBuilder)
@@ -42,7 +42,7 @@ public class MinestomLoader {
     }
 
     /**
-     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#newBuilder(Consumer)}, adds the required
+     * When passed into {@link Trove.Builder#newBuilder(Consumer)}, adds the required
      * information to the loader.
      */
     public static void initializeEntryBuilder(@NotNull LootConversionManager.Builder<LootEntry> builder) {
@@ -62,7 +62,7 @@ public class MinestomLoader {
     }
 
     /**
-     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#newBuilder(Consumer)}, adds the required
+     * When passed into {@link Trove.Builder#newBuilder(Consumer)}, adds the required
      * information to the loader.
      */
     public static void initializeModifierBuilder(@NotNull LootConversionManager.Builder<LootModifier> builder) {
@@ -91,7 +91,7 @@ public class MinestomLoader {
     }
 
     /**
-     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#newBuilder(Consumer)}, adds the required
+     * When passed into {@link Trove.Builder#newBuilder(Consumer)}, adds the required
      * information to the loader.
      */
     public static void initializeConditionBuilder(@NotNull LootConversionManager.Builder<LootCondition> builder) {
@@ -118,7 +118,7 @@ public class MinestomLoader {
     }
 
     /**
-     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#newBuilder(Consumer)}, adds the required
+     * When passed into {@link Trove.Builder#newBuilder(Consumer)}, adds the required
      * information to the loader.
      */
     public static void initializeNumberBuilder(@NotNull LootConversionManager.Builder<LootNumber> builder) {
@@ -134,7 +134,7 @@ public class MinestomLoader {
     }
 
     /**
-     * When passed into {@link dev.goldenstack.loot.ImmuTables.Builder#newBuilder(Consumer)}, adds the required
+     * When passed into {@link Trove.Builder#newBuilder(Consumer)}, adds the required
      * information to the loader.
      */
     public static void initializeNbtBuilder(@NotNull LootConversionManager.Builder<LootNBT> builder) {

@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.context;
 
-import dev.goldenstack.loot.ImmuTables;
+import dev.goldenstack.loot.Trove;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,12 +10,12 @@ import java.util.Objects;
 
 /**
  * Stores necessary information when converting (i.e., serializing or deserializing) something related to loot tables.
- * The {@link ImmuTables} instance is stored on its own because the vast majority of times when something loot-related
+ * The {@link Trove} instance is stored on its own because the vast majority of times when something loot-related
  * is being converted will require usage of it.
  * @param loader the loader to be used
  * @param information the context's internal information
  */
-public record LootConversionContext(@NotNull ImmuTables loader, @NotNull Map<Key<?>, Object> information) implements LootContext {
+public record LootConversionContext(@NotNull Trove loader, @NotNull Map<Key<?>, Object> information) implements LootContext {
 
     public LootConversionContext {
         information = Map.copyOf(information);
@@ -33,7 +33,7 @@ public record LootConversionContext(@NotNull ImmuTables loader, @NotNull Map<Key
 
     public static final class Builder {
         private final @NotNull Map<Key<?>, Object> information = new HashMap<>();
-        private ImmuTables loader;
+        private Trove loader;
 
         private Builder() {}
 
@@ -44,7 +44,7 @@ public record LootConversionContext(@NotNull ImmuTables loader, @NotNull Map<Key
         }
 
         @Contract("_ -> this")
-        public @NotNull Builder loader(@NotNull ImmuTables loader) {
+        public @NotNull Builder loader(@NotNull Trove loader) {
             this.loader = loader;
             return this;
         }

@@ -18,10 +18,10 @@ import java.util.function.Supplier;
  * @param nodeProducer the supplier used for creating default nodes. This is likely shorter than creating a node without
  *                     it, and it's also more configurable.
  */
-public record ImmuTables(@NotNull List<LootConversionManager<?>> converters,
-                         @NotNull Supplier<ConfigurationNode> nodeProducer) {
+public record Trove(@NotNull List<LootConversionManager<?>> converters,
+                    @NotNull Supplier<ConfigurationNode> nodeProducer) {
 
-    public ImmuTables {
+    public Trove {
         Set<Type> types = new HashSet<>();
         for (var manager : converters) {
             if (!types.add(manager.baseType().getType())) {
@@ -79,7 +79,7 @@ public record ImmuTables(@NotNull List<LootConversionManager<?>> converters,
     /**
      * Creates a new builder for this class, with all builders unmodified and everything else as null.<br>
      * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
-     * @return a new ImmuTables builder
+     * @return a new Trove builder
      */
     @Contract(" -> new")
     public static @NotNull Builder builder() {
@@ -118,10 +118,10 @@ public record ImmuTables(@NotNull List<LootConversionManager<?>> converters,
         }
 
         @Contract(" -> new")
-        public @NotNull ImmuTables build() {
-            return new ImmuTables(
+        public @NotNull Trove build() {
+            return new Trove(
                     List.copyOf(managers),
-                    Objects.requireNonNull(nodeProducer, "ImmuTables instances cannot be built without a node producer!")
+                    Objects.requireNonNull(nodeProducer, "Trove instances cannot be built without a node producer!")
                 );
         }
     }
