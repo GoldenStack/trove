@@ -20,14 +20,12 @@ public class LootConversionManager<V> {
     private final @NotNull TypeToken<V> baseType;
     private final @NotNull String keyLocation;
     private final @NotNull List<AdditiveConditionalConverter<V>> initialConverters;
-    private final @NotNull List<KeyedLootConverter<? extends V>> keyedConverters;
     private final @NotNull Map<String, KeyedLootConverter<? extends V>> directKeyRegistry;
     private final @NotNull Map<TypeToken<? extends V>, KeyedLootConverter<? extends V>> typeTokenRegistry;
 
     private LootConversionManager(@NotNull Builder<V> builder) {
         this.baseType = Objects.requireNonNull(builder.baseType, "LootConversionManager instances cannot be built without a base type!");
         this.keyLocation = Objects.requireNonNull(builder.keyLocation, "LootConversionManager instances cannot be built without a key location!");
-        this.keyedConverters = List.copyOf(builder.keyedConverters);
 
         Map<String, KeyedLootConverter<? extends V>> directKeys = new HashMap<>();
         Map<TypeToken<? extends V>, KeyedLootConverter<? extends V>> typeTokens = new HashMap<>();
@@ -58,38 +56,6 @@ public class LootConversionManager<V> {
      */
     public @NotNull TypeToken<V> baseType() {
         return baseType;
-    }
-
-    /**
-     * This is the location of keys for {@link KeyedLootConverter}s. Essentially, if none of the initial converters
-     * apply to an input that should be serialized (tested via
-     * {@link AdditiveConditionalConverter#canSerialize(Object, LootConversionContext)}), a node is created and the key
-     * of this keyLocation is set to the value of {@link KeyedLootConverter#key()}, assuming that a valid keyed loot
-     * converter could be found.
-     * @return the key location that will be added to map-typed configuration nodes
-     */
-    public @NotNull String keyLocation() {
-        return keyLocation;
-    }
-
-    /**
-     * This is the list of conditional loot converters that will be individually tested before any keyed loot converters
-     * are attempted. They are tested in the order they are added when the builder is being created.
-     * @return the list of initially applied converters
-     */
-    public @NotNull List<AdditiveConditionalConverter<V>> initialConverters() {
-        return initialConverters;
-    }
-
-    /**
-     * This is the list of normal converters that will be consolidated into maps based on their
-     * {@link KeyedLootConverter#key() keys} and {@link KeyedLootConverter#convertedType() converted types}. These
-     * should be easier to create than conditional loot converters, but at the cost of being less customizable and less
-     * direct.
-     * @return the list of keyed loot converters
-     */
-    public @NotNull List<KeyedLootConverter<? extends V>> keyedConverters() {
-        return keyedConverters;
     }
 
     /**
@@ -132,9 +98,9 @@ public class LootConversionManager<V> {
      * the aforementioned border, to see if they will deserialize the provided input. If any one of them does, it is
      * used to deserialize the input and the result is returned. These basically function as an extremely customizable
      * alternative to keyed loot converters.<br>
-     * Otherwise, the input's child at the {@link #keyLocation()} key is used to determine which keyed converter to use,
-     * and then the converter is used to deserialize the input.  If this process couldn't be done for any reason, an
-     * exception explaining why is thrown.
+     * Otherwise, the input's child at the key location is used to determine which keyed converter to use, and then the
+     * converter is used to deserialize the input. If this process couldn't be done for any reason, an exception
+     * explaining why is thrown.
      * @param input the configuration node to deserialize into a {@link V}
      * @param context the context object, to use if required
      * @return the deserialized version of the provided input
