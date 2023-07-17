@@ -14,7 +14,7 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.nbt;
  */
 public record NBTCheck(@Nullable NBT guarantee) {
 
-    public static @NotNull AdditiveConverter<NBTCheck> CONVERTER =
+    public static final @NotNull AdditiveConverter<NBTCheck> CONVERTER =
             converter(NBTCheck.class,
                     nbt().name("guarantee").nodePath("nbt").optional()
             ).additive();

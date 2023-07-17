@@ -44,6 +44,7 @@ public record SetContentsModifier(@NotNull List<LootCondition> conditions,
                     namespaceId().name("blockEntityKey").nodePath("type")
             ).keyed("minecraft:set_contents");
 
+    @SuppressWarnings("UnstableApiUsage")
     private static final @NotNull Tag<NBTCompound> BLOCK_ENTITY_TAG = Tag.Structure("BlockEntityTag", TagSerializer.COMPOUND);
 
     @Override

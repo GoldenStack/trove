@@ -39,6 +39,7 @@ public record CopyStateModifier(@NotNull List<LootCondition> conditions, @NotNul
                     implicit(String.class).list().name("copiedProperties").nodePath("properties")
             ).keyed("minecraft:copy_state");
 
+    @SuppressWarnings("UnstableApiUsage")
     private static final @NotNull Tag<NBTCompound> BLOCK_STATE_TAG = Tag.Structure("BlockStateTag", TagSerializer.COMPOUND).defaultValue(new NBTCompound());
 
     @Override
