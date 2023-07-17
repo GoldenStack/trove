@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * An interface to the features of vanilla Minecraft that are required for specific loot-related features, not forcing
