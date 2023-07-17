@@ -24,48 +24,6 @@ public class Utils {
     private Utils() {}
 
     /**
-     * Serializes a list of items onto the provided node using the given serializer.
-     * @param items the list of items to serialize
-     * @param result the result to which the serialized items will be added
-     * @param serializer the actual serializer object
-     * @param context the context to be given to the serializer
-     * @param <I> the input type
-     * @throws ConfigurateException if something goes wrong while serializing
-     */
-    public static <I> void serializeAdditiveList(@NotNull List<I> items,
-                                                 @NotNull ConfigurationNode result,
-                                                 @NotNull AdditiveLootSerializer<I> serializer,
-                                                 @NotNull LootConversionContext context) throws ConfigurateException {
-        for (var item : items) {
-            serializer.serialize(item, result.appendListNode(), context);
-        }
-    }
-
-    /**
-     * Deserializes the provided node into a list of {@link O}.
-     * @param input the node to deserialize
-     * @param deserializer the deserializer that will be fed nodes
-     * @param context the context, to feed into the serializer
-     * @return a list containing the items that were deserialized from the node
-     * @param <O> the output type
-     * @throws ConfigurateException if something goes wrong while serializing or if the provided node has a value but
-     *                              it's not a list of configuration nodes
-     */
-    public static <O> @NotNull List<O> deserializeList(@NotNull ConfigurationNode input,
-                                                          @NotNull LootDeserializer<O> deserializer,
-                                                          @NotNull LootConversionContext context) throws ConfigurateException {
-        if (!input.isList()) {
-            throw new ConfigurateException(input, "Expected the value of the node to be a list");
-        }
-
-        List<O> output = new ArrayList<>();
-        for (var child : input.childrenList()) {
-            output.add(deserializer.deserialize(child, context));
-        }
-        return output;
-    }
-
-    /**
      * Generates loot from the provided entries. This process is repeated {@code rolls} times. For each of the provided
      * entries, {@link LootEntry#requestChoices(LootGenerationContext) LootEntry#requestOptions} is only called once and
      * {@link LootEntry.Choice#getWeight(LootGenerationContext) LootEntry.Choice#getWeight} is only called once, so it
@@ -127,8 +85,8 @@ public class Utils {
      */
     @Contract(value = "_, _, _, _ -> new", pure = true)
     public static <V> @NotNull KeyedLootConverter<V> createKeyedConverter(@NotNull String id, @NotNull TypeToken<V> type,
-                                                                                @NotNull AdditiveLootSerializer<V> serializer,
-                                                                                @NotNull LootDeserializer<V> deserializer) {
+                                                                          @NotNull AdditiveLootSerializer<V> serializer,
+                                                                          @NotNull LootDeserializer<V> deserializer) {
         return new KeyedLootConverter<>(id, type) {
             @Override
             public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
@@ -151,7 +109,7 @@ public class Utils {
      * @param <V> the converted type
      */
     public static <V> @NotNull LootConverter<V> createConverter(@NotNull LootSerializer<V> serializer,
-                                                                      @NotNull LootDeserializer<V> deserializer) {
+                                                                @NotNull LootDeserializer<V> deserializer) {
         return new LootConverter<>() {
             @Override
             public @NotNull ConfigurationNode serialize(@NotNull V input, @NotNull LootConversionContext context) throws ConfigurateException {

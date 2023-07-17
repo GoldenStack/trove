@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -136,13 +137,27 @@ public record Field<T>(@NotNull TypeToken<T> type,
     public @NotNull Field<List<T>> list() {
         var oldConverter = converter;
 
-        AdditiveConverter<List<T>> newConverter = Utils.createAdditive(
-                (input, result, context) -> Utils.serializeAdditiveList(input, result, oldConverter, context),
-                (input, context) -> Utils.deserializeList(input, oldConverter, context)
-        );
-
         @SuppressWarnings("unchecked") // This is safe because TypeFactory.parameterizedClass unfortunately just removes the generic
         TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.type.getType()));
+
+        AdditiveConverter<List<T>> newConverter = Utils.createAdditive(
+                (input, result, context) -> {
+                    for (var item : input) {
+                        oldConverter.serialize(item, result.appendListNode(), context);
+                    }
+                },
+                (input, context) -> {
+                    if (!input.isList()) {
+                        throw new SerializationException(input, newType.getType(), "Expected a list");
+                    }
+
+                    List<T> output = new ArrayList<>();
+                    for (var child : input.childrenList()) {
+                        output.add(oldConverter.deserialize(child, context));
+                    }
+                    return output;
+                }
+        );
 
         return new Field<>(newType, newConverter, localName, nodePath, null);
     }
@@ -157,25 +172,31 @@ public record Field<T>(@NotNull TypeToken<T> type,
     public @NotNull Field<List<T>> possibleList() {
         var oldConverter = converter;
 
+        @SuppressWarnings("unchecked") // This is safe because TypeFactory.parameterizedClass unfortunately just removes the generic
+        TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.type.getType()));
+
         AdditiveConverter<List<T>> newConverter = Utils.createAdditive(
                 (input, result, context) -> {
                     if (input.size() == 1) {
                         oldConverter.serialize(input.get(0), result, context);
                     } else {
-                        Utils.serializeAdditiveList(input, result, oldConverter, context);
+                        for (var item : input) {
+                            oldConverter.serialize(item, result.appendListNode(), context);
+                        }
                     }
                 },
                 (input, context) -> {
-                    if (input.isList()) {
-                        return Utils.deserializeList(input, oldConverter, context);
-                    } else {
+                    if (!input.isList()) {
                         return List.of(oldConverter.deserialize(input, context));
                     }
+
+                    List<T> output = new ArrayList<>();
+                    for (var child : input.childrenList()) {
+                        output.add(oldConverter.deserialize(child, context));
+                    }
+                    return output;
                 }
         );
-
-        @SuppressWarnings("unchecked") // This is safe because TypeFactory.parameterizedClass unfortunately just removes the generic
-        TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.type.getType()));
 
         return new Field<>(newType, newConverter, localName, nodePath, null);
     }
