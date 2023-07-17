@@ -33,8 +33,9 @@ public class MinestomLoader {
      * this class will need to be applied to it, and neither will {@link LootPool#CONVERTER} and
      * {@link LootTable#CONVERTER}.
      */
-    public static void initializeBuilder(@NotNull Trove.Builder builder) {
-        builder.newBuilder(MinestomLoader::initializeEntryBuilder)
+    public static @NotNull Trove.Builder initializeBuilder(@NotNull Trove.Builder builder) {
+        return builder
+                .newBuilder(MinestomLoader::initializeEntryBuilder)
                 .newBuilder(MinestomLoader::initializeModifierBuilder)
                 .newBuilder(MinestomLoader::initializeConditionBuilder)
                 .newBuilder(MinestomLoader::initializeNumberBuilder)
