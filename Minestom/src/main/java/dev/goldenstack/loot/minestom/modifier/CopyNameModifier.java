@@ -8,7 +8,6 @@ import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.tag.Tag;
 import org.jetbrains.annotations.NotNull;
@@ -63,13 +62,13 @@ public record CopyNameModifier(@NotNull List<LootCondition> conditions,
             return input;
         }
 
-        var key = context.get(source.key);
+        var key = context.assure(source.key);
 
         Component customName;
         if (key instanceof Entity entity && entity.getCustomName() != null) {
             customName = entity.getCustomName();
-        } else if (key instanceof Block block && block.hasTag(BLOCK_CUSTOM_NAME)) {
-            customName = block.getTag(BLOCK_CUSTOM_NAME);
+        } else if (key instanceof LootContextKeys.BlockEntity block && block.block().hasTag(BLOCK_CUSTOM_NAME)) {
+            customName = block.block().getTag(BLOCK_CUSTOM_NAME);
         } else {
             return input;
         }
