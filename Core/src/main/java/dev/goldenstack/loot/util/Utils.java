@@ -42,25 +42,6 @@ public class Utils {
     }
 
     /**
-     * Serializes the provided items into a list of {@link I}.
-     * @param items the list of items to serialize
-     * @param serializer the serializer that will be fed items
-     * @param context the context, to feed into the serializer
-     * @return a node with the value equal to the serialized list of items
-     * @param <I> the input type
-     * @throws ConfigurateException if something goes wrong while serializing
-     */
-    public static <I> @NotNull ConfigurationNode serializeList(@NotNull List<I> items,
-                                                               @NotNull LootSerializer<I> serializer,
-                                                               @NotNull LootConversionContext context) throws ConfigurateException {
-        List<ConfigurationNode> listChildren = new ArrayList<>();
-        for (var item : items) {
-            listChildren.add(serializer.serialize(item, context));
-        }
-        return context.loader().createNode().setList(ConfigurationNode.class, listChildren);
-    }
-
-    /**
      * Deserializes the provided node into a list of {@link O}.
      * @param input the node to deserialize
      * @param deserializer the deserializer that will be fed nodes
