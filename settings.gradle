@@ -1,4 +1,4 @@
-rootProject.name = 'Trove'
+rootProject.name = 'trove'
 include 'Core'
 include 'Minestom'
 

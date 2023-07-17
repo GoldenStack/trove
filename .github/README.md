@@ -1,8 +1,8 @@
-# Trove
+# trove
 
-[![license](https://img.shields.io/github/license/GoldenStack/Trove?style=for-the-badge&color=dd2233)](../LICENSE)
+[![license](https://img.shields.io/github/license/GoldenStack/trove?style=for-the-badge&color=dd2233)](../LICENSE)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=for-the-badge)](https://github.com/RichardLitt/standard-readme)
-[![javadocs](https://img.shields.io/badge/documentation-javadocs-4d7a97?style=for-the-badge)](https://javadoc.jitpack.io/com/github/GoldenStack/Trove/master-SNAPSHOT/javadoc/)
+[![javadocs](https://img.shields.io/badge/documentation-javadocs-4d7a97?style=for-the-badge)](https://javadoc.jitpack.io/com/github/GoldenStack/trove/master-SNAPSHOT/javadoc/)
 
 ## Note: This project is currently being heavily modified, so this file will generally be outdated.
 
@@ -32,7 +32,7 @@ are not synchronized, so care must be taken when working with them.
 
 ## Install
 
-To install, simply add the library via [JitPack](https://jitpack.io/#GoldenStack/Trove/-SNAPSHOT):
+To install, simply add the library via [JitPack](https://jitpack.io/#GoldenStack/trove/-SNAPSHOT):
 
 Details for how to add this library with other build tools (such as Maven) can be found on the page linked above.
 ``` gradle
@@ -43,7 +43,7 @@ repositories {
 
 dependencies {
     ...
-    implementation 'com.github.GoldenStack:Trove:-SNAPSHOT'
+    implementation 'com.github.GoldenStack:trove:-SNAPSHOT'
 }
 ```
 
