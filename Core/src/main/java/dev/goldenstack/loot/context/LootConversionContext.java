@@ -32,20 +32,20 @@ public record LootConversionContext(@NotNull Trove loader, @NotNull Map<Key<?>, 
     }
 
     public static final class Builder {
-        private final @NotNull Map<Key<?>, Object> information = new HashMap<>();
         private Trove loader;
+        private final @NotNull Map<Key<?>, Object> information = new HashMap<>();
 
         private Builder() {}
-
-        @Contract("_, _ -> this")
-        public <T> @NotNull Builder addInformation(@NotNull Key<T> key, @NotNull T value) {
-            information.put(key, value);
-            return this;
-        }
 
         @Contract("_ -> this")
         public @NotNull Builder loader(@NotNull Trove loader) {
             this.loader = loader;
+            return this;
+        }
+
+        @Contract("_, _ -> this")
+        public <T> @NotNull Builder with(@NotNull Key<T> key, @NotNull T value) {
+            information.put(key, value);
             return this;
         }
 

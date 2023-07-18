@@ -38,15 +38,15 @@ public record LootGenerationContext(@NotNull Random random, @NotNull Map<Key<?>,
 
         private Builder() {}
 
-        @Contract("_, _ -> this")
-        public <T> @NotNull Builder addInformation(@NotNull Key<T> key, @NotNull T value) {
-            information.put(key, value);
-            return this;
-        }
-
         @Contract("_ -> this")
         public @NotNull Builder random(@NotNull Random random) {
             this.random = random;
+            return this;
+        }
+
+        @Contract("_, _ -> this")
+        public <T> @NotNull Builder with(@NotNull Key<T> key, @NotNull T value) {
+            information.put(key, value);
             return this;
         }
 
