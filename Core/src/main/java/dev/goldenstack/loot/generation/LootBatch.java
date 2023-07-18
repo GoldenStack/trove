@@ -4,6 +4,7 @@ import io.leangen.geantyref.GenericTypeReflector;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -43,18 +44,25 @@ public record LootBatch(@NotNull List<?> items) {
     /**
      * Modifies every item in this batch that is a subtype of the provided type, according to the provided mapper.
      * @param superType the supertype that acts as a filter
-     * @param mapper the mapper function
+     * @param mapper the mapper function. Items will be removed if this mapper returns null.
      * @return a new batch containing the modified items
      * @param <T> the type of object to modify. This should be equal to the type argument.
      */
     @SuppressWarnings("unchecked")
     public <T> @NotNull LootBatch modify(@NotNull Type superType, @NotNull Function<T, Object> mapper) {
-        return new LootBatch(items.stream().map(object -> {
-            if (GenericTypeReflector.isSuperType(superType, object.getClass())) {
-                return mapper.apply((T) object);
+        List<Object> filtered = new ArrayList<>();
+        for (Object item : items()) {
+            if (GenericTypeReflector.isSuperType(superType, item.getClass())) {
+                // Casting should be safe as we verified the type
+                item = mapper.apply((T) item);
             }
-            return object;
-        }).toList());
+
+            if (item != null) {
+                filtered.add(item);
+            }
+        }
+
+        return LootBatch.of(filtered);
     }
 
     /**

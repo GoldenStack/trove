@@ -7,9 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * A function that allows loot to pass through it, potentially making modifications.
@@ -36,22 +34,9 @@ public interface LootModifier {
          * Calls {@link #modify(Object, LootGenerationContext)} for each input that is a subtype of
          * {@link #filteredType()}.
          */
-        @SuppressWarnings("unchecked")
         @Override
         default @NotNull LootBatch modify(@NotNull LootBatch input, @NotNull LootGenerationContext context) {
-            List<Object> filtered = new ArrayList<>();
-            for (var item : input.items()) {
-                if (GenericTypeReflector.isSuperType(filteredType(), item.getClass())) {
-                    var modified = modify((T) item, context);
-                    if (modified != null) {
-                        filtered.add(modified);
-                    }
-                } else {
-                    filtered.add(item);
-                }
-            }
-
-            return LootBatch.of(filtered);
+            return input.<T>modify(filteredType(), object -> modify(object, context));
         }
 
         /**
