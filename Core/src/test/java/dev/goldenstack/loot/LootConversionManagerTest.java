@@ -91,7 +91,7 @@ public class LootConversionManagerTest {
         var node = node();
         manager.serialize(new A(), node, emptyConversionContext());
 
-        assertEquals(B.class, handle(manager, "a").getClass());
+        assertEquals(B.class, handle(manager, "location", "a").getClass());
         assertEquals(node(null), node);
     }
 
@@ -109,12 +109,12 @@ public class LootConversionManagerTest {
         var node = node();
         manager.serialize(new A(), node, emptyConversionContext());
 
-        assertEquals(A.class, handle(manager, "a").getClass());
+        assertEquals(A.class, handle(manager, "location", "a").getClass());
         assertEquals(node(Map.of("location", "a")), node);
     }
 
-    private static <O> @NotNull O handle(@NotNull LootConversionManager<O> deserializer, @NotNull String keyValue) throws ConfigurateException {
-        return deserializer.deserialize(node(Map.of(deserializer.keyLocation(), keyValue)), emptyConversionContext());
+    private static <O> @NotNull O handle(@NotNull LootConversionManager<O> deserializer, @NotNull String keyLocation, @NotNull String keyValue) throws ConfigurateException {
+        return deserializer.deserialize(node(Map.of(keyLocation, keyValue)), emptyConversionContext());
     }
 
 }
