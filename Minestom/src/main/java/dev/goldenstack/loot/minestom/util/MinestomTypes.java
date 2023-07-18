@@ -26,13 +26,14 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 import org.jglrxavpok.hephaistos.parser.SNBTParser;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.io.StringReader;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static dev.goldenstack.loot.converter.generator.Field.field;
 
@@ -119,7 +120,13 @@ public class MinestomTypes extends FieldTypes {
     public static @NotNull Field<LootContextKeyGroup> keyGroup() {
         return field(LootContextKeyGroup.class, Utils.createAdditive(
                 (input, result, context) -> result.set(input.id()),
-                (input, context) -> context.assure(LootConversionKeys.CONTEXT_KEYS).get(input.require(String.class))
+                (input, context) -> {
+                    var id = input.getString();
+                    if (id == null) {
+                        throw new SerializationException(input, String.class, "Expected a string");
+                    }
+                    return context.assure(LootConversionKeys.CONTEXT_KEYS).get(id);
+                }
         ));
     }
 
@@ -177,21 +184,8 @@ public class MinestomTypes extends FieldTypes {
      */
     public static <T> @NotNull Field<T> identified(@NotNull Class<T> type, @NotNull Collection<T> values,
                                                    @NotNull Function<T, NamespaceID> identifier) {
-        Map<NamespaceID, T> mappings = new HashMap<>();
-        for (var value : values) {
-            mappings.put(identifier.apply(value), value);
-        }
-
-        return field(type, Utils.createAdditive(
-                (input, result, context) -> result.set(type, identifier.apply(input)),
-                (input, context) -> {
-                    var get = mappings.get(NamespaceID.from(input.require(String.class)));
-                    if (get == null) {
-                        throw new ConfigurateException(input, "Expected a value of " + type + " but found something else");
-                    }
-                    return get;
-                }
-        ));
+        Map<NamespaceID, T> mappings = values.stream().collect(Collectors.toMap(identifier, Function.identity()));
+        return namespaceId().map(type, mappings::get, identifier::apply);
     }
 
     /**

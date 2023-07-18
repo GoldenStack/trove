@@ -52,7 +52,7 @@ public record LootConversionContext(@NotNull Trove loader, @NotNull Map<Key<?>, 
         @Contract(" -> new")
         public @NotNull LootConversionContext build() {
             return new LootConversionContext(
-                    Objects.requireNonNull(loader, "LootConversionContext instances cannot be built without a loader!"),
+                    Objects.requireNonNull(loader, "This builder cannot be built without a loader"),
                     information
             );
         }

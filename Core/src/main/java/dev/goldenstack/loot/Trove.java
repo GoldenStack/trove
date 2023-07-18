@@ -25,7 +25,7 @@ public record Trove(@NotNull List<LootConversionManager<?>> converters,
         Set<Type> types = new HashSet<>();
         for (var manager : converters) {
             if (!types.add(manager.baseType().getType())) {
-                throw new IllegalArgumentException("Loader instance was provided multiple converters of type " + manager.baseType().getType());
+                throw new IllegalArgumentException("Cannot load multiple converters of type '" + manager.baseType().getType() + "'");
             }
         }
     }
@@ -46,7 +46,7 @@ public record Trove(@NotNull List<LootConversionManager<?>> converters,
     @SuppressWarnings("unchecked")
     public <T> @Nullable LootConversionManager<T> getConverter(@NotNull Type type) {
         for (var converter : converters) {
-            if (converter.baseType().getType() == type) {
+            if (converter.baseType().getType().equals(type)) {
                 // This is safe as their types must be identical
                 return (LootConversionManager<T>) converter;
             }
@@ -64,7 +64,7 @@ public record Trove(@NotNull List<LootConversionManager<?>> converters,
         if (get != null) {
             return get;
         }
-        throw new IllegalArgumentException("Could not find converter manager of type " + type);
+        throw new IllegalArgumentException("Unknown converter type '" + type + "'");
     }
 
     /**
@@ -97,7 +97,7 @@ public record Trove(@NotNull List<LootConversionManager<?>> converters,
         public @NotNull Builder newBuilder(@NotNull LootConversionManager.Builder<?> builder) {
             var built = builder.build();
             if (addedTypes.contains(built.baseType().getType())) {
-                throw new IllegalArgumentException("Cannot add a LootConversionManager of a type that is already present!");
+                throw new IllegalArgumentException("Type '" + built.baseType().getType() + "' is already present in this builder");
             }
             this.managers.add(built);
             this.addedTypes.add(built.baseType().getType());

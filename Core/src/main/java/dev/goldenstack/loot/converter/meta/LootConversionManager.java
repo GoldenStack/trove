@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.*;
 
@@ -24,20 +25,20 @@ public class LootConversionManager<V> {
     private final @NotNull Map<TypeToken<? extends V>, KeyedLootConverter<? extends V>> typeTokenRegistry;
 
     private LootConversionManager(@NotNull Builder<V> builder) {
-        this.baseType = Objects.requireNonNull(builder.baseType, "LootConversionManager instances cannot be built without a base type!");
-        this.keyLocation = Objects.requireNonNull(builder.keyLocation, "LootConversionManager instances cannot be built without a key location!");
+        this.baseType = Objects.requireNonNull(builder.baseType, "This builder cannot be built without a base type");
+        this.keyLocation = Objects.requireNonNull(builder.keyLocation, "This builder cannot be built without a key location");
 
         Map<String, KeyedLootConverter<? extends V>> directKeys = new HashMap<>();
         Map<TypeToken<? extends V>, KeyedLootConverter<? extends V>> typeTokens = new HashMap<>();
         for (var converter : builder.keyedConverters) {
             if (!GenericTypeReflector.isSuperType(baseType.getType(), converter.convertedType().getType())) {
-                throw new IllegalArgumentException("Cannot register value with type '" + converter.convertedType().getType() + "' as it is not a subtype of '" + baseType.getType() + "'");
+                throw new IllegalArgumentException("Converter '" + converter.key() + "' has invalid type '" + converter.convertedType().getType() + "' as it is not a subtype of '" + baseType.getType() + "'");
             }
             if (directKeys.put(converter.key(), converter) != null) {
-                throw new IllegalArgumentException("Cannot register value with key '" + converter.key() + "' as something with that key has already been registered");
+                throw new IllegalArgumentException("Converter '" + converter.key() + "' has a key that has already been registered");
             }
             if (typeTokens.put(converter.convertedType(), converter) != null) {
-                throw new IllegalArgumentException("Cannot register value with type '" + converter.convertedType().getType() + "' as something with that type has already been registered");
+                throw new IllegalArgumentException("Converter '" + converter.key() + "' has a type '" + converter.convertedType().getType() + "' that has already been registered");
             }
         }
 
@@ -83,11 +84,11 @@ public class LootConversionManager<V> {
             }
         }
         @SuppressWarnings("unchecked")
-        KeyedLootConverter<R> converter = (KeyedLootConverter<R>) this.typeTokenRegistry.get(TypeToken.get(input.getClass()));
+        KeyedLootConverter<R> converter = (KeyedLootConverter<R>) typeTokenRegistry.get(TypeToken.get(input.getClass()));
         if (converter == null) {
-            throw new ConfigurateException("Could not find a valid keyed loot converter for type '" + input.getClass() + "' (base type: " + baseType().getType() + ")");
+            throw new ConfigurateException("Unknown input type '" + input.getClass() + "' for base type '" + baseType.getType() + "'");
         }
-        result.node(this.keyLocation).set(converter.key());
+        result.node(keyLocation).set(converter.key());
         converter.serialize(input, result, context);
     }
 
@@ -114,11 +115,16 @@ public class LootConversionManager<V> {
                 }
             }
         }
-        ConfigurationNode keyNode = input.node(this.keyLocation);
-        String actualKey = keyNode.require(String.class);
-        KeyedLootConverter<? extends V> converter = this.directKeyRegistry.get(actualKey);
+        ConfigurationNode keyNode = input.node(keyLocation);
+
+        String actualKey = keyNode.getString();
+        if (actualKey == null) {
+            throw new SerializationException(keyNode, String.class, "Expected a key");
+        }
+
+        KeyedLootConverter<? extends V> converter = directKeyRegistry.get(actualKey);
         if (converter == null) {
-            throw new ConfigurateException(keyNode, "Could not find a valid keyed loot converter for type '" + actualKey + "' (base type: " + baseType().getType() + ")");
+            throw new ConfigurateException(keyNode, "Unknown key '" + actualKey + "' for base type '" + baseType().getType() + "'");
         }
         return converter.deserialize(input, context);
     }

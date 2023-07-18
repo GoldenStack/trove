@@ -6,9 +6,11 @@ import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A check that verifies the state of a block. See {@link #verify(Block)} for details.
@@ -32,7 +34,7 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
                         child.node("min").set(rangedLongState.min);
                         child.node("max").set(rangedLongState.max);
                     } else {
-                        throw new ConfigurateException("Expected check '" + singular + "' to be an identical check or a ranged check, but found neither!");
+                        throw new ConfigurateException("Cannot serialize type '" + singular.getClass() + "'");
                     }
                 }
             }, (input, context) -> {
@@ -40,7 +42,7 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
                     return new BlockStateCheck(List.of());
                 }
                 if (!input.isMap()) {
-                    throw new ConfigurateException(input, "Expected the input to be a map, but found another type");
+                    throw new SerializationException(input, Map.class, "Expected a map");
                 }
                 List<SingularCheck> checks = new ArrayList<>();
                 for (var entry : input.childrenMap().entrySet()) {
@@ -53,7 +55,7 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
                     } else {
                         var scalar = entry.getValue().rawScalar();
                         if (scalar == null) {
-                            throw new ConfigurateException(entry.getValue(), "Expected the node to be a scalar or a map, but found another type");
+                            throw new ConfigurateException(entry.getValue(), "Expected a scalar or a map");
                         }
                         checks.add(new IdenticalState(String.valueOf(entry.getKey()), String.valueOf(scalar)));
                     }

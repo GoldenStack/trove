@@ -352,7 +352,7 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
             (input, result, context) -> result.set(input.toString()), (input, context) -> {
                 var path = input.getString();
                 if (path == null) {
-                    throw new SerializationException(input, String.class, "Tried to read a string, but could not");
+                    throw new SerializationException(input, String.class, "Expected a string");
                 }
 
                 var reader = new StringReader(path);
@@ -361,7 +361,7 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
                     var parsedPath = NBTPath.readPath(reader);
 
                     if (reader.read() != -1) { // Make sure we read the entire string
-                        throw new ConfigurateException("Attempted to read a NBT path from \"" + path + "\" but there were remaining characters!");
+                        throw new ConfigurateException("Reading a path from '" + path + "' did not consume the entire reader");
                     }
 
                     return parsedPath;
@@ -369,7 +369,7 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
                     if (e instanceof ConfigurateException configurate) {
                         throw configurate;
                     } else {
-                        throw new ConfigurateException("Could not read a NBT path from \"" + path + "\" due to an exception", e);
+                        throw new ConfigurateException("Could not read a NBT path from '" + path + "'", e);
                     }
                 }
             });

@@ -25,9 +25,9 @@ public class Utils {
 
     /**
      * Generates loot from the provided entries. This process is repeated {@code rolls} times. For each of the provided
-     * entries, {@link LootEntry#requestChoices(LootGenerationContext) LootEntry#requestOptions} is only called once and
-     * {@link LootEntry.Choice#getWeight(LootGenerationContext) LootEntry.Choice#getWeight} is only called once, so it
-     * is theoretically safe for them to return different results even if the context is the same.<br>
+     * entries, {@link LootEntry#requestChoices(LootGenerationContext)} is only called once and
+     * {@link LootEntry.Choice#getWeight(LootGenerationContext)} is only called once, so it is theoretically safe for
+     * them to return different results even if the context is the same.<br>
      * To be specific, for each roll, the entries are consolidated into options via #requestOptions, a random choice
      * from them is determined via each choice's weight, and that choice is used to generate loot.<br>
      * This is in the core library because, although it's not the only way to generate loot, it's a pretty

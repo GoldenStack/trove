@@ -91,9 +91,9 @@ public class TroveMinestom {
             if (table != null) {
                 return table;
             } else if (exceptions.containsKey(key)) {
-                throw new IllegalArgumentException("A table with key '" + "' key was found, but could not be parsed", exceptions.get(key));
+                throw new IllegalArgumentException("Table with key '" + key + "' could not be parsed", exceptions.get(key));
             } else {
-                throw new IllegalArgumentException("A table with key '" + key + "' could not be found!");
+                throw new IllegalArgumentException("Unknown table key '" + key + "'");
             }
         }
 

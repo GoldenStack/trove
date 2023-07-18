@@ -53,7 +53,7 @@ public record LootGenerationContext(@NotNull Random random, @NotNull Map<Key<?>,
         @Contract(" -> new")
         public @NotNull LootGenerationContext build() {
             return new LootGenerationContext(
-                    Objects.requireNonNull(random, "LootGenerationContext instances cannot be built without a random number generator!"),
+                    Objects.requireNonNull(random, "This builder cannot be built without a random number generator"),
                     information
             );
         }

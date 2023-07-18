@@ -87,14 +87,14 @@ public class Converters {
         var rawClasses = newFields.stream().map(Field::type).map(TypeToken::getType).map(GenericTypeReflector::erase).toArray(Class[]::new);
         try {
             constructor = type.getDeclaredConstructor(rawClasses);
-        } catch (Exception e) {
-            throw new RuntimeException("Could not create the deserializer due to the provided exception:", e);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new RuntimeException("Unknown constructor for type '" + type + "'", e);
         }
         return converter(type, input -> {
             try {
                 return constructor.newInstance(input);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw new ConfigurateException("(Type: " + type + ") Could not execute custom deserializer '" + constructor + "' via reflection because of an exception:", e);
+                throw new ConfigurateException("Could not run deserializer '" + constructor + "' on type '" + type + "'", e);
             }
         }, newFields);
     }
@@ -135,11 +135,11 @@ public class Converters {
             try {
                 actualField = type.getDeclaredField(field.localName());
             } catch (NoSuchFieldException e) {
-                throw new RuntimeException("(Type: " + type + ") Could not get a field with name '" + field.localName() + "':", e);
+                throw new RuntimeException("Unknown field '" + field.localName() + "' of class '" + type + "'", e);
             }
 
             if (!actualField.getGenericType().equals(field.type().getType())) {
-                throw new RuntimeException("Field '" + field.localName() + "' of type '" + type + "' is not equal to the expected type ('" + field.type() + "')");
+                throw new RuntimeException("Expected field '" + field.localName() + "' of class '" + type + "' to be of type '" + field.type() + "', found '" + actualField.getType() + "'");
             }
 
             actualFields[i] = actualField;
@@ -153,7 +153,7 @@ public class Converters {
                 try {
                     fieldValue = actualFields[i].get(input);
                 } catch (IllegalAccessException e) {
-                    throw new ConfigurateException("(Type: " + type + ") Could not execute serializer because the value of field '" + actualFields[i] + "' could not be retrieved.", e);
+                    throw new ConfigurateException("Could not retrieve value of field '" + actualFields[i].getName() + "' on type '" + type + "'", e);
                 }
 
                 serialize(field, fieldValue, result.node(field.nodePath()), context);

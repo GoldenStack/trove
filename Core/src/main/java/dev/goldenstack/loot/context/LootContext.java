@@ -122,10 +122,9 @@ public interface LootContext {
     default @NotNull <T> T assure(@NotNull Key<T> key) {
         Object object = information().get(key);
         if (object == null) {
-            throw new NoSuchElementException("Value for key \"" + key + "\" could not be found");
+            throw new NoSuchElementException("Unknown key '" + key + "'");
         } else if (!GenericTypeReflector.isSuperType(key.token().getType(), object.getClass())) {
-            throw new NoSuchElementException("Value for key \"" + key + "\" could not be retrieved as it is of an" +
-                    "incorrect type (expected: " + key.token.getType() + ", found: " + object.getClass() + ")");
+            throw new NoSuchElementException("Expected type '" + key.token.getType() + "' for key '" + key + "', found '" + object.getClass() + "'");
         }
         return (T) object;
     }

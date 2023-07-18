@@ -46,7 +46,7 @@ public class FieldTypes {
                     (input, context) -> {
                         var instance = input.get(type);
                         if (instance == null) {
-                            throw new SerializationException(input, type.getType(), "Could not deserialize a node");
+                            throw new SerializationException(input, type.getType(), "Cannot coerce node to expected type");
                         }
                         return instance;
                     }
