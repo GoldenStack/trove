@@ -110,9 +110,11 @@ public class TroveMinestom {
         Map<NamespaceID, LootTable> tables = new HashMap<>();
         Map<NamespaceID, ConfigurateException> exceptions = new HashMap<>();
 
+        final String FILE_SUFFIX = ".json";
+
         List<Path> files;
         try (var stream = Files.find(directory, Integer.MAX_VALUE,
-                (path, attr) -> attr.isRegularFile() && path.getFileName().toString().endsWith(".json"))) {
+                (path, attr) -> attr.isRegularFile() && path.getFileName().toString().endsWith(FILE_SUFFIX))) {
             files = stream.toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -121,6 +123,11 @@ public class TroveMinestom {
         // For now just return the tables and ignore if there are no problems.
         for (var path : files) {
             String keyPath = StreamSupport.stream(directory.relativize(path).spliterator(), false).map(Path::toString).collect(Collectors.joining("/"));
+
+            if (keyPath.endsWith(FILE_SUFFIX)) { // Should be true, but let's check it anyway
+                keyPath = keyPath.substring(0, keyPath.length() - FILE_SUFFIX.length());
+            }
+
             NamespaceID key = NamespaceID.from(keyPath);
 
             try {
