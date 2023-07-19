@@ -4,21 +4,13 @@
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=for-the-badge)](https://github.com/RichardLitt/standard-readme)
 [![javadocs](https://img.shields.io/badge/documentation-javadocs-4d7a97?style=for-the-badge)](https://javadoc.jitpack.io/com/github/GoldenStack/trove/master-SNAPSHOT/javadoc/)
 
-## Note: This project is currently being heavily modified, so this file will generally be outdated.
+Trove is a versatile loot table library. Although a lot of the base concepts here are similar to Minecraft's loot table
+system, Trove is much more flexible, permitting the usage of multiple different loot types (e.g. items and experience).
+Plus, it has a convenient API, emphasizes immutable data structures, and supports full serialization and deserialization
+of all types supported by Configurate, including JSON and YAML.
 
-Trove is a platform-agnostic loot table library. Its concepts are similar to Minecraft's loot table system, but all
-the code is original.
-
-It includes the basis for loot requirements, loot modifiers, loot entries, and other structural elements of loot tables.
-It's incredibly easy to add your own implementations of these, and it's even optional (but encouraged) to add JSON
-serialization and deserialization.
-
-Because there are no static `Trove` instances, each client of this library must use its own instance, preventing
-potential interference.
-
-All classes that can be used to generate loot from a `LootTable` are fully immutable (unless implementations of them
-aren't, which is not recommended), so this library should be thread safe; however, builders of these immutable classes
-are not synchronized, so care must be taken when working with them.
+The two modules are Core and Minestom. The Core module contains the basic functioning pieces of the library, while
+Minestom contains a nearly full implementation for Minecraft's loot tables for Minestom.
 
 ---
 
@@ -32,7 +24,7 @@ are not synchronized, so care must be taken when working with them.
 
 ## Install
 
-To install, simply add the library via [JitPack](https://jitpack.io/#GoldenStack/trove/-SNAPSHOT):
+To install, simply add the library via [JitPack](https://jitpack.io/#GoldenStack/trove/):
 
 Details for how to add this library with other build tools (such as Maven) can be found on the page linked above.
 ``` gradle
@@ -43,78 +35,79 @@ repositories {
 
 dependencies {
     ...
-    implementation 'com.github.GoldenStack:trove:-SNAPSHOT'
+    implementation 'com.github.GoldenStack.trove:MODULE:TAG'
 }
 ```
+Just replace MODULE with your desired module and TAG with the desired the desired tag, including the commit tag or just
+"-SNAPSHOT".
 
 ---
 
 ## Usage
 
 ###  Setup
-In order to actually use this library, you will almost definitely have to choose your own type for the generic.
-However, it's technically optional - the following code segment shows the bare minimum that is required for the code to
-compile and run; as demonstrated, you just have to give each builder an element name and provide loot table and loot
-pool conversion information.
+
+This setup currently only explains how to set up the Minestom module.
+
+You can use the TroveMinestom class for a very easy setup. Just provide a folder path, and it will recursively parse
+every JSON file inside it.
 
 ``` java
-Trove<L> loader = Trove.<L>builder()
-    .lootEntryBuilder(builder -> {
-        builder.keyLocation("key here");
-        // Modify the loot entry builder here
-    })
-    .lootModifierBuilder(builder -> {
-        builder.keyLocation("key here");
-        // Modify the loot modifier builder here
-    })
-    .lootRequirementBuilder(builder -> {
-        builder.keyLocation("key here");
-        // Modify the loot requirement builder here
-    })
-    .lootNumberBuilder(builder -> {
-        builder.keyLocation("key here");
-        // Modify the loot number builder here
-    })
-    .lootPoolConverter(new LootPool.Converter<>()) // Initialize the loot pool converter
-    .lootTableConverter(new LootTable.Converter<>()) // Initialize the loot table converter
-    .build();
+Path lootTableFolder = ...; // Replace with the path to the folder of loot tables
+
+LootConversionContext context = LootConversionContext.builder()
+        .loader(TroveMinestom.DEFAULT_LOADER)
+        .with(LootConversionKeys.CONTEXT_KEYS, TroveMinestom.STANDARD_GROUPS)
+        .with(LootContextKeys.VANILLA_INTERFACE, TroveMinestom.DEFAULT_INTERFACE)
+        .build();
+
+var tableRegistry = TroveMinestom.readTables(lootTableFolder, context);
 ```
+Each table will be stored via a NamespaceID in the tables object. For example, if the parsed loot table has the path
+"blocks/barrel.json" relative to the loot table folder, its ID will be `minecraft:blocks/barrel`.
 
-The customizability required for actual functionality can be reached by using the additional methods in the provided
-builder or the ones contained inside it.
-
-### Conversion
-
-Here is a minimal working example of how you convert loot tables to and from JSON:
-
-``` java
-// Initialize the loader here
-Trove<L> loader = ...;
-
-// Put the element here
-JsonElement element = ...;
-
-// Put the context here. The one here is the most barren contex that actually works.
-// Additional information can be added to it with LootConversionContext.Builder#addInformation.
-LootConversionContext<L> context = LootConversionContext.<L>builder().loader(loader).build();
-
-// Deserialize the table
-LootTable<L> table = loader.lootTableConverter().deserialize(element, context);
-```
 
 ### Generation
 Actual loot generation is fairly simple - you just need to call `LootTable#generate(LootContext)`.
+Here's an example that uses the `tableRegistry` variable from the last code snippet:
 
 ``` java
-// Initialize the loot table here
-LootTable<L> table = ...;
+LootTable table = tableRegistry.getTable(NamespaceID.from("minecraft:blocks/stone"));
 
-// Create the context here.
-// Additional information can be added to it with LootContext.Builder#addInformation.
-LootContext context = LootContext.builder().random(new Random()).build();
+// You can use the LootContextKeys class t
+LootGenerationContext context = LootGenerationContext.builder()
+        .random(...) // Random instance here
+        .with(..., ...) // Loot context key and value here
+        .build();
 
-// Generate the loot and do whatever you want with it
-List<L> loot = table.generate(context);
+// Generate the loot
+LootBatch loot = table.generate(context);
+```
+To process loot, you could simply call `LootBatch#items` and handle the items, but you can also use a `LootProcessor` to
+make this processing easier. For example:
+``` java
+var processor = LootProcessor.processClass(ItemStack.class, item -> {
+    // Perform some arbitrary action with the item
+});
+```
+
+You can also handle multiple classes at once, or even use a custom predicate:
+
+``` java
+var processor = LootProcessor.builder()
+        .processClass(ItemStack.class, item -> {
+            // Perform some calculation
+        }).processClass(String.class, string -> {
+            // Perform another calculation
+        }).process(object -> true, object -> {
+            // Perform some calculation with the object
+        }).build();
+```
+
+Then, just handle the `LootBatch` that was generated previously:
+
+``` java
+processor.processBatch(loot);
 ```
 
 ---
@@ -125,11 +118,11 @@ Feel free to open a PR or an issue.
 
 Before starting large PRs, make sure to check that it's actually needed; try asking a maintainer.
 
-Before a PR is merged, all contributors must sign the [DCO](https://developercertificate.org/).
-We use [cla-assistant](https://github.com/cla-assistant/cla-assistant) to verify this.
+By contributing to the Trove project you agree that the entirety of your contribution is licensed identically to Trove,
+which is currently under the MIT license.
 
 ---
 
 ## License
 
-[MIT © GoldenStack](../LICENSE)
+This project is licensed under the [MIT](../LICENSE) license.
