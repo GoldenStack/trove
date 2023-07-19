@@ -48,19 +48,20 @@ public class Utils {
             }
 
             long totalWeight = 0;
-            long[] lowerWeightMilestones = new long[choices.size()];
+            long[] weightMilestones = new long[choices.size()];
             for (int j = 0; j < choices.size(); j++) {
-                lowerWeightMilestones[j] = totalWeight;
                 // Prevent the weight of this choice from being less than 1
                 totalWeight += Math.max(1, choices.get(j).getWeight(context));
+
+                weightMilestones[j] = totalWeight;
             }
 
             long value = context.random().nextLong(0, totalWeight);
 
             LootEntry.Choice choice = choices.get(choices.size() - 1);
 
-            for (int j = 0; j < lowerWeightMilestones.length; j++) {
-                if (value >= lowerWeightMilestones[j]) {
+            for (int j = 0; j < weightMilestones.length; j++) {
+                if (value < weightMilestones[j]) {
                     choice = choices.get(j);
                     break;
                 }
