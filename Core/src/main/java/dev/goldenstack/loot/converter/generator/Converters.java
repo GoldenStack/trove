@@ -67,7 +67,7 @@ public class Converters {
          * @return the produced keyed loot converter
          */
         public @NotNull KeyedLootConverter<V> keyed(@NotNull String key) {
-            return Utils.createKeyedConverter(key, type, additiveSerializer, deserializer);
+            return KeyedLootConverter.create(key, type, additive());
         }
     }
 

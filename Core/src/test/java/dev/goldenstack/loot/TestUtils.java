@@ -5,6 +5,7 @@ import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.additive.AdditiveConditionalConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -84,18 +85,11 @@ public class TestUtils {
     }
 
     public static <V> @NotNull KeyedLootConverter<V> emptyKeyedSerializer(@NotNull String key,
-                                                                                @NotNull Class<V> convertedType,
-                                                                                @NotNull Supplier<V> initializer) {
-        return new KeyedLootConverter<>(key, TypeToken.get(convertedType)) {
-            @Override
-            public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) {
-            }
-
-            @Override
-            public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) {
-                return initializer.get();
-            }
-        };
+                                                                          @NotNull Class<V> convertedType,
+                                                                          @NotNull Supplier<V> initializer) {
+        return KeyedLootConverter.create(key, TypeToken.get(convertedType), Utils.createAdditive(
+                (input, result, context) -> {}, (input, context) -> initializer.get()
+        ));
     }
 
     private record LootContextImpl(@NotNull Map<Key<?>, Object> information) implements LootContext {

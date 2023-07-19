@@ -7,11 +7,8 @@ import dev.goldenstack.loot.converter.LootDeserializer;
 import dev.goldenstack.loot.converter.LootSerializer;
 import dev.goldenstack.loot.converter.additive.AdditiveConverter;
 import dev.goldenstack.loot.converter.additive.AdditiveLootSerializer;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootEntry;
-import io.leangen.geantyref.TypeToken;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -72,32 +69,6 @@ public class Utils {
             items.addAll(choice.generate(context).items());
         }
         return new LootBatch(items);
-    }
-
-    /**
-     * Creates a new keyed loot converter out of the provided information. This just exists to reduce boilerplate code.
-     * @param id the string identifier of the created converter
-     * @param type the type token representing the converted type
-     * @param serializer the converter's serializer
-     * @param deserializer the converter's deserializer
-     * @return a new keyed loot converter based on the provided information
-     * @param <V> the converted type
-     */
-    @Contract(value = "_, _, _, _ -> new", pure = true)
-    public static <V> @NotNull KeyedLootConverter<V> createKeyedConverter(@NotNull String id, @NotNull TypeToken<V> type,
-                                                                          @NotNull AdditiveLootSerializer<V> serializer,
-                                                                          @NotNull LootDeserializer<V> deserializer) {
-        return new KeyedLootConverter<>(id, type) {
-            @Override
-            public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
-                serializer.serialize(input, result, context);
-            }
-
-            @Override
-            public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException {
-                return deserializer.deserialize(input, context);
-            }
-        };
     }
 
     /**
