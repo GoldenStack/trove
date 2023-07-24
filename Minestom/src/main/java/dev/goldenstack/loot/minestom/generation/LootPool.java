@@ -10,12 +10,10 @@ import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
 import dev.goldenstack.loot.structure.LootModifier;
 import dev.goldenstack.loot.structure.LootNumber;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
@@ -73,66 +71,4 @@ public record LootPool(@NotNull LootNumber rolls,
         return LootModifier.applyAll(modifiers(), new LootBatch(items), context);
     }
 
-    /**
-     * Creates a new builder for this class, with no entries, conditions, or modifiers, and null rolls and bonus rolls.
-     * When building, it's acceptable to leave {@link Builder#bonusRolls} as null because it will be replaced with zero.
-     * <br>
-     * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
-     * @return a new loot pool builder
-     */
-    @Contract(" -> new")
-    public static @NotNull Builder builder() {
-        return new Builder();
-    }
-
-    public static final class Builder {
-        private LootNumber rolls, bonusRolls;
-        private final @NotNull List<LootEntry> entries = new ArrayList<>();
-        private final @NotNull List<LootCondition> conditions = new ArrayList<>();
-        private final @NotNull List<LootModifier> modifiers = new ArrayList<>();
-
-        private Builder() {}
-
-        @Contract("_ -> this")
-        public @NotNull Builder rolls(@NotNull LootNumber rolls) {
-            this.rolls = rolls;
-            return this;
-        }
-
-        @Contract("_ -> this")
-        public @NotNull Builder bonusRolls(@NotNull LootNumber bonusRolls) {
-            this.bonusRolls = bonusRolls;
-            return this;
-        }
-
-        @Contract("_ -> this")
-        public @NotNull Builder addEntry(@NotNull LootEntry entry) {
-            this.entries.add(entry);
-            return this;
-        }
-
-        @Contract("_ -> this")
-        public @NotNull Builder addCondition(@NotNull LootCondition condition) {
-            this.conditions.add(condition);
-            return this;
-        }
-
-        @Contract("_ -> this")
-        public @NotNull Builder addModifier(@NotNull LootModifier modifier) {
-            this.modifiers.add(modifier);
-            return this;
-        }
-
-        @Contract(" -> new")
-        public @NotNull LootPool build() {
-            return new LootPool(
-                    Objects.requireNonNull(rolls, "Standard loot pools must have a number of rolls!"),
-                    Objects.requireNonNullElseGet(bonusRolls, () -> new ConstantNumber(0)),
-                    entries,
-                    conditions,
-                    modifiers
-            );
-        }
-
-    }
 }
