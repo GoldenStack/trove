@@ -1,4 +1,0 @@
-rootProject.name = 'trove'
-include 'Core'
-include 'Minestom'
-

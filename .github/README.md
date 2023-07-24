@@ -27,15 +27,15 @@ Minestom contains a nearly full implementation for Minecraft's loot tables for M
 To install, simply add the library via [JitPack](https://jitpack.io/#GoldenStack/trove/):
 
 Details for how to add this library with other build tools (such as Maven) can be found on the page linked above.
-``` gradle
+``` kts
 repositories {
     ...
-    maven { url 'https://jitpack.io' }
+    maven(url = "https://jitpack.io")
 }
 
 dependencies {
     ...
-    implementation 'com.github.GoldenStack.trove:MODULE:TAG'
+    implementation("com.github.GoldenStack.trove:MODULE:TAG")
 }
 ```
 Just replace MODULE with your desired module and TAG with the desired the desired tag, including the commit tag or just
