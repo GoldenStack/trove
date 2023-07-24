@@ -27,6 +27,11 @@ public record LootTable(@NotNull LootContextKeyGroup contextKeyGroup,
                         @NotNull List<LootPool> pools,
                         @NotNull List<LootModifier> modifiers) implements LootGenerator {
 
+    /**
+     * A completely empty loot table that never returns any loot.
+     */
+    public static final @NotNull LootTable EMPTY = new LootTable(LootContextKeyGroup.EMPTY, List.of(), List.of());
+
     public static final @NotNull AdditiveConverter<LootTable> CONVERTER =
             converter(LootTable.class,
                     keyGroup().name("contextKeyGroup").nodePath("type"),

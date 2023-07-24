@@ -80,6 +80,15 @@ public class TroveMinestom {
         }
 
         /**
+         * Gets the parsed loot table associated with the provided key, or {@link LootTable#EMPTY} if there is not one.
+         * @param key the key to look for a table at
+         * @return the loot table at the provided id, or empty if there is not one
+         */
+        public @NotNull LootTable getTableOrEmpty(@NotNull NamespaceID key) {
+            return tables.getOrDefault(key, LootTable.EMPTY);
+        }
+
+        /**
          * Gets the parsed loot table at the provided key, throwing an exception that involves the failed parsing if
          * an exception fitting that description could be found.
          * @param key the key to look for a table at
