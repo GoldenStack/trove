@@ -48,7 +48,7 @@ public class MinestomLoader {
      */
     public static void initializeEntryBuilder(@NotNull LootConversionManager.Builder<LootEntry> builder) {
         // Basic data
-        builder.baseType(new TypeToken<>(){}); // LootEntry<ItemStack>
+        builder.baseType(TypeToken.get(LootEntry.class));
         builder.keyLocation("type");
 
         // Registered converters
@@ -68,7 +68,7 @@ public class MinestomLoader {
      */
     public static void initializeModifierBuilder(@NotNull LootConversionManager.Builder<LootModifier> builder) {
         // Basic data
-        builder.baseType(new TypeToken<>(){}); // LootModifier<ItemStack>
+        builder.baseType(TypeToken.get(LootModifier.class));
         builder.keyLocation("function");
 
         // Registered converters
@@ -97,7 +97,7 @@ public class MinestomLoader {
      */
     public static void initializeConditionBuilder(@NotNull LootConversionManager.Builder<LootCondition> builder) {
         // Basic data
-        builder.baseType(new TypeToken<>(){}); // LootCondition<ItemStack>
+        builder.baseType(TypeToken.get(LootCondition.class));
         builder.keyLocation("condition");
 
         // Registered converters
@@ -124,7 +124,7 @@ public class MinestomLoader {
      */
     public static void initializeNumberBuilder(@NotNull LootConversionManager.Builder<LootNumber> builder) {
         // Basic data
-        builder.baseType(new TypeToken<>(){}); // LootNumber<ItemStack>
+        builder.baseType(TypeToken.get(LootNumber.class));
         builder.keyLocation("type");
 
         // Registered converters
@@ -140,7 +140,7 @@ public class MinestomLoader {
      */
     public static void initializeNbtBuilder(@NotNull LootConversionManager.Builder<LootNBT> builder) {
         // Basic data
-        builder.baseType(new TypeToken<>(){});
+        builder.baseType(TypeToken.get(LootNBT.class));
         builder.keyLocation("type");
 
         // Registered converters

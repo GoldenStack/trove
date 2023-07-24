@@ -40,18 +40,16 @@ public class FieldTypes {
      * @param <T> the type to convert
      */
     public static <T> @NotNull Field<T> implicit(@NotNull TypeToken<T> type) {
-        return field(type,
-                LootConverter.join(
-                    (input, result, context) -> result.set(type, input),
-                    (input, context) -> {
-                        var instance = input.get(type);
-                        if (instance == null) {
-                            throw new SerializationException(input, type.getType(), "Cannot coerce node to expected type");
-                        }
-                        return instance;
+        return field(type, LootConverter.join(
+                (input, result, context) -> result.set(type, input),
+                (input, context) -> {
+                    var instance = input.get(type);
+                    if (instance == null) {
+                        throw new SerializationException(input, type.getType(), "Cannot coerce node to expected type");
                     }
-                )
-        );
+                    return instance;
+                }
+        ));
     }
 
     /**

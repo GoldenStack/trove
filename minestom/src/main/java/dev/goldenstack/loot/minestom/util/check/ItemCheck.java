@@ -94,11 +94,7 @@ public record ItemCheck(@NotNull NBTCheck nbtCheck,
             potion = "minecraft:empty";
         }
         var potionKey = NamespaceID.from(potion);
-        if (this.potionId != null && this.potionId != potionKey) {
-            return false;
-        }
-
-        return true;
+        return this.potionId == null || this.potionId == potionKey;
     }
 
 }
