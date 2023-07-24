@@ -24,24 +24,6 @@ import java.util.Objects;
 public class Converters {
 
     /**
-     * A class that can produce a variety of separate serializers, deserializers, and converters.
-     * @param type the type being converted
-     * @param converter the converter of the provided type
-     * @param <V> the type being used
-     */
-    public record Producer<V>(@NotNull TypeToken<V> type, @NotNull LootConverter<V> converter) {
-
-        /**
-         * Produces a keyed loot converter, of the provided key, for this type.
-         * @param key the key to use
-         * @return the produced keyed loot converter
-         */
-        public @NotNull KeyedLootConverter<V> keyed(@NotNull String key) {
-            return KeyedLootConverter.create(key, type, converter());
-        }
-    }
-
-    /**
      * Creates a converter producer from the provided type and fields. This basically just calls
      * {@link #converter(Class, FallibleFunction, List)} except that the constructor is searched for on the class that
      * is provided.
@@ -50,23 +32,8 @@ public class Converters {
      * @return a new converter producer for the provided type
      * @param <V> the type of object that will be converted
      */
-    public static <V> @NotNull Producer<V> converter(@NotNull Class<V> type,
-                                                     @NotNull Field<?>... fields) {
-        List<Field<?>> newFields = List.of(fields);
-        Constructor<V> constructor;
-        var rawClasses = newFields.stream().map(Field::type).map(TypeToken::getType).map(GenericTypeReflector::erase).toArray(Class[]::new);
-        try {
-            constructor = type.getDeclaredConstructor(rawClasses);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new RuntimeException("Unknown constructor for type '" + type + "'", e);
-        }
-        return converter(type, input -> {
-            try {
-                return constructor.newInstance(input);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw new ConfigurateException("Could not run deserializer '" + constructor + "' on type '" + type + "'", e);
-            }
-        }, newFields);
+    public static <V> @NotNull Producer<V> converter(@NotNull Class<V> type, @NotNull Field<?>... fields) {
+        return ConvertersImpl.converter(type, List.of(fields));
     }
 
     /**
@@ -80,6 +47,59 @@ public class Converters {
     public static <V> @NotNull Producer<V> converter(@NotNull Class<V> type,
                                                      @NotNull FallibleFunction<Object @NotNull [], @NotNull V> constructor,
                                                      @NotNull List<Field<?>> fields) {
+        return ConvertersImpl.converter(type, constructor, fields);
+    }
+
+    /**
+     * Produces different types of converters.
+     * @param <V> the type to generate converters of
+     */
+    public sealed interface Producer<V> permits ConvertersImpl.ProducerImpl {
+
+        /**
+         * Produces a loot converter that converts this type.
+         * @return the produced converter
+         */
+        @NotNull LootConverter<V> converter();
+
+        /**
+         * Produces a keyed loot converter with the provided key that converts this type.
+         * @param key the key to use
+         * @return the produced keyed loot converter
+         */
+        @NotNull KeyedLootConverter<V> keyed(@NotNull String key);
+
+    }
+
+}
+
+class ConvertersImpl {
+
+    static <V> Converters.Producer<V> converter(@NotNull Class<V> type, @NotNull List<Field<?>> fields) {
+        var constructor = getConstructor(type, fields.stream().map(Field::type).map(TypeToken::getType).map(GenericTypeReflector::erase).toArray(Class[]::new));
+        return converter(type, constructor, fields);
+    }
+
+    static <V> @NotNull FallibleFunction<Object @NotNull [], @NotNull V> getConstructor(@NotNull Class<V> type, @NotNull Class<?>[] fields) {
+        Constructor<V> constructor;
+        try {
+            constructor = type.getDeclaredConstructor(fields);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new RuntimeException("Unknown constructor for type '" + type + "'", e);
+        }
+
+        return input -> {
+            try {
+                return constructor.newInstance(input);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                throw new ConfigurateException("Could not run deserializer '" + constructor + "' on type '" + type + "'", e);
+            }
+        };
+    }
+
+    static <V> Converters.Producer<V> converter(@NotNull Class<V> type,
+                                                @NotNull FallibleFunction<Object @NotNull [], @NotNull V> constructor,
+                                                @NotNull List<Field<?>> fields) {
         for (var field : fields) {
             Objects.requireNonNull(field.localName(), "Field must have a local name!");
             Objects.requireNonNull(field.nodePath(), "Field must have a node path!");
@@ -130,7 +150,7 @@ public class Converters {
             }
         };
 
-        return new Producer<>(TypeToken.get(type), LootConverter.join(actualSerializer, actualDeserializer));
+        return new ConvertersImpl.ProducerImpl<>(TypeToken.get(type), LootConverter.join(actualSerializer, actualDeserializer));
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
@@ -156,6 +176,14 @@ public class Converters {
         }
         // This cast is safe because we grab the object directly from the field; it's just that Field#get always returns an object.
         field.converter().serialize((T) input, result, context);
+    }
+
+    record ProducerImpl<V>(@NotNull TypeToken<V> type, @NotNull LootConverter<V> converter) implements Converters.Producer<V> {
+
+        @Override
+        public @NotNull KeyedLootConverter<V> keyed(@NotNull String key) {
+            return KeyedLootConverter.create(key, type, converter);
+        }
     }
 
 }
