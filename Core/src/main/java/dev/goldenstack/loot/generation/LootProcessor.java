@@ -1,5 +1,6 @@
 package dev.goldenstack.loot.generation;
 
+import dev.goldenstack.loot.context.LootGenerationContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -89,10 +90,19 @@ public interface LootProcessor {
      * Processes the provided loot batch.
      * @param lootResults the results to process
      */
-    default void processBatch(@NotNull LootBatch lootResults) {
+    default void process(@NotNull LootBatch lootResults) {
         for (var result : lootResults.items()) {
             process(result);
         }
+    }
+
+    /**
+     * Processes the loot created by the provided generator.
+     * @param generator the generator to process
+     * @param context the context to use to generate loot
+     */
+    default void process(@NotNull LootGenerator generator, @NotNull LootGenerationContext context) {
+        process(generator.generate(context));
     }
 
 }
