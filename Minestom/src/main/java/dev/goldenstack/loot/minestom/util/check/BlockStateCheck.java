@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.util.check;
 
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
-import dev.goldenstack.loot.util.Utils;
+import dev.goldenstack.loot.converter.LootConverter;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +20,7 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
     /**
      * A standard map-based serializer for block state checks.
      */
-    public static final @NotNull AdditiveConverter<BlockStateCheck> CONVERTER = Utils.createAdditive(
+    public static final @NotNull LootConverter<BlockStateCheck> CONVERTER = LootConverter.join(
             (input, result, context) -> {
                 if (input.checks.isEmpty()) {
                     return;

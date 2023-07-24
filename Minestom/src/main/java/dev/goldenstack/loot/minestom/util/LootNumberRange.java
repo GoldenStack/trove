@@ -1,11 +1,10 @@
 package dev.goldenstack.loot.minestom.util;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.structure.LootNumber;
-import dev.goldenstack.loot.util.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
@@ -22,7 +21,7 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
      * equivalent {@link ConstantNumber} instances holding the number, but otherwise handles it normally with map-based
      * values.
      */
-    public static final @NotNull AdditiveConverter<LootNumberRange> CONVERTER = Utils.createAdditive(
+    public static final @NotNull LootConverter<LootNumberRange> CONVERTER = LootConverter.join(
             (input, result, context) -> {
                 if (input.min != null) {
                     context.loader().requireConverter(LootNumber.class).serialize(input.min, result.node("min"), context);

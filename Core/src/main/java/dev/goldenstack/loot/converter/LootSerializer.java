@@ -6,19 +6,18 @@ import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 
 /**
- * A standard representation of something that can serialize a specific type of object into a configuration node.
- * @param <I> the type of input that is required for serialization
+ * A standard representation of something that can serialize a specific type of object onto a configuration node.
+ * @param <V> the type being serialized
  */
-public interface LootSerializer<I> {
+public interface LootSerializer<V> {
 
     /**
-     * Serializes an input object into a resulting node.<br>
-     * Note: it is valid for the returned node to not have a value.
-     * @param input the input object to serialize into a configuration node
-     * @param context the context object, to use if required
-     * @return the provided object serialized into a configuration node
-     * @throws ConfigurateException if the input could not be serialized for some reason
+     * Serializes the provided input object onto the provided result node.
+     * @param input the input instance to serialize
+     * @param result the result node to serialize the input onto
+     * @param context the context object to use for serialization
+     * @throws ConfigurateException if the input could not be serialized onto the result object for some reason
      */
-    @NotNull ConfigurationNode serialize(@NotNull I input, @NotNull LootConversionContext context) throws ConfigurateException;
+    void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException;
 
 }

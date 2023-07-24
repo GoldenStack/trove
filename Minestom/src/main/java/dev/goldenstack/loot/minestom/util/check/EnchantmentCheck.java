@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.util.check;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import net.minestom.server.item.Enchantment;
 import org.jetbrains.annotations.NotNull;
@@ -24,11 +24,11 @@ public record EnchantmentCheck(@Nullable Enchantment enchantmentType, @NotNull L
     /**
      * A standard map-based serializer for enchantment checks.
      */
-    public static final @NotNull AdditiveConverter<EnchantmentCheck> CONVERTER =
+    public static final @NotNull LootConverter<EnchantmentCheck> CONVERTER =
             converter(EnchantmentCheck.class,
                     enchantment().name("enchantmentType").nodePath("enchantment").optional(),
                     numberRange().name("levels").optional()
-            ).additive();
+            ).converter();
 
     /**
      * Checks to see if the provided enchantments are valid according to this check. If {@link #enchantmentType()} is

@@ -3,9 +3,9 @@ package dev.goldenstack.loot;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.additive.AdditiveConditionalConverter;
+import dev.goldenstack.loot.converter.ConditionalLootConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
-import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,6 +14,7 @@ import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
@@ -23,7 +24,7 @@ public class TestUtils {
     private TestUtils() {}
 
     public static @NotNull Trove emptyLoader() {
-        return Trove.builder().nodeProducer(BasicConfigurationNode.factory()::createNode).build();
+        return new Trove(List.of());
     }
 
     public static @NotNull LootContext context(@NotNull Map<LootContext.Key<?>, Object> information) {
@@ -58,10 +59,10 @@ public class TestUtils {
         return new LootGenerationContext(new Random(), information);
     }
 
-    public static <V> @NotNull AdditiveConditionalConverter<V> emptyConditionalSerializer(@NotNull Supplier<V> initializer,
-                                                                                          boolean canSerialize,
-                                                                                          boolean canDeserialize) {
-        return new AdditiveConditionalConverter<>() {
+    public static <V> @NotNull ConditionalLootConverter<V> emptyConditionalSerializer(@NotNull Supplier<V> initializer,
+                                                                                      boolean canSerialize,
+                                                                                      boolean canDeserialize) {
+        return new ConditionalLootConverter<>() {
             @Override
             public boolean canSerialize(@NotNull V input, @NotNull LootConversionContext context) {
                 return canSerialize;
@@ -87,7 +88,7 @@ public class TestUtils {
     public static <V> @NotNull KeyedLootConverter<V> emptyKeyedSerializer(@NotNull String key,
                                                                           @NotNull Class<V> convertedType,
                                                                           @NotNull Supplier<V> initializer) {
-        return KeyedLootConverter.create(key, TypeToken.get(convertedType), Utils.createAdditive(
+        return KeyedLootConverter.create(key, TypeToken.get(convertedType), LootConverter.join(
                 (input, result, context) -> {}, (input, context) -> initializer.get()
         ));
     }

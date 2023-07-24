@@ -3,15 +3,9 @@ package dev.goldenstack.loot.util;
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.LootConverter;
-import dev.goldenstack.loot.converter.LootDeserializer;
-import dev.goldenstack.loot.converter.LootSerializer;
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
-import dev.goldenstack.loot.converter.additive.AdditiveLootSerializer;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootEntry;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,58 +67,13 @@ public class Utils {
     }
 
     /**
-     * Creates a new loot converter out of the provided serializer and deserializer. This just exists to reduce
-     * boilerplate code.
-     * @param serializer the converter's serializer
-     * @param deserializer the converter's deserializer
-     * @return a new loot converter based on the provided serializer and deserializer
+     * Creates a converter proxied by the converter returned by {@code converterFinder}.
+     * @param converterFinder the function that gets the converter
+     * @return a new converter that uses the finder to determine which one it is proxying
      * @param <V> the converted type
      */
-    public static <V> @NotNull LootConverter<V> createConverter(@NotNull LootSerializer<V> serializer,
-                                                                @NotNull LootDeserializer<V> deserializer) {
-        return new LootConverter<>() {
-            @Override
-            public @NotNull ConfigurationNode serialize(@NotNull V input, @NotNull LootConversionContext context) throws ConfigurateException {
-                return serializer.serialize(input, context);
-            }
-
-            @Override
-            public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException {
-                return deserializer.deserialize(input, context);
-            }
-        };
-    }
-
-    /**
-     * Generates a new additive converter that merges the provided components of one.
-     * @param serializer the new converter's serializer
-     * @param deserializer the new converter's deserializer
-     * @return a new additive converter based on the provided serializer and deserializer
-     * @param <V> the converted type
-     */
-    public static <V> @NotNull AdditiveConverter<V> createAdditive(@NotNull AdditiveLootSerializer<V> serializer,
-                                                                   @NotNull LootDeserializer<V> deserializer) {
-        return new AdditiveConverter<>() {
-            @Override
-            public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException {
-                return deserializer.deserialize(input, context);
-            }
-
-            @Override
-            public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
-                serializer.serialize(input, result, context);
-            }
-        };
-    }
-
-    /**
-     * Creates an additive converter proxied by the converter returned by {@code converterFinder}.
-     * @param converterFinder the function that gets the additive converter
-     * @return a new additive converter that uses the finder to determine which one it is proxying
-     * @param <V> the converted type
-     */
-    public static <V> @NotNull AdditiveConverter<V> additiveFromContext(@NotNull Function<LootConversionContext, AdditiveConverter<V>> converterFinder) {
-        return createAdditive(
+    public static <V> @NotNull LootConverter<V> converterFromContext(@NotNull Function<LootConversionContext, LootConverter<V>> converterFinder) {
+        return LootConverter.join(
                 (input, result, context) -> converterFinder.apply(context).serialize(input, result, context),
                 (input, context) -> converterFinder.apply(context).deserialize(input, context)
         );

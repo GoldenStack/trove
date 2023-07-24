@@ -3,7 +3,7 @@ package dev.goldenstack.loot.minestom.nbt;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.additive.AdditiveConditionalConverter;
+import dev.goldenstack.loot.converter.ConditionalLootConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.RelevantEntity;
@@ -27,7 +27,7 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
      * A converter for constant NBT that always serializes to a string scalar and deserializes when the input is a
      * single string scalar.
      */
-    public static final @NotNull AdditiveConditionalConverter<LootNBT> ACCURATE_CONVERTER = new AdditiveConditionalConverter<>() {
+    public static final @NotNull ConditionalLootConverter<LootNBT> ACCURATE_CONVERTER = new ConditionalLootConverter<>() {
         @Override
         public boolean canSerialize(@NotNull LootNBT input, @NotNull LootConversionContext context) {
             return input instanceof ContextNBT;

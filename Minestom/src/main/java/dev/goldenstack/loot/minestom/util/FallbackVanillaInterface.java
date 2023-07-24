@@ -1,9 +1,8 @@
 package dev.goldenstack.loot.minestom.util;
 
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.util.nbt.NBTUtils;
-import dev.goldenstack.loot.util.Utils;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.Instance;
@@ -60,16 +59,16 @@ public interface FallbackVanillaInterface extends VanillaInterface {
     }
 
     @Override
-    default @NotNull AdditiveConverter<LocationPredicate> locationPredicateConverter() {
-        return Utils.createAdditive(
+    default @NotNull LootConverter<LocationPredicate> locationPredicateConverter() {
+        return LootConverter.join(
                 (input, result, context) -> {},
                 (input, context) -> (world, position) -> false
         );
     }
 
     @Override
-    default @NotNull AdditiveConverter<EntityPredicate> entityPredicateConverter() {
-        return Utils.createAdditive(
+    default @NotNull LootConverter<EntityPredicate> entityPredicateConverter() {
+        return LootConverter.join(
                 (input, result, context) -> {},
                 (input, context) -> (world, location, entity) -> false
         );

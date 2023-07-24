@@ -2,7 +2,7 @@ package dev.goldenstack.loot.minestom.number;
 
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.additive.AdditiveConditionalConverter;
+import dev.goldenstack.loot.converter.ConditionalLootConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +22,7 @@ public record ConstantNumber(double value) implements LootNumber {
      * A converter for constant numbers that always serializes to a numerical scalar and deserializes when the input is
      * a singular numerical scalar.
      */
-    public static final @NotNull AdditiveConditionalConverter<LootNumber> ACCURATE_CONVERTER = new AdditiveConditionalConverter<>() {
+    public static final @NotNull ConditionalLootConverter<LootNumber> ACCURATE_CONVERTER = new ConditionalLootConverter<>() {
         @Override
         public boolean canSerialize(@NotNull LootNumber input, @NotNull LootConversionContext context) {
             return input instanceof ConstantNumber;

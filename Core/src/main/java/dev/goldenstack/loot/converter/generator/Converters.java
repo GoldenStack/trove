@@ -4,11 +4,8 @@ import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.LootDeserializer;
 import dev.goldenstack.loot.converter.LootSerializer;
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
-import dev.goldenstack.loot.converter.additive.AdditiveLootSerializer;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.util.FallibleFunction;
-import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -29,37 +26,10 @@ public class Converters {
     /**
      * A class that can produce a variety of separate serializers, deserializers, and converters.
      * @param type the type being converted
-     * @param deserializer the produced deserializer
-     * @param additiveSerializer the produced additive serializer
+     * @param converter the converter of the provided type
      * @param <V> the type being used
      */
-    public record Producer<V>(@NotNull TypeToken<V> type,
-                              @NotNull LootDeserializer<V> deserializer,
-                              @NotNull AdditiveLootSerializer<V> additiveSerializer) {
-
-        /**
-         * Produces a serializer for this type.
-         * @return the produced serializer
-         */
-        public @NotNull LootSerializer<V> serializer() {
-            return additiveSerializer;
-        }
-
-        /**
-         * Produces a converter for this type.
-         * @return the produced converter
-         */
-        public @NotNull LootConverter<V> converter() {
-            return Utils.createConverter(serializer(), deserializer());
-        }
-
-        /**
-         * Produces an additive converter for this type.
-         * @return the produced additive converter
-         */
-        public @NotNull AdditiveConverter<V> additive() {
-            return Utils.createAdditive(additiveSerializer, deserializer);
-        }
+    public record Producer<V>(@NotNull TypeToken<V> type, @NotNull LootConverter<V> converter) {
 
         /**
          * Produces a keyed loot converter, of the provided key, for this type.
@@ -67,7 +37,7 @@ public class Converters {
          * @return the produced keyed loot converter
          */
         public @NotNull KeyedLootConverter<V> keyed(@NotNull String key) {
-            return KeyedLootConverter.create(key, type, additive());
+            return KeyedLootConverter.create(key, type, converter());
         }
     }
 
@@ -145,7 +115,7 @@ public class Converters {
             actualFields[i] = actualField;
         }
 
-        AdditiveLootSerializer<V> actualAdditiveSerializer = (input, result, context) -> {
+        LootSerializer<V> actualSerializer = (input, result, context) -> {
             for (int i = 0; i < fields.size(); i++) {
                 var field = fields.get(i);
 
@@ -160,7 +130,7 @@ public class Converters {
             }
         };
 
-        return new Producer<>(TypeToken.get(type), actualDeserializer, actualAdditiveSerializer);
+        return new Producer<>(TypeToken.get(type), LootConverter.join(actualSerializer, actualDeserializer));
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical

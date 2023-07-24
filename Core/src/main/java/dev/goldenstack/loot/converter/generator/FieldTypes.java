@@ -1,10 +1,10 @@
 package dev.goldenstack.loot.converter.generator;
 
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
 import dev.goldenstack.loot.structure.LootModifier;
 import dev.goldenstack.loot.structure.LootNumber;
-import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.SerializationException;
@@ -41,7 +41,7 @@ public class FieldTypes {
      */
     public static <T> @NotNull Field<T> implicit(@NotNull TypeToken<T> type) {
         return field(type,
-                Utils.createAdditive(
+                LootConverter.join(
                     (input, result, context) -> result.set(type, input),
                     (input, context) -> {
                         var instance = input.get(type);
@@ -121,7 +121,7 @@ public class FieldTypes {
 
     public static <T> @NotNull Field<T> loader(@NotNull Class<T> type) {
         return Field.field(type,
-                Utils.createAdditive(
+                LootConverter.join(
                         (input, result, context) -> context.loader().requireConverter(type).serialize(input, result, context),
                         (input, context) -> context.loader().requireConverter(type).deserialize(input, context)
                 )

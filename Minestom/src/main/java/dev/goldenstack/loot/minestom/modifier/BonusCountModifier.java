@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
-import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.Enchantment;
 import net.minestom.server.item.ItemStack;
@@ -47,7 +47,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
             converter(BonusCountModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     enchantment().name("addedEnchantment").nodePath("enchantment"),
-                    field(BonusType.class, Utils.createAdditive(TYPE_CONVERTER::serialize, TYPE_CONVERTER::deserialize))
+                    field(BonusType.class, LootConverter.join(TYPE_CONVERTER::serialize, TYPE_CONVERTER::deserialize))
                             .name("bonus").nodePath(List.of())
             ).keyed("minecraft:apply_bonus");
 

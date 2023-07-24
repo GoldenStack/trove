@@ -4,22 +4,20 @@ import dev.goldenstack.loot.converter.meta.LootConversionManager;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.ConfigurationNode;
 
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Stores information about how conversion of loot-related objects, such as tables and pools, should occur. Generally,
  * this should hold the basis for anything required to completely serialize and deserialize a loot table.
  * @param converters the map of converters that this loader manages
- * @param nodeProducer the supplier used for creating default nodes. This is likely shorter than creating a node without
- *                     it, and it's also more configurable.
  */
-public record Trove(@NotNull List<LootConversionManager<?>> converters,
-                    @NotNull Supplier<ConfigurationNode> nodeProducer) {
+public record Trove(@NotNull List<LootConversionManager<?>> converters) {
 
     public Trove {
         Set<Type> types = new HashSet<>();
@@ -28,14 +26,6 @@ public record Trove(@NotNull List<LootConversionManager<?>> converters,
                 throw new IllegalArgumentException("Cannot load multiple converters of type '" + manager.baseType().getType() + "'");
             }
         }
-    }
-
-    /**
-     * Shortcut for {@code nodeProducer().get()} for convenience.
-     * @return a new configuration node
-     */
-    public @NotNull ConfigurationNode createNode() {
-        return nodeProducer().get();
     }
 
     /**
@@ -89,7 +79,6 @@ public record Trove(@NotNull List<LootConversionManager<?>> converters,
     public static final class Builder {
         private final @NotNull Set<Type> addedTypes = new HashSet<>();
         private final @NotNull List<LootConversionManager<?>> managers = new ArrayList<>();
-        private Supplier<ConfigurationNode> nodeProducer;
 
         private Builder() {}
 
@@ -111,18 +100,9 @@ public record Trove(@NotNull List<LootConversionManager<?>> converters,
             return newBuilder(builder);
         }
 
-        @Contract("_ -> this")
-        public @NotNull Builder nodeProducer(@NotNull Supplier<ConfigurationNode> nodeProducer) {
-            this.nodeProducer = nodeProducer;
-            return this;
-        }
-
         @Contract(" -> new")
         public @NotNull Trove build() {
-            return new Trove(
-                    List.copyOf(managers),
-                    Objects.requireNonNull(nodeProducer, "Trove instances cannot be built without a node producer!")
-                );
+            return new Trove(List.copyOf(managers));
         }
     }
 }

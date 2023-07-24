@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.converter.meta;
 
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
@@ -12,13 +12,13 @@ import org.spongepowered.configurate.ConfigurationNode;
  * the object that needs to be serialized.
  * @param <T> the converted type
  */
-public interface KeyedLootConverter<T> extends AdditiveConverter<T> {
+public interface KeyedLootConverter<T> extends LootConverter<T> {
 
     /**
-     * Creates a new additive converter using the provided key, type, and converter.
+     * Creates a new keyed converter using the provided key, type, and converter.
      */
     static <T> @NotNull KeyedLootConverter<T> create(@NotNull String key, @NotNull TypeToken<T> convertedType,
-                                                     @NotNull AdditiveConverter<T> converter) {
+                                                     @NotNull LootConverter<T> converter) {
         return new KeyedLootConverterImpl<>(key, convertedType, converter);
     }
 
@@ -37,7 +37,7 @@ public interface KeyedLootConverter<T> extends AdditiveConverter<T> {
 
 }
 
-record KeyedLootConverterImpl<T>(@NotNull String key, @NotNull TypeToken<T> convertedType, @NotNull AdditiveConverter<T> converter) implements KeyedLootConverter<T> {
+record KeyedLootConverterImpl<T>(@NotNull String key, @NotNull TypeToken<T> convertedType, @NotNull LootConverter<T> converter) implements KeyedLootConverter<T> {
 
     @Override
     public void serialize(@NotNull T input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {

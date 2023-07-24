@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.util.nbt;
 
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
-import dev.goldenstack.loot.util.Utils;
+import dev.goldenstack.loot.converter.LootConverter;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -30,9 +29,9 @@ import java.util.stream.Collectors;
 public sealed interface NBTPath permits NBTPathImpl {
 
     /**
-     * An additive converter that tries to read a NBT path from a string, and will convert it back to a string, too.
+     * A converter that tries to read a NBT path from a string, and will convert it back to a string, too.
      */
-    @NotNull AdditiveConverter<NBTPath> CONVERTER = NBTPathImpl.CONVERTER;
+    @NotNull LootConverter<NBTPath> CONVERTER = NBTPathImpl.CONVERTER;
 
     /**
      * Reads a NBT path from the provided reader. It is possible that this does not consume the entire reader, so
@@ -348,7 +347,7 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
     static final @NotNull IntSet VALID_INTEGER_CHARACTERS = IntSet.of('-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
     static final @NotNull IntSet INVALID_UNQUOTED_CHARACTERS = IntSet.of(-1, '.', '\'', '\"', '{', '}', '[', ']');
 
-    static final @NotNull AdditiveConverter<NBTPath> CONVERTER = Utils.createAdditive(
+    static final @NotNull LootConverter<NBTPath> CONVERTER = LootConverter.join(
             (input, result, context) -> result.set(input.toString()), (input, context) -> {
                 var path = input.getString();
                 if (path == null) {

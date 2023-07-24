@@ -7,18 +7,18 @@ import org.spongepowered.configurate.ConfigurationNode;
 
 /**
  * A standard representation of something that can deserialize a configuration node into a specific type of object.
- * @param <O> the type of output that will be created
+ * @param <V> the type of output that will be created
  */
-public interface LootDeserializer<O> {
+public interface LootDeserializer<V> {
 
     /**
      * Deserializes an input node into a resulting object.<br>
      * Note: it is possible for the provided node to not have a value.
-     * @param input the configuration node to deserialize into an instance of {@link O}
+     * @param input the configuration node to deserialize into an instance of {@link V}
      * @param context the context object, to use if required
      * @return the provided configuration node deserialized into an object
      * @throws ConfigurateException if the input could not be deserialized for some reason
      */
-    @NotNull O deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException;
+    @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException;
 
 }

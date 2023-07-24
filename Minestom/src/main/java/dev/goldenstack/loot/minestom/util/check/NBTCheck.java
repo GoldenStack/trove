@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.util.check;
 
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.minestom.util.nbt.NBTUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,10 +14,10 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.nbt;
  */
 public record NBTCheck(@Nullable NBT guarantee) {
 
-    public static final @NotNull AdditiveConverter<NBTCheck> CONVERTER =
+    public static final @NotNull LootConverter<NBTCheck> CONVERTER =
             converter(NBTCheck.class,
                     nbt().name("guarantee").nodePath("nbt").optional()
-            ).additive();
+            ).converter();
 
     /**
      * Creates a new NBT predicate that checks the provided element.

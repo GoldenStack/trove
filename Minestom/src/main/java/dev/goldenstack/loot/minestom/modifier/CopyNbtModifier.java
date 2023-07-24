@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.nbt.LootNBT;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
@@ -53,12 +53,12 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
      */
     public record Operation(@NotNull NBTPath source, @NotNull NBTPath target, @NotNull Operator operator) {
 
-        public static final @NotNull AdditiveConverter<Operation> CONVERTER =
+        public static final @NotNull LootConverter<Operation> CONVERTER =
                 converter(Operation.class,
                         field(NBTPath.class, NBTPath.CONVERTER).name("source"),
                         field(NBTPath.class, NBTPath.CONVERTER).name("target"),
                         enumerated(Operator.class, Operator::id).name("operator").nodePath("op")
-                ).additive();
+                ).converter();
 
         /**
          * Applies this operation to the provided item, using the source if needed.

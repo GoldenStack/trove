@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.generation;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.generation.LootGenerator;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
@@ -35,14 +35,14 @@ public record LootPool(@NotNull LootNumber rolls,
                        @NotNull List<LootCondition> conditions,
                        @NotNull List<LootModifier> modifiers) implements LootGenerator {
 
-    public static final @NotNull AdditiveConverter<LootPool> CONVERTER =
+    public static final @NotNull LootConverter<LootPool> CONVERTER =
             converter(LootPool.class,
                     number().name("rolls"),
                     number().name("bonusRolls").nodePath("bonus_rolls").withDefault(new ConstantNumber(0)),
                     entry().list().name("entries"),
                     condition().list().name("conditions").withDefault(List::of),
                     modifier().list().name("modifiers").nodePath("functions").withDefault(List::of)
-            ).additive();
+            ).converter();
 
     public LootPool {
         entries = List.copyOf(entries);

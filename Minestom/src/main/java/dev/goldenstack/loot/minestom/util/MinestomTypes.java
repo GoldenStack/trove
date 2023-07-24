@@ -1,5 +1,6 @@
 package dev.goldenstack.loot.minestom.util;
 
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.generator.Field;
 import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.minestom.VanillaInterface;
@@ -96,7 +97,7 @@ public class MinestomTypes extends FieldTypes {
      */
     public static @NotNull Field<VanillaInterface.LocationPredicate> locationPredicate() {
         return field(VanillaInterface.LocationPredicate.class,
-                Utils.additiveFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).locationPredicateConverter()));
+                Utils.converterFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).locationPredicateConverter()));
     }
 
     /**
@@ -104,7 +105,7 @@ public class MinestomTypes extends FieldTypes {
      */
     public static @NotNull Field<VanillaInterface.EntityPredicate> entityPredicate() {
         return field(VanillaInterface.EntityPredicate.class,
-                Utils.additiveFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).entityPredicateConverter()));
+                Utils.converterFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).entityPredicateConverter()));
     }
 
     /**
@@ -118,7 +119,7 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting context key groups
      */
     public static @NotNull Field<LootContextKeyGroup> keyGroup() {
-        return field(LootContextKeyGroup.class, Utils.createAdditive(
+        return field(LootContextKeyGroup.class, LootConverter.join(
                 (input, result, context) -> result.set(input.id()),
                 (input, context) -> {
                     var id = input.getString();
@@ -158,7 +159,7 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting NBT
      */
     public static @NotNull Field<NBT> nbt() {
-        return field(NBT.class, Utils.createAdditive(
+        return field(NBT.class, LootConverter.join(
             (input, result, context) -> result.set(input.toSNBT()),
             (input, context) -> {
                 var snbt = input.require(String.class);

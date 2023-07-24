@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.minestom.util.MinestomTypes;
@@ -73,7 +73,7 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
                                      @NotNull AttributeOperation operation, @NotNull LootNumber amount,
                                      @Nullable UUID id, @NotNull List<AttributeSlot> slots) {
 
-        public static final @NotNull AdditiveConverter<AttributeDirective> CONVERTER =
+        public static final @NotNull LootConverter<AttributeDirective> CONVERTER =
                 converter(AttributeDirective.class,
                         implicit(String.class).name("name"),
                         MinestomTypes.attribute().name("attribute"),
@@ -81,7 +81,7 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
                         number().name("amount"),
                         uuid().name("id").optional(),
                         attributeSlot().possibleList().name("slots").nodePath("slot")
-                ).additive();
+                ).converter();
 
     }
 }

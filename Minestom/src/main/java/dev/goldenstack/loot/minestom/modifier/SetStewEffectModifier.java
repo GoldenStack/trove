@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -47,11 +47,11 @@ public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
      * @param duration the number that will provide the duration (measured in seconds)
      */
     public record StewEffect(@NotNull PotionEffect effect, @NotNull LootNumber duration) {
-        public static final @NotNull AdditiveConverter<StewEffect> CONVERTER =
+        public static final @NotNull LootConverter<StewEffect> CONVERTER =
                 converter(StewEffect.class,
                         namespaceId().map(PotionEffect.class, PotionEffect::fromNamespaceId, PotionEffect::namespace).name("effect").nodePath("type"),
                         number().name("duration")
-                ).additive();
+                ).converter();
     }
 
     private static final @NotNull Tag<List<NBT>> EFFECTS_NBT = Tag.NBT("Effects").list().defaultValue(List::of);

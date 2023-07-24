@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom;
 
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
@@ -101,7 +101,7 @@ public interface VanillaInterface {
      * as for advancements and loot tables.
      * @return the converter for location predicates
      */
-    default @NotNull AdditiveConverter<LocationPredicate> locationPredicateConverter() {
+    default @NotNull LootConverter<LocationPredicate> locationPredicateConverter() {
         throw new UnsupportedOperationException("VanillaInterface#locationPredicateConverter has not been implemented!");
     }
 
@@ -110,7 +110,7 @@ public interface VanillaInterface {
      * in loot tables and various game mechanics.
      * @return the converter for entities
      */
-    default @NotNull AdditiveConverter<EntityPredicate> entityPredicateConverter() {
+    default @NotNull LootConverter<EntityPredicate> entityPredicateConverter() {
         throw new UnsupportedOperationException("VanillaInterface#entityPredicateConverter has not been implemented!");
     }
 

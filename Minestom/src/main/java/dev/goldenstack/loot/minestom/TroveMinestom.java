@@ -8,7 +8,6 @@ import dev.goldenstack.loot.minestom.util.FallbackVanillaInterface;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.BasicConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 
@@ -33,9 +32,7 @@ public class TroveMinestom {
     /**
      * The default Trove instance that contains all of the default information for loading loot tables.
      */
-    public static final @NotNull Trove DEFAULT_LOADER = MinestomLoader.initializeBuilder(
-            Trove.builder().nodeProducer(BasicConfigurationNode.factory()::createNode)
-    ).build();
+    public static final @NotNull Trove DEFAULT_LOADER = MinestomLoader.initializeBuilder(Trove.builder()).build();
 
     /**
      * The default vanilla interface implementation for {@link dev.goldenstack.loot.minestom.context.LootContextKeys#VANILLA_INTERFACE}.

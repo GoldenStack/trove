@@ -1,8 +1,7 @@
 package dev.goldenstack.loot.converter.generator;
 
-import dev.goldenstack.loot.converter.additive.AdditiveConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.util.FallibleFunction;
-import dev.goldenstack.loot.util.Utils;
 import io.leangen.geantyref.TypeFactory;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +28,7 @@ import java.util.function.Supplier;
  * @param <T> the actual type of this field
  */
 public record Field<T>(@NotNull TypeToken<T> type,
-                       @NotNull AdditiveConverter<T> converter,
+                       @NotNull LootConverter<T> converter,
                        @UnknownNullability String localName,
                        @UnknownNullability List<Object> nodePath,
                        @Nullable Supplier<T> defaultValue) {
@@ -41,14 +40,14 @@ public record Field<T>(@NotNull TypeToken<T> type,
      * @return a new field of the provided type and converter
      * @param <T> the type that the field represents
      */
-    public static <T> @NotNull Field<T> field(@NotNull TypeToken<T> type, @NotNull AdditiveConverter<T> converter) {
+    public static <T> @NotNull Field<T> field(@NotNull TypeToken<T> type, @NotNull LootConverter<T> converter) {
         return new Field<>(type, converter, null, null, null);
     }
 
     /**
      * Creates a new field, given its type and a converter for the aforementioned type.<br>
-     * Possesses identical semantics to {@link #field(TypeToken, AdditiveConverter)}, except that it automatically
-     * converts the class into a type token.<br>
+     * Possesses identical semantics to {@link #field(TypeToken, LootConverter)}, except that it automatically converts
+     * the class into a type token.<br>
      * <b>This should only be used when the type doesn't have any type arguments; information will be lost if you omit
      * them and provide solely the class.</b>
      * @param type the raw class of the field.
@@ -56,7 +55,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
      * @return a new field of the provided type and converter
      * @param <T> the type that the field represents
      */
-    public static <T> @NotNull Field<T> field(@NotNull Class<T> type, @NotNull AdditiveConverter<T> converter) {
+    public static <T> @NotNull Field<T> field(@NotNull Class<T> type, @NotNull LootConverter<T> converter) {
         return field(TypeToken.get(type), converter);
     }
 
@@ -140,7 +139,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
         @SuppressWarnings("unchecked") // This is safe because TypeFactory.parameterizedClass unfortunately just removes the generic
         TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.type.getType()));
 
-        AdditiveConverter<List<T>> newConverter = Utils.createAdditive(
+        LootConverter<List<T>> newConverter = LootConverter.join(
                 (input, result, context) -> {
                     for (var item : input) {
                         oldConverter.serialize(item, result.appendListNode(), context);
@@ -175,7 +174,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
         @SuppressWarnings("unchecked") // This is safe because TypeFactory.parameterizedClass unfortunately just removes the generic
         TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.type.getType()));
 
-        AdditiveConverter<List<T>> newConverter = Utils.createAdditive(
+        LootConverter<List<T>> newConverter = LootConverter.join(
                 (input, result, context) -> {
                     if (input.size() == 1) {
                         oldConverter.serialize(input.get(0), result, context);
@@ -234,7 +233,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
                                      @NotNull FallibleFunction<@NotNull N, @Nullable T> fromNew) {
         var oldConverter = converter;
 
-        AdditiveConverter<N> newConverter = Utils.createAdditive(
+        LootConverter<N> newConverter = LootConverter.join(
                 (input, result, context) -> {
                     var applied = fromNew.apply(input);
                     if (applied == null) {

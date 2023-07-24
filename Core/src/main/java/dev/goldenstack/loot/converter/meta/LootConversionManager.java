@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.converter.meta;
 
 import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.converter.additive.AdditiveConditionalConverter;
+import dev.goldenstack.loot.converter.ConditionalLootConverter;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;
@@ -20,7 +20,7 @@ public class LootConversionManager<V> {
 
     private final @NotNull TypeToken<V> baseType;
     private final @NotNull String keyLocation;
-    private final @NotNull List<AdditiveConditionalConverter<V>> initialConverters;
+    private final @NotNull List<ConditionalLootConverter<V>> initialConverters;
     private final @NotNull Map<String, KeyedLootConverter<? extends V>> directKeyRegistry;
     private final @NotNull Map<TypeToken<? extends V>, KeyedLootConverter<? extends V>> typeTokenRegistry;
 
@@ -49,9 +49,9 @@ public class LootConversionManager<V> {
 
     /**
      * This is the base type of this manager. It's the input type for serializers and the output type for deserializers.
-     * For {@link AdditiveConditionalConverter}s, it's the exact parameter for both, but subtypes of it are allowed (due
-     * to polymorphism) for the actual values of them. For {@link KeyedLootConverter}s, the exact parameter type must be
-     * a subtype of this base type.
+     * For {@link ConditionalLootConverter}s, it's the exact parameter for both, but subtypes of it are allowed (due to
+     * polymorphism) for the actual values of them. For {@link KeyedLootConverter}s, the exact parameter type must be a
+     * subtype of this base type.
      * @return the base type that all conditional converters must handle and that all keyed converters must handle a
      *         subtype of
      */
@@ -145,7 +145,7 @@ public class LootConversionManager<V> {
         private TypeToken<V> baseType;
         private String keyLocation;
         private final @NotNull List<KeyedLootConverter<? extends V>> keyedConverters = new ArrayList<>();
-        private final @NotNull List<AdditiveConditionalConverter<V>> initialConverters = new ArrayList<>();
+        private final @NotNull List<ConditionalLootConverter<V>> initialConverters = new ArrayList<>();
 
         private Builder() {}
 
@@ -168,7 +168,7 @@ public class LootConversionManager<V> {
         }
 
         @Contract("_ -> this")
-        public @NotNull Builder<V> addInitialConverter(@NotNull AdditiveConditionalConverter<V> converter) {
+        public @NotNull Builder<V> addInitialConverter(@NotNull ConditionalLootConverter<V> converter) {
             this.initialConverters.add(converter);
             return this;
         }
