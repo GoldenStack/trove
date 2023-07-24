@@ -10,7 +10,6 @@ import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
 import dev.goldenstack.loot.structure.LootModifier;
 import dev.goldenstack.loot.structure.LootNumber;
-import dev.goldenstack.loot.util.Utils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -63,8 +62,15 @@ public record LootPool(@NotNull LootNumber rolls,
             rolls += Math.floor(luck * this.bonusRolls.getDouble(context));
         }
 
-        LootBatch loot = Utils.generateStandardLoot(this.entries, rolls, context);
-        return LootModifier.applyAll(modifiers(), loot, context);
+        List<Object> items = new ArrayList<>();
+        for (int i = 0; i < rolls; i++) {
+            var generated = LootEntry.pickChoice(entries, context);
+            if (generated != null) {
+                items.addAll(generated.generate(context).items());
+            }
+        }
+
+        return LootModifier.applyAll(modifiers(), new LootBatch(items), context);
     }
 
     /**

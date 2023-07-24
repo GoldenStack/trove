@@ -1,5 +1,6 @@
 package dev.goldenstack.loot.minestom.util;
 
+import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.generator.Field;
 import dev.goldenstack.loot.converter.generator.FieldTypes;
@@ -10,7 +11,6 @@ import dev.goldenstack.loot.minestom.context.LootConversionKeys;
 import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
 import dev.goldenstack.loot.minestom.util.check.BlockStateCheck;
-import dev.goldenstack.loot.util.Utils;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.attribute.AttributeOperation;
@@ -42,6 +42,19 @@ import static dev.goldenstack.loot.converter.generator.Field.field;
  * Utility for the creation of various types of Minestom-related fields.
  */
 public class MinestomTypes extends FieldTypes {
+
+    /**
+     * Creates a converter proxied by the converter returned by {@code converterFinder}.
+     * @param converterFinder the function that gets the converter
+     * @return a new converter that uses the finder to determine which one it is proxying
+     * @param <V> the converted type
+     */
+    public static <V> @NotNull LootConverter<V> converterFromContext(@NotNull Function<LootConversionContext, LootConverter<V>> converterFinder) {
+        return LootConverter.join(
+                (input, result, context) -> converterFinder.apply(context).serialize(input, result, context),
+                (input, context) -> converterFinder.apply(context).deserialize(input, context)
+        );
+    }
 
     /**
      * @return a field converting number ranges
@@ -97,7 +110,7 @@ public class MinestomTypes extends FieldTypes {
      */
     public static @NotNull Field<VanillaInterface.LocationPredicate> locationPredicate() {
         return field(VanillaInterface.LocationPredicate.class,
-                Utils.converterFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).locationPredicateConverter()));
+                converterFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).locationPredicateConverter()));
     }
 
     /**
@@ -105,7 +118,7 @@ public class MinestomTypes extends FieldTypes {
      */
     public static @NotNull Field<VanillaInterface.EntityPredicate> entityPredicate() {
         return field(VanillaInterface.EntityPredicate.class,
-                Utils.converterFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).entityPredicateConverter()));
+                converterFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).entityPredicateConverter()));
     }
 
     /**
