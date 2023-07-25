@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.minestom.util;
 
-import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.generator.Field;
 import dev.goldenstack.loot.converter.generator.FieldTypes;
@@ -10,6 +9,7 @@ import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.context.LootConversionKeys;
 import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
+import dev.goldenstack.loot.minestom.nbt.LootNBT;
 import dev.goldenstack.loot.minestom.util.check.BlockStateCheck;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.attribute.Attribute;
@@ -43,17 +43,8 @@ import static dev.goldenstack.loot.converter.generator.Field.field;
  */
 public class MinestomTypes extends FieldTypes {
 
-    /**
-     * Creates a converter proxied by the converter returned by {@code converterFinder}.
-     * @param converterFinder the function that gets the converter
-     * @return a new converter that uses the finder to determine which one it is proxying
-     * @param <V> the converted type
-     */
-    public static <V> @NotNull LootConverter<V> converterFromContext(@NotNull Function<LootConversionContext, LootConverter<V>> converterFinder) {
-        return LootConverter.join(
-                (input, result, context) -> converterFinder.apply(context).serialize(input, result, context),
-                (input, context) -> converterFinder.apply(context).deserialize(input, context)
-        );
+    public static @NotNull Field<LootNBT> lootNBT() {
+        return field(LootNBT.class, converterFromContext(context -> context.loader().requireConverter(LootNBT.class)));
     }
 
     /**

@@ -22,8 +22,8 @@ import java.util.List;
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Field.field;
 import static dev.goldenstack.loot.converter.generator.FieldTypes.enumerated;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.loader;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.lootNBT;
 
 /**
  * Copies the NBT from some {@link #source()} to the resulting item via a list of {@link #operations()}.
@@ -40,7 +40,7 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
     public static final @NotNull KeyedLootConverter<CopyNbtModifier> CONVERTER =
             converter(CopyNbtModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
-                    loader(LootNBT.class).name("source"),
+                    lootNBT().name("source"),
                     field(Operation.class, Operation.CONVERTER).list().name("operations").nodePath("ops")
             ).keyed("minecraft:copy_nbt");
 
