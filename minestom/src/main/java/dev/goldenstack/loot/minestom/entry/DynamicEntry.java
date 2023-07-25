@@ -19,7 +19,8 @@ import static dev.goldenstack.loot.converter.generator.FieldTypes.*;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.namespaceId;
 
 /**
- * Dynamically returns items based on {@link VanillaInterface#getDynamicDropProvider()} and {@link #dynamicChoiceId()}.
+ * Dynamically returns items based on {@link VanillaInterface#getDynamicDrops(NamespaceID, NBTCompound)} and
+ * {@link #dynamicChoiceId()}.
  * @param dynamicChoiceId the namespace ID of the dynamic items to select
  * @param weight the base weight of this entry - see {@link StandardWeightedChoice#weight()}
  * @param quality the quality of this entry - see {@link StandardWeightedChoice#quality()}
@@ -57,10 +58,8 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
         var block = context.assure(LootContextKeys.BLOCK_ENTITY).block();
         var blockNBT = block.hasNbt() ? block.nbt() : new NBTCompound();
 
-        var dynamicDropProvider = context.assure(LootContextKeys.VANILLA_INTERFACE).getDynamicDropProvider();
+        List<ItemStack> dynamicDrops = context.assure(LootContextKeys.VANILLA_INTERFACE).getDynamicDrops(dynamicChoiceId, blockNBT);
 
-        List<ItemStack> items = dynamicDropProvider.getOrDefault(dynamicChoiceId, nbt -> List.of()).apply(blockNBT);
-
-        return LootModifier.applyAll(modifiers(), LootBatch.of(items), context);
+        return LootModifier.applyAll(modifiers(), LootBatch.of(dynamicDrops), context);
     }
 }

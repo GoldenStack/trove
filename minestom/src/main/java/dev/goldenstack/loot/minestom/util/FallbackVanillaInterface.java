@@ -15,9 +15,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTList;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.function.Function;
 
 /**
  * A vanilla interface implementation that provides sensible defaults for each method.
@@ -86,12 +84,12 @@ public interface FallbackVanillaInterface extends VanillaInterface {
 
     @Override
     @NotNull
-    default Map<NamespaceID, Function<NBTCompound, List<ItemStack>>> getDynamicDropProvider() {
-        return Map.of(
-            NamespaceID.from("minecraft:contents"), nbt -> {
-                NBTList<NBTCompound> contents = nbt.getList("Items");
-                return (contents != null) ? NBTUtils.listToItems(contents) : List.of();
-            }
-        );
+    default List<ItemStack> getDynamicDrops(@NotNull NamespaceID dropType, @NotNull NBTCompound nbt) {
+        if (NamespaceID.from("minecraft:contents").equals(dropType)) {
+            NBTList<NBTCompound> contents = nbt.getList("Items");
+            return (contents != null) ? NBTUtils.listToItems(contents) : List.of();
+        }
+
+        return List.of();
     }
 }

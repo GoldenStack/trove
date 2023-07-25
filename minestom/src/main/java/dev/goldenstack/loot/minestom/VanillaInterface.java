@@ -12,9 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.function.Function;
 
 /**
  * An interface to the features of vanilla Minecraft that are required for specific loot-related features, not forcing
@@ -135,12 +133,13 @@ public interface VanillaInterface {
     }
 
     /**
-     * Returns the map that provides dynamic drop calculators based on each provided ID. This is used in
-     * {@link dev.goldenstack.loot.minestom.entry.DynamicEntry}.
-     * @return the dynamic drop provider map
+     * Gets a list of items from the provided NBT, using the drop type.
+     * @param dropType the type of drops to get from the NBT
+     * @param nbt the NBT to get the drops from
+     * @return the dynamic drops
      */
-    default @NotNull Map<NamespaceID, Function<NBTCompound, List<ItemStack>>> getDynamicDropProvider() {
-        throw new UnsupportedOperationException("VanillaInterface#getDynamicDropProvider has not been implemented!");
+    default @NotNull List<ItemStack> getDynamicDrops(@NotNull NamespaceID dropType, @NotNull NBTCompound nbt) {
+        throw new UnsupportedOperationException("VanillaInterface#getDynamicDrops has not been implemented!");
     }
 
 }
