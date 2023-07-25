@@ -8,21 +8,21 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.condition;
 
 /**
  * Returns true if at least one of the {@link #conditions()} returns true.
  * @param conditions the conditions that are tested
  */
-public record AlternativeCondition(@NotNull List<LootCondition> conditions) implements LootCondition {
+public record OrCondition(@NotNull List<LootCondition> conditions) implements LootCondition {
 
     /**
-     * A standard map-based converter for alternative conditions.
+     * A standard map-based converter for OR operator conditions.
      */
-    public static final @NotNull KeyedLootConverter<AlternativeCondition> CONVERTER =
-            converter(AlternativeCondition.class,
-                    condition().list().name("conditions").withDefault(List::of)
-            ).keyed("minecraft:alternative");
+    public static final @NotNull KeyedLootConverter<OrCondition> CONVERTER =
+            converter(OrCondition.class,
+                    condition().list().name("conditions").nodePath("terms").withDefault(List::of)
+            ).keyed("minecraft:any_of");
 
     @Override
     public boolean verify(@NotNull LootGenerationContext context) {

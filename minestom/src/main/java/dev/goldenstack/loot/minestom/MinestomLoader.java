@@ -101,7 +101,7 @@ public class MinestomLoader {
         builder.keyLocation("condition");
 
         // Registered converters
-        builder.addConverter(AlternativeCondition.CONVERTER);
+        builder.addConverter(AndCondition.CONVERTER);
         builder.addConverter(BlockStateCondition.CONVERTER);
         builder.addConverter(EnchantmentLevelCondition.CONVERTER);
         builder.addConverter(EntityCheckCondition.CONVERTER);
@@ -110,6 +110,7 @@ public class MinestomLoader {
         builder.addConverter(LocationCheckCondition.CONVERTER);
         builder.addConverter(LootingRandomChanceCondition.CONVERTER);
         builder.addConverter(NumberConstraintCondition.CONVERTER);
+        builder.addConverter(OrCondition.CONVERTER);
         builder.addConverter(RandomChanceCondition.CONVERTER);
         builder.addConverter(ReferenceCondition.CONVERTER);
         builder.addConverter(SurvivesExplosionCondition.CONVERTER);
