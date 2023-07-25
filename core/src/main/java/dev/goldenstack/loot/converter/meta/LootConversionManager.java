@@ -2,6 +2,7 @@ package dev.goldenstack.loot.converter.meta;
 
 import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;
@@ -16,7 +17,7 @@ import java.util.*;
  * Manages serialization for when multiple subtypes of a base class must be chosen from.
  * @param <V> the base type of object that will be converted
  */
-public class LootConversionManager<V> {
+public class LootConversionManager<V> implements LootConverter<V> {
 
     private final @NotNull TypeToken<V> baseType;
     private final @NotNull String keyLocation;
@@ -60,7 +61,7 @@ public class LootConversionManager<V> {
     }
 
     /**
-     * Serializes the provided object (that is a subtype of {@link V}) into a configuration node.<br>
+     * Serializes the provided object into a configuration node.<br>
      * As it may not be self-explanatory, here's specifically how the process works:<br>
      * All of the initial converters (that were added to the builder) are each checked, in the order they were added to
      * the aforementioned border, to see if they will serialize the provided input. If any one of them does, it is used
@@ -69,12 +70,15 @@ public class LootConversionManager<V> {
      * Otherwise, this manager looks for the keyed converter that has a {@link KeyedLootConverter#convertedType()} equal
      * to the type of the input and uses that to serialize it. If this process couldn't be done for any reason, an
      * exception explaining why is thrown.
-     * @param input the instance of a subtype of {@link V} to serialize into a configuration node
+     * @param input the object to serialize into a configuration node
      * @param context the context object, to use if required
-     * @param <R> the real type of {@code input}
      * @throws ConfigurateException if the input could not be serialized for some reason
      */
-    public <R extends V> void serialize(@NotNull R input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
+    public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
+        serialize0(input, result, context);
+    }
+
+    private <R extends V> void serialize0(@NotNull R input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
         if (!initialConverters.isEmpty()) {
             for (var conditional : initialConverters) {
                 if (conditional.canSerialize(input, context)) {
@@ -107,6 +111,7 @@ public class LootConversionManager<V> {
      * @return the deserialized version of the provided input
      * @throws ConfigurateException if the input could not be deserialized for some reason
      */
+    @Override
     public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException {
         if (!initialConverters.isEmpty()) {
             for (var conditional : initialConverters) {
