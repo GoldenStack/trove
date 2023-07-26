@@ -81,6 +81,47 @@ public class TroveMinestom {
     }
 
     /**
+     * Parses every JSON file in the provided directory, or one of its subdirectories, into loot tables, returning the
+     * results in to a table registry instance.
+     * @param directory the directory to parse
+     * @param loader the loader to use for parsing
+     * @return the registry instance that contains parsing information
+     */
+    public static @NotNull TableRegistry readTables(@NotNull Path directory, @NotNull Trove loader) {
+        Map<NamespaceID, LootTable> tables = new HashMap<>();
+        Map<NamespaceID, ConfigurateException> exceptions = new HashMap<>();
+
+        final String FILE_SUFFIX = ".json";
+
+        List<Path> files;
+        try (var stream = Files.find(directory, Integer.MAX_VALUE,
+                (path, attr) -> attr.isRegularFile() && path.getFileName().toString().endsWith(FILE_SUFFIX))) {
+            files = stream.toList();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // For now just return the tables and ignore if there are no problems.
+        for (var path : files) {
+            String keyPath = StreamSupport.stream(directory.relativize(path).spliterator(), false).map(Path::toString).collect(Collectors.joining("/"));
+
+            if (keyPath.endsWith(FILE_SUFFIX)) { // Should be true, but let's check it anyway
+                keyPath = keyPath.substring(0, keyPath.length() - FILE_SUFFIX.length());
+            }
+
+            NamespaceID key = NamespaceID.from(keyPath);
+
+            try {
+                tables.put(key, readTable(path, loader));
+            } catch (ConfigurateException exception) {
+                exceptions.put(key, exception);
+            }
+        }
+
+        return new TableRegistry(tables, exceptions);
+    }
+
+    /**
      * Holds information about some parsed loot tables, including the actual parsed tables and any potential exceptions
      * that occurred while parsing them.
      * @param tables the map of key to parsed loot table
@@ -127,45 +168,5 @@ public class TroveMinestom {
 
     }
 
-    /**
-     * Parses every JSON file in the provided directory, or one of its subdirectories, into loot tables, returning the
-     * results in to a table registry instance.
-     * @param directory the directory to parse
-     * @param loader the loader to use for parsing
-     * @return the registry instance that contains parsing information
-     */
-    public static @NotNull TableRegistry readTables(@NotNull Path directory, @NotNull Trove loader) {
-        Map<NamespaceID, LootTable> tables = new HashMap<>();
-        Map<NamespaceID, ConfigurateException> exceptions = new HashMap<>();
-
-        final String FILE_SUFFIX = ".json";
-
-        List<Path> files;
-        try (var stream = Files.find(directory, Integer.MAX_VALUE,
-                (path, attr) -> attr.isRegularFile() && path.getFileName().toString().endsWith(FILE_SUFFIX))) {
-            files = stream.toList();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        // For now just return the tables and ignore if there are no problems.
-        for (var path : files) {
-            String keyPath = StreamSupport.stream(directory.relativize(path).spliterator(), false).map(Path::toString).collect(Collectors.joining("/"));
-
-            if (keyPath.endsWith(FILE_SUFFIX)) { // Should be true, but let's check it anyway
-                keyPath = keyPath.substring(0, keyPath.length() - FILE_SUFFIX.length());
-            }
-
-            NamespaceID key = NamespaceID.from(keyPath);
-
-            try {
-                tables.put(key, readTable(path, loader));
-            } catch (ConfigurateException exception) {
-                exceptions.put(key, exception);
-            }
-        }
-
-        return new TableRegistry(tables, exceptions);
-    }
 
 }
