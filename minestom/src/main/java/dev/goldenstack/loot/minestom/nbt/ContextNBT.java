@@ -1,8 +1,7 @@
 package dev.goldenstack.loot.minestom.nbt;
 
+import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.context.LootGenerationContext;
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
@@ -29,25 +28,25 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
      */
     public static final @NotNull ConditionalLootConverter<LootNBT> ACCURATE_CONVERTER = new ConditionalLootConverter<>() {
         @Override
-        public boolean canSerialize(@NotNull LootNBT input, @NotNull LootConversionContext context) {
+        public boolean canSerialize(@NotNull LootNBT input, @NotNull Trove loader) {
             return input instanceof ContextNBT;
         }
 
         @Override
-        public void serialize(@NotNull LootNBT input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
+        public void serialize(@NotNull LootNBT input, @NotNull ConfigurationNode result, @NotNull Trove loader) throws ConfigurateException {
             if (input instanceof ContextNBT contextNBT) {
                 result.set(contextNBT.target().serializedString());
             }
         }
 
         @Override
-        public boolean canDeserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) {
+        public boolean canDeserialize(@NotNull ConfigurationNode input, @NotNull Trove loader) {
             return input.rawScalar() instanceof String;
         }
 
         @SuppressWarnings("DataFlowIssue")
         @Override
-        public @NotNull LootNBT deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException {
+        public @NotNull LootNBT deserialize(@NotNull ConfigurationNode input, @NotNull Trove loader) throws ConfigurateException {
             var target = fromString(input.getString());
             if (target == null) {
                 throw new ConfigurateException(input, "Could not read block entity or a RelevantEntity from the provided node");
@@ -137,7 +136,7 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
     }
 
     @Override
-    public @Nullable NBT getNBT(@NotNull LootGenerationContext context) {
+    public @Nullable NBT getNBT(@NotNull LootContext context) {
         return target.getNBT(context);
     }
 

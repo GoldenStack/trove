@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
@@ -57,7 +57,7 @@ public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
     private static final @NotNull Tag<List<NBT>> EFFECTS_NBT = Tag.NBT("Effects").list().defaultValue(List::of);
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
+    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return input;
         }

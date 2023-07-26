@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.util.check;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import net.minestom.server.item.Enchantment;
@@ -14,8 +14,8 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.enchantment;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.numberRange;
 
 /**
- * A check that verifies a map of an enchantment with an optional enchantment and a range. See {@link #verify(LootGenerationContext, Map)}
- * for details.
+ * A check that verifies a map of an enchantment with an optional enchantment and a range. See
+ * {@link #verify(LootContext, Map)} for details.
  * @param enchantmentType the optional enchantment
  * @param levels the range of valid levels
  */
@@ -39,7 +39,7 @@ public record EnchantmentCheck(@Nullable Enchantment enchantmentType, @NotNull L
      * @param enchantments the enchantment map to test
      * @return true if the provided enchantments pass this check, and false otherwise
      */
-    public boolean verify(@NotNull LootGenerationContext context, @NotNull Map<Enchantment, Short> enchantments) {
+    public boolean verify(@NotNull LootContext context, @NotNull Map<Enchantment, Short> enchantments) {
         if (enchantmentType != null) {
             Short level = enchantments.get(enchantmentType);
             return level != null && levels.check(context, level);

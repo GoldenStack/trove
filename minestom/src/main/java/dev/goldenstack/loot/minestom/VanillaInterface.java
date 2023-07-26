@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.minestom;
 
-import dev.goldenstack.loot.converter.LootConverter;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
@@ -92,24 +91,6 @@ public interface VanillaInterface {
      */
     default @Nullable ItemStack smeltItem(@NotNull ItemStack item) {
         throw new UnsupportedOperationException("VanillaInterface#smeltItem has not been implemented!");
-    }
-
-    /**
-     * Provides the converter for location predicates. These are the predicates that Minecraft uses for locations, such
-     * as for advancements and loot tables.
-     * @return the converter for location predicates
-     */
-    default @NotNull LootConverter<LocationPredicate> locationPredicateConverter() {
-        throw new UnsupportedOperationException("VanillaInterface#locationPredicateConverter has not been implemented!");
-    }
-
-    /**
-     * Provides the converter for entity predicates. These are the predicates that Minecraft uses for entities, such as
-     * in loot tables and various game mechanics.
-     * @return the converter for entities
-     */
-    default @NotNull LootConverter<EntityPredicate> entityPredicateConverter() {
-        throw new UnsupportedOperationException("VanillaInterface#entityPredicateConverter has not been implemented!");
     }
 
     /**

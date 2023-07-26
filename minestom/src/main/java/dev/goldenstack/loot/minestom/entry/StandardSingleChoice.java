@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.structure.LootEntry;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,16 +16,16 @@ public interface StandardSingleChoice extends LootEntry, LootEntry.Choice, Stand
      * @param context the context to use
      * @return true if this choice should generate a choice
      */
-    default boolean shouldGenerate(@NotNull LootGenerationContext context) {
+    default boolean shouldGenerate(@NotNull LootContext context) {
         return true;
     }
 
     /**
-     * Requests choices, returning none if {@link #shouldGenerate(LootGenerationContext)} is not true;
+     * Requests choices, returning none if {@link #shouldGenerate(LootContext)} is not true;
      * {@inheritDoc}
      */
     @Override
-    default @NotNull List<Choice> requestChoices(@NotNull LootGenerationContext context) {
+    default @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
         return shouldGenerate(context) ? List.of(this) : List.of();
     }
 

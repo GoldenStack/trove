@@ -1,8 +1,7 @@
 package dev.goldenstack.loot.converter.meta;
 
-import dev.goldenstack.loot.context.LootConversionContext;
+import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
-import dev.goldenstack.loot.converter.LootConverter;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;
@@ -17,7 +16,7 @@ import java.util.*;
  * Manages serialization for when multiple subtypes of a base class must be chosen from.
  * @param <V> the base type of object that will be converted
  */
-public class LootConversionManager<V> implements LootConverter<V> {
+public class LootConversionManager<V> implements TypedLootConverter<V> {
 
     private final @NotNull TypeToken<V> baseType;
     private final @NotNull String keyLocation;
@@ -56,7 +55,8 @@ public class LootConversionManager<V> implements LootConverter<V> {
      * @return the base type that all conditional converters must handle and that all keyed converters must handle a
      *         subtype of
      */
-    public @NotNull TypeToken<V> baseType() {
+    @Override
+    public @NotNull TypeToken<V> convertedType() {
         return baseType;
     }
 
@@ -74,11 +74,11 @@ public class LootConversionManager<V> implements LootConverter<V> {
      * @param context the context object, to use if required
      * @throws ConfigurateException if the input could not be serialized for some reason
      */
-    public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
+    public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException {
         serialize0(input, result, context);
     }
 
-    private <R extends V> void serialize0(@NotNull R input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
+    private <R extends V> void serialize0(@NotNull R input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException {
         if (!initialConverters.isEmpty()) {
             for (var conditional : initialConverters) {
                 if (conditional.canSerialize(input, context)) {
@@ -112,7 +112,7 @@ public class LootConversionManager<V> implements LootConverter<V> {
      * @throws ConfigurateException if the input could not be deserialized for some reason
      */
     @Override
-    public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException {
+    public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull Trove context) throws ConfigurateException {
         if (!initialConverters.isEmpty()) {
             for (var conditional : initialConverters) {
                 if (conditional.canDeserialize(input, context)) {
@@ -129,7 +129,7 @@ public class LootConversionManager<V> implements LootConverter<V> {
 
         KeyedLootConverter<? extends V> converter = directKeyRegistry.get(actualKey);
         if (converter == null) {
-            throw new ConfigurateException(keyNode, "Unknown key '" + actualKey + "' for base type '" + baseType().getType() + "'");
+            throw new ConfigurateException(keyNode, "Unknown key '" + actualKey + "' for base type '" + convertedType().getType() + "'");
         }
         return converter.deserialize(input, context);
     }

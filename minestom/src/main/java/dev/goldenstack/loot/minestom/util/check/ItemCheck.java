@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.util.check;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import net.minestom.server.gamedata.tags.Tag;
@@ -62,7 +62,7 @@ public record ItemCheck(@NotNull NBTCheck nbtCheck,
             ).converter();
 
     @SuppressWarnings("UnstableApiUsage")
-    public boolean verify(@NotNull LootGenerationContext context, @NotNull ItemStack item) {
+    public boolean verify(@NotNull LootContext context, @NotNull ItemStack item) {
         if (!nbtCheck.verify(item.meta().toNBT())) return false;
 
         if (!count.check(context, item.amount())) return false;

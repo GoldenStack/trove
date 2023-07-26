@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ public record RandomChanceCondition(double chance) implements LootCondition {
             ).keyed("minecraft:random_chance");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         return context.random().nextDouble() < chance;
     }
 }

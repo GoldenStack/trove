@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.structure;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -15,7 +15,7 @@ public interface LootCondition {
      * @param context the context object, to use if required
      * @return true if the provided loot context is valid according to this condition
      */
-    boolean verify(@NotNull LootGenerationContext context);
+    boolean verify(@NotNull LootContext context);
 
     /**
      * Checks to see if at least one condition in the provided collection verifies the context. After one condition
@@ -26,7 +26,7 @@ public interface LootCondition {
      * @param context the context, to feed to the conditions when they are being tested
      * @return true if at least one condition in the provided collection verifies the provided context
      */
-    static boolean or(@NotNull Collection<LootCondition> conditions, @NotNull LootGenerationContext context) {
+    static boolean or(@NotNull Collection<LootCondition> conditions, @NotNull LootContext context) {
         if (conditions.isEmpty()) {
             return false;
         }
@@ -47,7 +47,7 @@ public interface LootCondition {
      * @param context the context, to feed to the conditions when they are being tested
      * @return true if every condition in the provided collection verifies the provided context
      */
-    static boolean all(@NotNull Collection<LootCondition> conditions, @NotNull LootGenerationContext context) {
+    static boolean all(@NotNull Collection<LootCondition> conditions, @NotNull LootContext context) {
         if (conditions.isEmpty()) {
             return true;
         }
@@ -69,7 +69,7 @@ public interface LootCondition {
      * @param context the context, to feed to the conditions when they are being tested
      * @return true if at least {@code required} conditions in the provided collection verify the context
      */
-    static boolean some(@NotNull Collection<LootCondition> conditions, int required, @NotNull LootGenerationContext context) {
+    static boolean some(@NotNull Collection<LootCondition> conditions, int required, @NotNull LootContext context) {
         if (required <= 0) {
             return true;
         } else if (required > conditions.size()) {

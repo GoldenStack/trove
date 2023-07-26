@@ -1,10 +1,11 @@
 package dev.goldenstack.loot.converter.generator;
 
-import dev.goldenstack.loot.context.LootConversionContext;
+import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.LootDeserializer;
 import dev.goldenstack.loot.converter.LootSerializer;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.util.FallibleFunction;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
@@ -60,7 +61,7 @@ public class Converters {
          * Produces a loot converter that converts this type.
          * @return the produced converter
          */
-        @NotNull LootConverter<V> converter();
+        @NotNull TypedLootConverter<V> converter();
 
         /**
          * Produces a keyed loot converter with the provided key that converts this type.
@@ -68,7 +69,6 @@ public class Converters {
          * @return the produced keyed loot converter
          */
         @NotNull KeyedLootConverter<V> keyed(@NotNull String key);
-
     }
 
 }
@@ -150,11 +150,11 @@ class ConvertersImpl {
             }
         };
 
-        return new ConvertersImpl.ProducerImpl<>(TypeToken.get(type), LootConverter.join(actualSerializer, actualDeserializer));
+        return new ConvertersImpl.ProducerImpl<>(TypedLootConverter.join(type, LootConverter.join(actualSerializer, actualDeserializer)));
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
-    private static <T> @Nullable T deserialize(@NotNull Field<T> field, @NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException {
+    private static <T> @Nullable T deserialize(@NotNull Field<T> field, @NotNull ConfigurationNode input, @NotNull Trove context) throws ConfigurateException {
         if (input.isNull() && field.defaultValue() != null) {
             return field.defaultValue().get();
         }
@@ -163,7 +163,7 @@ class ConvertersImpl {
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
     @SuppressWarnings("unchecked")
-    private static <T> void serialize(@NotNull Field<T> field, @Nullable Object input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
+    private static <T> void serialize(@NotNull Field<T> field, @Nullable Object input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException {
         if (input == null) {
             if (field.defaultValue() != null) {
                 input = field.defaultValue().get();
@@ -178,11 +178,11 @@ class ConvertersImpl {
         field.converter().serialize((T) input, result, context);
     }
 
-    record ProducerImpl<V>(@NotNull TypeToken<V> type, @NotNull LootConverter<V> converter) implements Converters.Producer<V> {
+    record ProducerImpl<V>(@NotNull TypedLootConverter<V> converter) implements Converters.Producer<V> {
 
         @Override
         public @NotNull KeyedLootConverter<V> keyed(@NotNull String key) {
-            return KeyedLootConverter.create(key, type, converter);
+            return KeyedLootConverter.create(key, converter);
         }
     }
 

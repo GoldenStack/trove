@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
@@ -30,7 +30,7 @@ public record EntityCheckCondition(@NotNull RelevantEntity chosenEntity,
             ).keyed("minecraft:entity_properties");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         var entity = context.get(chosenEntity.key());
         var origin = context.get(LootContextKeys.ORIGIN);
 

@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
@@ -30,7 +30,7 @@ public record LocationCheckCondition(@NotNull VanillaInterface.LocationPredicate
             ).keyed("minecraft:location_check");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         var origin = context.get(LootContextKeys.ORIGIN);
 
         return origin == null ||

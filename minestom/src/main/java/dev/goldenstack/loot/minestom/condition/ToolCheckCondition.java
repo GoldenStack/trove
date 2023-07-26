@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.check.ItemCheck;
@@ -25,7 +25,7 @@ public record ToolCheckCondition(@NotNull ItemCheck toolCheck) implements LootCo
             ).keyed("minecraft:match_tool");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         ItemStack tool = context.get(LootContextKeys.TOOL);
 
         return tool == null || toolCheck.verify(context, tool);

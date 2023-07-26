@@ -89,7 +89,7 @@ public class LootConversionManagerTest {
         var manager = builder.build();
 
         var node = node();
-        manager.serialize(new A(), node, emptyConversionContext());
+        manager.serialize(new A(), node, Trove.builder().build());
 
         assertEquals(B.class, handle(manager, "location", "a").getClass());
         assertEquals(node(null), node);
@@ -107,14 +107,14 @@ public class LootConversionManagerTest {
         var manager = builder.build();
 
         var node = node();
-        manager.serialize(new A(), node, emptyConversionContext());
+        manager.serialize(new A(), node, Trove.builder().build());
 
         assertEquals(A.class, handle(manager, "location", "a").getClass());
         assertEquals(node(Map.of("location", "a")), node);
     }
 
     private static <O> @NotNull O handle(@NotNull LootConversionManager<O> deserializer, @NotNull String keyLocation, @NotNull String keyValue) throws ConfigurateException {
-        return deserializer.deserialize(node(Map.of(keyLocation, keyValue)), emptyConversionContext());
+        return deserializer.deserialize(node(Map.of(keyLocation, keyValue)), Trove.builder().build());
     }
 
 }

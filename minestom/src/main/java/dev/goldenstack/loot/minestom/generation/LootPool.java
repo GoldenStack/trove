@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.generation;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.generation.LootGenerator;
@@ -48,7 +48,7 @@ public record LootPool(@NotNull LootNumber rolls,
     }
 
     @Override
-    public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
+    public @NotNull LootBatch generate(@NotNull LootContext context) {
         if (!LootCondition.all(conditions, context)) {
             return LootBatch.of();
         }

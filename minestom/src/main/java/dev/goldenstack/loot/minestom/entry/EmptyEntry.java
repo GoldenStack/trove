@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -40,12 +40,12 @@ public record EmptyEntry(long weight, long quality,
     }
 
     @Override
-    public boolean shouldGenerate(@NotNull LootGenerationContext context) {
+    public boolean shouldGenerate(@NotNull LootContext context) {
         return LootCondition.all(conditions(), context);
     }
 
     @Override
-    public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
+    public @NotNull LootBatch generate(@NotNull LootContext context) {
         return LootBatch.EMPTY;
     }
 }

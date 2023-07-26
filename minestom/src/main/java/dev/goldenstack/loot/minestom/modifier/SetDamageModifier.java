@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -37,7 +37,7 @@ public record SetDamageModifier(@NotNull List<LootCondition> conditions,
             ).keyed("minecraft:set_damage");
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
+    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return input;
         }

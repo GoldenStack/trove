@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -21,7 +21,7 @@ public record SurvivesExplosionCondition() implements LootCondition {
             converter(SurvivesExplosionCondition.class).keyed("minecraft:survives_explosion");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         Float radius = context.get(LootContextKeys.EXPLOSION_RADIUS);
         return radius == null || context.random().nextFloat() <= (1 / radius);
     }

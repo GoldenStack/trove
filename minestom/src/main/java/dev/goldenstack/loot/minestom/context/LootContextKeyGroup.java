@@ -110,20 +110,13 @@ public record LootContextKeyGroup(@NotNull String id, @NotNull Set<LootContext.K
     }
 
     /**
-     * Assures that all of the expected keys are in the provided loot context and that the only keys in the provided
-     * context are permitted. The result is returned as a boolean.
+     * Assures that all of the expected keys are in the provided loot context.
      * @param context the context to test the information of
      * @return true if the context is valid according to this group
      */
     public boolean verify(@NotNull LootContext context) {
-        var information = context.information();
         for (var key : expected) {
-            if (!information.containsKey(key)) {
-                return false;
-            }
-        }
-        for (var key : information.keySet()) {
-            if (!permitted.contains(key)) {
+            if (!context.has(key)) {
                 return false;
             }
         }
@@ -131,15 +124,14 @@ public record LootContextKeyGroup(@NotNull String id, @NotNull Set<LootContext.K
     }
 
     /**
-     * Assures that all of the expected keys are in the provided loot context and that the only keys in the provided
-     * context are permitted. If this fails, an exception that explains why is thrown.
+     * Assures that all of the expected keys are in the provided loot context. If this fails, an exception that explains
+     * why is thrown.
      * @param context the context to test the information of
      */
     public void assureVerified(@NotNull LootContext context) {
-        var information = context.information();
         for (var key : expected) {
-            if (!information.containsKey(key)) {
-                throw new IllegalArgumentException("Provided context does not have key '" + key.key() + "'");
+            if (!context.has(key)) {
+                throw new IllegalArgumentException("Provided context does not have key '" + key.name() + "'");
             }
         }
     }

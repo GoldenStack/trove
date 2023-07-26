@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -20,7 +20,7 @@ public record KilledByPlayerCondition() implements LootCondition {
             converter(KilledByPlayerCondition.class).keyed("minecraft:killed_by_player");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         return context.has(LootContextKeys.LAST_DAMAGE_PLAYER);
     }
 }

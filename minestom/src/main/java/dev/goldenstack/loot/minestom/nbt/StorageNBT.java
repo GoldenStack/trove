@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.nbt;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import net.minestom.server.utils.NamespaceID;
@@ -28,7 +28,7 @@ public record StorageNBT(@NotNull NamespaceID storageKey) implements LootNBT {
             ).keyed("minecraft:storage");
 
     @Override
-    public @NotNull NBT getNBT(@NotNull LootGenerationContext context) {
+    public @NotNull NBT getNBT(@NotNull LootContext context) {
         var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
 
         var nbt = vanilla.getCommandStorageValue(storageKey);

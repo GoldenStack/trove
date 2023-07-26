@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.structure;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.generation.LootBatch;
 import io.leangen.geantyref.GenericTypeReflector;
 import org.jetbrains.annotations.NotNull;
@@ -21,21 +21,20 @@ public interface LootModifier {
      * @param context the context object, to use if required
      * @return the modified form of the input
      */
-    @NotNull LootBatch modify(@NotNull LootBatch input, @NotNull LootGenerationContext context);
+    @NotNull LootBatch modify(@NotNull LootBatch input, @NotNull LootContext context);
 
     /**
      * A function that only modifies a specific type, calling the individual modifier
-     * {@link #modify(Object, LootGenerationContext)} for each valid instance in each provided batch.
+     * {@link #modify(Object, LootContext)} for each valid instance in each provided batch.
      * @param <T> the type to filter
      */
     interface Filtered<T> extends LootModifier {
 
         /**
-         * Calls {@link #modify(Object, LootGenerationContext)} for each input that is a subtype of
-         * {@link #filteredType()}.
+         * Calls {@link #modify(Object, LootContext)} for each input that is a subtype of {@link #filteredType()}.
          */
         @Override
-        default @NotNull LootBatch modify(@NotNull LootBatch input, @NotNull LootGenerationContext context) {
+        default @NotNull LootBatch modify(@NotNull LootBatch input, @NotNull LootContext context) {
             return input.<T>modify(filteredType(), object -> modify(object, context));
         }
 
@@ -46,7 +45,7 @@ public interface LootModifier {
          * @return the modified object (of any type), or null if the input object shouldn't be added to the filtered
          *         batch for some reason
          */
-        @Nullable Object modify(@NotNull T input, @NotNull LootGenerationContext context);
+        @Nullable Object modify(@NotNull T input, @NotNull LootContext context);
 
         /**
          * Returns the type that this filtered modifier will modify. This will be used with
@@ -66,7 +65,7 @@ public interface LootModifier {
      * @param context the context object, to use if required
      * @return the item with all modifiers applied
      */
-    static @NotNull LootBatch applyAll(@NotNull Collection<LootModifier> modifiers, @NotNull LootBatch input, @NotNull LootGenerationContext context) {
+    static @NotNull LootBatch applyAll(@NotNull Collection<LootModifier> modifiers, @NotNull LootBatch input, @NotNull LootContext context) {
         if (modifiers.isEmpty()) {
             return input;
         }

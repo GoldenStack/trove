@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.number;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ public record BinomialNumber(@NotNull LootNumber trials, @NotNull LootNumber pro
             ).keyed("minecraft:binomial");
 
     @Override
-    public long getLong(@NotNull LootGenerationContext context) {
+    public long getLong(@NotNull LootContext context) {
         long trials = trials().getLong(context);
         double probability = probability().getDouble(context);
         int successes = 0;
@@ -38,7 +38,7 @@ public record BinomialNumber(@NotNull LootNumber trials, @NotNull LootNumber pro
     }
 
     @Override
-    public double getDouble(@NotNull LootGenerationContext context) {
+    public double getDouble(@NotNull LootContext context) {
         return getLong(context);
     }
 }

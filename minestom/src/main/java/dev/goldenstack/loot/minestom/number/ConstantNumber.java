@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.number;
 
-import dev.goldenstack.loot.context.LootConversionContext;
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.Trove;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootNumber;
@@ -24,22 +24,22 @@ public record ConstantNumber(double value) implements LootNumber {
      */
     public static final @NotNull ConditionalLootConverter<LootNumber> ACCURATE_CONVERTER = new ConditionalLootConverter<>() {
         @Override
-        public boolean canSerialize(@NotNull LootNumber input, @NotNull LootConversionContext context) {
+        public boolean canSerialize(@NotNull LootNumber input, @NotNull Trove loader) {
             return input instanceof ConstantNumber;
         }
 
         @Override
-        public void serialize(@NotNull LootNumber input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException {
+        public void serialize(@NotNull LootNumber input, @NotNull ConfigurationNode result, @NotNull Trove loader) throws ConfigurateException {
             result.set(((ConstantNumber) input).value());
         }
 
         @Override
-        public boolean canDeserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) {
+        public boolean canDeserialize(@NotNull ConfigurationNode input, @NotNull Trove loader) {
             return input.rawScalar() instanceof Number;
         }
 
         @Override
-        public @NotNull LootNumber deserialize(@NotNull ConfigurationNode input, @NotNull LootConversionContext context) throws ConfigurateException {
+        public @NotNull LootNumber deserialize(@NotNull ConfigurationNode input, @NotNull Trove loader) throws ConfigurateException {
             return new ConstantNumber(input.require(Double.class));
         }
     };
@@ -53,12 +53,12 @@ public record ConstantNumber(double value) implements LootNumber {
             ).keyed("minecraft:constant");
 
     @Override
-    public long getLong(@NotNull LootGenerationContext context) {
+    public long getLong(@NotNull LootContext context) {
         return Math.round(value);
     }
 
     @Override
-    public double getDouble(@NotNull LootGenerationContext context) {
+    public double getDouble(@NotNull LootContext context) {
         return value;
     }
 }

@@ -1,7 +1,8 @@
 package dev.goldenstack.loot.minestom;
 
 import dev.goldenstack.loot.Trove;
-import dev.goldenstack.loot.context.LootConversionContext;
+import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
 import dev.goldenstack.loot.minestom.generation.LootTable;
 import dev.goldenstack.loot.minestom.util.FallbackVanillaInterface;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,9 +32,36 @@ import static dev.goldenstack.loot.minestom.context.LootContextKeyGroup.*;
 public class TroveMinestom {
 
     /**
+     * The standard map of key groups.
+     */
+    public static final @NotNull Map<String, LootContextKeyGroup> STANDARD_GROUPS = Stream.of(
+            EMPTY, CHEST, COMMAND, SELECTOR, FISHING, ENTITY, GIFT, BARTER, ADVANCEMENT_REWARD, ADVANCEMENT_ENTITY, GENERIC, BLOCK
+    ).collect(Collectors.toMap(LootContextKeyGroup::id, Function.identity()));
+
+    /**
      * The default Trove instance that contains all of the default information for loading loot tables.
      */
-    public static final @NotNull Trove DEFAULT_LOADER = MinestomLoader.initializeBuilder(Trove.builder()).build();
+    public static final @NotNull Trove DEFAULT_LOADER =
+            MinestomLoader.initializeBuilder(Trove.builder())
+                    .add(TypedLootConverter.join(VanillaInterface.EntityPredicate.class, LootConverter.join(
+                            (input, result, context) -> {},
+                            (input, context) -> (world, location, entity) -> false
+                    )))
+                    .add(TypedLootConverter.join(VanillaInterface.LocationPredicate.class, LootConverter.join(
+                            (input, result, context) -> {},
+                            (input, context) -> (world, location) -> false
+                    )))
+                    .add(TypedLootConverter.join(LootContextKeyGroup.class, LootConverter.join(
+                            (input, result, context) -> result.set(input.id()),
+                            (input, context) -> {
+                                var id = input.getString();
+                                if (id == null) {
+                                    throw new SerializationException(input, String.class, "Expected a string");
+                                }
+                                return STANDARD_GROUPS.get(id);
+                            }
+                    )))
+                    .build();
 
     /**
      * The default vanilla interface implementation for {@link dev.goldenstack.loot.minestom.context.LootContextKeys#VANILLA_INTERFACE}.
@@ -40,22 +69,15 @@ public class TroveMinestom {
     public static final @NotNull VanillaInterface DEFAULT_INTERFACE = new FallbackVanillaInterface() {};
 
     /**
-     * The standard map of key groups for {@link dev.goldenstack.loot.minestom.context.LootConversionKeys#CONTEXT_KEYS}.
-     */
-    public static final @NotNull Map<String, LootContextKeyGroup> STANDARD_GROUPS = Stream.of(
-            EMPTY, CHEST, COMMAND, SELECTOR, FISHING, ENTITY, GIFT, BARTER, ADVANCEMENT_REWARD, ADVANCEMENT_ENTITY, GENERIC, BLOCK
-    ).collect(Collectors.toMap(LootContextKeyGroup::id, Function.identity()));
-
-    /**
      * Reads a loot table from the provided path.
      * @param path the path to read from
-     * @param context the context to provide to the parser
+     * @param loader the loader to provide to the parser
      * @return the parsed loot table
      * @throws ConfigurateException if a loot table could not be read from the provided path
      */
-    public static @NotNull LootTable readTable(@NotNull Path path, @NotNull LootConversionContext context) throws ConfigurateException {
+    public static @NotNull LootTable readTable(@NotNull Path path, @NotNull Trove loader) throws ConfigurateException {
         var root = GsonConfigurationLoader.builder().source(() -> Files.newBufferedReader(path)).build().load();
-        return LootTable.CONVERTER.deserialize(root, context);
+        return LootTable.CONVERTER.deserialize(root, loader);
     }
 
     /**
@@ -109,10 +131,10 @@ public class TroveMinestom {
      * Parses every JSON file in the provided directory, or one of its subdirectories, into loot tables, returning the
      * results in to a table registry instance.
      * @param directory the directory to parse
-     * @param context the context to use for parsing
+     * @param loader the loader to use for parsing
      * @return the registry instance that contains parsing information
      */
-    public static @NotNull TableRegistry readTables(@NotNull Path directory, @NotNull LootConversionContext context) {
+    public static @NotNull TableRegistry readTables(@NotNull Path directory, @NotNull Trove loader) {
         Map<NamespaceID, LootTable> tables = new HashMap<>();
         Map<NamespaceID, ConfigurateException> exceptions = new HashMap<>();
 
@@ -137,7 +159,7 @@ public class TroveMinestom {
             NamespaceID key = NamespaceID.from(keyPath);
 
             try {
-                tables.put(key, readTable(path, context));
+                tables.put(key, readTable(path, loader));
             } catch (ConfigurateException exception) {
                 exceptions.put(key, exception);
             }

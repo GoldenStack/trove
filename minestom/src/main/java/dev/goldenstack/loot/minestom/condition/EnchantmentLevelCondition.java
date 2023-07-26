@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -30,7 +30,7 @@ public record EnchantmentLevelCondition(@NotNull Enchantment addedEnchantment,
             ).keyed("minecraft:table_bonus");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         var tool = context.get(LootContextKeys.TOOL);
 
         int level = tool != null ? tool.meta().getEnchantmentMap().getOrDefault(this.addedEnchantment, (short) 0) : 0;

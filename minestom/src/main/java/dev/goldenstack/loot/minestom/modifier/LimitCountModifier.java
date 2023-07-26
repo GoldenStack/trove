@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
@@ -34,7 +34,7 @@ public record LimitCountModifier(@NotNull List<LootCondition> conditions,
             ).keyed("minecraft:limit_count");
 
     @Override
-    public @Nullable Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
+    public @Nullable Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return input;
         }

@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.converter.generator;
 
-import dev.goldenstack.loot.context.LootConversionContext;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
@@ -94,40 +93,37 @@ public class FieldTypes {
      * @return a field converting loot conditions
      */
     public static @NotNull Field<LootCondition> condition() {
-        return field(LootCondition.class, converterFromContext(context -> context.loader().requireConverter(LootCondition.class)));
+        return field(LootCondition.class, loader(LootCondition.class));
     }
 
     /**
      * @return a field converting loot entries
      */
     public static @NotNull Field<LootEntry> entry() {
-        return field(LootEntry.class, converterFromContext(context -> context.loader().requireConverter(LootEntry.class)));
+        return field(LootEntry.class, loader(LootEntry.class));
     }
 
     /**
      * @return a field converting loot modifiers
      */
     public static @NotNull Field<LootModifier> modifier() {
-        return field(LootModifier.class, converterFromContext(context -> context.loader().requireConverter(LootModifier.class)));
+        return field(LootModifier.class, loader(LootModifier.class));
     }
 
     /**
      * @return a field converting loot numbers
      */
     public static @NotNull Field<LootNumber> number() {
-        return field(LootNumber.class, converterFromContext(context -> context.loader().requireConverter(LootNumber.class)));
+        return field(LootNumber.class, loader(LootNumber.class));
     }
 
     /**
-     * Creates a converter proxied by the converter returned by {@code converterFinder}.
-     * @param converterFinder the function that gets the converter
-     * @return a new converter that uses the finder to determine which one it is proxying
-     * @param <V> the converted type
+     * @return a field converting the provided type, relying on the Trove instance to provide the actual converter
      */
-    public static <V> @NotNull LootConverter<V> converterFromContext(@NotNull Function<LootConversionContext, LootConverter<V>> converterFinder) {
+    public static <V> @NotNull LootConverter<V> loader(@NotNull Class<V> type) {
         return LootConverter.join(
-                (input, result, context) -> converterFinder.apply(context).serialize(input, result, context),
-                (input, context) -> converterFinder.apply(context).deserialize(input, context)
+                (input, result, context) -> context.require(type).serialize(input, result, context),
+                (input, context) -> context.require(type).deserialize(input, context)
         );
     }
 

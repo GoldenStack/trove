@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,7 @@ public record InvertedCondition(@NotNull LootCondition original) implements Loot
             ).keyed("minecraft:inverted");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         return !original.verify(context);
     }
 }

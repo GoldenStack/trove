@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
@@ -29,7 +29,7 @@ public record ExplosionDecayModifier(@NotNull List<LootCondition> conditions) im
             ).keyed("minecraft:explosion_decay");
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
+    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context) || !context.has(LootContextKeys.EXPLOSION_RADIUS)) {
             return input;
         }

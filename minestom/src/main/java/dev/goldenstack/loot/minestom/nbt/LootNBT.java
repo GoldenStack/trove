@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.nbt;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
@@ -15,6 +15,6 @@ public interface LootNBT {
      * @param context the context to use for NBT
      * @return the NBT, or null if there is none
      */
-    @Nullable NBT getNBT(@NotNull LootGenerationContext context);
+    @Nullable NBT getNBT(@NotNull LootContext context);
 
 }

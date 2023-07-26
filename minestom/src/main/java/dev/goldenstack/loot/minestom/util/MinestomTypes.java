@@ -5,8 +5,6 @@ import dev.goldenstack.loot.converter.generator.Field;
 import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
-import dev.goldenstack.loot.minestom.context.LootContextKeys;
-import dev.goldenstack.loot.minestom.context.LootConversionKeys;
 import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
 import dev.goldenstack.loot.minestom.nbt.LootNBT;
@@ -27,7 +25,6 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 import org.jglrxavpok.hephaistos.parser.SNBTParser;
 import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.io.StringReader;
 import java.util.Collection;
@@ -44,7 +41,7 @@ import static dev.goldenstack.loot.converter.generator.Field.field;
 public class MinestomTypes extends FieldTypes {
 
     public static @NotNull Field<LootNBT> lootNBT() {
-        return field(LootNBT.class, converterFromContext(context -> context.loader().requireConverter(LootNBT.class)));
+        return field(LootNBT.class, loader(LootNBT.class));
     }
 
     /**
@@ -100,16 +97,14 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting location predicates
      */
     public static @NotNull Field<VanillaInterface.LocationPredicate> locationPredicate() {
-        return field(VanillaInterface.LocationPredicate.class,
-                converterFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).locationPredicateConverter()));
+        return field(VanillaInterface.LocationPredicate.class, loader(VanillaInterface.LocationPredicate.class));
     }
 
     /**
      * @return a field converting entity predicates
      */
     public static @NotNull Field<VanillaInterface.EntityPredicate> entityPredicate() {
-        return field(VanillaInterface.EntityPredicate.class,
-                converterFromContext(context -> context.assure(LootContextKeys.VANILLA_INTERFACE).entityPredicateConverter()));
+        return field(VanillaInterface.EntityPredicate.class, loader(VanillaInterface.EntityPredicate.class));
     }
 
     /**
@@ -123,16 +118,7 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting context key groups
      */
     public static @NotNull Field<LootContextKeyGroup> keyGroup() {
-        return field(LootContextKeyGroup.class, LootConverter.join(
-                (input, result, context) -> result.set(input.id()),
-                (input, context) -> {
-                    var id = input.getString();
-                    if (id == null) {
-                        throw new SerializationException(input, String.class, "Expected a string");
-                    }
-                    return context.assure(LootConversionKeys.CONTEXT_KEYS).get(id);
-                }
-        ));
+        return field(LootContextKeyGroup.class, loader(LootContextKeyGroup.class));
     }
 
     /**

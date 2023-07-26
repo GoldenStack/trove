@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ public record AndCondition(@NotNull List<LootCondition> conditions) implements L
             ).keyed("minecraft:all_of");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         return LootCondition.all(conditions(), context);
     }
 }

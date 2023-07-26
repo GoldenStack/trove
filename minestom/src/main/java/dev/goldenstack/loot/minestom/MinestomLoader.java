@@ -20,8 +20,6 @@ import dev.goldenstack.loot.structure.LootNumber;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Consumer;
-
 /**
  * Utilities and functions to initialize Trove instances for Minestom.
  */
@@ -35,18 +33,16 @@ public class MinestomLoader {
      */
     public static @NotNull Trove.Builder initializeBuilder(@NotNull Trove.Builder builder) {
         return builder
-                .newBuilder(MinestomLoader::initializeEntryBuilder)
-                .newBuilder(MinestomLoader::initializeModifierBuilder)
-                .newBuilder(MinestomLoader::initializeConditionBuilder)
-                .newBuilder(MinestomLoader::initializeNumberBuilder)
-                .newBuilder(MinestomLoader::initializeNbtBuilder);
+                .add(createEntryBuilder().build())
+                .add(createModifierBuilder().build())
+                .add(createConditionBuilder().build())
+                .add(createNumberBuilder().build())
+                .add(createNbtBuilder().build());
     }
 
-    /**
-     * When passed into {@link Trove.Builder#newBuilder(Consumer)}, adds the required
-     * information to the loader.
-     */
-    public static void initializeEntryBuilder(@NotNull LootConversionManager.Builder<LootEntry> builder) {
+    public static @NotNull LootConversionManager.Builder<LootEntry> createEntryBuilder() {
+        LootConversionManager.Builder<LootEntry> builder = LootConversionManager.builder();
+
         // Basic data
         builder.baseType(TypeToken.get(LootEntry.class));
         builder.keyLocation("type");
@@ -60,13 +56,13 @@ public class MinestomLoader {
         builder.addConverter(SequenceEntry.CONVERTER);
         builder.addConverter(TableEntry.CONVERTER);
         builder.addConverter(TagEntry.CONVERTER);
+
+        return builder;
     }
 
-    /**
-     * When passed into {@link Trove.Builder#newBuilder(Consumer)}, adds the required
-     * information to the loader.
-     */
-    public static void initializeModifierBuilder(@NotNull LootConversionManager.Builder<LootModifier> builder) {
+    public static @NotNull LootConversionManager.Builder<LootModifier> createModifierBuilder() {
+        LootConversionManager.Builder<LootModifier> builder = LootConversionManager.builder();
+
         // Basic data
         builder.baseType(TypeToken.get(LootModifier.class));
         builder.keyLocation("function");
@@ -89,13 +85,13 @@ public class MinestomLoader {
         builder.addConverter(SetPotionModifier.CONVERTER);
         builder.addConverter(SetStewEffectModifier.CONVERTER);
         builder.addConverter(SmeltItemModifier.CONVERTER);
+
+        return builder;
     }
 
-    /**
-     * When passed into {@link Trove.Builder#newBuilder(Consumer)}, adds the required
-     * information to the loader.
-     */
-    public static void initializeConditionBuilder(@NotNull LootConversionManager.Builder<LootCondition> builder) {
+    public static @NotNull LootConversionManager.Builder<LootCondition> createConditionBuilder() {
+        LootConversionManager.Builder<LootCondition> builder = LootConversionManager.builder();
+
         // Basic data
         builder.baseType(TypeToken.get(LootCondition.class));
         builder.keyLocation("condition");
@@ -117,13 +113,13 @@ public class MinestomLoader {
         builder.addConverter(TimeCheckCondition.CONVERTER);
         builder.addConverter(ToolCheckCondition.CONVERTER);
         builder.addConverter(WeatherCheckCondition.CONVERTER);
+
+        return builder;
     }
 
-    /**
-     * When passed into {@link Trove.Builder#newBuilder(Consumer)}, adds the required
-     * information to the loader.
-     */
-    public static void initializeNumberBuilder(@NotNull LootConversionManager.Builder<LootNumber> builder) {
+    public static @NotNull LootConversionManager.Builder<LootNumber> createNumberBuilder() {
+        LootConversionManager.Builder<LootNumber> builder = LootConversionManager.builder();
+
         // Basic data
         builder.baseType(TypeToken.get(LootNumber.class));
         builder.keyLocation("type");
@@ -133,13 +129,13 @@ public class MinestomLoader {
         builder.addConverter(ConstantNumber.CONVERTER);
         builder.addConverter(BinomialNumber.CONVERTER);
         builder.addConverter(UniformNumber.CONVERTER);
+
+        return builder;
     }
 
-    /**
-     * When passed into {@link Trove.Builder#newBuilder(Consumer)}, adds the required
-     * information to the loader.
-     */
-    public static void initializeNbtBuilder(@NotNull LootConversionManager.Builder<LootNBT> builder) {
+    public static @NotNull LootConversionManager.Builder<LootNBT> createNbtBuilder() {
+        LootConversionManager.Builder<LootNBT> builder = LootConversionManager.builder();
+
         // Basic data
         builder.baseType(TypeToken.get(LootNBT.class));
         builder.keyLocation("type");
@@ -148,6 +144,8 @@ public class MinestomLoader {
         builder.addInitialConverter(ContextNBT.ACCURATE_CONVERTER);
         builder.addConverter(ContextNBT.CONVERTER);
         builder.addConverter(StorageNBT.CONVERTER);
+
+        return builder;
     }
 
 }

@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
@@ -43,7 +43,7 @@ public record CopyStateModifier(@NotNull List<LootCondition> conditions, @NotNul
     private static final @NotNull Tag<NBTCompound> BLOCK_STATE_TAG = Tag.Structure("BlockStateTag", TagSerializer.COMPOUND).defaultValue(new NBTCompound());
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
+    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context) || !context.has(LootContextKeys.BLOCK_STATE)) {
             return input;
         }

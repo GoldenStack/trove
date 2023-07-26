@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -28,7 +28,7 @@ public record LootingRandomChanceCondition(double chance, double lootingCoeffici
             ).keyed("minecraft:random_chance_with_looting");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         var killer = context.assure(LootContextKeys.KILLER_ENTITY);
         var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
 

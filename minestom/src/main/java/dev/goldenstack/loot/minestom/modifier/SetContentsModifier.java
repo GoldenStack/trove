@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.generation.LootProcessor;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
@@ -48,7 +48,7 @@ public record SetContentsModifier(@NotNull List<LootCondition> conditions,
     private static final @NotNull Tag<NBTCompound> BLOCK_ENTITY_TAG = Tag.Structure("BlockEntityTag", TagSerializer.COMPOUND);
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
+    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context) || input.isAir()) {
             return input;
         }

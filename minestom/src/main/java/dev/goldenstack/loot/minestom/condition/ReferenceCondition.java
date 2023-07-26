@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -25,7 +25,7 @@ public record ReferenceCondition(@NotNull NamespaceID id) implements LootConditi
             ).keyed("minecraft:reference");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         var registered = context.assure(LootContextKeys.REGISTERED_CONDITIONS);
         var condition = registered.get(this.id);
         return condition != null && condition.verify(context);

@@ -1,8 +1,7 @@
 package dev.goldenstack.loot.minestom.util;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.LootConverter;
-import dev.goldenstack.loot.converter.meta.LootConversionManager;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
@@ -24,17 +23,17 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
     public static final @NotNull LootConverter<LootNumberRange> CONVERTER = LootConverter.join(
             (input, result, context) -> {
                 if (input.min != null) {
-                    context.loader().requireConverter(LootNumber.class).serialize(input.min, result.node("min"), context);
+                    context.require(LootNumber.class).serialize(input.min, result.node("min"), context);
                 }
                 if (input.max != null) {
-                    context.loader().requireConverter(LootNumber.class).serialize(input.max, result.node("min"), context);
+                    context.require(LootNumber.class).serialize(input.max, result.node("min"), context);
                 }
             },
             (input, context) -> {
                 if (input.isNull()) {
                     return new LootNumberRange(null, null);
                 } else if (input.isMap()) {
-                    LootConversionManager<LootNumber> converter = context.loader().requireConverter(LootNumber.class);
+                    LootConverter<LootNumber> converter = context.require(LootNumber.class);
                     return new LootNumberRange(
                             input.hasChild("min") ? converter.deserialize(input.node("min"), context) : null,
                             input.hasChild("max") ? converter.deserialize(input.node("max"), context) : null
@@ -59,7 +58,7 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
      * @param number the number to constrain to between the minimum and maximum
      * @return the constrained number
      */
-    public long limit(@NotNull LootGenerationContext context, long number) {
+    public long limit(@NotNull LootContext context, long number) {
         if (this.min != null) {
             number = Math.max(this.min.getLong(context), number);
         }
@@ -77,7 +76,7 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
      * @param number the number to constrain to between the minimum and maximum
      * @return the constrained number
      */
-    public double limit(@NotNull LootGenerationContext context, double number) {
+    public double limit(@NotNull LootContext context, double number) {
         if (this.min != null) {
             number = Math.max(this.min.getDouble(context), number);
         }
@@ -94,7 +93,7 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
      * @param number the number to check the validity of
      * @return true if the provided number fits within {@link #min()} and {@link #max()}, and false otherwise
      */
-    public boolean check(@NotNull LootGenerationContext context, long number) {
+    public boolean check(@NotNull LootContext context, long number) {
         return (this.min == null || this.min.getLong(context) <= number) &&
                 (this.max == null || this.max.getLong(context) >= number);
     }
@@ -106,7 +105,7 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
      * @param number the number to check the validity of
      * @return true if the provided number fits within {@link #min()} and {@link #max()}, and false otherwise
      */
-    public boolean check(@NotNull LootGenerationContext context, double number) {
+    public boolean check(@NotNull LootContext context, double number) {
         return (this.min == null || this.min.getDouble(context) <= number) &&
                 (this.max == null || this.max.getDouble(context) >= number);
     }

@@ -5,128 +5,149 @@ import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
-import java.lang.reflect.Type;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
- * A context interface, meant as a base for when some commonly made operation needs to handle customizable context in
- * its input. This is done with a simple map, but with keys that hold their own {@link TypeToken} so that their types
- * can be verified during runtime.<br>
- * Essentially, this basic interface is a type-safe immutable map wrapper with a few convenience methods while still
- * allowing access to the internal (and also immutable) map.
+ * Stores information that may be relevant during the generation of loot.
  */
-public interface LootContext {
+public sealed interface LootContext permits LootContextImpl {
 
     /**
-     * A simple way to store a key along with its type. Generally, instances of this should be stored and not created on
-     * demand.<br>
-     * Note: this class's {@link #equals(Object)} and {@link #hashCode()} method do not take each instance's type token
-     * into account, as they would make the token do something other than act as a passive marker of the type that can
-     * be used when needed. Be aware of that when using this class.<br>
-     * Additionally, an object can be stored by this key if it is a subtype of {@link T} - exact equality of classes is
-     * not checked. For specificity, all internal comparison is done with
-     * {@link GenericTypeReflector#isSuperType(Type, Type)}.
-     * @param key the string key of this object
-     * @param token the type token, storing, during runtime, the exact type of value that this key can work with
-     * @param <T> this key's type, representing which type of objects can be set as its value when entered into a
-     *            LootContext
+     * Represents some abstract key in some loot context. This will not
+     * @param name the name of this key that values will be stored under
+     * @param type the token storing the type of this key
+     * @param <T> the type of this key
      */
-    record Key<T>(@NotNull String key, @NotNull TypeToken<T> token) {
-        @Override
-        public boolean equals(Object o) {
-            return this == o || (o instanceof Key<?> k && k.key.equals(key));
-        }
+    record Key<T>(@NotNull String name, @NotNull TypeToken<T> type) {}
 
-        @Override
-        public int hashCode() {
-            return key.hashCode();
-        }
+    /**
+     * Returns this context's {@link Random} instance.
+     * @return this context's random instance
+     */
+    @NotNull Random random();
+
+    /**
+     * Returns whether or not this context has the provided key.
+     * @param key the key to search for
+     * @return true if this context has the key, false if not
+     */
+    boolean has(@NotNull Key<?> key);
+
+    /**
+     * Gets the object associated with the provided key's name if it is of the key's type, returning null if not.
+     * @param key the key to search for
+     * @return the object associated with the provided key, or null if there is not one
+     * @param <T> the type of object desired
+     */
+    <T> @Nullable T get(@NotNull Key<T> key);
+
+    /**
+     * Gets the object associated with the provided key's name if it is of the key's type, returning the default value
+     * if not.
+     * @param key the key to search for
+     * @param defaultValue the default value to use
+     * @return the object associated with the provided key, or the default value if there is not one
+     * @param <T> the type of object desired
+     */
+    <T> @NotNull T get(@NotNull Key<T> key, @NotNull T defaultValue);
+
+    /**
+     * Gets the object associated with the provided key's name if it is of the key's type, throwing an exception if not.
+     * @param key the key to search for
+     * @return the object associated with the provided key
+     * @param <T> the type of object desired
+     */
+    <T> @NotNull T assure(@NotNull Key<T> key);
+
+    /**
+     * Creates a new LootContext builder.
+     * @return a new builder
+     */
+    static @NotNull Builder builder() {
+        return new Builder();
     }
 
-    /**
-     * Acquires this context's immutable and internal map of information. This should generally not be used, as the
-     * methods in this class itself are likely enough and are, importantly, safe, but it's open for usage if needed.
-     * @return the immutable map of keys to their values
-     */
-    @Unmodifiable
-    @Contract(pure = true)
-    @NotNull Map<Key<?>, Object> information();
+    final class Builder {
 
-    /**
-     * Checks if a value that is equal to or is a subtype of the provided key's type. This could return null for one of
-     * two reasons: first, if there is not a value present at the key's string, and second, if there is a value at the
-     * key, but it's not a subtype of (or equal to) the key's type. See the documentation of {@link Key} for more
-     * specific information.
-     * @param key the key to check for
-     * @return true if this context has the key and the value's type is applicable with the type of the provided key,
-     *         and false if otherwise
-     */
-    @Contract(pure = true)
-    default boolean has(@NotNull Key<?> key) {
+        private Random random;
+        private final Map<String, Object> information = new HashMap<>();
+
+        private Builder() {}
+
+        /**
+         * Sets the random instance that will be used when this builder is built.
+         * @param random the random instance
+         * @return this, for chaining
+         */
+        @Contract("_ -> this")
+        public @NotNull Builder random(@NotNull Random random) {
+            this.random = random;
+            return this;
+        }
+
+        /**
+         * Stores the value under the provided key when this builder is built.
+         * @param key the key to store the value under
+         * @param value the value to be stored
+         * @return this, for chaining
+         * @param <T> the type of the key being stored
+         */
+        @Contract("_, _ -> this")
+        public <T> @NotNull Builder with(@NotNull Key<T> key, @NotNull T value) {
+            information.put(key.name(), value);
+            return this;
+        }
+
+        /**
+         * Builds this builder into a new LootContext instance.
+         * @return the new loot context
+         */
+        @Contract(" -> new")
+        public @NotNull LootContext build() {
+            return new LootContextImpl(
+                    Objects.requireNonNull(random, "This builder cannot be built without a random number generator"),
+                    information
+            );
+        }
+
+    }
+
+}
+
+record LootContextImpl(@NotNull Random random, @NotNull Map<String, Object> information) implements LootContext {
+
+    LootContextImpl {
+        information = Map.copyOf(information);
+    }
+
+    @Override
+    public boolean has(@NotNull Key<?> key) {
         return get(key) != null;
     }
 
-    /**
-     * Gets the value from this map associated with the provided key if its type is a supertype of or is equal to the
-     * provided key's type, and returns null if there wasn't one. Check {@link #has(Key)} for more specific information
-     * on what this entails.
-     * @param key the key, to attempt to retrieve the value from
-     * @return the instance of {@link T} that is associated with the provided key, or null if there was not one
-     * @param <T> the type of the key to search for values of
-     */
     @SuppressWarnings("unchecked")
-    @Contract(pure = true)
-    default <T> @Nullable T get(@NotNull Key<T> key) {
-        Object object = information().get(key);
-        if (object != null && GenericTypeReflector.isSuperType(key.token().getType(), object.getClass())) {
+    @Override
+    public <T> @Nullable T get(@NotNull Key<T> key) {
+        var object = information.get(key.name());
+        if (object != null && GenericTypeReflector.isSuperType(key.type().getType(), object.getClass())) {
             return (T) object;
         }
         return null;
     }
 
-    /**
-     * Gets the value from this map associated with the provided key if its type is a supertype of or is equal to the
-     * provided key's type, and returns the default value if there wasn't one. Check {@link #has(Key)} for more specific
-     * information on what this entails.
-     * @param key the key, to attempt to retrieve the value from
-     * @param defaultValue the value to use if there is no value for the provided key
-     * @return the instance of {@link T} that is associated with the provided key, or the default value if there was not
-     *         one
-     * @param <T> the type of the key to search for values of
-     */
-    @SuppressWarnings("unchecked")
-    @Contract(pure = true)
-    default <T> @NotNull T get(@NotNull Key<T> key, @NotNull T defaultValue) {
-        Object object = information().get(key);
-        if (object != null && GenericTypeReflector.isSuperType(key.token().getType(), object.getClass())) {
-            return (T) object;
-        }
-        return defaultValue;
+    @Override
+    public <T> @NotNull T get(@NotNull Key<T> key, @NotNull T defaultValue) {
+        var get = get(key);
+        return get != null ? get : defaultValue;
     }
 
-    /**
-     * Assures that there is a value, of a type that works with the key's type, stored at the provided key. Refer to
-     * {@link #get(Key)} and {@link #has(Key)} for more specific information.
-     * @param key the key, to attempt to retrieve the value from
-     * @return the instance of {@link T} that is associated with the provided key
-     * @param <T> the type of the key to search for values of
-     * @throws NoSuchElementException if there is no value stored at the provided key or if it is of an invalid type.
-     *                                Note: the error thrown will specify whether it was an invalid type or if it was
-     *                                just null.
-     */
-    @SuppressWarnings("unchecked")
-    @Contract(pure = true)
-    default @NotNull <T> T assure(@NotNull Key<T> key) {
-        Object object = information().get(key);
-        if (object == null) {
-            throw new NoSuchElementException("Unknown key '" + key + "'");
-        } else if (!GenericTypeReflector.isSuperType(key.token().getType(), object.getClass())) {
-            throw new NoSuchElementException("Expected type '" + key.token.getType() + "' for key '" + key + "', found '" + object.getClass() + "'");
+    @Override
+    public <T> @NotNull T assure(@NotNull Key<T> key) {
+        var get = get(key);
+        if (get != null) {
+            return get;
         }
-        return (T) object;
+        throw new NoSuchElementException("No value for key '" + key + "' with type '" + key.type().getType() + "'");
     }
-
 }

@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
-import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
@@ -47,8 +46,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
             converter(BonusCountModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     enchantment().name("addedEnchantment").nodePath("enchantment"),
-                    field(BonusType.class, LootConverter.join(TYPE_CONVERTER::serialize, TYPE_CONVERTER::deserialize))
-                            .name("bonus").nodePath(List.of())
+                    field(BonusType.class, TYPE_CONVERTER).name("bonus").nodePath(List.of())
             ).keyed("minecraft:apply_bonus");
 
     /**
@@ -128,7 +126,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
     }
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootGenerationContext context) {
+    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context) || !context.has(LootContextKeys.TOOL)) {
             return input;
         }

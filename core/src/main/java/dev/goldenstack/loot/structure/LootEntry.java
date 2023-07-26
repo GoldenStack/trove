@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.structure;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.generation.LootGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +19,7 @@ public interface LootEntry {
      * @param context the context object, to use if required
      * @return a list, with undetermined mutability, containing the options that were generated
      */
-    @NotNull List<Choice> requestChoices(@NotNull LootGenerationContext context);
+    @NotNull List<Choice> requestChoices(@NotNull LootContext context);
 
     /**
      * A choice, generated from an entry, that could potentially be chosen.
@@ -34,7 +34,7 @@ public interface LootEntry {
          * @param context the context object, to use if required
          * @return the weight of this choice
          */
-        @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootGenerationContext context);
+        @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootContext context);
 
     }
 
@@ -45,7 +45,7 @@ public interface LootEntry {
      * @param context the context, to use if needed
      * @return the picked choice, or null if no choices were generated
      */
-    static @Nullable Choice pickChoice(@NotNull List<LootEntry> entries, @NotNull LootGenerationContext context) {
+    static @Nullable Choice pickChoice(@NotNull List<LootEntry> entries, @NotNull LootContext context) {
         List<LootEntry.Choice> choices = new ArrayList<>();
         for (LootEntry entry : entries) {
             choices.addAll(entry.requestChoices(context));

@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -52,7 +52,7 @@ public record TagEntry(@NotNull Tag itemTag, boolean expand,
     }
 
     @Override
-    public @NotNull List<Choice> requestChoices(@NotNull LootGenerationContext context) {
+    public @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return List.of();
         }
@@ -61,12 +61,12 @@ public record TagEntry(@NotNull Tag itemTag, boolean expand,
             for (Object tagItem : generate(context).items()) {
                 choices.add(new Choice() {
                     @Override
-                    public @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootGenerationContext context) {
+                    public @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootContext context) {
                         return TagEntry.this.getWeight(context);
                     }
 
                     @Override
-                    public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
+                    public @NotNull LootBatch generate(@NotNull LootContext context) {
                         return LootBatch.of(tagItem);
                     }
                 });
@@ -78,7 +78,7 @@ public record TagEntry(@NotNull Tag itemTag, boolean expand,
     }
 
     @Override
-    public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
+    public @NotNull LootBatch generate(@NotNull LootContext context) {
         return LootModifier.applyAll(modifiers(),
                 LootBatch.of(itemTag.getValues().stream().map(Material::fromNamespaceId).filter(Objects::nonNull).map(ItemStack::of).toList()),
                 context

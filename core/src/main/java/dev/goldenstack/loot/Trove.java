@@ -1,108 +1,142 @@
 package dev.goldenstack.loot;
 
-import dev.goldenstack.loot.converter.meta.LootConversionManager;
+import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
+import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Stores information about how conversion of loot-related objects, such as tables and pools, should occur. Generally,
- * this should hold the basis for anything required to completely serialize and deserialize a loot table.
- * @param converters the map of converters that this loader manages
+ * Provides type converters during runtime.
  */
-public record Trove(@NotNull List<LootConversionManager<?>> converters) {
-
-    public Trove {
-        Set<Type> types = new HashSet<>();
-        for (var manager : converters) {
-            if (!types.add(manager.baseType().getType())) {
-                throw new IllegalArgumentException("Cannot load multiple converters of type '" + manager.baseType().getType() + "'");
-            }
-        }
-    }
+public sealed interface Trove permits TroveImpl {
 
     /**
-     * Attempts to retrieve a manager that converts the provided type, returning null if there is not one.
-     * @param type the type to convert
-     * @return a valid converter, or null if there is not one
+     * Returns a valid converter that converts the provided type, or null if there is not one.
+     * @param type the desired type to convert
+     * @return a valid converter for the desired type, or null if there is not one
+     * @param <V> the converted type
      */
-    @SuppressWarnings("unchecked")
-    public <T> @Nullable LootConversionManager<T> getConverter(@NotNull Type type) {
-        for (var converter : converters) {
-            if (converter.baseType().getType().equals(type)) {
-                // This is safe as their types must be identical
-                return (LootConversionManager<T>) converter;
-            }
-        }
-        return null;
-    }
+    <V> @Nullable LootConverter<V> get(@NotNull Type type);
 
     /**
-     * Returns a valid manager that converts the provided type, throwing an exception if there is not one.
-     * @param type the type to convert
-     * @return a valid manager
+     * Returns a valid converter that converts the provided type, or null if there is not one.
+     * @param type the desired type to convert
+     * @return a valid converter for the desired type, or null if there is not one
+     * @param <V> the converted type
      */
-    public <T> @NotNull LootConversionManager<T> requireConverter(@NotNull Type type) {
-        var get = this.<T>getConverter(type);
-        if (get != null) {
-            return get;
-        }
-        throw new IllegalArgumentException("Unknown converter type '" + type + "'");
+    default <V> @Nullable LootConverter<V> get(@NotNull TypeToken<V> type) {
+        return this.get(type.getType());
     }
 
     /**
-     * Returns a valid manager that converts the provided type, throwing an exception if there is not one.
-     * @param type the type to convert
-     * @return a valid manager
+     * Returns a valid converter that converts the provided type, throwing an exception if there is not one.
+     * @param type the desired type to convert
+     * @return a valid converter for the desired type
+     * @param <V> the converted type
      */
-    public <T> @NotNull LootConversionManager<T> requireConverter(@NotNull Class<T> type) {
-        return requireConverter((Type) type);
+    <V> @NotNull LootConverter<V> require(@NotNull Type type);
+
+    /**
+     * Returns a valid converter that converts the provided type, throwing an exception if there is not one.
+     * @param type the desired type to convert
+     * @return a valid converter for the desired type
+     * @param <V> the converted type
+     */
+    default <V> @NotNull LootConverter<V> require(@NotNull Class<V> type) {
+        return require((Type) type);
     }
 
     /**
-     * Creates a new builder for this class, with all builders unmodified and everything else as null.<br>
-     * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
-     * @return a new Trove builder
+     * Returns a valid converter that converts the provided type, throwing an exception if there is not one.
+     * @param type the desired type to convert
+     * @return a valid converter for the desired type
+     * @param <V> the converted type
+     */
+    default <V> @NotNull LootConverter<V> require(@NotNull TypeToken<V> type) {
+        return require(type.getType());
+    }
+
+    /**
+     * Creates a new Trove builder.
+     * @return a new builder
      */
     @Contract(" -> new")
-    public static @NotNull Builder builder() {
+    static @NotNull Builder builder() {
         return new Builder();
     }
 
-    public static final class Builder {
-        private final @NotNull Set<Type> addedTypes = new HashSet<>();
-        private final @NotNull List<LootConversionManager<?>> managers = new ArrayList<>();
+    final class Builder {
+        private final @NotNull Map<Type, LootConverter<?>> converters = new HashMap<>();
 
         private Builder() {}
 
-        @Contract("_ -> this")
-        public @NotNull Builder newBuilder(@NotNull LootConversionManager.Builder<?> builder) {
-            var built = builder.build();
-            if (addedTypes.contains(built.baseType().getType())) {
-                throw new IllegalArgumentException("Type '" + built.baseType().getType() + "' is already present in this builder");
+        /**
+         * Associates the provided type with the provided converter in this builder.
+         * @param convertedType the type of the converter to add
+         * @param converter the converter to add
+         * @return this, for chaining
+         * @param <T> the converted type
+         */
+        @Contract("_, _ -> this")
+        public <T> @NotNull Builder add(@NotNull TypeToken<T> convertedType, @NotNull LootConverter<T> converter) {
+            if (converters.put(convertedType.getType(), converter) != null) {
+                throw new IllegalArgumentException("Type '" + convertedType.getType() + "' is already present in this builder");
             }
-            this.managers.add(built);
-            this.addedTypes.add(built.baseType().getType());
+
             return this;
         }
 
+        /**
+         * Adds the provided typed converter to this builder.
+         * @param converter the typed converter to add
+         * @return this, for chaining
+         */
         @Contract("_ -> this")
-        public <T> @NotNull Builder newBuilder(@NotNull Consumer<LootConversionManager.Builder<T>> builderConsumer) {
-            LootConversionManager.Builder<T> builder = LootConversionManager.builder();
-            builderConsumer.accept(builder);
-            return newBuilder(builder);
+        public @NotNull Builder add(@NotNull TypedLootConverter<?> converter) {
+            if (converters.put(converter.convertedType().getType(), converter) != null) {
+                throw new IllegalArgumentException("Type '" + converter.convertedType().getType() + "' is already present in this builder");
+            }
+
+            return this;
         }
 
+        /**
+         * Builds this builder into a new Trove instance.
+         * @return a new Trove object
+         */
         @Contract(" -> new")
         public @NotNull Trove build() {
-            return new Trove(List.copyOf(managers));
+            return new TroveImpl(converters);
         }
+    }
+
+}
+
+record TroveImpl(@NotNull Map<Type, LootConverter<?>> converters) implements Trove {
+
+    TroveImpl {
+        converters = Map.copyOf(converters);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public @Nullable <V> LootConverter<V> get(@NotNull Type type) {
+        var get = converters.get(type);
+        return get != null ? (LootConverter<V>) get : null;
+    }
+
+    @Override
+    public <V> @NotNull LootConverter<V> require(@NotNull Type type) {
+        var get = this.<V>get(type);
+        if (get != null) {
+            return get;
+        }
+        throw new IllegalArgumentException("Could not find converter for type '" + type + "'");
     }
 }

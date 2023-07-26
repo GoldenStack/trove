@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -27,7 +27,7 @@ public record WeatherCheckCondition(@Nullable Boolean raining, @Nullable Boolean
             ).keyed("minecraft:weather_check");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         var vanilla = context.assure(LootContextKeys.VANILLA_INTERFACE);
         var instance = context.assure(LootContextKeys.WORLD);
 

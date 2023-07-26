@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.generation;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.generation.LootGenerator;
@@ -43,7 +43,7 @@ public record LootTable(@NotNull LootContextKeyGroup contextKeyGroup,
     }
 
     @Override
-    public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
+    public @NotNull LootBatch generate(@NotNull LootContext context) {
         // Make sure that this table's required keys are in the given context
         contextKeyGroup.assureVerified(context);
 

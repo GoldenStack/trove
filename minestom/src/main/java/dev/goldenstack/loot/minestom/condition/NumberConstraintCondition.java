@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -28,7 +28,7 @@ public record NumberConstraintCondition(@NotNull LootNumberRange range, @NotNull
             ).keyed("minecraft:value_check");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         return range.check(context, value.getLong(context));
     }
 }

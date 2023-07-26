@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.converter;
 
-import dev.goldenstack.loot.context.LootConversionContext;
+import dev.goldenstack.loot.Trove;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -18,6 +18,6 @@ public interface LootSerializer<V> {
      * @param context the context object to use for serialization
      * @throws ConfigurateException if the input could not be serialized onto the result object for some reason
      */
-    void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull LootConversionContext context) throws ConfigurateException;
+    void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException;
 
 }

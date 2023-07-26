@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
@@ -35,7 +35,7 @@ public record SequenceEntry(@NotNull List<LootEntry> children, @NotNull List<Loo
     }
 
     @Override
-    public @NotNull List<Choice> requestChoices(@NotNull LootGenerationContext context) {
+    public @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return List.of();
         }

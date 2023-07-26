@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.check.BlockStateCheck;
@@ -29,7 +29,7 @@ public record BlockStateCondition(@NotNull NamespaceID blockKey, @NotNull BlockS
             ).keyed("minecraft:block_state_property");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         var block = context.assure(LootContextKeys.BLOCK_STATE);
         return block.namespace().equals(blockKey) && check.verify(block);
     }

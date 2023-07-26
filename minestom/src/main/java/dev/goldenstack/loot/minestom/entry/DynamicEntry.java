@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.minestom.VanillaInterface;
@@ -49,12 +49,12 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
     }
 
     @Override
-    public boolean shouldGenerate(@NotNull LootGenerationContext context) {
+    public boolean shouldGenerate(@NotNull LootContext context) {
         return LootCondition.all(conditions(), context);
     }
 
     @Override
-    public @NotNull LootBatch generate(@NotNull LootGenerationContext context) {
+    public @NotNull LootBatch generate(@NotNull LootContext context) {
         var block = context.assure(LootContextKeys.BLOCK_ENTITY).block();
         var blockNBT = block.hasNbt() ? block.nbt() : new NBTCompound();
 

@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootEntry;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +26,7 @@ public interface StandardWeightedChoice extends LootEntry.Choice {
     @Range(from = 0L, to = Long.MAX_VALUE) long quality();
 
     @Override
-    default @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootGenerationContext context) {
+    default @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootContext context) {
         return Math.max(1, (long) Math.floor(weight() + quality() * context.get(LootContextKeys.LUCK, 0d)));
     }
 

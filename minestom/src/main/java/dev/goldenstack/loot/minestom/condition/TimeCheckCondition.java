@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.condition;
 
-import dev.goldenstack.loot.context.LootGenerationContext;
+import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
@@ -29,7 +29,7 @@ public record TimeCheckCondition(@NotNull LootNumberRange range, @Nullable Long 
             ).keyed("minecraft:time_check");
 
     @Override
-    public boolean verify(@NotNull LootGenerationContext context) {
+    public boolean verify(@NotNull LootContext context) {
         var time = context.assure(LootContextKeys.WORLD).getTime();
         if (period != null) {
             time %= period;
