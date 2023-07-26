@@ -28,6 +28,6 @@ public record OrCondition(@NotNull List<LootCondition> conditions) implements Lo
 
     @Override
     public boolean verify(@NotNull LootContext context) {
-        return LootCondition.or(conditions(), context);
+        return LootCondition.any(conditions(), context);
     }
 }

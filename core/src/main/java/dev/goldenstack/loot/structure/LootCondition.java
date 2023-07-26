@@ -26,7 +26,7 @@ public interface LootCondition {
      * @param context the context, to feed to the conditions when they are being tested
      * @return true if at least one condition in the provided collection verifies the provided context
      */
-    static boolean or(@NotNull Collection<LootCondition> conditions, @NotNull LootContext context) {
+    static boolean any(@NotNull Collection<LootCondition> conditions, @NotNull LootContext context) {
         if (conditions.isEmpty()) {
             return false;
         }
@@ -75,7 +75,7 @@ public interface LootCondition {
         } else if (required > conditions.size()) {
             return false;
         } else if (required == 1) {
-            return or(conditions, context);
+            return any(conditions, context);
         } else if (required == conditions.size()) {
             return all(conditions, context);
         }
