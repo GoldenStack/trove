@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -24,14 +24,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.numberRange;
 public record LimitCountModifier(@NotNull List<LootCondition> conditions,
                                  @NotNull LootNumberRange limit) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:limit_count";
+
     /**
      * A standard map-based converter for limit count modifiers.
      */
-    public static final @NotNull KeyedLootConverter<LimitCountModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<LimitCountModifier> CONVERTER =
             converter(LimitCountModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     numberRange().name("limit")
-            ).keyed("minecraft:limit_count");
+            );
 
     @Override
     public @Nullable Object modify(@NotNull ItemStack input, @NotNull LootContext context) {

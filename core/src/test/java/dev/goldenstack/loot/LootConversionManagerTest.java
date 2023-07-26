@@ -1,7 +1,7 @@
 package dev.goldenstack.loot;
 
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -26,13 +26,13 @@ public class LootConversionManagerTest {
                 .baseType(new TypeToken<>(){})
                 .keyLocation("location");
 
-        builder.addConverter(emptyKeyedSerializer("a", A.class, A::new));
+        builder.addConverter("a", emptySerializer(A.class, A::new));
         assertDoesNotThrow(builder::build);
 
-        builder.addConverter(emptyKeyedSerializer("b", B.class, B::new));
+        builder.addConverter("b", emptySerializer(B.class, B::new));
         assertDoesNotThrow(builder::build);
 
-        builder.addConverter((KeyedLootConverter<? extends A>) (Object) emptyKeyedSerializer("x", X.class, X::new));
+        builder.addConverter("x", (TypedLootConverter<? extends A>) (Object) emptySerializer(X.class, X::new));
         assertThrows(IllegalArgumentException.class, builder::build);
     }
 
@@ -42,12 +42,12 @@ public class LootConversionManagerTest {
                 .baseType(new TypeToken<>(){})
                 .keyLocation("location");
 
-        builder.addConverter(emptyKeyedSerializer("a", A.class, A::new));
+        builder.addConverter("a", emptySerializer(A.class, A::new));
         assertDoesNotThrow(builder::build);
 
         var builder2 = ((LootConversionManager.Builder<X>) (Object) builder).baseType(new TypeToken<>(){});
 
-        builder2.addConverter(emptyKeyedSerializer("x", X.class, X::new));
+        builder2.addConverter("x", emptySerializer(X.class, X::new));
         assertThrows(IllegalArgumentException.class, builder::build);
     }
 
@@ -57,10 +57,10 @@ public class LootConversionManagerTest {
                 .baseType(new TypeToken<>(){})
                 .keyLocation("location");
 
-        builder.addConverter(emptyKeyedSerializer("a", A.class, A::new));
+        builder.addConverter("a", emptySerializer(A.class, A::new));
         assertDoesNotThrow(builder::build);
 
-        builder.addConverter(emptyKeyedSerializer("a", B.class, B::new));
+        builder.addConverter("b", emptySerializer(B.class, B::new));
         assertThrows(IllegalArgumentException.class, builder::build);
     }
 
@@ -70,10 +70,10 @@ public class LootConversionManagerTest {
                 .baseType(new TypeToken<>(){})
                 .keyLocation("location");
 
-        builder.addConverter(emptyKeyedSerializer("a", A.class, A::new));
+        builder.addConverter("a", emptySerializer(A.class, A::new));
         assertDoesNotThrow(builder::build);
 
-        builder.addConverter(emptyKeyedSerializer("b", A.class, A::new));
+        builder.addConverter("b", emptySerializer(A.class, A::new));
         assertThrows(IllegalArgumentException.class, builder::build);
     }
 
@@ -83,7 +83,7 @@ public class LootConversionManagerTest {
                 .baseType(new TypeToken<>(){})
                 .keyLocation("location");
 
-        builder.addConverter(emptyKeyedSerializer("a", A.class, A::new));
+        builder.addConverter("a", emptySerializer(A.class, A::new));
         builder.addInitialConverter(emptyConditionalSerializer(B::new, true, true));
 
         var manager = builder.build();
@@ -101,7 +101,7 @@ public class LootConversionManagerTest {
                 .baseType(new TypeToken<>(){})
                 .keyLocation("location");
 
-        builder.addConverter(emptyKeyedSerializer("a", A.class, A::new));
+        builder.addConverter("a", emptySerializer(A.class, A::new));
         builder.addInitialConverter(emptyConditionalSerializer(B::new, false, false));
 
         var manager = builder.build();

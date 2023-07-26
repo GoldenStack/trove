@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -29,15 +29,17 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.block;
 public record CopyStateModifier(@NotNull List<LootCondition> conditions, @NotNull Block blockType,
                                 @NotNull List<String> copiedProperties) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:copy_state";
+
     /**
      * A standard map-based converter for copy state modifiers.
      */
-    public static final @NotNull KeyedLootConverter<CopyStateModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<CopyStateModifier> CONVERTER =
             converter(CopyStateModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     block().name("blockType").nodePath("block"),
                     implicit(String.class).list().name("copiedProperties").nodePath("properties")
-            ).keyed("minecraft:copy_state");
+            );
 
     @SuppressWarnings("UnstableApiUsage")
     private static final @NotNull Tag<NBTCompound> BLOCK_STATE_TAG = Tag.Structure("BlockStateTag", TagSerializer.COMPOUND).defaultValue(new NBTCompound());

@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -18,16 +18,18 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.locationPredicate
 public record LocationCheckCondition(@NotNull VanillaInterface.LocationPredicate predicate,
                                      double xOffset, double yOffset, double zOffset) implements LootCondition {
 
+    public static final @NotNull String KEY = "minecraft:location_check";
+
     /**
      * A standard map-based converter for location check conditions.
      */
-    public static final @NotNull KeyedLootConverter<LocationCheckCondition> CONVERTER =
+    public static final @NotNull TypedLootConverter<LocationCheckCondition> CONVERTER =
             converter(LocationCheckCondition.class,
                     locationPredicate().name("predicate"),
                     implicit(double.class).name("xOffset").nodePath("offsetX").withDefault(0d),
                     implicit(double.class).name("yOffset").nodePath("offsetY").withDefault(0d),
                     implicit(double.class).name("zOffset").nodePath("offsetZ").withDefault(0d)
-            ).keyed("minecraft:location_check");
+            );
 
     @Override
     public boolean verify(@NotNull LootContext context) {

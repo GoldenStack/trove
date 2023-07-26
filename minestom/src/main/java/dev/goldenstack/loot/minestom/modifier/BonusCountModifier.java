@@ -1,8 +1,8 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -31,29 +31,31 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
                                  @NotNull Enchantment addedEnchantment,
                                  @NotNull BonusType bonus) implements ItemStackModifier {
 
-    public static final LootConversionManager<BonusType> TYPE_CONVERTER = LootConversionManager.<BonusType>builder()
-            .baseType(TypeToken.get(BonusType.class))
-            .addConverter(BinomialBonus.CONVERTER)
-            .addConverter(UniformBonus.CONVERTER)
-            .addConverter(FortuneDrops.CONVERTER)
-            .keyLocation("formula")
-            .build();
+    public static final @NotNull String KEY = "minecraft:apply_bonus";
 
     /**
      * A standard map-based converter for bonus count modifiers.
      */
-    public static final @NotNull KeyedLootConverter<BonusCountModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<BonusCountModifier> CONVERTER =
             converter(BonusCountModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     enchantment().name("addedEnchantment").nodePath("enchantment"),
-                    field(BonusType.class, TYPE_CONVERTER).name("bonus").nodePath(List.of())
-            ).keyed("minecraft:apply_bonus");
+                    field(BonusType.class, BonusType.TYPE_CONVERTER).name("bonus").nodePath(List.of())
+            );
 
     /**
      * Represents an arbitrary value generator based on a random number generator, a current count, and an enchantment
      * level.
      */
     public interface BonusType {
+
+        TypedLootConverter<BonusType> TYPE_CONVERTER = LootConversionManager.<BonusType>builder()
+                .baseType(TypeToken.get(BonusType.class))
+                .addConverter(BinomialBonus.KEY, BinomialBonus.CONVERTER)
+                .addConverter(UniformBonus.KEY, UniformBonus.CONVERTER)
+                .addConverter(FortuneDrops.KEY, FortuneDrops.CONVERTER)
+                .keyLocation("formula")
+                .build();
 
         int calculateNewValue(Random random, int count, int enchantmentLevel);
 
@@ -67,11 +69,13 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
      */
     public record BinomialBonus(int levelBonus, float probability) implements BonusType {
 
-        public static final @NotNull KeyedLootConverter<BinomialBonus> CONVERTER =
+        public static final @NotNull String KEY = "minecraft:binomial_with_bonus_count";
+
+        public static final @NotNull TypedLootConverter<BinomialBonus> CONVERTER =
                 converter(BinomialBonus.class,
                         implicit(int.class).name("levelBonus").nodePath("parameters", "extra"),
                         implicit(float.class).name("probability").nodePath("parameters", "probability")
-                ).keyed("minecraft:binomial_with_bonus_count");
+                );
 
         @Override
         public int calculateNewValue(Random random, int count, int enchantmentLevel) {
@@ -92,10 +96,12 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
      */
     public record UniformBonus(int multiplier) implements BonusType {
 
-        public static final @NotNull KeyedLootConverter<UniformBonus> CONVERTER =
+        public static final @NotNull String KEY = "minecraft:uniform_bonus_count";
+
+        public static final @NotNull TypedLootConverter<UniformBonus> CONVERTER =
                 converter(UniformBonus.class,
                         implicit(int.class).name("multiplier").nodePath("parameters", "bonusMultiplier")
-                ).keyed("minecraft:uniform_bonus_count");
+                );
 
         @Override
         public int calculateNewValue(Random random, int count, int enchantmentLevel) {
@@ -110,8 +116,10 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
      */
     public record FortuneDrops() implements BonusType {
 
-        public static final @NotNull KeyedLootConverter<FortuneDrops> CONVERTER =
-                converter(FortuneDrops.class).keyed("minecraft:ore_drops");
+        public static final @NotNull String KEY = "minecraft:ore_drops";
+
+        public static final @NotNull TypedLootConverter<FortuneDrops> CONVERTER =
+                converter(FortuneDrops.class);
 
         @Override
         public int calculateNewValue(Random random, int count, int enchantmentLevel) {

@@ -1,8 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.LootConverter;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.minestom.util.MinestomTypes;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -32,14 +31,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
 public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
                                     @NotNull List<AttributeDirective> attributes) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:set_attributes";
+
     /**
      * A standard map-based converter for set attribute modifiers.
      */
-    public static final @NotNull KeyedLootConverter<SetAttributesModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<SetAttributesModifier> CONVERTER =
             converter(SetAttributesModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     field(AttributeDirective.class, AttributeDirective.CONVERTER).list().name("attributes").nodePath("modifiers")
-            ).keyed("minecraft:set_attributes");
+            );
 
     @Override
     public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
@@ -73,7 +74,7 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
                                      @NotNull AttributeOperation operation, @NotNull LootNumber amount,
                                      @Nullable UUID id, @NotNull List<AttributeSlot> slots) {
 
-        public static final @NotNull LootConverter<AttributeDirective> CONVERTER =
+        public static final @NotNull TypedLootConverter<AttributeDirective> CONVERTER =
                 converter(AttributeDirective.class,
                         implicit(String.class).name("name"),
                         MinestomTypes.attribute().name("attribute"),
@@ -81,7 +82,7 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
                         number().name("amount"),
                         uuid().name("id").optional(),
                         attributeSlot().possibleList().name("slots").nodePath("slot")
-                ).converter();
+                );
 
     }
 }

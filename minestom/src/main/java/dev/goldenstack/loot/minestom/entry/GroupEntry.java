@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
 import org.jetbrains.annotations.NotNull;
@@ -20,14 +20,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.entry;
  */
 public record GroupEntry(@NotNull List<LootEntry> children, @NotNull List<LootCondition> conditions) implements LootEntry {
 
+    public static final @NotNull String KEY = "minecraft:group";
+
     /**
      * A standard map-based converter for group entries.
      */
-    public static final @NotNull KeyedLootConverter<GroupEntry> CONVERTER =
+    public static final @NotNull TypedLootConverter<GroupEntry> CONVERTER =
             converter(GroupEntry.class,
                     entry().list().name("children"),
                     condition().list().name("conditions").withDefault(List::of)
-            ).keyed("minecraft:group");
+            );
 
     public GroupEntry {
         children = List.copyOf(children);

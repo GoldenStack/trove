@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -19,14 +19,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.numberRange;
  */
 public record TimeCheckCondition(@NotNull LootNumberRange range, @Nullable Long period) implements LootCondition {
 
+    public static final @NotNull String KEY = "minecraft:time_check";
+
     /**
      * A standard map-based converter for time check conditions.
      */
-    public static final @NotNull KeyedLootConverter<TimeCheckCondition> CONVERTER =
+    public static final @NotNull TypedLootConverter<TimeCheckCondition> CONVERTER =
             converter(TimeCheckCondition.class,
                     numberRange().name("range").nodePath("value"),
                     implicit(Long.class).optional().name("period")
-            ).keyed("minecraft:time_check");
+            );
 
     @Override
     public boolean verify(@NotNull LootContext context) {

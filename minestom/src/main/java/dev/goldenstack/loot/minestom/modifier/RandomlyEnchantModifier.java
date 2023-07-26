@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -30,14 +30,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.enchantment;
  */
 public record RandomlyEnchantModifier(@NotNull List<LootCondition> conditions, @NotNull List<Enchantment> validEnchantments) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:enchant_randomly";
+
     /**
      * A standard map-based converter for randomly enchant modifiers.
      */
-    public static final @NotNull KeyedLootConverter<RandomlyEnchantModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<RandomlyEnchantModifier> CONVERTER =
             converter(RandomlyEnchantModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     enchantment().list().name("validEnchantments").nodePath("enchantments").withDefault(List::of)
-            ).keyed("minecraft:enchant_randomly");
+            );
 
     @SuppressWarnings("UnstableApiUsage")
     @Override

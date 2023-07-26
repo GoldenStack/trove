@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.util.check;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.item.ItemStack;
@@ -47,7 +47,7 @@ public record ItemCheck(@NotNull NBTCheck nbtCheck,
     /**
      * The general converter for item checks.
      */
-    public static final @NotNull LootConverter<ItemCheck> CONVERTER =
+    public static final @NotNull TypedLootConverter<ItemCheck> CONVERTER =
             converter(ItemCheck.class,
                     field(NBTCheck.class, NBTCheck.CONVERTER).name("nbtCheck").nodePath("nbt"),
                     numberRange().name("count"),
@@ -59,7 +59,7 @@ public record ItemCheck(@NotNull NBTCheck nbtCheck,
                     material().list().name("validMaterials").nodePath("items").optional(),
                     tag(Tag.BasicType.ITEMS).name("materialTag").nodePath("tag").optional(),
                     namespaceId().name("potionId").nodePath("potion").optional()
-            ).converter();
+            );
 
     @SuppressWarnings("UnstableApiUsage")
     public boolean verify(@NotNull LootContext context, @NotNull ItemStack item) {

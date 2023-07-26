@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -20,13 +20,15 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
  */
 public record ExplosionDecayModifier(@NotNull List<LootCondition> conditions) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:explosion_decay";
+
     /**
      * A standard map-based converter for explosion decay modifiers.
      */
-    public static final @NotNull KeyedLootConverter<ExplosionDecayModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<ExplosionDecayModifier> CONVERTER =
             converter(ExplosionDecayModifier.class,
                     condition().list().name("conditions").withDefault(List::of)
-            ).keyed("minecraft:explosion_decay");
+            );
 
     @Override
     public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {

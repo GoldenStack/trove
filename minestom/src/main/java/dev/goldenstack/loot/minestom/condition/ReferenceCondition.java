@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.utils.NamespaceID;
@@ -16,13 +16,15 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.namespaceId;
  */
 public record ReferenceCondition(@NotNull NamespaceID id) implements LootCondition {
 
+    public static final @NotNull String KEY = "minecraft:reference";
+
     /**
      * A standard map-based converter for reference conditions.
      */
-    public static final @NotNull KeyedLootConverter<ReferenceCondition> CONVERTER =
+    public static final @NotNull TypedLootConverter<ReferenceCondition> CONVERTER =
             converter(ReferenceCondition.class,
                     namespaceId().name("id").nodePath("name")
-            ).keyed("minecraft:reference");
+            );
 
     @Override
     public boolean verify(@NotNull LootContext context) {

@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.check.ItemCheck;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -16,13 +16,15 @@ import static dev.goldenstack.loot.converter.generator.Field.field;
  */
 public record ToolCheckCondition(@NotNull ItemCheck toolCheck) implements LootCondition {
 
+    public static final @NotNull String KEY = "minecraft:match_tool";
+
     /**
      * A standard map-based converter for tool check conditions.
      */
-    public static final @NotNull KeyedLootConverter<ToolCheckCondition> CONVERTER =
+    public static final @NotNull TypedLootConverter<ToolCheckCondition> CONVERTER =
             converter(ToolCheckCondition.class,
                     field(ItemCheck.class, ItemCheck.CONVERTER).name("toolCheck").nodePath("predicate").withDefault(ItemCheck.EMPTY)
-            ).keyed("minecraft:match_tool");
+            );
 
     @Override
     public boolean verify(@NotNull LootContext context) {

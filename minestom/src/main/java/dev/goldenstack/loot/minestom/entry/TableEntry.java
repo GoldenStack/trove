@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.generation.LootGenerator;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
@@ -28,17 +28,19 @@ public record TableEntry(@NotNull NamespaceID tableIdentifier,
                         @NotNull List<LootModifier> modifiers,
                         @NotNull List<LootCondition> conditions) implements StandardSingleChoice {
 
+    public static final @NotNull String KEY = "minecraft:loot_table";
+
     /**
      * A standard map-based converter for table entries.
      */
-    public static final @NotNull KeyedLootConverter<TableEntry> CONVERTER =
+    public static final @NotNull TypedLootConverter<TableEntry> CONVERTER =
             converter(TableEntry.class,
                     namespaceId().name("tableIdentifier").nodePath("name"),
                     implicit(long.class).name("weight").withDefault(1L),
                     implicit(long.class).name("quality").withDefault(0L),
                     modifier().list().name("modifiers").nodePath("functions").withDefault(List::of),
                     condition().list().name("conditions").withDefault(List::of)
-            ).keyed("minecraft:loot_table");
+            );
 
     public TableEntry {
         modifiers = List.copyOf(modifiers);

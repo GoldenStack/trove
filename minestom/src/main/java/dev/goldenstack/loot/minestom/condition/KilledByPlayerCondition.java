@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
@@ -13,11 +13,13 @@ import static dev.goldenstack.loot.converter.generator.Converters.converter;
  */
 public record KilledByPlayerCondition() implements LootCondition {
 
+    public static final @NotNull String KEY = "minecraft:killed_by_player";
+
     /**
      * A standard map-based converter for killed-by-player conditions.
      */
-    public static final @NotNull KeyedLootConverter<KilledByPlayerCondition> CONVERTER =
-            converter(KilledByPlayerCondition.class).keyed("minecraft:killed_by_player");
+    public static final @NotNull TypedLootConverter<KilledByPlayerCondition> CONVERTER =
+            converter(KilledByPlayerCondition.class);
 
     @Override
     public boolean verify(@NotNull LootContext context) {

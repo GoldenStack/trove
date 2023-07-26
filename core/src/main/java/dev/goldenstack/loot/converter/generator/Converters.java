@@ -4,7 +4,6 @@ import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.LootDeserializer;
 import dev.goldenstack.loot.converter.LootSerializer;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.util.FallibleFunction;
 import io.leangen.geantyref.GenericTypeReflector;
@@ -25,57 +24,37 @@ import java.util.Objects;
 public class Converters {
 
     /**
-     * Creates a converter producer from the provided type and fields. This basically just calls
+     * Creates a typed converter from the provided type and fields. This basically just calls
      * {@link #converter(Class, FallibleFunction, List)} except that the constructor is searched for on the class that
      * is provided.
      * @param type the class of the object that will be converted
      * @param fields the information about fields for this type
-     * @return a new converter producer for the provided type
+     * @return a new typed converter for the provided type
      * @param <V> the type of object that will be converted
      */
-    public static <V> @NotNull Producer<V> converter(@NotNull Class<V> type, @NotNull Field<?>... fields) {
+    public static <V> @NotNull TypedLootConverter<V> converter(@NotNull Class<V> type, @NotNull Field<?>... fields) {
         return ConvertersImpl.converter(type, List.of(fields));
     }
 
     /**
-     * Creates a converter producer from the provided type, fields, and constructor.
+     * Creates a typed converter from the provided type, fields, and constructor.
      * @param type the class of the object that will be converted
      * @param constructor the constructor of instances of the type
      * @param fields the information about fields of this type
-     * @return a new converter producer for the provided type
+     * @return a new typed converter for the provided type
      * @param <V> the type of object that will be converted
      */
-    public static <V> @NotNull Producer<V> converter(@NotNull Class<V> type,
+    public static <V> @NotNull TypedLootConverter<V> converter(@NotNull Class<V> type,
                                                      @NotNull FallibleFunction<Object @NotNull [], @NotNull V> constructor,
                                                      @NotNull List<Field<?>> fields) {
         return ConvertersImpl.converter(type, constructor, fields);
-    }
-
-    /**
-     * Produces different types of converters.
-     * @param <V> the type to generate converters of
-     */
-    public sealed interface Producer<V> permits ConvertersImpl.ProducerImpl {
-
-        /**
-         * Produces a loot converter that converts this type.
-         * @return the produced converter
-         */
-        @NotNull TypedLootConverter<V> converter();
-
-        /**
-         * Produces a keyed loot converter with the provided key that converts this type.
-         * @param key the key to use
-         * @return the produced keyed loot converter
-         */
-        @NotNull KeyedLootConverter<V> keyed(@NotNull String key);
     }
 
 }
 
 class ConvertersImpl {
 
-    static <V> Converters.Producer<V> converter(@NotNull Class<V> type, @NotNull List<Field<?>> fields) {
+    static <V> TypedLootConverter<V> converter(@NotNull Class<V> type, @NotNull List<Field<?>> fields) {
         var constructor = getConstructor(type, fields.stream().map(Field::type).map(TypeToken::getType).map(GenericTypeReflector::erase).toArray(Class[]::new));
         return converter(type, constructor, fields);
     }
@@ -97,7 +76,7 @@ class ConvertersImpl {
         };
     }
 
-    static <V> Converters.Producer<V> converter(@NotNull Class<V> type,
+    static <V> TypedLootConverter<V> converter(@NotNull Class<V> type,
                                                 @NotNull FallibleFunction<Object @NotNull [], @NotNull V> constructor,
                                                 @NotNull List<Field<?>> fields) {
         for (var field : fields) {
@@ -150,7 +129,7 @@ class ConvertersImpl {
             }
         };
 
-        return new ConvertersImpl.ProducerImpl<>(TypedLootConverter.join(type, LootConverter.join(actualSerializer, actualDeserializer)));
+        return TypedLootConverter.join(type, LootConverter.join(actualSerializer, actualDeserializer));
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
@@ -176,14 +155,6 @@ class ConvertersImpl {
         }
         // This cast is safe because we grab the object directly from the field; it's just that Field#get always returns an object.
         field.converter().serialize((T) input, result, context);
-    }
-
-    record ProducerImpl<V>(@NotNull TypedLootConverter<V> converter) implements Converters.Producer<V> {
-
-        @Override
-        public @NotNull KeyedLootConverter<V> keyed(@NotNull String key) {
-            return KeyedLootConverter.create(key, converter);
-        }
     }
 
 }

@@ -3,7 +3,7 @@ package dev.goldenstack.loot.minestom.number;
 import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
@@ -44,13 +44,15 @@ public record ConstantNumber(double value) implements LootNumber {
         }
     };
 
+    public static final @NotNull String KEY = "minecraft:constant";
+
     /**
      * A standard map-based converter for constant numbers.
      */
-    public static final @NotNull KeyedLootConverter<ConstantNumber> CONVERTER =
+    public static final @NotNull TypedLootConverter<ConstantNumber> CONVERTER =
             converter(ConstantNumber.class,
                     implicit(double.class).name("value")
-            ).keyed("minecraft:constant");
+            );
 
     @Override
     public long getLong(@NotNull LootContext context) {

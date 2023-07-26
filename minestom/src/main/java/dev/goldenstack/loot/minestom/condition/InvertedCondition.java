@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,13 +14,15 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
  */
 public record InvertedCondition(@NotNull LootCondition original) implements LootCondition {
 
+    public static final @NotNull String KEY = "minecraft:inverted";
+
     /**
      * A standard map-based converter for inverted conditions.
      */
-    public static final @NotNull KeyedLootConverter<InvertedCondition> CONVERTER =
+    public static final @NotNull TypedLootConverter<InvertedCondition> CONVERTER =
             converter(InvertedCondition.class,
                     condition().name("original").nodePath("term")
-            ).keyed("minecraft:inverted");
+            );
 
     @Override
     public boolean verify(@NotNull LootContext context) {

@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
@@ -14,11 +14,13 @@ import static dev.goldenstack.loot.converter.generator.Converters.converter;
  */
 public record SurvivesExplosionCondition() implements LootCondition {
 
+    public static final @NotNull String KEY = "minecraft:survives_explosion";
+
     /**
      * A standard map-based converter for explosion survival conditions.
      */
-    public static final @NotNull KeyedLootConverter<SurvivesExplosionCondition> CONVERTER =
-            converter(SurvivesExplosionCondition.class).keyed("minecraft:survives_explosion");
+    public static final @NotNull TypedLootConverter<SurvivesExplosionCondition> CONVERTER =
+            converter(SurvivesExplosionCondition.class);
 
     @Override
     public boolean verify(@NotNull LootContext context) {

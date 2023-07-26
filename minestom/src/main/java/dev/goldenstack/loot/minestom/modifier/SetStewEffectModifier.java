@@ -1,8 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.LootConverter;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootNumber;
@@ -32,14 +31,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.namespaceId;
 public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
                                     @NotNull List<StewEffect> effects) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:set_stew_effect";
+
     /**
      * A standard map-based converter for set stew effect modifiers.
      */
-    public static final @NotNull KeyedLootConverter<SetStewEffectModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<SetStewEffectModifier> CONVERTER =
             converter(SetStewEffectModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     field(StewEffect.class, StewEffect.CONVERTER).list().name("effects")
-            ).keyed("minecraft:set_stew_effect");
+            );
 
     /**
      * Holds an effect and its unresolved duration.
@@ -47,11 +48,11 @@ public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
      * @param duration the number that will provide the duration (measured in seconds)
      */
     public record StewEffect(@NotNull PotionEffect effect, @NotNull LootNumber duration) {
-        public static final @NotNull LootConverter<StewEffect> CONVERTER =
+        public static final @NotNull TypedLootConverter<StewEffect> CONVERTER =
                 converter(StewEffect.class,
                         namespaceId().map(PotionEffect.class, PotionEffect::fromNamespaceId, PotionEffect::namespace).name("effect").nodePath("type"),
                         number().name("duration")
-                ).converter();
+                );
     }
 
     private static final @NotNull Tag<List<NBT>> EFFECTS_NBT = Tag.NBT("Effects").list().defaultValue(List::of);

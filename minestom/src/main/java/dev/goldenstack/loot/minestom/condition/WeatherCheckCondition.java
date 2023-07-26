@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
@@ -17,14 +17,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.implicit;
  */
 public record WeatherCheckCondition(@Nullable Boolean raining, @Nullable Boolean thundering) implements LootCondition {
 
+    public static final @NotNull String KEY = "minecraft:weather_check";
+
     /**
      * A standard map-based converter for weather check conditions.
      */
-    public static final @NotNull KeyedLootConverter<WeatherCheckCondition> CONVERTER =
+    public static final @NotNull TypedLootConverter<WeatherCheckCondition> CONVERTER =
             converter(WeatherCheckCondition.class,
                     implicit(Boolean.class).optional().name("raining"),
                     implicit(Boolean.class).optional().name("thundering")
-            ).keyed("minecraft:weather_check");
+            );
 
     @Override
     public boolean verify(@NotNull LootContext context) {

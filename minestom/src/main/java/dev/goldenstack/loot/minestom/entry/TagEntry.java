@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
@@ -33,10 +33,12 @@ public record TagEntry(@NotNull Tag itemTag, boolean expand,
                        @NotNull List<LootModifier> modifiers,
                        @NotNull List<LootCondition> conditions) implements StandardSingleChoice {
 
+    public static final @NotNull String KEY = "minecraft:tag";
+
     /**
      * A standard map-based converter for tag entries.
      */
-    public static final @NotNull KeyedLootConverter<TagEntry> CONVERTER =
+    public static final @NotNull TypedLootConverter<TagEntry> CONVERTER =
             converter(TagEntry.class,
                     tag(Tag.BasicType.ITEMS).name("itemTag").nodePath("name"),
                     implicit(boolean.class).name("expand"),
@@ -44,7 +46,7 @@ public record TagEntry(@NotNull Tag itemTag, boolean expand,
                     implicit(long.class).name("quality").withDefault(0L),
                     modifier().list().name("modifiers").nodePath("functions").withDefault(List::of),
                     condition().list().name("conditions").withDefault(List::of)
-            ).keyed("minecraft:tag");
+            );
 
     public TagEntry {
         modifiers = List.copyOf(modifiers);

@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
@@ -31,17 +31,19 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
                            @NotNull List<LootCondition> conditions,
                            @NotNull List<LootModifier> modifiers) implements StandardSingleChoice {
 
+    public static final @NotNull String KEY = "minecraft:dynamic";
+
     /**
      * A standard map-based converter for dynamic entries.
      */
-    public static final @NotNull KeyedLootConverter<DynamicEntry> CONVERTER =
+    public static final @NotNull TypedLootConverter<DynamicEntry> CONVERTER =
             converter(DynamicEntry.class,
                     namespaceId().name("dynamicChoiceId").nodePath("name"),
                     implicit(long.class).name("weight").withDefault(1L),
                     implicit(long.class).name("quality").withDefault(0L),
                     modifier().list().name("modifiers").nodePath("functions").withDefault(List::of),
                     condition().list().name("conditions").withDefault(List::of)
-            ).keyed("minecraft:dynamic");
+            );
 
     public DynamicEntry {
         modifiers = List.copyOf(modifiers);

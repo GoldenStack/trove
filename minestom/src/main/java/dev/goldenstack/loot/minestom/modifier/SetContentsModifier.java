@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootProcessor;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.minestom.util.nbt.NBTUtils;
@@ -34,15 +34,18 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.namespaceId;
 public record SetContentsModifier(@NotNull List<LootCondition> conditions,
                                   @NotNull List<LootEntry> entries,
                                   @NotNull NamespaceID blockEntityKey) implements ItemStackModifier {
+
+    public static final @NotNull String KEY = "minecraft:set_contents";
+
     /**
      * A standard map-based converter for set contents modifiers.
      */
-    public static final @NotNull KeyedLootConverter<SetContentsModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<SetContentsModifier> CONVERTER =
             converter(SetContentsModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     entry().list().name("entries"),
                     namespaceId().name("blockEntityKey").nodePath("type")
-            ).keyed("minecraft:set_contents");
+            );
 
     @SuppressWarnings("UnstableApiUsage")
     private static final @NotNull Tag<NBTCompound> BLOCK_ENTITY_TAG = Tag.Structure("BlockEntityTag", TagSerializer.COMPOUND);

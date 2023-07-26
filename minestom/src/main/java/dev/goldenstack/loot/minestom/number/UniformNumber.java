@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.number;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,14 +18,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.number;
  */
 public record UniformNumber(@NotNull LootNumber min, @NotNull LootNumber max) implements LootNumber {
 
+    public static final @NotNull String KEY = "minecraft:uniform";
+
     /**
      * A standard map-based converter for uniform numbers.
      */
-    public static final @NotNull KeyedLootConverter<UniformNumber> CONVERTER =
+    public static final @NotNull TypedLootConverter<UniformNumber> CONVERTER =
             converter(UniformNumber.class,
                     number().name("min"),
                     number().name("max")
-            ).keyed("minecraft:uniform");
+            );
 
     @Override
     public long getLong(@NotNull LootContext context) {

@@ -1,8 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.LootConverter;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.nbt.LootNBT;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.minestom.util.nbt.NBTPath;
@@ -34,15 +33,17 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.lootNBT;
 public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull LootNBT source,
                               @NotNull List<Operation> operations) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:copy_nbt";
+
     /**
      * A standard map-based converter for copy NBT modifiers.
      */
-    public static final @NotNull KeyedLootConverter<CopyNbtModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<CopyNbtModifier> CONVERTER =
             converter(CopyNbtModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     lootNBT().name("source"),
                     field(Operation.class, Operation.CONVERTER).list().name("operations").nodePath("ops")
-            ).keyed("minecraft:copy_nbt");
+            );
 
     /**
      * Represents an operation ({@link #operator()}) on the target NBT (selected by {@link #target()}) that is
@@ -53,12 +54,12 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
      */
     public record Operation(@NotNull NBTPath source, @NotNull NBTPath target, @NotNull Operator operator) {
 
-        public static final @NotNull LootConverter<Operation> CONVERTER =
+        public static final @NotNull TypedLootConverter<Operation> CONVERTER =
                 converter(Operation.class,
                         field(NBTPath.class, NBTPath.CONVERTER).name("source"),
                         field(NBTPath.class, NBTPath.CONVERTER).name("target"),
                         enumerated(Operator.class, Operator::id).name("operator").nodePath("op")
-                ).converter();
+                );
 
         /**
          * Applies this operation to the provided item, using the source if needed.

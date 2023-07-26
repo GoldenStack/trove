@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
@@ -27,17 +27,19 @@ public record ItemEntry(@NotNull Material itemType,
                         @NotNull List<LootModifier> modifiers,
                         @NotNull List<LootCondition> conditions) implements StandardSingleChoice {
 
+    public static final @NotNull String KEY = "minecraft:item";
+
     /**
      * A standard map-based converter for item entries.
      */
-    public static final @NotNull KeyedLootConverter<ItemEntry> CONVERTER =
+    public static final @NotNull TypedLootConverter<ItemEntry> CONVERTER =
             converter(ItemEntry.class,
                     material().name("itemType").nodePath("name"),
                     implicit(long.class).name("weight").withDefault(1L),
                     implicit(long.class).name("quality").withDefault(0L),
                     modifier().list().name("modifiers").nodePath("functions").withDefault(List::of),
                     condition().list().name("conditions").withDefault(List::of)
-            ).keyed("minecraft:item");
+            );
 
     public ItemEntry {
         modifiers = List.copyOf(modifiers);

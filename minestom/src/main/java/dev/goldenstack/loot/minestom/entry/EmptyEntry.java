@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
@@ -23,16 +23,18 @@ public record EmptyEntry(long weight, long quality,
                          @NotNull List<LootModifier> modifiers,
                          @NotNull List<LootCondition> conditions) implements StandardSingleChoice {
 
+    public static final @NotNull String KEY = "minecraft:empty";
+
     /**
      * A standard map-based converter for empty entries.
      */
-    public static final @NotNull KeyedLootConverter<EmptyEntry> CONVERTER =
+    public static final @NotNull TypedLootConverter<EmptyEntry> CONVERTER =
             converter(EmptyEntry.class,
                     implicit(long.class).name("weight").withDefault(1L),
                     implicit(long.class).name("quality").withDefault(0L),
                     modifier().list().name("modifiers").nodePath("functions").withDefault(List::of),
                     condition().list().name("conditions").withDefault(List::of)
-            ).keyed("minecraft:empty");
+            );
 
     public EmptyEntry {
         modifiers = List.copyOf(modifiers);

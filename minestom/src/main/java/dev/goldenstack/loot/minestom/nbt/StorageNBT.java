@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.nbt;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
@@ -19,13 +19,15 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.namespaceId;
  */
 public record StorageNBT(@NotNull NamespaceID storageKey) implements LootNBT {
 
+    public static final @NotNull String KEY = "minecraft:storage";
+
     /**
      * A standard map-based converter for storage NBT providers.
      */
-    public static final @NotNull KeyedLootConverter<StorageNBT> CONVERTER =
+    public static final @NotNull TypedLootConverter<StorageNBT> CONVERTER =
             converter(StorageNBT.class,
                     namespaceId().name("storageKey").nodePath("source")
-            ).keyed("minecraft:storage");
+            );
 
     @Override
     public @NotNull NBT getNBT(@NotNull LootContext context) {

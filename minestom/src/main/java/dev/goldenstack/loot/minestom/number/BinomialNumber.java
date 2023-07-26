@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.number;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,14 +15,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.number;
  */
 public record BinomialNumber(@NotNull LootNumber trials, @NotNull LootNumber probability) implements LootNumber {
 
+    public static final @NotNull String KEY = "minecraft:binomial";
+
     /**
      * A standard map-based converter for binomial numbers.
      */
-    public static final @NotNull KeyedLootConverter<BinomialNumber> CONVERTER =
+    public static final @NotNull TypedLootConverter<BinomialNumber> CONVERTER =
             converter(BinomialNumber.class,
                     number().name("trials").nodePath("n"),
                     number().name("probability").nodePath("p")
-            ).keyed("minecraft:binomial");
+            );
 
     @Override
     public long getLong(@NotNull LootContext context) {

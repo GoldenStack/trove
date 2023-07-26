@@ -3,7 +3,7 @@ package dev.goldenstack.loot.minestom.nbt;
 import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.RelevantEntity;
 import org.jetbrains.annotations.NotNull;
@@ -55,13 +55,15 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
         }
     };
 
+    public static final @NotNull String KEY = "minecraft:context";
+
     /**
      * A standard map-based converter for context NBT providers.
      */
-    public static final @NotNull KeyedLootConverter<ContextNBT> CONVERTER =
+    public static final @NotNull TypedLootConverter<ContextNBT> CONVERTER =
             converter(ContextNBT.class,
                     implicit(String.class).map(NBTTarget.class, ContextNBT::fromString, NBTTarget::serializedString).name("target")
-            ).keyed("minecraft:context");
+            );
 
     private static @Nullable NBTTarget fromString(@NotNull String id) {
         if (id.equals("block_entity")) {

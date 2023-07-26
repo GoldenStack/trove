@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,13 +15,15 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.implicit;
  */
 public record RandomChanceCondition(double chance) implements LootCondition {
 
+    public static final @NotNull String KEY = "minecraft:random_chance";
+
     /**
      * A standard map-based converter for random chance conditions.
      */
-    public static final @NotNull KeyedLootConverter<RandomChanceCondition> CONVERTER =
+    public static final @NotNull TypedLootConverter<RandomChanceCondition> CONVERTER =
             converter(RandomChanceCondition.class,
                     implicit(double.class).name("chance")
-            ).keyed("minecraft:random_chance");
+            );
 
     @Override
     public boolean verify(@NotNull LootContext context) {

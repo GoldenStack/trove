@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -24,15 +24,17 @@ public record LevelledEnchantModifier(@NotNull List<LootCondition> conditions,
                                       @NotNull LootNumber levelRange,
                                       boolean permitTreasure) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:enchant_with_levels";
+
     /**
      * A standard map-based converter for enchant-with-levels modifiers.
      */
-    public static final @NotNull KeyedLootConverter<LevelledEnchantModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<LevelledEnchantModifier> CONVERTER =
             converter(LevelledEnchantModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     number().name("levelRange").nodePath("levels"),
                     implicit(boolean.class).name("permitTreasure").nodePath("treasureEnchantmentsAllowed").withDefault(false)
-            ).keyed("minecraft:enchant_with_levels");
+            );
 
     @Override
     public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {

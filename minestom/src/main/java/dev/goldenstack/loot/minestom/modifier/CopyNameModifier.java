@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -25,14 +25,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
 public record CopyNameModifier(@NotNull List<LootCondition> conditions,
                                @NotNull RelevantKey source) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:copy_name";
+
     /**
      * A standard map-based converter for copy name modifiers.
      */
-    public static final @NotNull KeyedLootConverter<CopyNameModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<CopyNameModifier> CONVERTER =
             converter(CopyNameModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     enumerated(RelevantKey.class, source -> source.name).name("source")
-            ).keyed("minecraft:copy_name");
+            );
 
     private static final @NotNull Tag<Component> BLOCK_CUSTOM_NAME = Tag.Component("CustomName");
 

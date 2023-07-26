@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.item.ItemStack;
@@ -22,14 +22,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.potionType;
  */
 public record SetPotionModifier(@NotNull List<LootCondition> conditions, @NotNull PotionType potion) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:set_potion";
+
     /**
      * A standard map-based converter for set potion modifiers.
      */
-    public static final @NotNull KeyedLootConverter<SetPotionModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<SetPotionModifier> CONVERTER =
             converter(SetPotionModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     potionType().name("potion").nodePath("id")
-            ).keyed("minecraft:set_potion");
+            );
 
     private static final @NotNull Tag<String> POTION_TAG = Tag.String("Potion");
 

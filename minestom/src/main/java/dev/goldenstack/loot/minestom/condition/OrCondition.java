@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,13 +16,15 @@ import static dev.goldenstack.loot.converter.generator.FieldTypes.condition;
  */
 public record OrCondition(@NotNull List<LootCondition> conditions) implements LootCondition {
 
+    public static final @NotNull String KEY = "minecraft:any_of";
+
     /**
      * A standard map-based converter for OR operator conditions.
      */
-    public static final @NotNull KeyedLootConverter<OrCondition> CONVERTER =
+    public static final @NotNull TypedLootConverter<OrCondition> CONVERTER =
             converter(OrCondition.class,
                     condition().list().name("conditions").nodePath("terms").withDefault(List::of)
-            ).keyed("minecraft:any_of");
+            );
 
     @Override
     public boolean verify(@NotNull LootContext context) {

@@ -48,14 +48,14 @@ public class MinestomLoader {
         builder.keyLocation("type");
 
         // Registered converters
-        builder.addConverter(AlternativeEntry.CONVERTER);
-        builder.addConverter(DynamicEntry.CONVERTER);
-        builder.addConverter(EmptyEntry.CONVERTER);
-        builder.addConverter(GroupEntry.CONVERTER);
-        builder.addConverter(ItemEntry.CONVERTER);
-        builder.addConverter(SequenceEntry.CONVERTER);
-        builder.addConverter(TableEntry.CONVERTER);
-        builder.addConverter(TagEntry.CONVERTER);
+        builder.addConverter(AlternativeEntry.KEY, AlternativeEntry.CONVERTER);
+        builder.addConverter(DynamicEntry.KEY, DynamicEntry.CONVERTER);
+        builder.addConverter(EmptyEntry.KEY, EmptyEntry.CONVERTER);
+        builder.addConverter(GroupEntry.KEY, GroupEntry.CONVERTER);
+        builder.addConverter(ItemEntry.KEY, ItemEntry.CONVERTER);
+        builder.addConverter(SequenceEntry.KEY, SequenceEntry.CONVERTER);
+        builder.addConverter(TableEntry.KEY, TableEntry.CONVERTER);
+        builder.addConverter(TagEntry.KEY, TagEntry.CONVERTER);
 
         return builder;
     }
@@ -68,23 +68,23 @@ public class MinestomLoader {
         builder.keyLocation("function");
 
         // Registered converters
-        builder.addConverter(ApplyLootingModifier.CONVERTER);
-        builder.addConverter(BonusCountModifier.CONVERTER);
-        builder.addConverter(CopyNameModifier.CONVERTER);
-        builder.addConverter(CopyNbtModifier.CONVERTER);
-        builder.addConverter(CopyStateModifier.CONVERTER);
-        builder.addConverter(ExplosionDecayModifier.CONVERTER);
-        builder.addConverter(LevelledEnchantModifier.CONVERTER);
-        builder.addConverter(LimitCountModifier.CONVERTER);
-        builder.addConverter(RandomlyEnchantModifier.CONVERTER);
-        builder.addConverter(SetAttributesModifier.CONVERTER);
-        builder.addConverter(SetContentsModifier.CONVERTER);
-        builder.addConverter(SetCountModifier.CONVERTER);
-        builder.addConverter(SetDamageModifier.CONVERTER);
-        builder.addConverter(SetNbtModifier.CONVERTER);
-        builder.addConverter(SetPotionModifier.CONVERTER);
-        builder.addConverter(SetStewEffectModifier.CONVERTER);
-        builder.addConverter(SmeltItemModifier.CONVERTER);
+        builder.addConverter(ApplyLootingModifier.KEY, ApplyLootingModifier.CONVERTER);
+        builder.addConverter(BonusCountModifier.KEY, BonusCountModifier.CONVERTER);
+        builder.addConverter(CopyNameModifier.KEY, CopyNameModifier.CONVERTER);
+        builder.addConverter(CopyNbtModifier.KEY, CopyNbtModifier.CONVERTER);
+        builder.addConverter(CopyStateModifier.KEY, CopyStateModifier.CONVERTER);
+        builder.addConverter(ExplosionDecayModifier.KEY, ExplosionDecayModifier.CONVERTER);
+        builder.addConverter(LevelledEnchantModifier.KEY, LevelledEnchantModifier.CONVERTER);
+        builder.addConverter(LimitCountModifier.KEY, LimitCountModifier.CONVERTER);
+        builder.addConverter(RandomlyEnchantModifier.KEY, RandomlyEnchantModifier.CONVERTER);
+        builder.addConverter(SetAttributesModifier.KEY, SetAttributesModifier.CONVERTER);
+        builder.addConverter(SetContentsModifier.KEY, SetContentsModifier.CONVERTER);
+        builder.addConverter(SetCountModifier.KEY, SetCountModifier.CONVERTER);
+        builder.addConverter(SetDamageModifier.KEY, SetDamageModifier.CONVERTER);
+        builder.addConverter(SetNbtModifier.KEY, SetNbtModifier.CONVERTER);
+        builder.addConverter(SetPotionModifier.KEY, SetPotionModifier.CONVERTER);
+        builder.addConverter(SetStewEffectModifier.KEY, SetStewEffectModifier.CONVERTER);
+        builder.addConverter(SmeltItemModifier.KEY, SmeltItemModifier.CONVERTER);
 
         return builder;
     }
@@ -97,22 +97,22 @@ public class MinestomLoader {
         builder.keyLocation("condition");
 
         // Registered converters
-        builder.addConverter(AndCondition.CONVERTER);
-        builder.addConverter(BlockStateCondition.CONVERTER);
-        builder.addConverter(EnchantmentLevelCondition.CONVERTER);
-        builder.addConverter(EntityCheckCondition.CONVERTER);
-        builder.addConverter(InvertedCondition.CONVERTER);
-        builder.addConverter(KilledByPlayerCondition.CONVERTER);
-        builder.addConverter(LocationCheckCondition.CONVERTER);
-        builder.addConverter(LootingRandomChanceCondition.CONVERTER);
-        builder.addConverter(NumberConstraintCondition.CONVERTER);
-        builder.addConverter(OrCondition.CONVERTER);
-        builder.addConverter(RandomChanceCondition.CONVERTER);
-        builder.addConverter(ReferenceCondition.CONVERTER);
-        builder.addConverter(SurvivesExplosionCondition.CONVERTER);
-        builder.addConverter(TimeCheckCondition.CONVERTER);
-        builder.addConverter(ToolCheckCondition.CONVERTER);
-        builder.addConverter(WeatherCheckCondition.CONVERTER);
+        builder.addConverter(AndCondition.KEY, AndCondition.CONVERTER);
+        builder.addConverter(BlockStateCondition.KEY, BlockStateCondition.CONVERTER);
+        builder.addConverter(EnchantmentLevelCondition.KEY, EnchantmentLevelCondition.CONVERTER);
+        builder.addConverter(EntityCheckCondition.KEY, EntityCheckCondition.CONVERTER);
+        builder.addConverter(InvertedCondition.KEY, InvertedCondition.CONVERTER);
+        builder.addConverter(KilledByPlayerCondition.KEY, KilledByPlayerCondition.CONVERTER);
+        builder.addConverter(LocationCheckCondition.KEY, LocationCheckCondition.CONVERTER);
+        builder.addConverter(LootingRandomChanceCondition.KEY, LootingRandomChanceCondition.CONVERTER);
+        builder.addConverter(NumberConstraintCondition.KEY, NumberConstraintCondition.CONVERTER);
+        builder.addConverter(OrCondition.KEY, OrCondition.CONVERTER);
+        builder.addConverter(RandomChanceCondition.KEY, RandomChanceCondition.CONVERTER);
+        builder.addConverter(ReferenceCondition.KEY, ReferenceCondition.CONVERTER);
+        builder.addConverter(SurvivesExplosionCondition.KEY, SurvivesExplosionCondition.CONVERTER);
+        builder.addConverter(TimeCheckCondition.KEY, TimeCheckCondition.CONVERTER);
+        builder.addConverter(ToolCheckCondition.KEY, ToolCheckCondition.CONVERTER);
+        builder.addConverter(WeatherCheckCondition.KEY, WeatherCheckCondition.CONVERTER);
 
         return builder;
     }
@@ -126,9 +126,9 @@ public class MinestomLoader {
 
         // Registered converters
         builder.addInitialConverter(ConstantNumber.ACCURATE_CONVERTER);
-        builder.addConverter(ConstantNumber.CONVERTER);
-        builder.addConverter(BinomialNumber.CONVERTER);
-        builder.addConverter(UniformNumber.CONVERTER);
+        builder.addConverter(ConstantNumber.KEY, ConstantNumber.CONVERTER);
+        builder.addConverter(BinomialNumber.KEY, BinomialNumber.CONVERTER);
+        builder.addConverter(UniformNumber.KEY, UniformNumber.CONVERTER);
 
         return builder;
     }
@@ -142,8 +142,8 @@ public class MinestomLoader {
 
         // Registered converters
         builder.addInitialConverter(ContextNBT.ACCURATE_CONVERTER);
-        builder.addConverter(ContextNBT.CONVERTER);
-        builder.addConverter(StorageNBT.CONVERTER);
+        builder.addConverter(ContextNBT.KEY, ContextNBT.CONVERTER);
+        builder.addConverter(StorageNBT.KEY, StorageNBT.CONVERTER);
 
         return builder;
     }

@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -21,13 +21,15 @@ import static dev.goldenstack.loot.converter.generator.FieldTypes.condition;
  */
 public record SmeltItemModifier(@NotNull List<LootCondition> conditions) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:furnace_smelt";
+
     /**
      * A standard map-based converter for item smelting modifiers.
      */
-    public static final @NotNull KeyedLootConverter<SmeltItemModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<SmeltItemModifier> CONVERTER =
             converter(SmeltItemModifier.class,
                     condition().list().name("conditions").withDefault(List::of)
-            ).keyed("minecraft:furnace_smelt");
+            );
 
     @Override
     public @Nullable Object modify(@NotNull ItemStack input, @NotNull LootContext context) {

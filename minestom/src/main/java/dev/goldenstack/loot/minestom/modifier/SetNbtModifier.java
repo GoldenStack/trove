@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.minestom.util.nbt.NBTUtils;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -23,14 +23,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.nbtCompound;
  */
 public record SetNbtModifier(@NotNull List<LootCondition> conditions, @NotNull NBTCompound nbt) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:set_nbt";
+
     /**
      * A standard map-based converter for NBT set modifiers.
      */
-    public static final @NotNull KeyedLootConverter<SetNbtModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<SetNbtModifier> CONVERTER =
             converter(SetNbtModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     nbtCompound().name("nbt").nodePath("tag")
-            ).keyed("minecraft:set_nbt");
+            );
 
     @Override
     public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {

@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -28,15 +28,17 @@ public record ApplyLootingModifier(@NotNull List<LootCondition> conditions,
                                    @NotNull LootNumber lootingMultiplier,
                                    int limiter) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:looting_enchant";
+
     /**
      * A standard map-based converter for apply looting modifiers.
      */
-    public static final @NotNull KeyedLootConverter<ApplyLootingModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<ApplyLootingModifier> CONVERTER =
             converter(ApplyLootingModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     number().name("lootingMultiplier").nodePath("count"),
                     implicit(int.class).name("limiter").nodePath("limit").withDefault(0)
-            ).keyed("minecraft:looting_enchant");
+            );
 
     @Override
     public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {

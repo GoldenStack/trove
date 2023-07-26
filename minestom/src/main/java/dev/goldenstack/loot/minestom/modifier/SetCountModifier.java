@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootNumber;
@@ -24,15 +24,17 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
 public record SetCountModifier(@NotNull List<LootCondition> conditions,
                                @NotNull LootNumber count, boolean add) implements ItemStackModifier {
 
+    public static final @NotNull String KEY = "minecraft:set_count";
+
     /**
      * A standard map-based converter for count set modifiers.
      */
-    public static final @NotNull KeyedLootConverter<SetCountModifier> CONVERTER =
+    public static final @NotNull TypedLootConverter<SetCountModifier> CONVERTER =
             converter(SetCountModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     number().name("count"),
                     implicit(boolean.class).name("add")
-            ).keyed("minecraft:set_count");
+            );
 
     @Override
     public @Nullable Object modify(@NotNull ItemStack input, @NotNull LootContext context) {

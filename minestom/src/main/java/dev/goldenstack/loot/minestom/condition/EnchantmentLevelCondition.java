@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.item.Enchantment;
@@ -20,14 +20,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.implicit;
 public record EnchantmentLevelCondition(@NotNull Enchantment addedEnchantment,
                                         @NotNull List<Double> chances) implements LootCondition {
 
+    public static final @NotNull String KEY = "minecraft:table_bonus";
+
     /**
      * A standard map-based converter for enchantment level conditions.
      */
-    public static final @NotNull KeyedLootConverter<EnchantmentLevelCondition> CONVERTER =
+    public static final @NotNull TypedLootConverter<EnchantmentLevelCondition> CONVERTER =
             converter(EnchantmentLevelCondition.class,
                 enchantment().name("addedEnchantment").nodePath("enchantment"),
                 implicit(Double.class).list().name("chances")
-            ).keyed("minecraft:table_bonus");
+            );
 
     @Override
     public boolean verify(@NotNull LootContext context) {

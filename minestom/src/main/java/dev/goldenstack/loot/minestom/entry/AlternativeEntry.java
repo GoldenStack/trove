@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.KeyedLootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
 import org.jetbrains.annotations.NotNull;
@@ -19,14 +19,16 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.entry;
  */
 public record AlternativeEntry(@NotNull List<LootEntry> children, @NotNull List<LootCondition> conditions) implements LootEntry {
 
+    public static final @NotNull String KEY = "minecraft:alternatives";
+
     /**
      * A standard map-based converter for alternative entries.
      */
-    public static final @NotNull KeyedLootConverter<AlternativeEntry> CONVERTER =
+    public static final @NotNull TypedLootConverter<AlternativeEntry> CONVERTER =
             converter(AlternativeEntry.class,
                     entry().list().name("children"),
                     condition().list().name("conditions").withDefault(List::of)
-            ).keyed("minecraft:alternatives");
+            );
 
     public AlternativeEntry {
         children = List.copyOf(children);

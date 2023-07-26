@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.generation;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.generation.LootGenerator;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
@@ -30,12 +30,12 @@ public record LootTable(@NotNull LootContextKeyGroup contextKeyGroup,
      */
     public static final @NotNull LootTable EMPTY = new LootTable(LootContextKeyGroup.EMPTY, List.of(), List.of());
 
-    public static final @NotNull LootConverter<LootTable> CONVERTER =
+    public static final @NotNull TypedLootConverter<LootTable> CONVERTER =
             converter(LootTable.class,
                     keyGroup().name("contextKeyGroup").nodePath("type"),
                     pool().list().name("pools").withDefault(List::of),
                     modifier().list().name("modifiers").nodePath("functions").withDefault(List::of)
-            ).converter();
+            );
 
     public LootTable {
         pools = List.copyOf(pools);
