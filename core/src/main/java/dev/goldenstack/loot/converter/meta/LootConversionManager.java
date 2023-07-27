@@ -2,6 +2,7 @@ package dev.goldenstack.loot.converter.meta;
 
 import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
+import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -10,60 +11,113 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Manages serialization for when multiple subtypes of a base class must be chosen from.
  * @param <V> the base type of object that will be converted
  */
-public class LootConversionManager<V> implements TypedLootConverter<V> {
-
-    private final @NotNull TypeToken<V> baseType;
-    private final @NotNull String keyLocation;
-    private final @NotNull List<ConditionalLootConverter<V>> initialConverters;
-    private final @NotNull Map<String, TypedLootConverter<? extends V>> directKeyRegistry;
-    private final @NotNull Map<TypeToken<? extends V>, TypedLootConverter<? extends V>> typeTokenRegistry;
-    private final @NotNull Map<TypeToken<? extends V>, String> reverseKeyRegistry;
-
-    private LootConversionManager(@NotNull Builder<V> builder) {
-        this.baseType = Objects.requireNonNull(builder.baseType, "This builder cannot be built without a base type");
-        this.keyLocation = Objects.requireNonNull(builder.keyLocation, "This builder cannot be built without a key location");
-
-        this.directKeyRegistry = Map.copyOf(builder.typedConverters);
-        this.typeTokenRegistry = builder.typedConverters.values().stream().collect(Collectors.toMap(TypedLootConverter::convertedType, Function.identity()));
-        this.reverseKeyRegistry = builder.typedConverters.entrySet().stream().collect(Collectors.toMap(a -> a.getValue().convertedType(), Map.Entry::getKey));
-
-        this.initialConverters = List.copyOf(builder.initialConverters);
-    }
+public sealed interface LootConversionManager<V> extends TypedLootConverter<V> permits LootConversionManagerImpl {
 
     /**
-     * This is the base type of this manager. It's the input type for serializers and the output type for deserializers.
-     * For {@link ConditionalLootConverter}s, it's the exact parameter for both, but subtypes of it are allowed (due to
-     * polymorphism) for the actual values of them. For {@link TypedLootConverter}s, the exact parameter type must be a
-     * subtype of this base type.
-     * @return the base type that all conditional converters must handle and that all typed converters must handle a
-     *         subtype of
+     * Creates a new LootConversionManager builder that will convert the provided type.
+     * @param convertedType the converted type
+     * @return a new builder
      */
+    static <V> @NotNull Builder<V> builder(@NotNull TypeToken<V> convertedType) {
+        return new Builder<>(convertedType);
+    }
+
+    final class Builder<V> {
+
+        private final @NotNull TypeToken<V> convertedType;
+        private String keyLocation;
+        private final @NotNull List<ConditionalLootConverter<V>> initialConverters = new ArrayList<>();
+
+        private final @NotNull Map<String, TypedLootConverter<? extends V>> keyToConverter = new HashMap<>();
+        private final @NotNull Map<TypeToken<? extends V>, TypedLootConverter<? extends V>> typeToConverter = new HashMap<>();
+        private final @NotNull Map<TypeToken<? extends V>, String> typeToKey = new HashMap<>();
+
+        private Builder(@NotNull TypeToken<V> convertedType) {
+            this.convertedType = convertedType;
+        }
+
+        /**
+         * Sets the location of the key that will be used to determine which typed converter to use.
+         * @param keyLocation the location of the key that will be used
+         * @return this, for chaining
+         */
+        @Contract("_ -> this")
+        public @NotNull Builder<V> keyLocation(@NotNull String keyLocation) {
+            this.keyLocation = keyLocation;
+            return this;
+        }
+
+        /**
+         * Adds a conditional converter to this builder. These conditional converters are applied before any
+         * typed converters are.
+         * @param converter the conditional converter to add
+         * @return this, for chaining
+         */
+        @Contract("_ -> this")
+        public @NotNull Builder<V> add(@NotNull ConditionalLootConverter<V> converter) {
+            this.initialConverters.add(converter);
+            return this;
+        }
+
+        /**
+         * Adds a typed converter under a specific key to this builder. These typed converters are always applied after
+         * any conditional converters are.
+         * @param key the key to associate the converter with
+         * @param converter the converter to be added
+         * @return this, for chaining
+         */
+        @Contract("_, _ -> this")
+        public @NotNull Builder<V> add(@NotNull String key, @NotNull TypedLootConverter<? extends V> converter) {
+            if (!GenericTypeReflector.isSuperType(convertedType.getType(), converter.convertedType().getType())) {
+                throw new IllegalArgumentException("Converter '" + key + "' has invalid type '" + converter.convertedType().getType() + "' as it is not a subtype of '" + convertedType.getType() + "'");
+            } else if (keyToConverter.put(key, converter) != null) {
+                throw new IllegalArgumentException("Converter '" + key + "' has a key that has already been registered");
+            } else if (typeToConverter.put(converter.convertedType(), converter) != null || typeToKey.put(converter.convertedType(), key) != null) {
+                throw new IllegalArgumentException("Converter '" + key + "' has a type '" + converter.convertedType().getType() + "' that has already been registered");
+            }
+
+            return this;
+        }
+
+        /**
+         * Builds this builder into a new LootConversionManager instance.
+         * @return the new loot conversion manager
+         */
+        @Contract(" -> new")
+        public @NotNull LootConversionManager<V> build() {
+            return new LootConversionManagerImpl<>(
+                    convertedType,
+                    Objects.requireNonNull(keyLocation, "This builder cannot be built without a key location"),
+                    initialConverters,
+                    keyToConverter, typeToConverter, typeToKey
+            );
+        }
+
+    }
+
+}
+
+record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull String keyLocation,
+                                    @NotNull List<ConditionalLootConverter<V>> initialConverters,
+                                    @NotNull Map<String, TypedLootConverter<? extends V>> keyToConverter,
+                                    @NotNull Map<TypeToken<? extends V>, TypedLootConverter<? extends V>> typeToConverter,
+                                    @NotNull Map<TypeToken<? extends V>, String> typeToKey) implements LootConversionManager<V> {
+
+    LootConversionManagerImpl {
+        Objects.requireNonNull(keyLocation, "This builder cannot be built without a key location");
+
+        initialConverters = List.copyOf(initialConverters);
+        keyToConverter = Map.copyOf(keyToConverter);
+        typeToConverter = Map.copyOf(typeToConverter);
+        typeToKey = Map.copyOf(typeToKey);
+    }
+
     @Override
-    public @NotNull TypeToken<V> convertedType() {
-        return baseType;
-    }
-
-    /**
-     * Serializes the provided object into a configuration node.<br>
-     * As it may not be self-explanatory, here's specifically how the process works:<br>
-     * All of the initial converters (that were added to the builder) are each checked, in the order they were added to
-     * the aforementioned border, to see if they will serialize the provided input. If any one of them does, it is used
-     * to serialize the input and the result is returned. These basically function as an extremely customizable
-     * alternative to typed loot converters.<br>
-     * Otherwise, this manager looks for the typed converter that has a {@link TypedLootConverter#convertedType()} equal
-     * to the type of the input and uses that to serialize it. If this process couldn't be done for any reason, an
-     * exception explaining why is thrown.
-     * @param input the object to serialize into a configuration node
-     * @param context the context object, to use if required
-     * @throws ConfigurateException if the input could not be serialized for some reason
-     */
     public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException {
         serialize0(input, result, context);
     }
@@ -80,37 +134,21 @@ public class LootConversionManager<V> implements TypedLootConverter<V> {
         TypeToken<?> token = TypeToken.get(input.getClass());
 
         @SuppressWarnings("unchecked")
-        TypedLootConverter<R> converter = (TypedLootConverter<R>) typeTokenRegistry.get(token);
-        String key = reverseKeyRegistry.get(token);
+        TypedLootConverter<R> converter = (TypedLootConverter<R>) typeToConverter.get(token);
+        String key = typeToKey.get(token);
         if (converter == null || key == null) {
-            throw new ConfigurateException("Unknown input type '" + input.getClass() + "' for base type '" + baseType.getType() + "'");
+            throw new ConfigurateException("Unknown input type '" + input.getClass() + "' for base type '" + convertedType.getType() + "'");
         }
         result.node(keyLocation).set(key);
         converter.serialize(input, result, context);
     }
 
-    /**
-     * Deserializes the provided configuration node into an instance of (or an instance of a subtype of) {@link V}.<br>
-     * As it may not be self-explanatory, here's specifically how the process works:<br>
-     * All of the initial converters (that were added to the builder) are each checked, in the order they were added to
-     * the aforementioned border, to see if they will deserialize the provided input. If any one of them does, it is
-     * used to deserialize the input and the result is returned. These basically function as an extremely customizable
-     * alternative to typed loot converters.<br>
-     * Otherwise, the input's child at the key location is used to determine which typed converter to use, and then the
-     * converter is used to deserialize the input. If this process couldn't be done for any reason, an exception
-     * explaining why is thrown.
-     * @param input the configuration node to deserialize into a {@link V}
-     * @param context the context object, to use if required
-     * @return the deserialized version of the provided input
-     * @throws ConfigurateException if the input could not be deserialized for some reason
-     */
     @Override
     public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull Trove context) throws ConfigurateException {
-        if (!initialConverters.isEmpty()) {
-            for (var conditional : initialConverters) {
-                if (conditional.canDeserialize(input, context)) {
-                    return conditional.deserialize(input, context);
-                }
+        // Initial pass with conditional converters
+        for (var conditional : initialConverters) {
+            if (conditional.canDeserialize(input, context)) {
+                return conditional.deserialize(input, context);
             }
         }
         ConfigurationNode keyNode = input.node(keyLocation);
@@ -120,61 +158,11 @@ public class LootConversionManager<V> implements TypedLootConverter<V> {
             throw new SerializationException(keyNode, String.class, "Expected a key");
         }
 
-        TypedLootConverter<? extends V> converter = directKeyRegistry.get(actualKey);
+        TypedLootConverter<? extends V> converter = keyToConverter.get(actualKey);
         if (converter == null) {
             throw new ConfigurateException(keyNode, "Unknown key '" + actualKey + "' for base type '" + convertedType().getType() + "'");
         }
         return converter.deserialize(input, context);
-    }
-
-    /**
-     * Creates a new builder for this class, with empty lists of converters and all other fields as null.<br>
-     * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
-     * @return a new LootConversionManager builder
-     * @param <V> the base type of converted objects
-     */
-    @Contract(" -> new")
-    public static <V> @NotNull Builder<V> builder() {
-        return new Builder<>();
-    }
-
-    public static final class Builder<V> {
-
-        private TypeToken<V> baseType;
-        private String keyLocation;
-        private final @NotNull Map<String, TypedLootConverter<? extends V>> typedConverters = new HashMap<>();
-        private final @NotNull List<ConditionalLootConverter<V>> initialConverters = new ArrayList<>();
-
-        private Builder() {}
-
-        @Contract("_ -> this")
-        public @NotNull Builder<V> baseType(@NotNull TypeToken<V> baseType) {
-            this.baseType = baseType;
-            return this;
-        }
-
-        @Contract("_ -> this")
-        public @NotNull Builder<V> keyLocation(@NotNull String keyLocation) {
-            this.keyLocation = keyLocation;
-            return this;
-        }
-
-        @Contract("_, _ -> this")
-        public @NotNull Builder<V> addConverter(@NotNull String key, @NotNull TypedLootConverter<? extends V> converter) {
-            this.typedConverters.put(key, converter);
-            return this;
-        }
-
-        @Contract("_ -> this")
-        public @NotNull Builder<V> addInitialConverter(@NotNull ConditionalLootConverter<V> converter) {
-            this.initialConverters.add(converter);
-            return this;
-        }
-
-        @Contract(" -> new")
-        public @NotNull LootConversionManager<V> build() {
-            return new LootConversionManager<>(this);
-        }
     }
 
 }

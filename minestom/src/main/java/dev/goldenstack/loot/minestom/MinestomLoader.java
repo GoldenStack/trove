@@ -41,109 +41,104 @@ public class MinestomLoader {
     }
 
     public static @NotNull LootConversionManager.Builder<LootEntry> createEntryBuilder() {
-        LootConversionManager.Builder<LootEntry> builder = LootConversionManager.builder();
+            LootConversionManager.Builder<LootEntry> builder = LootConversionManager.builder(TypeToken.get(LootEntry.class));
 
         // Basic data
-        builder.baseType(TypeToken.get(LootEntry.class));
         builder.keyLocation("type");
 
         // Registered converters
-        builder.addConverter(AlternativeEntry.KEY, AlternativeEntry.CONVERTER);
-        builder.addConverter(DynamicEntry.KEY, DynamicEntry.CONVERTER);
-        builder.addConverter(EmptyEntry.KEY, EmptyEntry.CONVERTER);
-        builder.addConverter(GroupEntry.KEY, GroupEntry.CONVERTER);
-        builder.addConverter(ItemEntry.KEY, ItemEntry.CONVERTER);
-        builder.addConverter(SequenceEntry.KEY, SequenceEntry.CONVERTER);
-        builder.addConverter(TableEntry.KEY, TableEntry.CONVERTER);
-        builder.addConverter(TagEntry.KEY, TagEntry.CONVERTER);
+        builder.add(AlternativeEntry.KEY, AlternativeEntry.CONVERTER);
+        builder.add(DynamicEntry.KEY, DynamicEntry.CONVERTER);
+        builder.add(EmptyEntry.KEY, EmptyEntry.CONVERTER);
+        builder.add(GroupEntry.KEY, GroupEntry.CONVERTER);
+        builder.add(ItemEntry.KEY, ItemEntry.CONVERTER);
+        builder.add(SequenceEntry.KEY, SequenceEntry.CONVERTER);
+        builder.add(TableEntry.KEY, TableEntry.CONVERTER);
+        builder.add(TagEntry.KEY, TagEntry.CONVERTER);
 
         return builder;
     }
 
     public static @NotNull LootConversionManager.Builder<LootModifier> createModifierBuilder() {
-        LootConversionManager.Builder<LootModifier> builder = LootConversionManager.builder();
+        LootConversionManager.Builder<LootModifier> builder = LootConversionManager.builder(TypeToken.get(LootModifier.class));
 
         // Basic data
-        builder.baseType(TypeToken.get(LootModifier.class));
         builder.keyLocation("function");
 
         // Registered converters
-        builder.addConverter(ApplyLootingModifier.KEY, ApplyLootingModifier.CONVERTER);
-        builder.addConverter(BonusCountModifier.KEY, BonusCountModifier.CONVERTER);
-        builder.addConverter(CopyNameModifier.KEY, CopyNameModifier.CONVERTER);
-        builder.addConverter(CopyNbtModifier.KEY, CopyNbtModifier.CONVERTER);
-        builder.addConverter(CopyStateModifier.KEY, CopyStateModifier.CONVERTER);
-        builder.addConverter(ExplosionDecayModifier.KEY, ExplosionDecayModifier.CONVERTER);
-        builder.addConverter(LevelledEnchantModifier.KEY, LevelledEnchantModifier.CONVERTER);
-        builder.addConverter(LimitCountModifier.KEY, LimitCountModifier.CONVERTER);
-        builder.addConverter(RandomlyEnchantModifier.KEY, RandomlyEnchantModifier.CONVERTER);
-        builder.addConverter(SetAttributesModifier.KEY, SetAttributesModifier.CONVERTER);
-        builder.addConverter(SetContentsModifier.KEY, SetContentsModifier.CONVERTER);
-        builder.addConverter(SetCountModifier.KEY, SetCountModifier.CONVERTER);
-        builder.addConverter(SetDamageModifier.KEY, SetDamageModifier.CONVERTER);
-        builder.addConverter(SetNbtModifier.KEY, SetNbtModifier.CONVERTER);
-        builder.addConverter(SetPotionModifier.KEY, SetPotionModifier.CONVERTER);
-        builder.addConverter(SetStewEffectModifier.KEY, SetStewEffectModifier.CONVERTER);
-        builder.addConverter(SmeltItemModifier.KEY, SmeltItemModifier.CONVERTER);
+        builder.add(ApplyLootingModifier.KEY, ApplyLootingModifier.CONVERTER);
+        builder.add(BonusCountModifier.KEY, BonusCountModifier.CONVERTER);
+        builder.add(CopyNameModifier.KEY, CopyNameModifier.CONVERTER);
+        builder.add(CopyNbtModifier.KEY, CopyNbtModifier.CONVERTER);
+        builder.add(CopyStateModifier.KEY, CopyStateModifier.CONVERTER);
+        builder.add(ExplosionDecayModifier.KEY, ExplosionDecayModifier.CONVERTER);
+        builder.add(LevelledEnchantModifier.KEY, LevelledEnchantModifier.CONVERTER);
+        builder.add(LimitCountModifier.KEY, LimitCountModifier.CONVERTER);
+        builder.add(RandomlyEnchantModifier.KEY, RandomlyEnchantModifier.CONVERTER);
+        builder.add(SetAttributesModifier.KEY, SetAttributesModifier.CONVERTER);
+        builder.add(SetContentsModifier.KEY, SetContentsModifier.CONVERTER);
+        builder.add(SetCountModifier.KEY, SetCountModifier.CONVERTER);
+        builder.add(SetDamageModifier.KEY, SetDamageModifier.CONVERTER);
+        builder.add(SetNbtModifier.KEY, SetNbtModifier.CONVERTER);
+        builder.add(SetPotionModifier.KEY, SetPotionModifier.CONVERTER);
+        builder.add(SetStewEffectModifier.KEY, SetStewEffectModifier.CONVERTER);
+        builder.add(SmeltItemModifier.KEY, SmeltItemModifier.CONVERTER);
 
         return builder;
     }
 
     public static @NotNull LootConversionManager.Builder<LootCondition> createConditionBuilder() {
-        LootConversionManager.Builder<LootCondition> builder = LootConversionManager.builder();
+        LootConversionManager.Builder<LootCondition> builder = LootConversionManager.builder(TypeToken.get(LootCondition.class));
 
         // Basic data
-        builder.baseType(TypeToken.get(LootCondition.class));
         builder.keyLocation("condition");
 
         // Registered converters
-        builder.addConverter(AndCondition.KEY, AndCondition.CONVERTER);
-        builder.addConverter(BlockStateCondition.KEY, BlockStateCondition.CONVERTER);
-        builder.addConverter(EnchantmentLevelCondition.KEY, EnchantmentLevelCondition.CONVERTER);
-        builder.addConverter(EntityCheckCondition.KEY, EntityCheckCondition.CONVERTER);
-        builder.addConverter(InvertedCondition.KEY, InvertedCondition.CONVERTER);
-        builder.addConverter(KilledByPlayerCondition.KEY, KilledByPlayerCondition.CONVERTER);
-        builder.addConverter(LocationCheckCondition.KEY, LocationCheckCondition.CONVERTER);
-        builder.addConverter(LootingRandomChanceCondition.KEY, LootingRandomChanceCondition.CONVERTER);
-        builder.addConverter(NumberConstraintCondition.KEY, NumberConstraintCondition.CONVERTER);
-        builder.addConverter(OrCondition.KEY, OrCondition.CONVERTER);
-        builder.addConverter(RandomChanceCondition.KEY, RandomChanceCondition.CONVERTER);
-        builder.addConverter(ReferenceCondition.KEY, ReferenceCondition.CONVERTER);
-        builder.addConverter(SurvivesExplosionCondition.KEY, SurvivesExplosionCondition.CONVERTER);
-        builder.addConverter(TimeCheckCondition.KEY, TimeCheckCondition.CONVERTER);
-        builder.addConverter(ToolCheckCondition.KEY, ToolCheckCondition.CONVERTER);
-        builder.addConverter(WeatherCheckCondition.KEY, WeatherCheckCondition.CONVERTER);
+        builder.add(AndCondition.KEY, AndCondition.CONVERTER);
+        builder.add(BlockStateCondition.KEY, BlockStateCondition.CONVERTER);
+        builder.add(EnchantmentLevelCondition.KEY, EnchantmentLevelCondition.CONVERTER);
+        builder.add(EntityCheckCondition.KEY, EntityCheckCondition.CONVERTER);
+        builder.add(InvertedCondition.KEY, InvertedCondition.CONVERTER);
+        builder.add(KilledByPlayerCondition.KEY, KilledByPlayerCondition.CONVERTER);
+        builder.add(LocationCheckCondition.KEY, LocationCheckCondition.CONVERTER);
+        builder.add(LootingRandomChanceCondition.KEY, LootingRandomChanceCondition.CONVERTER);
+        builder.add(NumberConstraintCondition.KEY, NumberConstraintCondition.CONVERTER);
+        builder.add(OrCondition.KEY, OrCondition.CONVERTER);
+        builder.add(RandomChanceCondition.KEY, RandomChanceCondition.CONVERTER);
+        builder.add(ReferenceCondition.KEY, ReferenceCondition.CONVERTER);
+        builder.add(SurvivesExplosionCondition.KEY, SurvivesExplosionCondition.CONVERTER);
+        builder.add(TimeCheckCondition.KEY, TimeCheckCondition.CONVERTER);
+        builder.add(ToolCheckCondition.KEY, ToolCheckCondition.CONVERTER);
+        builder.add(WeatherCheckCondition.KEY, WeatherCheckCondition.CONVERTER);
 
         return builder;
     }
 
     public static @NotNull LootConversionManager.Builder<LootNumber> createNumberBuilder() {
-        LootConversionManager.Builder<LootNumber> builder = LootConversionManager.builder();
+        LootConversionManager.Builder<LootNumber> builder = LootConversionManager.builder(TypeToken.get(LootNumber.class));
 
         // Basic data
-        builder.baseType(TypeToken.get(LootNumber.class));
         builder.keyLocation("type");
 
         // Registered converters
-        builder.addInitialConverter(ConstantNumber.ACCURATE_CONVERTER);
-        builder.addConverter(ConstantNumber.KEY, ConstantNumber.CONVERTER);
-        builder.addConverter(BinomialNumber.KEY, BinomialNumber.CONVERTER);
-        builder.addConverter(UniformNumber.KEY, UniformNumber.CONVERTER);
+        builder.add(ConstantNumber.ACCURATE_CONVERTER);
+        builder.add(ConstantNumber.KEY, ConstantNumber.CONVERTER);
+        builder.add(BinomialNumber.KEY, BinomialNumber.CONVERTER);
+        builder.add(UniformNumber.KEY, UniformNumber.CONVERTER);
 
         return builder;
     }
 
     public static @NotNull LootConversionManager.Builder<LootNBT> createNbtBuilder() {
-        LootConversionManager.Builder<LootNBT> builder = LootConversionManager.builder();
+        LootConversionManager.Builder<LootNBT> builder = LootConversionManager.builder(TypeToken.get(LootNBT.class));
 
         // Basic data
-        builder.baseType(TypeToken.get(LootNBT.class));
         builder.keyLocation("type");
 
         // Registered converters
-        builder.addInitialConverter(ContextNBT.ACCURATE_CONVERTER);
-        builder.addConverter(ContextNBT.KEY, ContextNBT.CONVERTER);
-        builder.addConverter(StorageNBT.KEY, StorageNBT.CONVERTER);
+        builder.add(ContextNBT.ACCURATE_CONVERTER);
+        builder.add(ContextNBT.KEY, ContextNBT.CONVERTER);
+        builder.add(StorageNBT.KEY, StorageNBT.CONVERTER);
 
         return builder;
     }

@@ -49,12 +49,11 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
      */
     public interface BonusType {
 
-        TypedLootConverter<BonusType> TYPE_CONVERTER = LootConversionManager.<BonusType>builder()
-                .baseType(TypeToken.get(BonusType.class))
-                .addConverter(BinomialBonus.KEY, BinomialBonus.CONVERTER)
-                .addConverter(UniformBonus.KEY, UniformBonus.CONVERTER)
-                .addConverter(FortuneDrops.KEY, FortuneDrops.CONVERTER)
+        TypedLootConverter<BonusType> TYPE_CONVERTER = LootConversionManager.builder(TypeToken.get(BonusType.class))
                 .keyLocation("formula")
+                .add(BinomialBonus.KEY, BinomialBonus.CONVERTER)
+                .add(UniformBonus.KEY, UniformBonus.CONVERTER)
+                .add(FortuneDrops.KEY, FortuneDrops.CONVERTER)
                 .build();
 
         int calculateNewValue(Random random, int count, int enchantmentLevel);

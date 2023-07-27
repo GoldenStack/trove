@@ -22,69 +22,50 @@ public class LootConversionManagerTest {
 
     @Test
     public void testBuilderSubtyping(){
-        var builder = LootConversionManager.<A>builder()
-                .baseType(new TypeToken<>(){})
+        var builder = LootConversionManager.builder(TypeToken.get(A.class))
                 .keyLocation("location");
 
-        builder.addConverter("a", emptySerializer(A.class, A::new));
+        builder.add("a", emptySerializer(A.class, A::new));
         assertDoesNotThrow(builder::build);
 
-        builder.addConverter("b", emptySerializer(B.class, B::new));
+        builder.add("b", emptySerializer(B.class, B::new));
         assertDoesNotThrow(builder::build);
 
-        builder.addConverter("x", (TypedLootConverter<? extends A>) (Object) emptySerializer(X.class, X::new));
-        assertThrows(IllegalArgumentException.class, builder::build);
-    }
-
-    @Test
-    public void testBaseTypeBypass() {
-        var builder = LootConversionManager.<A>builder()
-                .baseType(new TypeToken<>(){})
-                .keyLocation("location");
-
-        builder.addConverter("a", emptySerializer(A.class, A::new));
-        assertDoesNotThrow(builder::build);
-
-        var builder2 = ((LootConversionManager.Builder<X>) (Object) builder).baseType(new TypeToken<>(){});
-
-        builder2.addConverter("x", emptySerializer(X.class, X::new));
+        builder.add("x", (TypedLootConverter<? extends A>) (Object) emptySerializer(X.class, X::new));
         assertThrows(IllegalArgumentException.class, builder::build);
     }
 
     @Test
     public void testDuplicateKey() {
-        var builder = LootConversionManager.<A>builder()
-                .baseType(new TypeToken<>(){})
+        var builder = LootConversionManager.builder(TypeToken.get(A.class))
                 .keyLocation("location");
 
-        builder.addConverter("a", emptySerializer(A.class, A::new));
+        builder.add("a", emptySerializer(A.class, A::new));
         assertDoesNotThrow(builder::build);
 
-        builder.addConverter("b", emptySerializer(B.class, B::new));
+        builder.add("b", emptySerializer(B.class, B::new));
         assertThrows(IllegalArgumentException.class, builder::build);
     }
 
     @Test
     public void testDuplicateType() {
-        var builder = LootConversionManager.<A>builder()
-                .baseType(new TypeToken<>(){})
+        var builder = LootConversionManager.builder(TypeToken.get(A.class))
                 .keyLocation("location");
 
-        builder.addConverter("a", emptySerializer(A.class, A::new));
+        builder.add("a", emptySerializer(A.class, A::new));
         assertDoesNotThrow(builder::build);
 
-        builder.addConverter("b", emptySerializer(A.class, A::new));
+        builder.add("b", emptySerializer(A.class, A::new));
         assertThrows(IllegalArgumentException.class, builder::build);
     }
 
     @Test
     public void testActiveConditionalSerializer() throws ConfigurateException {
-        var builder = LootConversionManager.<A>builder()
-                .baseType(new TypeToken<>(){})
+        var builder = LootConversionManager.builder(TypeToken.get(A.class))
                 .keyLocation("location");
 
-        builder.addConverter("a", emptySerializer(A.class, A::new));
-        builder.addInitialConverter(emptyConditionalSerializer(B::new, true, true));
+        builder.add("a", emptySerializer(A.class, A::new));
+        builder.add(emptyConditionalSerializer(B::new, true, true));
 
         var manager = builder.build();
 
@@ -97,12 +78,11 @@ public class LootConversionManagerTest {
 
     @Test
     public void testInactiveConditionalSerializer() throws ConfigurateException {
-        var builder = LootConversionManager.<A>builder()
-                .baseType(new TypeToken<>(){})
+        var builder = LootConversionManager.builder(TypeToken.get(A.class))
                 .keyLocation("location");
 
-        builder.addConverter("a", emptySerializer(A.class, A::new));
-        builder.addInitialConverter(emptyConditionalSerializer(B::new, false, false));
+        builder.add("a", emptySerializer(A.class, A::new));
+        builder.add(emptyConditionalSerializer(B::new, false, false));
 
         var manager = builder.build();
 
