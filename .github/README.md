@@ -55,13 +55,7 @@ every JSON file inside it.
 ``` java
 Path lootTableFolder = ...; // Replace with the path to the folder of loot tables
 
-LootConversionContext context = LootConversionContext.builder()
-        .loader(TroveMinestom.DEFAULT_LOADER)
-        .with(LootConversionKeys.CONTEXT_KEYS, TroveMinestom.STANDARD_GROUPS)
-        .with(LootContextKeys.VANILLA_INTERFACE, TroveMinestom.DEFAULT_INTERFACE)
-        .build();
-
-var tableRegistry = TroveMinestom.readTables(lootTableFolder, context);
+var tableRegistry = TroveMinestom.readTables(lootTableFolder, TroveMinestom.DEFAULT_LOADER);
 ```
 Each table will be stored via a NamespaceID in the tables object. For example, if the parsed loot table has the path
 "blocks/barrel.json" relative to the loot table folder, its ID will be `minecraft:blocks/barrel`.
@@ -74,10 +68,10 @@ Here's an example that uses the `tableRegistry` variable from the last code snip
 ``` java
 LootTable table = tableRegistry.getTable(NamespaceID.from("minecraft:blocks/stone"));
 
-// You can use the LootContextKeys class t
-LootGenerationContext context = LootGenerationContext.builder()
+// You can use the LootContext class to provide important information during generation.
+LootContext context = LootContext.builder()
         .random(...) // Random instance here
-        .with(..., ...) // Loot context key and value here
+        .with(..., ...) // Loot context keys and values added with Builder#with
         .build();
 
 // Generate the loot
@@ -107,7 +101,12 @@ var processor = LootProcessor.builder()
 Then, just handle the `LootBatch` that was generated previously:
 
 ``` java
-processor.processBatch(loot);
+processor.process(loot);
+```
+
+You may also provide something that can generate loot, as well as a `LootContext`:
+``` java
+processor.process(table, context);
 ```
 
 ---
