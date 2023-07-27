@@ -9,7 +9,6 @@ import org.jglrxavpok.hephaistos.parser.SNBTParser;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -156,14 +155,16 @@ public class NBTUtils {
      */
     @SuppressWarnings("UnstableApiUsage")
     public static @NotNull List<ItemStack> listToItems(@NotNull NBTList<NBTCompound> itemNBT) {
-        int itemCount = 0;
+        int maxIndex = 0;
         for (var compound : itemNBT) {
             Byte slot = compound.getByte("Slot");
-            itemCount = Math.max(itemCount, slot != null ? slot : 0);
+            maxIndex = Math.max(maxIndex, slot != null ? slot : 0);
         }
 
-        List<ItemStack> items = new ArrayList<>(itemCount);
-        Collections.fill(items, ItemStack.AIR);
+        List<ItemStack> items = new ArrayList<>(maxIndex);
+        for (int i = 0; i <= maxIndex; i++) {
+            items.add(ItemStack.AIR);
+        }
 
         // Iterate with a normal loop so we can use the index as a fallback.
         for (int i = 0; i < itemNBT.getSize(); i++) {
