@@ -3,6 +3,7 @@ package dev.goldenstack.loot.minestom.util;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.generator.Field;
 import dev.goldenstack.loot.converter.generator.FieldTypes;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
 import dev.goldenstack.loot.minestom.generation.LootPool;
@@ -41,14 +42,14 @@ import static dev.goldenstack.loot.converter.generator.Field.field;
 public class MinestomTypes extends FieldTypes {
 
     public static @NotNull Field<LootNBT> lootNBT() {
-        return field(LootNBT.class, loader(LootNBT.class));
+        return field(loader(LootNBT.class));
     }
 
     /**
      * @return a field converting number ranges
      */
     public static @NotNull Field<LootNumberRange> numberRange() {
-        return field(LootNumberRange.class, LootNumberRange.CONVERTER);
+        return field(LootNumberRange.CONVERTER);
     }
 
     /**
@@ -90,21 +91,21 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting block state checks
      */
     public static @NotNull Field<BlockStateCheck> blockStateCheck() {
-        return field(BlockStateCheck.class, BlockStateCheck.CONVERTER);
+        return field(BlockStateCheck.CONVERTER);
     }
 
     /**
      * @return a field converting location predicates
      */
     public static @NotNull Field<VanillaInterface.LocationPredicate> locationPredicate() {
-        return field(VanillaInterface.LocationPredicate.class, loader(VanillaInterface.LocationPredicate.class));
+        return field(loader(VanillaInterface.LocationPredicate.class));
     }
 
     /**
      * @return a field converting entity predicates
      */
     public static @NotNull Field<VanillaInterface.EntityPredicate> entityPredicate() {
-        return field(VanillaInterface.EntityPredicate.class, loader(VanillaInterface.EntityPredicate.class));
+        return field(loader(VanillaInterface.EntityPredicate.class));
     }
 
     /**
@@ -118,7 +119,7 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting context key groups
      */
     public static @NotNull Field<LootContextKeyGroup> keyGroup() {
-        return field(LootContextKeyGroup.class, loader(LootContextKeyGroup.class));
+        return field(loader(LootContextKeyGroup.class));
     }
 
     /**
@@ -135,21 +136,21 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting loot pools
      */
     public static @NotNull Field<LootPool> pool() {
-        return field(LootPool.class, LootPool.CONVERTER);
+        return field(LootPool.CONVERTER);
     }
 
     /**
      * @return a field converting loot tables
      */
     public static @NotNull Field<LootTable> table() {
-        return field(LootTable.class, LootTable.CONVERTER);
+        return field(LootTable.CONVERTER);
     }
 
     /**
      * @return a field converting NBT
      */
     public static @NotNull Field<NBT> nbt() {
-        return field(NBT.class, LootConverter.join(
+        return field(TypedLootConverter.join(NBT.class, LootConverter.join(
             (input, result, context) -> result.set(input.toSNBT()),
             (input, context) -> {
                 var snbt = input.require(String.class);
@@ -161,7 +162,7 @@ public class MinestomTypes extends FieldTypes {
                     throw new ConfigurateException(input, e);
                 }
             }
-        ));
+        )));
     }
 
     /**

@@ -39,7 +39,7 @@ public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull TypedLootConverter<SetStewEffectModifier> CONVERTER =
             converter(SetStewEffectModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
-                    field(StewEffect.class, StewEffect.CONVERTER).list().name("effects")
+                    field(StewEffect.CONVERTER).list().name("effects")
             );
 
     /**

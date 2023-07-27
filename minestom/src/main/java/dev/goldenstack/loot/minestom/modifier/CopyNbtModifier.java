@@ -42,7 +42,7 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
             converter(CopyNbtModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     lootNBT().name("source"),
-                    field(Operation.class, Operation.CONVERTER).list().name("operations").nodePath("ops")
+                    field(Operation.CONVERTER).list().name("operations").nodePath("ops")
             );
 
     /**
@@ -56,8 +56,8 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
 
         public static final @NotNull TypedLootConverter<Operation> CONVERTER =
                 converter(Operation.class,
-                        field(NBTPath.class, NBTPath.CONVERTER).name("source"),
-                        field(NBTPath.class, NBTPath.CONVERTER).name("target"),
+                        field(NBTPath.CONVERTER).name("source"),
+                        field(NBTPath.CONVERTER).name("target"),
                         enumerated(Operator.class, Operator::id).name("operator").nodePath("op")
                 );
 

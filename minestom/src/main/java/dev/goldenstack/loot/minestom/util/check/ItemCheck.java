@@ -49,12 +49,12 @@ public record ItemCheck(@NotNull NBTCheck nbtCheck,
      */
     public static final @NotNull TypedLootConverter<ItemCheck> CONVERTER =
             converter(ItemCheck.class,
-                    field(NBTCheck.class, NBTCheck.CONVERTER).name("nbtCheck").nodePath("nbt"),
+                    field(NBTCheck.CONVERTER).name("nbtCheck").nodePath("nbt"),
                     numberRange().name("count"),
                     numberRange().name("durability"),
-                    field(EnchantmentCheck.class, EnchantmentCheck.CONVERTER).list().withDefault(List::of)
+                    field(EnchantmentCheck.CONVERTER).list().withDefault(List::of)
                             .name("enchantmentChecks").nodePath("enchantments"),
-                    field(EnchantmentCheck.class, EnchantmentCheck.CONVERTER).list().withDefault(List::of)
+                    field(EnchantmentCheck.CONVERTER).list().withDefault(List::of)
                             .name("storedEnchantmentChecks").nodePath("stored_enchantments"),
                     material().list().name("validMaterials").nodePath("items").optional(),
                     tag(Tag.BasicType.ITEMS).name("materialTag").nodePath("tag").optional(),

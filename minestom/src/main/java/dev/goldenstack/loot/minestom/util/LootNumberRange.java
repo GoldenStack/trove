@@ -2,6 +2,7 @@ package dev.goldenstack.loot.minestom.util;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +21,7 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
      * equivalent {@link ConstantNumber} instances holding the number, but otherwise handles it normally with map-based
      * values.
      */
-    public static final @NotNull LootConverter<LootNumberRange> CONVERTER = LootConverter.join(
+    public static final @NotNull TypedLootConverter<LootNumberRange> CONVERTER = TypedLootConverter.join(LootNumberRange.class, LootConverter.join(
             (input, result, context) -> {
                 if (input.min != null) {
                     context.require(LootNumber.class).serialize(input.min, result.node("min"), context);
@@ -48,7 +49,7 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
                     return new LootNumberRange(constant, constant);
                 }
             }
-    );
+    ));
 
     /**
      * Limits the provided value to between the minimum and maximum.<br>

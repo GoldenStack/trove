@@ -1,6 +1,7 @@
 package dev.goldenstack.loot.minestom.util.nbt;
 
 import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +32,7 @@ public sealed interface NBTPath permits NBTPathImpl {
     /**
      * A converter that tries to read a NBT path from a string, and will convert it back to a string, too.
      */
-    @NotNull LootConverter<NBTPath> CONVERTER = NBTPathImpl.CONVERTER;
+    @NotNull TypedLootConverter<NBTPath> CONVERTER = NBTPathImpl.CONVERTER;
 
     /**
      * Reads a NBT path from the provided reader. It is possible that this does not consume the entire reader, so
@@ -347,7 +348,7 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
     static final @NotNull IntSet VALID_INTEGER_CHARACTERS = IntSet.of('-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
     static final @NotNull IntSet INVALID_UNQUOTED_CHARACTERS = IntSet.of(-1, '.', '\'', '\"', '{', '}', '[', ']');
 
-    static final @NotNull LootConverter<NBTPath> CONVERTER = LootConverter.join(
+    static final @NotNull TypedLootConverter<NBTPath> CONVERTER = TypedLootConverter.join(NBTPath.class, LootConverter.join(
             (input, result, context) -> result.set(input.toString()), (input, context) -> {
                 var path = input.getString();
                 if (path == null) {
@@ -371,7 +372,7 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
                         throw new ConfigurateException("Could not read a NBT path from '" + path + "'", e);
                     }
                 }
-            });
+            }));
 
     static @NotNull NBTPath readPath(@NotNull StringReader reader) throws IOException {
         List<Selector> selectors = new ArrayList<>();

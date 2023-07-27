@@ -41,7 +41,7 @@ public class MinestomLoader {
     }
 
     public static @NotNull LootConversionManager.Builder<LootEntry> createEntryBuilder() {
-            LootConversionManager.Builder<LootEntry> builder = LootConversionManager.builder(TypeToken.get(LootEntry.class));
+        LootConversionManager.Builder<LootEntry> builder = LootConversionManager.builder(TypeToken.get(LootEntry.class));
 
         // Basic data
         builder.keyLocation("type");

@@ -23,7 +23,7 @@ public record ToolCheckCondition(@NotNull ItemCheck toolCheck) implements LootCo
      */
     public static final @NotNull TypedLootConverter<ToolCheckCondition> CONVERTER =
             converter(ToolCheckCondition.class,
-                    field(ItemCheck.class, ItemCheck.CONVERTER).name("toolCheck").nodePath("predicate").withDefault(ItemCheck.EMPTY)
+                    field(ItemCheck.CONVERTER).name("toolCheck").nodePath("predicate").withDefault(ItemCheck.EMPTY)
             );
 
     @Override

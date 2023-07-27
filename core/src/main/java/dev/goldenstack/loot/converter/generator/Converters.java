@@ -55,7 +55,12 @@ public class Converters {
 class ConvertersImpl {
 
     static <V> TypedLootConverter<V> converter(@NotNull Class<V> type, @NotNull List<Field<?>> fields) {
-        var constructor = getConstructor(type, fields.stream().map(Field::type).map(TypeToken::getType).map(GenericTypeReflector::erase).toArray(Class[]::new));
+        var constructor = getConstructor(type, fields.stream()
+                .map(Field::converter)
+                .map(TypedLootConverter::convertedType)
+                .map(TypeToken::getType)
+                .map(GenericTypeReflector::erase)
+                .toArray(Class[]::new));
         return converter(type, constructor, fields);
     }
 
@@ -107,8 +112,8 @@ class ConvertersImpl {
                 throw new RuntimeException("Unknown field '" + field.localName() + "' of class '" + type + "'", e);
             }
 
-            if (!actualField.getGenericType().equals(field.type().getType())) {
-                throw new RuntimeException("Expected field '" + field.localName() + "' of class '" + type + "' to be of type '" + field.type() + "', found '" + actualField.getType() + "'");
+            if (!actualField.getGenericType().equals(field.converter().convertedType().getType())) {
+                throw new RuntimeException("Expected field '" + field.localName() + "' of class '" + type + "' to be of type '" + field.converter().convertedType().getType() + "', found '" + actualField.getType() + "'");
             }
 
             actualFields[i] = actualField;

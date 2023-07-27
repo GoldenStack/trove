@@ -1,6 +1,7 @@
 package dev.goldenstack.loot.converter.generator;
 
 import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.util.FallibleFunction;
 import io.leangen.geantyref.TypeFactory;
 import io.leangen.geantyref.TypeToken;
@@ -15,48 +16,28 @@ import java.util.function.Supplier;
 
 /**
  * Stores the necessary information about a field that is required to convert it on some arbitrary object.
- * @param type a type token storing the actual type of this field
  * @param converter the converter that converts instances of this field
+ * @param defaultValue the default value of this field; used for serialization and deserialization. Be careful when
+ *                     providing a mutable object here, as it may have unexpected consequences.
  * @param localName the local name of this field, used for finding constructor parameters and for finding the actual
  *                  field to read. This can be null, but it's not allowed to be null when passing this field into
  *                  functions like {@link Converters#converter(Class, Field[])}.
  * @param nodePath the node path of this field, used for finding the configuration node that needs to be deserialized
  *                 and for adding the information of instances back onto nodes when serializing. Just like
  *                 {@code localName}, this can be null but should not be if passing into relevant methods.
- * @param defaultValue the default value of this field; used for serialization and deserialization. Be careful when
- *                     providing a mutable object here, as it may have unexpected consequences.
  * @param <T> the actual type of this field
  */
-public record Field<T>(@NotNull TypeToken<T> type,
-                       @NotNull LootConverter<T> converter,
-                       @UnknownNullability String localName,
-                       @UnknownNullability List<Object> nodePath,
-                       @Nullable Supplier<T> defaultValue) {
+public record Field<T>(@NotNull TypedLootConverter<T> converter, @Nullable Supplier<T> defaultValue,
+                       @UnknownNullability String localName, @UnknownNullability List<Object> nodePath) {
 
     /**
-     * Creates a new field, given its type and a converter for the aforementioned type.
-     * @param type a type token representing the exact type of this field, including parameterized types
-     * @param converter the default converter to use for this field
-     * @return a new field of the provided type and converter
+     * Creates a new field that wraps the provided converter and its type.
+     * @param converter the converter to use
+     * @return a new field of the provided converter and its type
      * @param <T> the type that the field represents
      */
-    public static <T> @NotNull Field<T> field(@NotNull TypeToken<T> type, @NotNull LootConverter<T> converter) {
-        return new Field<>(type, converter, null, null, null);
-    }
-
-    /**
-     * Creates a new field, given its type and a converter for the aforementioned type.<br>
-     * Possesses identical semantics to {@link #field(TypeToken, LootConverter)}, except that it automatically converts
-     * the class into a type token.<br>
-     * <b>This should only be used when the type doesn't have any type arguments; information will be lost if you omit
-     * them and provide solely the class.</b>
-     * @param type the raw class of the field.
-     * @param converter the default converter to use for this field
-     * @return a new field of the provided type and converter
-     * @param <T> the type that the field represents
-     */
-    public static <T> @NotNull Field<T> field(@NotNull Class<T> type, @NotNull LootConverter<T> converter) {
-        return field(TypeToken.get(type), converter);
+    public static <T> @NotNull Field<T> field(@NotNull TypedLootConverter<T> converter) {
+        return new Field<>(converter, null, null, null);
     }
 
     public Field {
@@ -71,7 +52,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
      * @return a new field with the updated information
      */
     public @NotNull Field<T> name(@NotNull String name) {
-        return new Field<>(type, converter, name, List.of(name), defaultValue);
+        return new Field<>(converter, defaultValue, name, List.of(name));
     }
 
     /**
@@ -80,7 +61,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
      * @return a new field with the updated information
      */
     public @NotNull Field<T> localName(@NotNull String name) {
-        return new Field<>(type, converter, name, nodePath, defaultValue);
+        return new Field<>(converter, defaultValue, name, nodePath);
     }
 
     /**
@@ -89,7 +70,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
      * @return a new field with the updated information
      */
     public @NotNull Field<T> nodePath(@NotNull List<@NotNull Object> path) {
-        return new Field<>(type, converter, localName, List.copyOf(path), defaultValue);
+        return new Field<>(converter, defaultValue, localName, List.copyOf(path));
     }
 
     /**
@@ -98,7 +79,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
      * @return a new field with the updated information
      */
     public @NotNull Field<T> nodePath(@NotNull Object @NotNull ... path) {
-        return new Field<>(type, converter, localName, List.of(path), defaultValue);
+        return new Field<>(converter, defaultValue, localName, List.of(path));
     }
 
     /**
@@ -108,7 +89,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
      * @return a new field with the updated information
      */
     public @NotNull Field<T> withDefault(@NotNull Supplier<T> defaultValue) {
-        return new Field<>(type, converter, localName, nodePath, defaultValue);
+        return new Field<>(converter, defaultValue, localName, nodePath);
     }
 
     /**
@@ -137,7 +118,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
         var oldConverter = converter;
 
         @SuppressWarnings("unchecked") // This is safe because TypeFactory.parameterizedClass unfortunately just removes the generic
-        TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.type.getType()));
+        TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.converter.convertedType().getType()));
 
         LootConverter<List<T>> newConverter = LootConverter.join(
                 (input, result, context) -> {
@@ -158,7 +139,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
                 }
         );
 
-        return new Field<>(newType, newConverter, localName, nodePath, null);
+        return new Field<>(TypedLootConverter.join(newType, newConverter), null, localName, nodePath);
     }
 
     /**
@@ -172,7 +153,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
         var oldConverter = converter;
 
         @SuppressWarnings("unchecked") // This is safe because TypeFactory.parameterizedClass unfortunately just removes the generic
-        TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.type.getType()));
+        TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.converter.convertedType().getType()));
 
         LootConverter<List<T>> newConverter = LootConverter.join(
                 (input, result, context) -> {
@@ -197,7 +178,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
                 }
         );
 
-        return new Field<>(newType, newConverter, localName, nodePath, null);
+        return new Field<>(TypedLootConverter.join(newType, newConverter), null, localName, nodePath);
     }
 
     /**
@@ -237,7 +218,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
                 (input, result, context) -> {
                     var applied = fromNew.apply(input);
                     if (applied == null) {
-                        throw new SerializationException(type.getType(), "'" + input + "' could not be serialized or has an invalid type");
+                        throw new SerializationException(converter.convertedType().getType(), "'" + input + "' could not be serialized or has an invalid type");
                     }
                     oldConverter.serialize(applied, result, context);
                 },
@@ -250,7 +231,7 @@ public record Field<T>(@NotNull TypeToken<T> type,
                     return result;
                 }
         );
-        return new Field<>(newType, newConverter, localName, nodePath, null);
+        return new Field<>(TypedLootConverter.join(newType, newConverter), null, localName, nodePath);
     }
 
 }

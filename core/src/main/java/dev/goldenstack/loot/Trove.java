@@ -1,6 +1,5 @@
 package dev.goldenstack.loot;
 
-import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;
@@ -22,7 +21,7 @@ public sealed interface Trove permits TroveImpl {
      * @return a valid converter for the desired type, or null if there is not one
      * @param <V> the converted type
      */
-    <V> @Nullable LootConverter<V> get(@NotNull Type type);
+    <V> @Nullable TypedLootConverter<V> get(@NotNull Type type);
 
     /**
      * Returns a valid converter that converts the provided type, or null if there is not one.
@@ -30,7 +29,7 @@ public sealed interface Trove permits TroveImpl {
      * @return a valid converter for the desired type, or null if there is not one
      * @param <V> the converted type
      */
-    default <V> @Nullable LootConverter<V> get(@NotNull TypeToken<V> type) {
+    default <V> @Nullable TypedLootConverter<V> get(@NotNull TypeToken<V> type) {
         return this.get(type.getType());
     }
 
@@ -40,7 +39,7 @@ public sealed interface Trove permits TroveImpl {
      * @return a valid converter for the desired type
      * @param <V> the converted type
      */
-    <V> @NotNull LootConverter<V> require(@NotNull Type type);
+    <V> @NotNull TypedLootConverter<V> require(@NotNull Type type);
 
     /**
      * Returns a valid converter that converts the provided type, throwing an exception if there is not one.
@@ -48,7 +47,7 @@ public sealed interface Trove permits TroveImpl {
      * @return a valid converter for the desired type
      * @param <V> the converted type
      */
-    default <V> @NotNull LootConverter<V> require(@NotNull Class<V> type) {
+    default <V> @NotNull TypedLootConverter<V> require(@NotNull Class<V> type) {
         return require((Type) type);
     }
 
@@ -58,7 +57,7 @@ public sealed interface Trove permits TroveImpl {
      * @return a valid converter for the desired type
      * @param <V> the converted type
      */
-    default <V> @NotNull LootConverter<V> require(@NotNull TypeToken<V> type) {
+    default <V> @NotNull TypedLootConverter<V> require(@NotNull TypeToken<V> type) {
         return require(type.getType());
     }
 
@@ -72,7 +71,7 @@ public sealed interface Trove permits TroveImpl {
     }
 
     final class Builder {
-        private final @NotNull Map<Type, LootConverter<?>> converters = new HashMap<>();
+        private final @NotNull Map<Type, TypedLootConverter<?>> converters = new HashMap<>();
 
         private Builder() {}
 
@@ -84,10 +83,8 @@ public sealed interface Trove permits TroveImpl {
          * @param <T> the converted type
          */
         @Contract("_, _ -> this")
-        public <T> @NotNull Builder add(@NotNull TypeToken<T> convertedType, @NotNull LootConverter<T> converter) {
-            if (converters.put(convertedType.getType(), converter) != null) {
-                throw new IllegalArgumentException("Type '" + convertedType.getType() + "' is already present in this builder");
-            }
+        public <T> @NotNull Builder add(@NotNull TypeToken<T> convertedType, @NotNull TypedLootConverter<T> converter) {
+            add(TypedLootConverter.join(convertedType, converter));
 
             return this;
         }
@@ -118,7 +115,7 @@ public sealed interface Trove permits TroveImpl {
 
 }
 
-record TroveImpl(@NotNull Map<Type, LootConverter<?>> converters) implements Trove {
+record TroveImpl(@NotNull Map<Type, TypedLootConverter<?>> converters) implements Trove {
 
     TroveImpl {
         converters = Map.copyOf(converters);
@@ -126,13 +123,13 @@ record TroveImpl(@NotNull Map<Type, LootConverter<?>> converters) implements Tro
 
     @SuppressWarnings("unchecked")
     @Override
-    public @Nullable <V> LootConverter<V> get(@NotNull Type type) {
+    public @Nullable <V> TypedLootConverter<V> get(@NotNull Type type) {
         var get = converters.get(type);
-        return get != null ? (LootConverter<V>) get : null;
+        return get != null ? (TypedLootConverter<V>) get : null;
     }
 
     @Override
-    public <V> @NotNull LootConverter<V> require(@NotNull Type type) {
+    public <V> @NotNull TypedLootConverter<V> require(@NotNull Type type) {
         var get = this.<V>get(type);
         if (get != null) {
             return get;

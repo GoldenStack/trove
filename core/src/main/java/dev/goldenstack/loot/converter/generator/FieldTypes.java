@@ -1,6 +1,7 @@
 package dev.goldenstack.loot.converter.generator;
 
 import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
 import dev.goldenstack.loot.structure.LootModifier;
@@ -40,7 +41,7 @@ public class FieldTypes {
      * @param <T> the type to convert
      */
     public static <T> @NotNull Field<T> implicit(@NotNull TypeToken<T> type) {
-        return field(type, LootConverter.join(
+        return field(TypedLootConverter.join(type, LootConverter.join(
                 (input, result, context) -> result.set(type, input),
                 (input, context) -> {
                     var instance = input.get(type);
@@ -49,7 +50,7 @@ public class FieldTypes {
                     }
                     return instance;
                 }
-        ));
+        )));
     }
 
     /**
@@ -93,38 +94,38 @@ public class FieldTypes {
      * @return a field converting loot conditions
      */
     public static @NotNull Field<LootCondition> condition() {
-        return field(LootCondition.class, loader(LootCondition.class));
+        return field(loader(LootCondition.class));
     }
 
     /**
      * @return a field converting loot entries
      */
     public static @NotNull Field<LootEntry> entry() {
-        return field(LootEntry.class, loader(LootEntry.class));
+        return field(loader(LootEntry.class));
     }
 
     /**
      * @return a field converting loot modifiers
      */
     public static @NotNull Field<LootModifier> modifier() {
-        return field(LootModifier.class, loader(LootModifier.class));
+        return field(loader(LootModifier.class));
     }
 
     /**
      * @return a field converting loot numbers
      */
     public static @NotNull Field<LootNumber> number() {
-        return field(LootNumber.class, loader(LootNumber.class));
+        return field(loader(LootNumber.class));
     }
 
     /**
      * @return a field converting the provided type, relying on the Trove instance to provide the actual converter
      */
-    public static <V> @NotNull LootConverter<V> loader(@NotNull Class<V> type) {
-        return LootConverter.join(
+    public static <V> @NotNull TypedLootConverter<V> loader(@NotNull Class<V> type) {
+        return TypedLootConverter.join(type, LootConverter.join(
                 (input, result, context) -> context.require(type).serialize(input, result, context),
                 (input, context) -> context.require(type).deserialize(input, context)
-        );
+        ));
     }
 
 }

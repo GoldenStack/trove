@@ -40,7 +40,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
             converter(BonusCountModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
                     enchantment().name("addedEnchantment").nodePath("enchantment"),
-                    field(BonusType.class, BonusType.TYPE_CONVERTER).name("bonus").nodePath(List.of())
+                    field(BonusType.TYPE_CONVERTER).name("bonus").nodePath(List.of())
             );
 
     /**

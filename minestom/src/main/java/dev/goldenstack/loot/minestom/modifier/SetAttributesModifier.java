@@ -39,7 +39,7 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull TypedLootConverter<SetAttributesModifier> CONVERTER =
             converter(SetAttributesModifier.class,
                     condition().list().name("conditions").withDefault(List::of),
-                    field(AttributeDirective.class, AttributeDirective.CONVERTER).list().name("attributes").nodePath("modifiers")
+                    field(AttributeDirective.CONVERTER).list().name("attributes").nodePath("modifiers")
             );
 
     @Override
