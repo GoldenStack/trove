@@ -2,7 +2,6 @@ package dev.goldenstack.loot;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
-import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -61,9 +60,7 @@ public class TestUtils {
 
     public static <V> @NotNull TypedLootConverter<V> emptySerializer(@NotNull Class<V> convertedType,
                                                                      @NotNull Supplier<V> initializer) {
-        return TypedLootConverter.join(convertedType, LootConverter.join(
-                (input, result, context) -> {}, (input, context) -> initializer.get()
-        ));
+        return TypedLootConverter.join(convertedType, (input, result, context) -> {}, (input, context) -> initializer.get());
     }
 
 }

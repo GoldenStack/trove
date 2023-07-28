@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.util;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.structure.LootNumber;
@@ -21,7 +20,7 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
      * equivalent {@link ConstantNumber} instances holding the number, but otherwise handles it normally with map-based
      * values.
      */
-    public static final @NotNull TypedLootConverter<LootNumberRange> CONVERTER = TypedLootConverter.join(LootNumberRange.class, LootConverter.join(
+    public static final @NotNull TypedLootConverter<LootNumberRange> CONVERTER = TypedLootConverter.join(LootNumberRange.class,
             (input, result, context) -> {
                 if (input.min != null) {
                     context.require(LootNumber.class).serialize(input.min, result.node("min"), context);
@@ -34,7 +33,7 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
                 if (input.isNull()) {
                     return new LootNumberRange(null, null);
                 } else if (input.isMap()) {
-                    LootConverter<LootNumber> converter = context.require(LootNumber.class);
+                    TypedLootConverter<LootNumber> converter = context.require(LootNumber.class);
                     return new LootNumberRange(
                             input.hasChild("min") ? converter.deserialize(input.node("min"), context) : null,
                             input.hasChild("max") ? converter.deserialize(input.node("max"), context) : null
@@ -49,7 +48,7 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
                     return new LootNumberRange(constant, constant);
                 }
             }
-    ));
+    );
 
     /**
      * Limits the provided value to between the minimum and maximum.<br>

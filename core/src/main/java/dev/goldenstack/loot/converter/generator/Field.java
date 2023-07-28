@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.converter.generator;
 
-import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.util.FallibleFunction;
 import io.leangen.geantyref.TypeFactory;
@@ -120,7 +119,7 @@ public record Field<T>(@NotNull TypedLootConverter<T> converter, @Nullable Suppl
         @SuppressWarnings("unchecked") // This is safe because TypeFactory.parameterizedClass unfortunately just removes the generic
         TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.converter.convertedType().getType()));
 
-        LootConverter<List<T>> newConverter = LootConverter.join(
+        TypedLootConverter<List<T>> newConverter = TypedLootConverter.join(newType,
                 (input, result, context) -> {
                     for (var item : input) {
                         oldConverter.serialize(item, result.appendListNode(), context);
@@ -139,7 +138,7 @@ public record Field<T>(@NotNull TypedLootConverter<T> converter, @Nullable Suppl
                 }
         );
 
-        return new Field<>(TypedLootConverter.join(newType, newConverter), null, localName, nodePath);
+        return new Field<>(newConverter, null, localName, nodePath);
     }
 
     /**
@@ -155,7 +154,7 @@ public record Field<T>(@NotNull TypedLootConverter<T> converter, @Nullable Suppl
         @SuppressWarnings("unchecked") // This is safe because TypeFactory.parameterizedClass unfortunately just removes the generic
         TypeToken<List<T>> newType = (TypeToken<List<T>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.converter.convertedType().getType()));
 
-        LootConverter<List<T>> newConverter = LootConverter.join(
+        TypedLootConverter<List<T>> newConverter = TypedLootConverter.join(newType,
                 (input, result, context) -> {
                     if (input.size() == 1) {
                         oldConverter.serialize(input.get(0), result, context);
@@ -178,7 +177,7 @@ public record Field<T>(@NotNull TypedLootConverter<T> converter, @Nullable Suppl
                 }
         );
 
-        return new Field<>(TypedLootConverter.join(newType, newConverter), null, localName, nodePath);
+        return new Field<>(newConverter, null, localName, nodePath);
     }
 
     /**
@@ -214,7 +213,7 @@ public record Field<T>(@NotNull TypedLootConverter<T> converter, @Nullable Suppl
                                      @NotNull FallibleFunction<@NotNull N, @Nullable T> fromNew) {
         var oldConverter = converter;
 
-        LootConverter<N> newConverter = LootConverter.join(
+        TypedLootConverter<N> newConverter = TypedLootConverter.join(newType,
                 (input, result, context) -> {
                     var applied = fromNew.apply(input);
                     if (applied == null) {
@@ -231,7 +230,7 @@ public record Field<T>(@NotNull TypedLootConverter<T> converter, @Nullable Suppl
                     return result;
                 }
         );
-        return new Field<>(TypedLootConverter.join(newType, newConverter), null, localName, nodePath);
+        return new Field<>(newConverter, null, localName, nodePath);
     }
 
 }

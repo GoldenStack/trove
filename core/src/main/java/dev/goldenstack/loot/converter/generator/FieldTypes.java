@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.converter.generator;
 
-import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
@@ -41,7 +40,7 @@ public class FieldTypes {
      * @param <T> the type to convert
      */
     public static <T> @NotNull Field<T> implicit(@NotNull TypeToken<T> type) {
-        return field(TypedLootConverter.join(type, LootConverter.join(
+        return field(TypedLootConverter.join(type,
                 (input, result, context) -> result.set(type, input),
                 (input, context) -> {
                     var instance = input.get(type);
@@ -50,7 +49,7 @@ public class FieldTypes {
                     }
                     return instance;
                 }
-        )));
+        ));
     }
 
     /**
@@ -122,10 +121,10 @@ public class FieldTypes {
      * @return a field converting the provided type, relying on the Trove instance to provide the actual converter
      */
     public static <V> @NotNull TypedLootConverter<V> loader(@NotNull Class<V> type) {
-        return TypedLootConverter.join(type, LootConverter.join(
+        return TypedLootConverter.join(type,
                 (input, result, context) -> context.require(type).serialize(input, result, context),
                 (input, context) -> context.require(type).deserialize(input, context)
-        ));
+        );
     }
 
 }

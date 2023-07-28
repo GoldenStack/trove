@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom;
 
 import dev.goldenstack.loot.Trove;
-import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
 import dev.goldenstack.loot.minestom.generation.LootTable;
@@ -43,15 +42,15 @@ public class TroveMinestom {
      */
     public static final @NotNull Trove DEFAULT_LOADER =
             MinestomLoader.initializeBuilder(Trove.builder())
-                    .add(TypedLootConverter.join(VanillaInterface.EntityPredicate.class, LootConverter.join(
+                    .add(TypedLootConverter.join(VanillaInterface.EntityPredicate.class,
                             (input, result, context) -> {},
                             (input, context) -> (world, location, entity) -> false
-                    )))
-                    .add(TypedLootConverter.join(VanillaInterface.LocationPredicate.class, LootConverter.join(
+                    ))
+                    .add(TypedLootConverter.join(VanillaInterface.LocationPredicate.class,
                             (input, result, context) -> {},
                             (input, context) -> (world, location) -> false
-                    )))
-                    .add(TypedLootConverter.join(LootContextKeyGroup.class, LootConverter.join(
+                    ))
+                    .add(TypedLootConverter.join(LootContextKeyGroup.class,
                             (input, result, context) -> result.set(input.id()),
                             (input, context) -> {
                                 var id = input.getString();
@@ -60,7 +59,7 @@ public class TroveMinestom {
                                 }
                                 return STANDARD_GROUPS.get(id);
                             }
-                    )))
+                    ))
                     .build();
 
     /**

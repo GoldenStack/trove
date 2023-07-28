@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.converter.generator;
 
 import dev.goldenstack.loot.Trove;
-import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.LootDeserializer;
 import dev.goldenstack.loot.converter.LootSerializer;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
@@ -134,7 +133,7 @@ class ConvertersImpl {
             }
         };
 
-        return TypedLootConverter.join(type, LootConverter.join(actualSerializer, actualDeserializer));
+        return TypedLootConverter.join(type, actualSerializer, actualDeserializer);
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical

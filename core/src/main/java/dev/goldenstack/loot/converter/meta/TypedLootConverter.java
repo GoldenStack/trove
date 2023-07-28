@@ -2,6 +2,8 @@ package dev.goldenstack.loot.converter.meta;
 
 import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.converter.LootConverter;
+import dev.goldenstack.loot.converter.LootDeserializer;
+import dev.goldenstack.loot.converter.LootSerializer;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurateException;
@@ -21,7 +23,7 @@ public interface TypedLootConverter<V> extends LootConverter<V> {
      * @param <V> the converted type
      */
     static <V> @NotNull TypedLootConverter<V> join(@NotNull TypeToken<V> type, @NotNull LootConverter<V> converter) {
-        return new TypedLootConverterImpl<>(type, converter);
+        return join(type, converter, converter);
     }
 
     /**
@@ -32,7 +34,31 @@ public interface TypedLootConverter<V> extends LootConverter<V> {
      * @param <V> the converted type
      */
     static <V> @NotNull TypedLootConverter<V> join(@NotNull Class<V> type, @NotNull LootConverter<V> converter) {
-        return join(TypeToken.get(type), converter);
+        return join(TypeToken.get(type), converter, converter);
+    }
+
+    /**
+     * Joins the provided type, serializer, and deserializer into a new TypedLootConverter.
+     * @param type the converted type
+     * @param serializer the serializer to use
+     * @param deserializer the deserializer to use
+     * @return a typed converter joining the provided type and converter
+     * @param <V> the converted type
+     */
+    static <V> @NotNull TypedLootConverter<V> join(@NotNull TypeToken<V> type, @NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<V> deserializer) {
+        return new TypedLootConverterImpl<>(type, serializer, deserializer);
+    }
+
+    /**
+     * Joins the provided type, serializer, and deserializer into a new TypedLootConverter.
+     * @param type the converted type
+     * @param serializer the serializer to use
+     * @param deserializer the deserializer to use
+     * @return a typed converter joining the provided type and converter
+     * @param <V> the converted type
+     */
+    static <V> @NotNull TypedLootConverter<V> join(@NotNull Class<V> type, @NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<V> deserializer) {
+        return join(TypeToken.get(type), serializer, deserializer);
     }
 
     /**
@@ -43,15 +69,15 @@ public interface TypedLootConverter<V> extends LootConverter<V> {
 
 }
 
-record TypedLootConverterImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull LootConverter<V> converter) implements TypedLootConverter<V> {
+record TypedLootConverterImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<V> deserializer) implements TypedLootConverter<V> {
 
     @Override
     public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException {
-        converter.serialize(input, result, context);
+        serializer.serialize(input, result, context);
     }
 
     @Override
     public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull Trove context) throws ConfigurateException {
-        return converter.deserialize(input, context);
+        return deserializer.deserialize(input, context);
     }
 }

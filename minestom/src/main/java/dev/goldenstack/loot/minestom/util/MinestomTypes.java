@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.minestom.util;
 
-import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.generator.Field;
 import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
@@ -150,7 +149,7 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting NBT
      */
     public static @NotNull Field<NBT> nbt() {
-        return field(TypedLootConverter.join(NBT.class, LootConverter.join(
+        return field(TypedLootConverter.join(NBT.class,
             (input, result, context) -> result.set(input.toSNBT()),
             (input, context) -> {
                 var snbt = input.require(String.class);
@@ -162,7 +161,7 @@ public class MinestomTypes extends FieldTypes {
                     throw new ConfigurateException(input, e);
                 }
             }
-        )));
+        ));
     }
 
     /**
