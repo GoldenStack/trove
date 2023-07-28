@@ -28,8 +28,8 @@ import static dev.goldenstack.loot.minestom.util.MinestomTypes.namespaceId;
  * @param conditions the conditions that all must be met for any results to be generated
  */
 public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, long quality,
-                           @NotNull List<LootCondition> conditions,
-                           @NotNull List<LootModifier> modifiers) implements StandardSingleChoice {
+                           @NotNull List<LootModifier> modifiers,
+                           @NotNull List<LootCondition> conditions) implements StandardSingleChoice {
 
     public static final @NotNull String KEY = "minecraft:dynamic";
 
