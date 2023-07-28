@@ -1,5 +1,6 @@
 package dev.goldenstack.loot;
 
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;
@@ -83,7 +84,7 @@ public sealed interface Trove permits TroveImpl {
          * @param <T> the converted type
          */
         @Contract("_, _ -> this")
-        public <T> @NotNull Builder add(@NotNull TypeToken<T> convertedType, @NotNull TypedLootConverter<T> converter) {
+        public <T> @NotNull Builder add(@NotNull TypeToken<T> convertedType, @NotNull LootConverter<T> converter) {
             add(TypedLootConverter.join(convertedType, converter));
 
             return this;
