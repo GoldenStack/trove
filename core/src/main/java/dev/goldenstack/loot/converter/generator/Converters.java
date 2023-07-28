@@ -115,6 +115,10 @@ class ConvertersImpl {
                 throw new RuntimeException("Expected field '" + field.localName() + "' of class '" + type + "' to be of type '" + field.converter().convertedType().getType() + "', found '" + actualField.getType() + "'");
             }
 
+            if (!actualField.trySetAccessible()) {
+                throw new RuntimeException("Could not make field '" + actualField + "' accessible");
+            }
+
             actualFields[i] = actualField;
         }
 
