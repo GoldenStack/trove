@@ -2,32 +2,36 @@ package dev.goldenstack.loot.converter;
 
 import dev.goldenstack.loot.Trove;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 
+import java.util.Optional;
+
 /**
- * A loot converter that has the ability to communicate whether or not each of its individual actions (i.e.,
- * serialization and deserialization) should occur.<br>
- * Note: the behaviour of both {@link #serialize(Object, ConfigurationNode, Trove)} and
- * {@link #deserialize(ConfigurationNode, Trove)} is undefined when their respective conditional methods
- * do not return true for the provided input.
- * @param <V> the type of object that will be serialized and deserialized
+ * A loot converter that may optionally serialize and deserialize its input.
+ * @param <V> the converted type
  */
-public interface ConditionalLootConverter<V> extends LootConverter<V> {
+public interface ConditionalLootConverter<V> extends LootSerializer<V>, LootDeserializer<Optional<V>> {
 
     /**
-     * Determines whether or not the provided input can be serialized by this converter.
-     * @param input the input object that will be checked
-     * @param loader the loader object, to use if required
-     * @return true if this converter can be used to deserialize the provided input
+     * Joins the provided serializer, and deserializer into a new ConditionalLootConverter.
+     * @param serializer the serializer to use
+     * @param deserializer the deserializer to use
+     * @return a conditional converter joining the provided type and converter
+     * @param <V> the converted type
      */
-    boolean canSerialize(@NotNull V input, @NotNull Trove loader);
+    static <V> @NotNull ConditionalLootConverter<V> join(@NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<Optional<V>> deserializer) {
+        return new ConditionalLootConverter<>() {
+            @Override
+            public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException {
+                serializer.serialize(input, result, context);
+            }
 
-    /**
-     * Determines whether or not the provided input can be deserialized by this converter.
-     * @param input the input object that will be checked
-     * @param loader the loader object, to use if required
-     * @return true if this converter can be used to deserialize the provided input
-     */
-    boolean canDeserialize(@NotNull ConfigurationNode input, @NotNull Trove loader);
+            @Override
+            public @NotNull Optional<V> deserialize(@NotNull ConfigurationNode input, @NotNull Trove context) throws ConfigurateException {
+                return deserializer.deserialize(input, context);
+            }
+        };
+    }
 
 }

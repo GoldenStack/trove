@@ -10,6 +10,7 @@ import org.spongepowered.configurate.BasicConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 @SuppressWarnings("ConstantConditions")
@@ -35,27 +36,13 @@ public class TestUtils {
     public static <V> @NotNull ConditionalLootConverter<V> emptyConditionalSerializer(@NotNull Supplier<V> initializer,
                                                                                       boolean canSerialize,
                                                                                       boolean canDeserialize) {
-        return new ConditionalLootConverter<>() {
-            @Override
-            public boolean canSerialize(@NotNull V input, @NotNull Trove context) {
-                return canSerialize;
-            }
-
-            @Override
-            public boolean canDeserialize(@NotNull ConfigurationNode input, @NotNull Trove context) {
-                return canDeserialize;
-            }
-
-            @Override
-            public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull Trove context) {
-                return initializer.get();
-            }
-
-            @Override
-            public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull Trove context) {
-
-            }
-        };
+        return ConditionalLootConverter.join(
+                (input, result, context) -> {
+                    if (canSerialize) {
+                        result.set(null);
+                    }
+                }, (input, context) -> Optional.ofNullable(canDeserialize ? initializer.get() : null)
+        );
     }
 
     public static <V> @NotNull TypedLootConverter<V> emptySerializer(@NotNull Class<V> convertedType,

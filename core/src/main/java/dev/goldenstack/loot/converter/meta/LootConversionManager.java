@@ -125,8 +125,8 @@ record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNul
     private <R extends V> void serialize0(@NotNull R input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException {
         if (!initialConverters.isEmpty()) {
             for (var conditional : initialConverters) {
-                if (conditional.canSerialize(input, context)) {
-                    conditional.serialize(input, result, context);
+                conditional.serialize(input, result, context);
+                if (!result.isNull()) {
                     return;
                 }
             }
@@ -147,8 +147,9 @@ record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNul
     public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull Trove context) throws ConfigurateException {
         // Initial pass with conditional converters
         for (var conditional : initialConverters) {
-            if (conditional.canDeserialize(input, context)) {
-                return conditional.deserialize(input, context);
+            var result = conditional.deserialize(input, context);
+            if (result.isPresent()) {
+                return result.get();
             }
         }
         ConfigurationNode keyNode = input.node(keyLocation);
