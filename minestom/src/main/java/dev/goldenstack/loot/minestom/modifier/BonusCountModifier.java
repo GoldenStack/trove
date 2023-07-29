@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Random;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Field.field;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 import static dev.goldenstack.loot.converter.generator.FieldTypes.implicit;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.enchantment;

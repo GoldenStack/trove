@@ -9,7 +9,7 @@ import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Field.field;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * Verifies that all provided contexts have a tool that passes the {@link #toolCheck()}.

@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.util;
 
-import dev.goldenstack.loot.converter.generator.Field;
+import dev.goldenstack.loot.converter.generator.Converters.Field;
 import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.VanillaInterface;
@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static dev.goldenstack.loot.converter.generator.Field.field;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * Utility for the creation of various types of Minestom-related fields.

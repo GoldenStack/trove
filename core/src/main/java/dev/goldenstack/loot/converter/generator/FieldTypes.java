@@ -1,5 +1,6 @@
 package dev.goldenstack.loot.converter.generator;
 
+import dev.goldenstack.loot.converter.generator.Converters.Field;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
@@ -16,7 +17,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static dev.goldenstack.loot.converter.generator.Field.field;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * Utility for the creation of various types of fields.

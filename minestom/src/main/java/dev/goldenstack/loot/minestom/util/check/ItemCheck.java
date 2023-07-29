@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Field.field;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
 
 /**

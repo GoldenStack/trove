@@ -20,7 +20,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Field.field;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
 
 /**
