@@ -33,7 +33,7 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
                         child.node("min").set(rangedLongState.min);
                         child.node("max").set(rangedLongState.max);
                     } else {
-                        throw new ConfigurateException("Cannot serialize type '" + singular.getClass() + "'");
+                        throw new ConfigurateException(result, "Cannot serialize type '" + singular.getClass() + "'");
                     }
                 }
             }, (input, context) -> {

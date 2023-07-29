@@ -137,7 +137,7 @@ record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNul
         TypedLootConverter<R> converter = (TypedLootConverter<R>) typeToConverter.get(token);
         String key = typeToKey.get(token);
         if (converter == null || key == null) {
-            throw new ConfigurateException("Unknown input type '" + input.getClass() + "' for base type '" + convertedType.getType() + "'");
+            throw new ConfigurateException(result, "Unknown input type '" + input.getClass() + "' for base type '" + convertedType.getType() + "'");
         }
         result.node(keyLocation).set(key);
         converter.serialize(input, result, context);

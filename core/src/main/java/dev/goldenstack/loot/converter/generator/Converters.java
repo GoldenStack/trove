@@ -4,7 +4,6 @@ import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.converter.LootDeserializer;
 import dev.goldenstack.loot.converter.LootSerializer;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
-import dev.goldenstack.loot.util.FallibleFunction;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -23,8 +22,25 @@ import java.util.Objects;
 public class Converters {
 
     /**
+     * Represents a generic constructor that can throw an exception while constructing.
+     * @param <V> the constructed type
+     */
+    public interface Constructor<V> {
+
+        /**
+         * Attempts to construct an object from the provided arguments, using the provided node to throw any exceptions
+         * as to provide more detailed context.
+         * @param arguments the objects to construct with
+         * @param node the node to create exceptions with, for increased context
+         * @return the constructed object
+         */
+        @NotNull V construct(Object @NotNull [] arguments, @NotNull ConfigurationNode node) throws ConfigurateException;
+
+    }
+
+    /**
      * Creates a typed converter from the provided type and fields. This basically just calls
-     * {@link #converter(Class, FallibleFunction, List)} except that the constructor is searched for on the class that
+     * {@link #converter(Class, Constructor, List)} except that the constructor is searched for on the class that
      * is provided.
      * @param type the class of the object that will be converted
      * @param fields the information about fields for this type
@@ -43,8 +59,7 @@ public class Converters {
      * @return a new typed converter for the provided type
      * @param <V> the type of object that will be converted
      */
-    public static <V> @NotNull TypedLootConverter<V> converter(@NotNull Class<V> type,
-                                                     @NotNull FallibleFunction<Object @NotNull [], @NotNull V> constructor,
+    public static <V> @NotNull TypedLootConverter<V> converter(@NotNull Class<V> type, @NotNull Constructor<V> constructor,
                                                      @NotNull List<Field<?>> fields) {
         return ConvertersImpl.converter(type, constructor, fields);
     }
@@ -63,7 +78,7 @@ class ConvertersImpl {
         return converter(type, constructor, fields);
     }
 
-    static <V> @NotNull FallibleFunction<Object @NotNull [], @NotNull V> getConstructor(@NotNull Class<V> type, @NotNull Class<?>[] fields) {
+    static <V> Converters.@NotNull Constructor<V> getConstructor(@NotNull Class<V> type, @NotNull Class<?>[] fields) {
         Constructor<V> constructor;
         try {
             constructor = type.getDeclaredConstructor(fields);
@@ -71,18 +86,17 @@ class ConvertersImpl {
             throw new RuntimeException("Unknown constructor for type '" + type + "'", e);
         }
 
-        return input -> {
+        return (input, node) -> {
             try {
                 return constructor.newInstance(input);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw new ConfigurateException("Could not run deserializer '" + constructor + "' on type '" + type + "'", e);
+                throw new ConfigurateException(node, "Could not create a new instance of type '" + type + "' with constructor '" + constructor + "'", e);
             }
         };
     }
 
-    static <V> TypedLootConverter<V> converter(@NotNull Class<V> type,
-                                                @NotNull FallibleFunction<Object @NotNull [], @NotNull V> constructor,
-                                                @NotNull List<Field<?>> fields) {
+    static <V> TypedLootConverter<V> converter(@NotNull Class<V> type, @NotNull Converters.Constructor<V> constructor,
+                                               @NotNull List<Field<?>> fields) {
         for (var field : fields) {
             Objects.requireNonNull(field.localName(), "Field must have a local name!");
             Objects.requireNonNull(field.nodePath(), "Field must have a node path!");
@@ -96,7 +110,7 @@ class ConvertersImpl {
                 objects[i] = deserialize(field, input.node(field.nodePath()), context);
             }
 
-            return constructor.apply(objects);
+            return constructor.construct(objects, input);
         };
 
         // Store actual fields for the serialization
@@ -130,7 +144,7 @@ class ConvertersImpl {
                 try {
                     fieldValue = actualFields[i].get(input);
                 } catch (IllegalAccessException e) {
-                    throw new ConfigurateException("Could not retrieve value of field '" + actualFields[i].getName() + "' on type '" + type + "'", e);
+                    throw new ConfigurateException(result, "Could not retrieve value of field '" + actualFields[i].getName() + "' on type '" + type + "'", e);
                 }
 
                 serialize(field, fieldValue, result.node(field.nodePath()), context);

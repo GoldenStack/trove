@@ -10,6 +10,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTList;
 import org.jglrxavpok.hephaistos.nbt.NBTType;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ public sealed interface NBTPath permits NBTPathImpl {
      * @throws IOException if there was an exception while trying to read the path
      */
     static @NotNull NBTPath readPath(@NotNull StringReader reader) throws IOException {
-        return NBTPathImpl.readPath(reader);
+        return NBTPathImpl.readPath(reader, null);
     }
 
     /**
@@ -357,10 +358,10 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
                 var reader = new StringReader(path);
 
                 try {
-                    var parsedPath = NBTPath.readPath(reader);
+                    var parsedPath = readPath(reader, input);
 
                     if (reader.read() != -1) { // Make sure we read the entire string
-                        throw new ConfigurateException("Reading a path from '" + path + "' did not consume the entire reader");
+                        throw new ConfigurateException(input, "Reading a path from '" + path + "' did not consume the entire reader");
                     }
 
                     return parsedPath;
@@ -368,12 +369,12 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
                     if (e instanceof ConfigurateException configurate) {
                         throw configurate;
                     } else {
-                        throw new ConfigurateException("Could not read a NBT path from '" + path + "'", e);
+                        throw new ConfigurateException(input, "Could not read a NBT path from '" + path + "'", e);
                     }
                 }
             });
 
-    static @NotNull NBTPath readPath(@NotNull StringReader reader) throws IOException {
+    static @NotNull NBTPath readPath(@NotNull StringReader reader, @Nullable ConfigurationNode source) throws IOException {
         List<Selector> selectors = new ArrayList<>();
 
         if (!VALID_SELECTOR_STARTERS.contains(peek(reader))) {
@@ -389,7 +390,8 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
             if (!VALID_SELECTOR_STARTERS.contains(peek(reader))) {
                 if (selectors.isEmpty()) {
                     reader.reset();
-                    throw new ConfigurateException("NBT paths must contain at least one selector (reading from " + reader + ")");
+                    String message = "NBT paths must contain at least one selector (reading from " + reader + ")";
+                    throw source != null ? new ConfigurateException(source, message) : new ConfigurateException(message);
                 }
                 return new NBTPathImpl(List.copyOf(selectors));
             }
@@ -397,7 +399,8 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
             var selector = readPathSelector(reader);
             if (selector == null) {
                 reader.reset();
-                throw new ConfigurateException("Invalid NBT path selector (reading from " + reader + ")");
+                String message = "Invalid NBT path selector (reading from " + reader + ")";
+                throw source != null ? new ConfigurateException(source, message) : new ConfigurateException(message);
             }
 
             selectors.add(selector);
