@@ -1,9 +1,8 @@
 package dev.goldenstack.loot.converter;
 
-import dev.goldenstack.loot.Trove;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Optional;
 
@@ -23,13 +22,13 @@ public interface ConditionalLootConverter<V> extends LootSerializer<V>, LootDese
     static <V> @NotNull ConditionalLootConverter<V> join(@NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<Optional<V>> deserializer) {
         return new ConditionalLootConverter<>() {
             @Override
-            public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException {
-                serializer.serialize(input, result, context);
+            public void serialize(@NotNull V input, @NotNull ConfigurationNode result) throws SerializationException {
+                serializer.serialize(input, result);
             }
 
             @Override
-            public @NotNull Optional<V> deserialize(@NotNull ConfigurationNode input, @NotNull Trove context) throws ConfigurateException {
-                return deserializer.deserialize(input, context);
+            public @NotNull Optional<V> deserialize(@NotNull ConfigurationNode input) throws SerializationException {
+                return deserializer.deserialize(input);
             }
         };
     }

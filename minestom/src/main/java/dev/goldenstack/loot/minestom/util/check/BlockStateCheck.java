@@ -4,12 +4,10 @@ import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A check that verifies the state of a block. See {@link #verify(Block)} for details.
@@ -21,7 +19,7 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
      * A standard map-based serializer for block state checks.
      */
     public static final @NotNull TypedLootConverter<BlockStateCheck> CONVERTER = TypedLootConverter.join(BlockStateCheck.class,
-            (input, result, context) -> {
+            (input, result) -> {
                 if (input.checks.isEmpty()) {
                     return;
                 }
@@ -33,15 +31,15 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
                         child.node("min").set(rangedLongState.min);
                         child.node("max").set(rangedLongState.max);
                     } else {
-                        throw new ConfigurateException(result, "Cannot serialize type '" + singular.getClass() + "'");
+                        throw new SerializationException(result, singular.getClass(), "Cannot serialize unknown type");
                     }
                 }
-            }, (input, context) -> {
+            }, input -> {
                 if (input.isNull()) {
                     return new BlockStateCheck(List.of());
                 }
                 if (!input.isMap()) {
-                    throw new SerializationException(input, Map.class, "Expected a map");
+                    throw new SerializationException(input, BlockStateCheck.class, "Expected a map");
                 }
                 List<SingularCheck> checks = new ArrayList<>();
                 for (var entry : input.childrenMap().entrySet()) {
@@ -54,7 +52,7 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
                     } else {
                         var scalar = entry.getValue().rawScalar();
                         if (scalar == null) {
-                            throw new ConfigurateException(entry.getValue(), "Expected a scalar or a map");
+                            throw new SerializationException(entry.getValue(), SingularCheck.class, "Expected a scalar or a map");
                         }
                         checks.add(new IdenticalState(String.valueOf(entry.getKey()), String.valueOf(scalar)));
                     }

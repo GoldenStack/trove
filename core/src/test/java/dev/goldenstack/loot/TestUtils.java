@@ -37,17 +37,17 @@ public class TestUtils {
                                                                                       boolean canSerialize,
                                                                                       boolean canDeserialize) {
         return ConditionalLootConverter.join(
-                (input, result, context) -> {
+                (input, result) -> {
                     if (canSerialize) {
                         result.set(null);
                     }
-                }, (input, context) -> Optional.ofNullable(canDeserialize ? initializer.get() : null)
+                }, input -> Optional.ofNullable(canDeserialize ? initializer.get() : null)
         );
     }
 
     public static <V> @NotNull TypedLootConverter<V> emptySerializer(@NotNull Class<V> convertedType,
                                                                      @NotNull Supplier<V> initializer) {
-        return TypedLootConverter.join(convertedType, (input, result, context) -> {}, (input, context) -> initializer.get());
+        return TypedLootConverter.join(convertedType, (input, result) -> {}, input -> initializer.get());
     }
 
 }

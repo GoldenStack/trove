@@ -6,7 +6,7 @@ import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 /**
  * An inclusive number range based on loot numbers.
@@ -21,28 +21,23 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
      * values.
      */
     public static final @NotNull TypedLootConverter<LootNumberRange> CONVERTER = TypedLootConverter.join(LootNumberRange.class,
-            (input, result, context) -> {
-                if (input.min != null) {
-                    context.require(LootNumber.class).serialize(input.min, result.node("min"), context);
-                }
-                if (input.max != null) {
-                    context.require(LootNumber.class).serialize(input.max, result.node("min"), context);
-                }
+            (input, result) -> {
+                result.node("min").set(LootNumber.class, input.min);
+                result.node("max").set(LootNumber.class, input.max);
             },
-            (input, context) -> {
+            input -> {
                 if (input.isNull()) {
                     return new LootNumberRange(null, null);
                 } else if (input.isMap()) {
-                    TypedLootConverter<LootNumber> converter = context.require(LootNumber.class);
                     return new LootNumberRange(
-                            input.hasChild("min") ? converter.deserialize(input.node("min"), context) : null,
-                            input.hasChild("max") ? converter.deserialize(input.node("max"), context) : null
+                            input.node("min").get(LootNumber.class),
+                            input.node("max").get(LootNumber.class)
                     );
                 } else { // Is either invalid or a number, so we can assume here
                     var number = input.get(Double.class);
 
                     if (number == null) {
-                        throw new ConfigurateException(input, "Expected null, a map, or a scalar");
+                        throw new SerializationException(input, LootNumberRange.class, "Expected null, a map, or a scalar");
                     }
                     var constant = new ConstantNumber(number);
                     return new LootNumberRange(constant, constant);

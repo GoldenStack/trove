@@ -349,10 +349,10 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
     static final @NotNull IntSet INVALID_UNQUOTED_CHARACTERS = IntSet.of(-1, '.', '\'', '\"', '{', '}', '[', ']');
 
     static final @NotNull TypedLootConverter<NBTPath> CONVERTER = TypedLootConverter.join(NBTPath.class,
-            (input, result, context) -> result.set(input.toString()), (input, context) -> {
+            (input, result) -> result.set(input.toString()), input -> {
                 var path = input.getString();
                 if (path == null) {
-                    throw new SerializationException(input, String.class, "Expected a string");
+                    throw new SerializationException(input, NBTPath.class, "Expected a string to deserialize a path from");
                 }
 
                 var reader = new StringReader(path);
@@ -366,10 +366,10 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
 
                     return parsedPath;
                 } catch (IOException e) {
-                    if (e instanceof ConfigurateException configurate) {
+                    if (e instanceof SerializationException configurate) {
                         throw configurate;
                     } else {
-                        throw new ConfigurateException(input, "Could not read a NBT path from '" + path + "'", e);
+                        throw new SerializationException(input, NBTPath.class, "Could not read a NBT path from '" + path + "'", e);
                     }
                 }
             });

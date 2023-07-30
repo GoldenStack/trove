@@ -1,12 +1,10 @@
 package dev.goldenstack.loot.converter.meta;
 
-import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
@@ -118,14 +116,14 @@ record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNul
     }
 
     @Override
-    public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException {
-        serialize0(input, result, context);
+    public void serialize(@NotNull V input, @NotNull ConfigurationNode result) throws SerializationException {
+        serialize0(input, result);
     }
 
-    private <R extends V> void serialize0(@NotNull R input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException {
+    private <R extends V> void serialize0(@NotNull R input, @NotNull ConfigurationNode result) throws SerializationException {
         if (!initialConverters.isEmpty()) {
             for (var conditional : initialConverters) {
-                conditional.serialize(input, result, context);
+                conditional.serialize(input, result);
                 if (!result.isNull()) {
                     return;
                 }
@@ -137,17 +135,17 @@ record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNul
         TypedLootConverter<R> converter = (TypedLootConverter<R>) typeToConverter.get(token);
         String key = typeToKey.get(token);
         if (converter == null || key == null) {
-            throw new ConfigurateException(result, "Unknown input type '" + input.getClass() + "' for base type '" + convertedType.getType() + "'");
+            throw new SerializationException(result, convertedType.getType(), "Unknown input type '" + input.getClass() + "'");
         }
         result.node(keyLocation).set(key);
-        converter.serialize(input, result, context);
+        converter.serialize(input, result);
     }
 
     @Override
-    public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull Trove context) throws ConfigurateException {
+    public @NotNull V deserialize(@NotNull ConfigurationNode input) throws SerializationException {
         // Initial pass with conditional converters
         for (var conditional : initialConverters) {
-            var result = conditional.deserialize(input, context);
+            var result = conditional.deserialize(input);
             if (result.isPresent()) {
                 return result.get();
             }
@@ -156,14 +154,14 @@ record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNul
 
         String actualKey = keyNode.getString();
         if (actualKey == null) {
-            throw new SerializationException(keyNode, String.class, "Expected a key");
+            throw new SerializationException(keyNode, convertedType.getType(), "Expected a key in the form of a string");
         }
 
         TypedLootConverter<? extends V> converter = keyToConverter.get(actualKey);
         if (converter == null) {
-            throw new ConfigurateException(keyNode, "Unknown key '" + actualKey + "' for base type '" + convertedType().getType() + "'");
+            throw new SerializationException(keyNode, convertedType.getType(), "Unknown key '" + actualKey + "'");
         }
-        return converter.deserialize(input, context);
+        return converter.deserialize(input);
     }
 
 }

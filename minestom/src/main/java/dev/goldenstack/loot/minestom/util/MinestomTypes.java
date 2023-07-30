@@ -24,7 +24,7 @@ import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 import org.jglrxavpok.hephaistos.parser.SNBTParser;
-import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.io.StringReader;
 import java.util.Collection;
@@ -41,7 +41,7 @@ import static dev.goldenstack.loot.converter.generator.Converters.field;
 public class MinestomTypes extends FieldTypes {
 
     public static @NotNull Field<LootNBT> lootNBT() {
-        return field(loader(LootNBT.class));
+        return implicit(LootNBT.class);
     }
 
     /**
@@ -97,14 +97,14 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting location predicates
      */
     public static @NotNull Field<VanillaInterface.LocationPredicate> locationPredicate() {
-        return field(loader(VanillaInterface.LocationPredicate.class));
+        return implicit(VanillaInterface.LocationPredicate.class);
     }
 
     /**
      * @return a field converting entity predicates
      */
     public static @NotNull Field<VanillaInterface.EntityPredicate> entityPredicate() {
-        return field(loader(VanillaInterface.EntityPredicate.class));
+        return implicit(VanillaInterface.EntityPredicate.class);
     }
 
     /**
@@ -118,7 +118,7 @@ public class MinestomTypes extends FieldTypes {
      * @return a field converting context key groups
      */
     public static @NotNull Field<LootContextKeyGroup> keyGroup() {
-        return field(loader(LootContextKeyGroup.class));
+        return implicit(LootContextKeyGroup.class);
     }
 
     /**
@@ -150,15 +150,15 @@ public class MinestomTypes extends FieldTypes {
      */
     public static @NotNull Field<NBT> nbt() {
         return field(TypedLootConverter.join(NBT.class,
-            (input, result, context) -> result.set(input.toSNBT()),
-            (input, context) -> {
+            (input, result) -> result.set(input.toSNBT()),
+            input -> {
                 var snbt = input.require(String.class);
                 var parser = new SNBTParser(new StringReader(snbt));
 
                 try {
                     return parser.parse();
                 } catch (NBTException e) {
-                    throw new ConfigurateException(input, e);
+                    throw new SerializationException(input, NBT.class, e);
                 }
             }
         ));

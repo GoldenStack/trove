@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.converter.generator;
 
-import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.converter.LootDeserializer;
 import dev.goldenstack.loot.converter.LootSerializer;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
@@ -11,7 +10,6 @@ import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
@@ -179,7 +177,7 @@ public class Converters {
          * @param node the node to create exceptions with, for increased context
          * @return the constructed object
          */
-        @NotNull V construct(Object @NotNull [] arguments, @NotNull ConfigurationNode node) throws ConfigurateException;
+        @NotNull V construct(Object @NotNull [] arguments, @NotNull ConfigurationNode node) throws SerializationException;
 
     }
 
@@ -231,19 +229,19 @@ record FieldImpl<V>(@NotNull TypedLootConverter<V> converter, @Nullable Supplier
         TypeToken<List<V>> newType = (TypeToken<List<V>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.converter.convertedType().getType()));
 
         TypedLootConverter<List<V>> newConverter = TypedLootConverter.join(newType,
-                (input, result, context) -> {
+                (input, result) -> {
                     for (var item : input) {
-                        oldConverter.serialize(item, result.appendListNode(), context);
+                        oldConverter.serialize(item, result.appendListNode());
                     }
                 },
-                (input, context) -> {
+                input -> {
                     if (!input.isList()) {
                         throw new SerializationException(input, newType.getType(), "Expected a list");
                     }
 
                     List<V> output = new ArrayList<>();
                     for (var child : input.childrenList()) {
-                        output.add(oldConverter.deserialize(child, context));
+                        output.add(oldConverter.deserialize(child));
                     }
                     return output;
                 }
@@ -259,23 +257,23 @@ record FieldImpl<V>(@NotNull TypedLootConverter<V> converter, @Nullable Supplier
         TypeToken<List<V>> newType = (TypeToken<List<V>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, this.converter.convertedType().getType()));
 
         TypedLootConverter<List<V>> newConverter = TypedLootConverter.join(newType,
-                (input, result, context) -> {
+                (input, result) -> {
                     if (input.size() == 1) {
-                        oldConverter.serialize(input.get(0), result, context);
+                        oldConverter.serialize(input.get(0), result);
                     } else {
                         for (var item : input) {
-                            oldConverter.serialize(item, result.appendListNode(), context);
+                            oldConverter.serialize(item, result.appendListNode());
                         }
                     }
                 },
-                (input, context) -> {
+                input -> {
                     if (!input.isList()) {
-                        return List.of(oldConverter.deserialize(input, context));
+                        return List.of(oldConverter.deserialize(input));
                     }
 
                     List<V> output = new ArrayList<>();
                     for (var child : input.childrenList()) {
-                        output.add(oldConverter.deserialize(child, context));
+                        output.add(oldConverter.deserialize(child));
                     }
                     return output;
                 }
@@ -296,15 +294,15 @@ record FieldImpl<V>(@NotNull TypedLootConverter<V> converter, @Nullable Supplier
         var oldConverter = converter;
 
         TypedLootConverter<N> newConverter = TypedLootConverter.join(newType,
-                (input, result, context) -> {
+                (input, result) -> {
                     var applied = fromNew.apply(input);
                     if (applied == null) {
                         throw new SerializationException(converter.convertedType().getType(), "'" + input + "' could not be serialized or has an invalid type");
                     }
-                    oldConverter.serialize(applied, result, context);
+                    oldConverter.serialize(applied, result);
                 },
-                (input, context) -> {
-                    var preliminaryObject = oldConverter.deserialize(input, context);
+                input -> {
+                    var preliminaryObject = oldConverter.deserialize(input);
                     var result = toNew.apply(preliminaryObject);
                     if (result == null) {
                         throw new SerializationException(input, newType.getType(), "'" + preliminaryObject + "' could not be deserialized or has an invalid type");
@@ -341,7 +339,7 @@ class ConvertersImpl {
             try {
                 return constructor.newInstance(input);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw new ConfigurateException(node, "Could not create a new instance of type '" + type + "' with constructor '" + constructor + "'", e);
+                throw new SerializationException(node, type, "Could not create a new instance with constructor '" + constructor + "'", e);
             }
         };
     }
@@ -353,12 +351,12 @@ class ConvertersImpl {
             Objects.requireNonNull(field.nodePath(), "Field must have a node path!");
         }
 
-        LootDeserializer<V> actualDeserializer = (input, context) -> {
+        LootDeserializer<V> actualDeserializer = input -> {
             Object[] objects = new Object[fields.size()];
 
             for (int i = 0; i < fields.size(); i++) {
                 var field = fields.get(i);
-                objects[i] = deserialize(field, input.node(field.nodePath()), context);
+                objects[i] = deserialize(field, input.node(field.nodePath()));
             }
 
             return constructor.construct(objects, input);
@@ -387,7 +385,7 @@ class ConvertersImpl {
             actualFields[i] = actualField;
         }
 
-        LootSerializer<V> actualSerializer = (input, result, context) -> {
+        LootSerializer<V> actualSerializer = (input, result) -> {
             for (int i = 0; i < fields.size(); i++) {
                 var field = fields.get(i);
 
@@ -395,10 +393,10 @@ class ConvertersImpl {
                 try {
                     fieldValue = actualFields[i].get(input);
                 } catch (IllegalAccessException e) {
-                    throw new ConfigurateException(result, "Could not retrieve value of field '" + actualFields[i].getName() + "' on type '" + type + "'", e);
+                    throw new SerializationException(result, field.converter().convertedType().getType(), "Could not retrieve value of field '" + actualFields[i].getName() + "' on type '" + type + "'", e);
                 }
 
-                serialize(field, fieldValue, result.node(field.nodePath()), context);
+                serialize(field, fieldValue, result.node(field.nodePath()));
             }
         };
 
@@ -406,16 +404,16 @@ class ConvertersImpl {
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
-    private static <V> @Nullable V deserialize(@NotNull FieldImpl<V> field, @NotNull ConfigurationNode input, @NotNull Trove context) throws ConfigurateException {
+    private static <V> @Nullable V deserialize(@NotNull FieldImpl<V> field, @NotNull ConfigurationNode input) throws SerializationException {
         if (input.isNull() && field.defaultValue() != null) {
             return field.defaultValue().get();
         }
-        return field.converter().deserialize(input, context);
+        return field.converter().deserialize(input);
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
     @SuppressWarnings("unchecked")
-    private static <V> void serialize(@NotNull FieldImpl<V> field, @Nullable Object input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException {
+    private static <V> void serialize(@NotNull FieldImpl<V> field, @Nullable Object input, @NotNull ConfigurationNode result) throws SerializationException {
         if (input == null) {
             if (field.defaultValue() != null) {
                 input = field.defaultValue().get();
@@ -427,7 +425,7 @@ class ConvertersImpl {
             }
         }
         // This cast is safe because we grab the object directly from the field; it's just that Field#get always returns an object.
-        field.converter().serialize((V) input, result, context);
+        field.converter().serialize((V) input, result);
     }
 
 }

@@ -1,13 +1,12 @@
 package dev.goldenstack.loot.converter.meta;
 
-import dev.goldenstack.loot.Trove;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.LootDeserializer;
 import dev.goldenstack.loot.converter.LootSerializer;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 /**
  * A loot converter that also stores a TypeToken representing the converted type.
@@ -72,12 +71,12 @@ public interface TypedLootConverter<V> extends LootConverter<V> {
 record TypedLootConverterImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<V> deserializer) implements TypedLootConverter<V> {
 
     @Override
-    public void serialize(@NotNull V input, @NotNull ConfigurationNode result, @NotNull Trove context) throws ConfigurateException {
-        serializer.serialize(input, result, context);
+    public void serialize(@NotNull V input, @NotNull ConfigurationNode result) throws SerializationException {
+        serializer.serialize(input, result);
     }
 
     @Override
-    public @NotNull V deserialize(@NotNull ConfigurationNode input, @NotNull Trove context) throws ConfigurateException {
-        return deserializer.deserialize(input, context);
+    public @NotNull V deserialize(@NotNull ConfigurationNode input) throws SerializationException {
+        return deserializer.deserialize(input);
     }
 }

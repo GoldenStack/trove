@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
-import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Optional;
 
@@ -27,15 +27,15 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
      * single string scalar.
      */
     public static final @NotNull ConditionalLootConverter<LootNBT> ACCURATE_CONVERTER = ConditionalLootConverter.join(
-            (input, result, context) -> {
+            (input, result) -> {
                 if (input instanceof ContextNBT contextNBT) {
                     result.set(contextNBT.target().serializedString());
                 }
-            }, (input, context) -> {
+            }, input -> {
                 if (input.rawScalar() instanceof String string) {
                     var target = fromString(string);
                     if (target == null) {
-                        throw new ConfigurateException(input, "Could not read block entity or a RelevantEntity from the provided node");
+                        throw new SerializationException(input, ContextNBT.NBTTarget.class, "Could not read block entity or a RelevantEntity from the provided node");
                     }
                     return Optional.of(new ContextNBT(target));
                 }

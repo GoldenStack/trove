@@ -22,11 +22,11 @@ public record ConstantNumber(double value) implements LootNumber {
      * a singular numerical scalar.
      */
     public static final @NotNull ConditionalLootConverter<LootNumber> ACCURATE_CONVERTER = ConditionalLootConverter.join(
-            (input, result, context) -> {
+            (input, result) -> {
                 if (input instanceof ConstantNumber constant) {
                     result.set(constant.value());
                 }
-            }, (input, context) -> {
+            }, input -> {
                 if (input.rawScalar() instanceof Number number) {
                     return Optional.of(new ConstantNumber(number.doubleValue()));
                 }

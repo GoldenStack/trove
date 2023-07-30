@@ -42,8 +42,8 @@ public class FieldTypes {
      */
     public static <T> @NotNull Field<T> implicit(@NotNull TypeToken<T> type) {
         return field(TypedLootConverter.join(type,
-                (input, result, context) -> result.set(type, input),
-                (input, context) -> {
+                (input, result) -> result.set(type, input),
+                input -> {
                     var instance = input.get(type);
                     if (instance == null) {
                         throw new SerializationException(input, type.getType(), "Cannot coerce node to expected type");
@@ -94,38 +94,28 @@ public class FieldTypes {
      * @return a field converting loot conditions
      */
     public static @NotNull Field<LootCondition> condition() {
-        return field(loader(LootCondition.class));
+        return implicit(LootCondition.class);
     }
 
     /**
      * @return a field converting loot entries
      */
     public static @NotNull Field<LootEntry> entry() {
-        return field(loader(LootEntry.class));
+        return implicit(LootEntry.class);
     }
 
     /**
      * @return a field converting loot modifiers
      */
     public static @NotNull Field<LootModifier> modifier() {
-        return field(loader(LootModifier.class));
+        return implicit(LootModifier.class);
     }
 
     /**
      * @return a field converting loot numbers
      */
     public static @NotNull Field<LootNumber> number() {
-        return field(loader(LootNumber.class));
-    }
-
-    /**
-     * @return a field converting the provided type, relying on the Trove instance to provide the actual converter
-     */
-    public static <V> @NotNull TypedLootConverter<V> loader(@NotNull Class<V> type) {
-        return TypedLootConverter.join(type,
-                (input, result, context) -> context.require(type).serialize(input, result, context),
-                (input, context) -> context.require(type).deserialize(input, context)
-        );
+        return implicit(LootNumber.class);
     }
 
 }

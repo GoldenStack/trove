@@ -55,7 +55,8 @@ every JSON file inside it.
 ``` java
 Path lootTableFolder = ...; // Replace with the path to the folder of loot tables
 
-var tableRegistry = TroveMinestom.readTables(lootTableFolder, TroveMinestom.DEFAULT_LOADER);
+var tableRegistry = TroveMinestom.readTables(lootTableFolder,
+        () -> GsonConfigurationLoader.builder().defaultOptions(options -> options.serializers(builder -> builder.registerAll(TroveMinestom.DEFAULT_COLLECTION))));
 ```
 Each table will be stored via a NamespaceID in the tables object. For example, if the parsed loot table has the path
 "blocks/barrel.json" relative to the loot table folder, its ID will be `minecraft:blocks/barrel`.
