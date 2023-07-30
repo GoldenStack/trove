@@ -53,7 +53,7 @@ public class TroveMinestom {
      * The standard map of key groups.
      */
     public static final @NotNull Map<String, LootContextKeyGroup> STANDARD_GROUPS = Stream.of(
-            EMPTY, CHEST, COMMAND, SELECTOR, FISHING, ENTITY, GIFT, BARTER, ADVANCEMENT_REWARD, ADVANCEMENT_ENTITY, GENERIC, BLOCK
+            EMPTY, CHEST, COMMAND, SELECTOR, FISHING, ENTITY, ARCHAEOLOGY, GIFT, BARTER, ADVANCEMENT_REWARD, ADVANCEMENT_ENTITY, ADVANCEMENT_LOCATION, GENERIC, BLOCK
     ).collect(Collectors.toMap(LootContextKeyGroup::id, Function.identity()));
 
     /**

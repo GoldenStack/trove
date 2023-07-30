@@ -62,6 +62,12 @@ public record LootContextKeyGroup(@NotNull String id, @NotNull Set<LootContext.K
         ENTITY = builder().id("minecraft:entity").expect(THIS_ENTITY, ORIGIN, DAMAGE_SOURCE).permit(KILLER_ENTITY, DIRECT_KILLER_ENTITY, LAST_DAMAGE_PLAYER).build(),
 
         /**
+         * A LootContextKeyGroup that represents when something is dug up via archaeology. It requires an origin (the
+         * location that this archaeology occurred at) and an optional entity (the entity that performed this event).
+         */
+        ARCHAEOLOGY = builder().id("minecraft:archaeology").expect(ORIGIN).permit(THIS_ENTITY).build(),
+
+        /**
          * A LootContextKeyGroup that represents when a villager gives a gift to a player. It requires the origin (the
          * location of the villager) and the required entity (the villager that is giving the gift).
          */
@@ -85,6 +91,13 @@ public record LootContextKeyGroup(@NotNull String id, @NotNull Set<LootContext.K
          * advancement). The documentation for this may be unreliable.
          */
         ADVANCEMENT_ENTITY = builder().id("minecraft:advancement_entity").expect(THIS_ENTITY, ORIGIN).build(),
+
+        /**
+         * A LootContextKeyGroup that represents when an advancement is achieved at a specific location. It requires an
+         * entity (the entity that is getting the advancement) an origin (the location of this event) the tool (the tool
+         * used by the player) and the block state (the block state at the event location).
+         */
+        ADVANCEMENT_LOCATION = builder().id("minecraft:advancement_location").expect(THIS_ENTITY, ORIGIN, TOOL, BLOCK_STATE).build(),
 
         /**
          * A LootContextKeyGroup that requires everything. This is not done dynamically, so if you add your own keys
