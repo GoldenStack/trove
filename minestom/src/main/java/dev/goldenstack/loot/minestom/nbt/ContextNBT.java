@@ -2,6 +2,7 @@ package dev.goldenstack.loot.minestom.nbt;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
+import dev.goldenstack.loot.converter.generator.Converters;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.RelevantEntity;
@@ -14,7 +15,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import java.util.Optional;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.implicit;
+import static dev.goldenstack.loot.converter.generator.Converters.type;
 
 /**
  * Retrieves NBT based on some information from the provided context.
@@ -50,8 +51,10 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
      */
     public static final @NotNull TypedLootConverter<ContextNBT> CONVERTER =
             converter(ContextNBT.class,
-                    implicit(String.class).map(NBTTarget.class, ContextNBT::fromString, NBTTarget::serializedString).name("target")
+                    type(NBTTarget.class).name("target")
             );
+
+    public static final @NotNull TypedLootConverter<NBTTarget> TARGET_CONVERTER = Converters.proxied(String.class, NBTTarget.class, ContextNBT::fromString, NBTTarget::serializedString);
 
     private static @Nullable NBTTarget fromString(@NotNull String id) {
         if (id.equals("block_entity")) {

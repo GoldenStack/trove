@@ -11,8 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 
 /**
@@ -32,9 +31,9 @@ public record LootTable(@NotNull LootContextKeyGroup contextKeyGroup,
 
     public static final @NotNull TypedLootConverter<LootTable> CONVERTER =
             converter(LootTable.class,
-                    keyGroup().name("contextKeyGroup").nodePath("type"),
-                    pool().list().name("pools").withDefault(List::of),
-                    modifier().list().name("modifiers").nodePath("functions").withDefault(List::of)
+                    type(LootContextKeyGroup.class).name("contextKeyGroup").nodePath("type"),
+                    typeList(LootPool.class).name("pools").withDefault(List::of),
+                    typeList(LootModifier.class).name("modifiers").nodePath("functions").withDefault(List::of)
             );
 
     public LootTable {

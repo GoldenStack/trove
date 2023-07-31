@@ -13,9 +13,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.tag;
 
 /**
  * Represents a check for items, returning true or false depending on whether or not they were verified.
@@ -49,16 +48,14 @@ public record ItemCheck(@NotNull NBTCheck nbtCheck,
      */
     public static final @NotNull TypedLootConverter<ItemCheck> CONVERTER =
             converter(ItemCheck.class,
-                    field(NBTCheck.CONVERTER).name("nbtCheck").nodePath("nbt"),
-                    numberRange().name("count"),
-                    numberRange().name("durability"),
-                    field(EnchantmentCheck.CONVERTER).list().withDefault(List::of)
-                            .name("enchantmentChecks").nodePath("enchantments"),
-                    field(EnchantmentCheck.CONVERTER).list().withDefault(List::of)
-                            .name("storedEnchantmentChecks").nodePath("stored_enchantments"),
-                    material().list().name("validMaterials").nodePath("items").optional(),
+                    type(NBTCheck.class).withDefault(new NBTCheck(null)).name("nbtCheck").nodePath("nbt"),
+                    type(LootNumberRange.class).withDefault(new LootNumberRange(null, null)).name("count"),
+                    type(LootNumberRange.class).withDefault(new LootNumberRange(null, null)).name("durability"),
+                    typeList(EnchantmentCheck.class).withDefault(List::of).name("enchantmentChecks").nodePath("enchantments"),
+                    typeList(EnchantmentCheck.class).withDefault(List::of).name("storedEnchantmentChecks").nodePath("stored_enchantments"),
+                    typeList(Material.class).name("validMaterials").nodePath("items").optional(),
                     tag(Tag.BasicType.ITEMS).name("materialTag").nodePath("tag").optional(),
-                    namespaceId().name("potionId").nodePath("potion").optional()
+                    type(NamespaceID.class).name("potionId").nodePath("potion").optional()
             );
 
     @SuppressWarnings("UnstableApiUsage")

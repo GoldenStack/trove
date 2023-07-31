@@ -6,7 +6,7 @@ import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.number;
+import static dev.goldenstack.loot.converter.generator.Converters.type;
 
 /**
  * Generates numbers that follow binomial distribution.
@@ -22,8 +22,8 @@ public record BinomialNumber(@NotNull LootNumber trials, @NotNull LootNumber pro
      */
     public static final @NotNull TypedLootConverter<BinomialNumber> CONVERTER =
             converter(BinomialNumber.class,
-                    number().name("trials").nodePath("n"),
-                    number().name("probability").nodePath("p")
+                    type(LootNumber.class).name("trials").nodePath("n"),
+                    type(LootNumber.class).name("probability").nodePath("p")
             );
 
     @Override

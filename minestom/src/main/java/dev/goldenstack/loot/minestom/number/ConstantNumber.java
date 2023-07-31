@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.implicit;
+import static dev.goldenstack.loot.converter.generator.Converters.type;
 
 /**
  * A constant value that is always returned. When a {@code long} is needed, {@link Math#round(double)} is used.
@@ -41,7 +41,7 @@ public record ConstantNumber(double value) implements LootNumber {
      */
     public static final @NotNull TypedLootConverter<ConstantNumber> CONVERTER =
             converter(ConstantNumber.class,
-                    implicit(double.class).name("value")
+                    type(double.class).name("value")
             );
 
     @Override

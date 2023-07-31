@@ -14,9 +14,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.*;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.namespaceId;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * Dynamically returns items based on {@link VanillaInterface#getDynamicDrops(NamespaceID, NBTCompound)} and
@@ -38,11 +36,11 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
      */
     public static final @NotNull TypedLootConverter<DynamicEntry> CONVERTER =
             converter(DynamicEntry.class,
-                    namespaceId().name("dynamicChoiceId").nodePath("name"),
-                    implicit(long.class).name("weight").withDefault(1L),
-                    implicit(long.class).name("quality").withDefault(0L),
-                    modifier().list().name("modifiers").nodePath("functions").withDefault(List::of),
-                    condition().list().name("conditions").withDefault(List::of)
+                    type(NamespaceID.class).name("dynamicChoiceId").nodePath("name"),
+                    type(long.class).name("weight").withDefault(1L),
+                    type(long.class).name("quality").withDefault(0L),
+                    typeList(LootModifier.class).name("modifiers").nodePath("functions").withDefault(List::of),
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of)
             );
 
     public DynamicEntry {

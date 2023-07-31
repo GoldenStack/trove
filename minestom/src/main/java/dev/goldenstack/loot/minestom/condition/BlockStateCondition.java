@@ -9,8 +9,7 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.blockStateCheck;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.namespaceId;
+import static dev.goldenstack.loot.converter.generator.Converters.type;
 
 /**
  * Checks that the {@link LootContextKeys#BLOCK_STATE} fits the information of this condition.
@@ -26,8 +25,8 @@ public record BlockStateCondition(@NotNull NamespaceID blockKey, @NotNull BlockS
      */
     public static final @NotNull TypedLootConverter<BlockStateCondition> CONVERTER =
             converter(BlockStateCondition.class,
-                    namespaceId().name("blockKey").nodePath("block"),
-                    blockStateCheck().name("check").nodePath("properties")
+                    type(NamespaceID.class).name("blockKey").nodePath("block"),
+                    type(BlockStateCheck.class).name("check").nodePath("properties")
             );
 
     @Override

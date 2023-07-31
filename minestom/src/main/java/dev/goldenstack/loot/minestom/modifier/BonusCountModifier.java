@@ -14,11 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Random;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.implicit;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.enchantment;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * Modifies the count of each provided item based on the {@link #bonus()} and the enchantment level on the
@@ -38,9 +34,9 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull TypedLootConverter<BonusCountModifier> CONVERTER =
             converter(BonusCountModifier.class,
-                    condition().list().name("conditions").withDefault(List::of),
-                    enchantment().name("addedEnchantment").nodePath("enchantment"),
-                    field(BonusType.TYPE_CONVERTER).name("bonus").nodePath(List.of())
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
+                    type(Enchantment.class).name("addedEnchantment").nodePath("enchantment"),
+                    type(BonusType.class).name("bonus").nodePath(List.of())
             );
 
     /**
@@ -72,8 +68,8 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
 
         public static final @NotNull TypedLootConverter<BinomialBonus> CONVERTER =
                 converter(BinomialBonus.class,
-                        implicit(int.class).name("levelBonus").nodePath("parameters", "extra"),
-                        implicit(float.class).name("probability").nodePath("parameters", "probability")
+                        type(int.class).name("levelBonus").nodePath("parameters", "extra"),
+                        type(float.class).name("probability").nodePath("parameters", "probability")
                 );
 
         @Override
@@ -99,7 +95,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
 
         public static final @NotNull TypedLootConverter<UniformBonus> CONVERTER =
                 converter(UniformBonus.class,
-                        implicit(int.class).name("multiplier").nodePath("parameters", "bonusMultiplier")
+                        type(int.class).name("multiplier").nodePath("parameters", "bonusMultiplier")
                 );
 
         @Override

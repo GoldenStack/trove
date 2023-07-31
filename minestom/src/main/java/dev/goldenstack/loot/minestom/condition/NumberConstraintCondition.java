@@ -8,8 +8,7 @@ import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.number;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.numberRange;
+import static dev.goldenstack.loot.converter.generator.Converters.type;
 
 /**
  * Verifies that the result of the provided value is within the provided range.
@@ -25,8 +24,8 @@ public record NumberConstraintCondition(@NotNull LootNumberRange range, @NotNull
      */
     public static final @NotNull TypedLootConverter<NumberConstraintCondition> CONVERTER =
             converter(NumberConstraintCondition.class,
-                    numberRange().name("range"),
-                    number().name("value")
+                    type(LootNumberRange.class).name("range"),
+                    type(LootNumber.class).name("value")
             );
 
     @Override

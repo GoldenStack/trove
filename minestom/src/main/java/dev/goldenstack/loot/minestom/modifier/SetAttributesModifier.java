@@ -3,7 +3,6 @@ package dev.goldenstack.loot.minestom.modifier;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
-import dev.goldenstack.loot.minestom.util.MinestomTypes;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootNumber;
 import net.minestom.server.attribute.Attribute;
@@ -19,9 +18,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * A modifier that adds a list of attributes to each provided item.
@@ -38,8 +35,8 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull TypedLootConverter<SetAttributesModifier> CONVERTER =
             converter(SetAttributesModifier.class,
-                    condition().list().name("conditions").withDefault(List::of),
-                    field(AttributeDirective.CONVERTER).list().name("attributes").nodePath("modifiers")
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
+                    typeList(AttributeDirective.class).name("attributes").nodePath("modifiers")
             );
 
     @Override
@@ -76,12 +73,12 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
 
         public static final @NotNull TypedLootConverter<AttributeDirective> CONVERTER =
                 converter(AttributeDirective.class,
-                        implicit(String.class).name("name"),
-                        MinestomTypes.attribute().name("attribute"),
-                        attributeOperation().name("operation"),
-                        number().name("amount"),
-                        uuid().name("id").optional(),
-                        attributeSlot().possibleList().name("slots").nodePath("slot")
+                        type(String.class).name("name"),
+                        type(Attribute.class).name("attribute"),
+                        type(AttributeOperation.class).name("operation"),
+                        type(LootNumber.class).name("amount"),
+                        type(UUID.class).name("id").optional(),
+                        typePossibleList(AttributeSlot.class).name("slots").nodePath("slot")
                 );
 
     }

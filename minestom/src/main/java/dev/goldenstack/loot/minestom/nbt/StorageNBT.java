@@ -9,7 +9,7 @@ import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.namespaceId;
+import static dev.goldenstack.loot.converter.generator.Converters.type;
 
 /**
  * Returns the NBT compound contained in the
@@ -26,7 +26,7 @@ public record StorageNBT(@NotNull NamespaceID storageKey) implements LootNBT {
      */
     public static final @NotNull TypedLootConverter<StorageNBT> CONVERTER =
             converter(StorageNBT.class,
-                    namespaceId().name("storageKey").nodePath("source")
+                    type(NamespaceID.class).name("storageKey").nodePath("source")
             );
 
     @Override

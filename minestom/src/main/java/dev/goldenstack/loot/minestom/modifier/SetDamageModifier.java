@@ -10,10 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.condition;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.implicit;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.number;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * Sets the damage of each provided item. If {@link #add()} is false, the item's durability is set to
@@ -33,9 +30,9 @@ public record SetDamageModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull TypedLootConverter<SetDamageModifier> CONVERTER =
             converter(SetDamageModifier.class,
-                    condition().list().name("conditions").withDefault(List::of),
-                    number().name("modifiedDurability").nodePath("damage"),
-                    implicit(boolean.class).name("add").withDefault(false)
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
+                    type(LootNumber.class).name("modifiedDurability").nodePath("damage"),
+                    type(boolean.class).name("add").withDefault(false)
             );
 
     @Override

@@ -1,5 +1,6 @@
 package dev.goldenstack.loot.minestom;
 
+import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.converter.meta.LootConversionManager;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
 import dev.goldenstack.loot.minestom.condition.*;
@@ -14,6 +15,7 @@ import dev.goldenstack.loot.minestom.number.BinomialNumber;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.minestom.number.UniformNumber;
 import dev.goldenstack.loot.minestom.util.FallbackVanillaInterface;
+import dev.goldenstack.loot.minestom.util.MinestomTypes;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
 import dev.goldenstack.loot.structure.LootModifier;
@@ -26,11 +28,9 @@ import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 import org.spongepowered.configurate.serialize.SerializationException;
-import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -56,40 +56,41 @@ public class TroveMinestom {
             EMPTY, CHEST, COMMAND, SELECTOR, FISHING, ENTITY, ARCHAEOLOGY, GIFT, BARTER, ADVANCEMENT_REWARD, ADVANCEMENT_ENTITY, ADVANCEMENT_LOCATION, GENERIC, BLOCK
     ).collect(Collectors.toMap(LootContextKeyGroup::id, Function.identity()));
 
-    /**
-     * The standard typed converters that either have not been implemented (so the placeholders are here) or are
-     * otherwise somewhat dynamic.
-     */
-    public static final @NotNull List<TypedLootConverter<?>> STANDARD_CONVERTERS = List.of(
-            TroveMinestom.createEntryBuilder().build(),
-            TroveMinestom.createModifierBuilder().build(),
-            TroveMinestom.createConditionBuilder().build(),
-            TroveMinestom.createNumberBuilder().build(),
-            TroveMinestom.createNbtBuilder().build(),
-            TypedLootConverter.join(VanillaInterface.EntityPredicate.class,
-                    (input, result) -> {},
-                    input -> (world, location, entity) -> false
-            ),
-            TypedLootConverter.join(VanillaInterface.LocationPredicate.class,
-                    (input, result) -> {},
-                    input -> (world, location) -> false
-            ),
-            TypedLootConverter.join(LootContextKeyGroup.class,
-                    (input, result) -> result.set(input.id()),
-                    input -> {
-                        var id = input.getString();
-                        if (id == null) {
-                            throw new SerializationException(input, LootContextKeyGroup.class, "Expected a string");
-                        }
-                        return STANDARD_GROUPS.get(id);
-                    }
-            )
-    );
 
     /**
-     * The default collection for Trove.
+     * The default TypeSerializerCollection for Trove. This includes {@link FieldTypes#STANDARD_TYPES},
+     * {@link MinestomTypes#STANDARD_TYPES},
      */
-    public static final @NotNull TypeSerializerCollection DEFAULT_COLLECTION = TroveMinestom.wrap(STANDARD_CONVERTERS);
+    public static final @NotNull TypeSerializerCollection DEFAULT_COLLECTION =
+            TypeSerializerCollection.builder()
+                    .registerAll(FieldTypes.wrap(
+                            TroveMinestom.createEntryBuilder().build(),
+                            TroveMinestom.createModifierBuilder().build(),
+                            TroveMinestom.createConditionBuilder().build(),
+                            TroveMinestom.createNumberBuilder().build(),
+                            TroveMinestom.createNbtBuilder().build(),
+                            TypedLootConverter.join(VanillaInterface.EntityPredicate.class,
+                                    (input, result) -> {},
+                                    input -> (world, location, entity) -> false
+                            ),
+                            TypedLootConverter.join(VanillaInterface.LocationPredicate.class,
+                                    (input, result) -> {},
+                                    input -> (world, location) -> false
+                            ),
+                            TypedLootConverter.join(LootContextKeyGroup.class,
+                                    (input, result) -> result.set(input.id()),
+                                    input -> {
+                                        var id = input.getString();
+                                        if (id == null) {
+                                            throw new SerializationException(input, LootContextKeyGroup.class, "Expected a string");
+                                        }
+                                        return STANDARD_GROUPS.get(id);
+                                    }
+                            )
+                    ))
+                    .registerAll(FieldTypes.STANDARD_TYPES)
+                    .registerAll(MinestomTypes.STANDARD_TYPES)
+                    .build();
 
     /**
      * The default vanilla interface implementation for {@link dev.goldenstack.loot.minestom.context.LootContextKeys#VANILLA_INTERFACE}.
@@ -192,46 +193,6 @@ public class TroveMinestom {
             }
         }
 
-    }
-
-    /**
-     * Wraps the provided list of converters in a new type serializer collection.
-     * @param converters the converters to wrap in a type serializer collection
-     * @return a type serializer collection representing each provided converter
-     */
-    public static @NotNull TypeSerializerCollection wrap(@NotNull List<TypedLootConverter<?>> converters) {
-        var builder = TypeSerializerCollection.builder();
-        for (var converter : converters) {
-            add(converter, builder);
-        }
-        return builder.build();
-    }
-
-    /**
-     * Wraps the provided converter in a new type serializer.
-     * @param converter the converter to convert to a type serializer
-     * @return a type serializer that uses the provided converter
-     * @param <V> the converted type
-     */
-    public static <V> @NotNull TypeSerializer<V> wrap(@NotNull TypedLootConverter<V> converter) {
-        return new TypeSerializer<>() {
-            @Override
-            public V deserialize(Type type, ConfigurationNode node) throws SerializationException {
-                return converter.deserialize(node);
-            }
-
-            @Override
-            public void serialize(Type type, @Nullable V obj, ConfigurationNode node) throws SerializationException {
-                if (obj == null) {
-                    throw new SerializationException(node, converter.convertedType().getType(), "Cannot serialize null object");
-                }
-                converter.serialize(obj, node);
-            }
-        };
-    }
-
-    private static <V> void add(@NotNull TypedLootConverter<V> converter, @NotNull TypeSerializerCollection.Builder builder) {
-        builder.register(converter.convertedType(), wrap(converter));
     }
 
     public static @NotNull LootConversionManager.Builder<LootEntry> createEntryBuilder() {

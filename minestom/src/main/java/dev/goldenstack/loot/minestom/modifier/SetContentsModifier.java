@@ -20,10 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.condition;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.entry;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.namespaceId;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * Sets the contents of each provided item (stored in NBT as BlockEntityTag.Items) based on the {@link #entries()}.
@@ -42,9 +39,9 @@ public record SetContentsModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull TypedLootConverter<SetContentsModifier> CONVERTER =
             converter(SetContentsModifier.class,
-                    condition().list().name("conditions").withDefault(List::of),
-                    entry().list().name("entries"),
-                    namespaceId().name("blockEntityKey").nodePath("type")
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
+                    typeList(LootEntry.class).name("entries"),
+                    type(NamespaceID.class).name("blockEntityKey").nodePath("type")
             );
 
     @SuppressWarnings("UnstableApiUsage")

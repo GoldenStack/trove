@@ -9,9 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.enchantment;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.implicit;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * Verifies each context based on the chance of the level of {@link #addedEnchantment()} on {@link LootContextKeys#TOOL}
@@ -27,8 +25,8 @@ public record EnchantmentLevelCondition(@NotNull Enchantment addedEnchantment,
      */
     public static final @NotNull TypedLootConverter<EnchantmentLevelCondition> CONVERTER =
             converter(EnchantmentLevelCondition.class,
-                enchantment().name("addedEnchantment").nodePath("enchantment"),
-                implicit(Double.class).list().name("chances")
+                type(Enchantment.class).name("addedEnchantment").nodePath("enchantment"),
+                typeList(Double.class).name("chances")
             );
 
     @Override

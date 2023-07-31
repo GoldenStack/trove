@@ -6,7 +6,7 @@ import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
+import static dev.goldenstack.loot.converter.generator.Converters.type;
 
 /**
  * A condition that inverts the result of the child condition.
@@ -21,7 +21,7 @@ public record InvertedCondition(@NotNull LootCondition original) implements Loot
      */
     public static final @NotNull TypedLootConverter<InvertedCondition> CONVERTER =
             converter(InvertedCondition.class,
-                    condition().name("original").nodePath("term")
+                    type(LootCondition.class).name("original").nodePath("term")
             );
 
     @Override

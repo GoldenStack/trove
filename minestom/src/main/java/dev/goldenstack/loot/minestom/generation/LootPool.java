@@ -15,8 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * A standard loot pool implementation for Minestom.
@@ -34,11 +33,11 @@ public record LootPool(@NotNull LootNumber rolls,
 
     public static final @NotNull TypedLootConverter<LootPool> CONVERTER =
             converter(LootPool.class,
-                    number().name("rolls"),
-                    number().name("bonusRolls").nodePath("bonus_rolls").withDefault(new ConstantNumber(0)),
-                    entry().list().name("entries"),
-                    condition().list().name("conditions").withDefault(List::of),
-                    modifier().list().name("modifiers").nodePath("functions").withDefault(List::of)
+                    type(LootNumber.class).name("rolls"),
+                    type(LootNumber.class).name("bonusRolls").nodePath("bonus_rolls").withDefault(new ConstantNumber(0)),
+                    typeList(LootEntry.class).name("entries"),
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
+                    typeList(LootModifier.class).name("modifiers").nodePath("functions").withDefault(List::of)
             );
 
     public LootPool {

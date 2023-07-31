@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.minestom.util.MinestomTypes.tag;
 
 /**
  * Adds items from the tag ({@link #itemTag()}. Invalid identifiers will be ignored.
@@ -41,11 +41,11 @@ public record TagEntry(@NotNull Tag itemTag, boolean expand,
     public static final @NotNull TypedLootConverter<TagEntry> CONVERTER =
             converter(TagEntry.class,
                     tag(Tag.BasicType.ITEMS).name("itemTag").nodePath("name"),
-                    implicit(boolean.class).name("expand"),
-                    implicit(long.class).name("weight").withDefault(1L),
-                    implicit(long.class).name("quality").withDefault(0L),
-                    modifier().list().name("modifiers").nodePath("functions").withDefault(List::of),
-                    condition().list().name("conditions").withDefault(List::of)
+                    type(boolean.class).name("expand"),
+                    type(long.class).name("weight").withDefault(1L),
+                    type(long.class).name("quality").withDefault(0L),
+                    typeList(LootModifier.class).name("modifiers").nodePath("functions").withDefault(List::of),
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of)
             );
 
     public TagEntry {

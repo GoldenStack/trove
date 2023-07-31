@@ -11,9 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.condition;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.potionType;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * Sets the potion effect attached to each provided item.
@@ -29,8 +27,8 @@ public record SetPotionModifier(@NotNull List<LootCondition> conditions, @NotNul
      */
     public static final @NotNull TypedLootConverter<SetPotionModifier> CONVERTER =
             converter(SetPotionModifier.class,
-                    condition().list().name("conditions").withDefault(List::of),
-                    potionType().name("potion").nodePath("id")
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
+                    type(PotionType.class).name("potion").nodePath("id")
             );
 
     private static final @NotNull Tag<String> POTION_TAG = Tag.String("Potion");

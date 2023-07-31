@@ -13,8 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.*;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * A modifier that adds a certain amount to each item, where the amount added is the killer's looting multiplied by
@@ -35,9 +34,9 @@ public record ApplyLootingModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull TypedLootConverter<ApplyLootingModifier> CONVERTER =
             converter(ApplyLootingModifier.class,
-                    condition().list().name("conditions").withDefault(List::of),
-                    number().name("lootingMultiplier").nodePath("count"),
-                    implicit(int.class).name("limiter").nodePath("limit").withDefault(0)
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
+                    type(LootNumber.class).name("lootingMultiplier").nodePath("count"),
+                    type(int.class).name("limiter").nodePath("limit").withDefault(0)
             );
 
     @Override

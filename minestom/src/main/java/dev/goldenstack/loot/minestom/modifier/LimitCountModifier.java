@@ -12,9 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.numberRange;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * A modifier that limits the count of an item.
@@ -31,8 +29,8 @@ public record LimitCountModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull TypedLootConverter<LimitCountModifier> CONVERTER =
             converter(LimitCountModifier.class,
-                    condition().list().name("conditions").withDefault(List::of),
-                    numberRange().name("limit")
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
+                    type(LootNumberRange.class).name("limit")
             );
 
     @Override

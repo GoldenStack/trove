@@ -18,11 +18,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTType;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.enumerated;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.lootNBT;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * Copies the NBT from some {@link #source()} to the resulting item via a list of {@link #operations()}.
@@ -40,9 +36,9 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
      */
     public static final @NotNull TypedLootConverter<CopyNbtModifier> CONVERTER =
             converter(CopyNbtModifier.class,
-                    condition().list().name("conditions").withDefault(List::of),
-                    lootNBT().name("source"),
-                    field(Operation.CONVERTER).list().name("operations").nodePath("ops")
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
+                    type(LootNBT.class).name("source"),
+                    typeList(Operation.class).name("operations").nodePath("ops")
             );
 
     /**
@@ -56,9 +52,9 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
 
         public static final @NotNull TypedLootConverter<Operation> CONVERTER =
                 converter(Operation.class,
-                        field(NBTPath.CONVERTER).name("source"),
-                        field(NBTPath.CONVERTER).name("target"),
-                        enumerated(Operator.class, Operator::id).name("operator").nodePath("op")
+                        type(NBTPath.class).name("source"),
+                        type(NBTPath.class).name("target"),
+                        type(Operator.class).name("operator").nodePath("op")
                 );
 
         /**

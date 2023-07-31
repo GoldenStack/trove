@@ -9,8 +9,7 @@ import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.entityPredicate;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.relevantEntity;
+import static dev.goldenstack.loot.converter.generator.Converters.type;
 
 /**
  * Checks the {@link #chosenEntity()} with the {@link #entityChecker()}.
@@ -27,8 +26,8 @@ public record EntityCheckCondition(@NotNull RelevantEntity chosenEntity,
      */
     public static final @NotNull TypedLootConverter<EntityCheckCondition> CONVERTER =
             converter(EntityCheckCondition.class,
-                    relevantEntity().name("chosenEntity").nodePath("entity"),
-                    entityPredicate().name("entityChecker").nodePath("predicate")
+                    type(RelevantEntity.class).name("chosenEntity").nodePath("entity"),
+                    type(VanillaInterface.EntityPredicate.class).name("entityChecker").nodePath("predicate")
             );
 
     @Override

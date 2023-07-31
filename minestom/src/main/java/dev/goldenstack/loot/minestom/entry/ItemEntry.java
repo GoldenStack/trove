@@ -11,8 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * An entry that always returns an item of its material.
@@ -34,11 +33,11 @@ public record ItemEntry(@NotNull Material itemType,
      */
     public static final @NotNull TypedLootConverter<ItemEntry> CONVERTER =
             converter(ItemEntry.class,
-                    material().name("itemType").nodePath("name"),
-                    implicit(long.class).name("weight").withDefault(1L),
-                    implicit(long.class).name("quality").withDefault(0L),
-                    modifier().list().name("modifiers").nodePath("functions").withDefault(List::of),
-                    condition().list().name("conditions").withDefault(List::of)
+                    type(Material.class).name("itemType").nodePath("name"),
+                    type(long.class).name("weight").withDefault(1L),
+                    type(long.class).name("quality").withDefault(0L),
+                    typeList(LootModifier.class).name("modifiers").nodePath("functions").withDefault(List::of),
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of)
             );
 
     public ItemEntry {

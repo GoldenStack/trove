@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.condition;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.entry;
+import static dev.goldenstack.loot.converter.generator.Converters.typeList;
 
 /**
  * A loot entry that will return the combined results of all of the entry's children until one of them returns nothing.
@@ -27,8 +26,8 @@ public record SequenceEntry(@NotNull List<LootEntry> children, @NotNull List<Loo
      */
     public static final @NotNull TypedLootConverter<SequenceEntry> CONVERTER =
             converter(SequenceEntry.class,
-                    entry().list().name("children"),
-                    condition().list().name("conditions").withDefault(List::of)
+                    typeList(LootEntry.class).name("children"),
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of)
             );
 
     public SequenceEntry {

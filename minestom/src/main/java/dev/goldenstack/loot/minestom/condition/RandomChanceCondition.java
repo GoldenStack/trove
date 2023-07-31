@@ -6,7 +6,7 @@ import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.implicit;
+import static dev.goldenstack.loot.converter.generator.Converters.type;
 
 /**
  * A condition that returns true based on {@link #chance()}. A chance of 0 has a 0% chance to return true, and a
@@ -22,7 +22,7 @@ public record RandomChanceCondition(double chance) implements LootCondition {
      */
     public static final @NotNull TypedLootConverter<RandomChanceCondition> CONVERTER =
             converter(RandomChanceCondition.class,
-                    implicit(double.class).name("chance")
+                    type(double.class).name("chance")
             );
 
     @Override

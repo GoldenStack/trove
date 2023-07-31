@@ -8,7 +8,7 @@ import net.minestom.server.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.implicit;
+import static dev.goldenstack.loot.converter.generator.Converters.type;
 
 /**
  * A condition that returns true based on {@link #chance()}, and scales {@link #lootingCoefficient()} based on the
@@ -25,8 +25,8 @@ public record LootingRandomChanceCondition(double chance, double lootingCoeffici
      */
     public static final @NotNull TypedLootConverter<LootingRandomChanceCondition> CONVERTER =
             converter(LootingRandomChanceCondition.class,
-                    implicit(double.class).name("chance"),
-                    implicit(double.class).name("lootingCoefficient").nodePath("looting_multiplier")
+                    type(double.class).name("chance"),
+                    type(double.class).name("lootingCoefficient").nodePath("looting_multiplier")
             );
 
     @Override

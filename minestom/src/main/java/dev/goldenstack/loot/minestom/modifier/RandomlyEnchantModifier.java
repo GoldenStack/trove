@@ -17,8 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.condition;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.enchantment;
+import static dev.goldenstack.loot.converter.generator.Converters.typeList;
 
 /**
  * Randomly adds one enchantment, of a random valid level, to each provided item. If {@link #validEnchantments()} is
@@ -37,8 +36,8 @@ public record RandomlyEnchantModifier(@NotNull List<LootCondition> conditions, @
      */
     public static final @NotNull TypedLootConverter<RandomlyEnchantModifier> CONVERTER =
             converter(RandomlyEnchantModifier.class,
-                    condition().list().name("conditions").withDefault(List::of),
-                    enchantment().list().name("validEnchantments").nodePath("enchantments").withDefault(List::of)
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
+                    typeList(Enchantment.class).name("validEnchantments").nodePath("enchantments").withDefault(List::of)
             );
 
     @SuppressWarnings("UnstableApiUsage")

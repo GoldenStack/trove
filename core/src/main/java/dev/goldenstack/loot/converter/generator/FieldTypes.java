@@ -1,15 +1,14 @@
 package dev.goldenstack.loot.converter.generator;
 
-import dev.goldenstack.loot.converter.generator.Converters.Field;
 import dev.goldenstack.loot.converter.meta.TypedLootConverter;
-import dev.goldenstack.loot.structure.LootCondition;
-import dev.goldenstack.loot.structure.LootEntry;
-import dev.goldenstack.loot.structure.LootModifier;
-import dev.goldenstack.loot.structure.LootNumber;
-import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
+import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -17,53 +16,58 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-
 /**
  * Utility for the creation of various types of fields.
  */
 public class FieldTypes {
 
-    /**
-     * Creates a field that assumes that any provided configuration node already has a converter for the given type.
-     * @param type the type to convert
-     * @return a field representing the type
-     * @param <T> the type to convert
-     */
-    public static <T> @NotNull Field<T> implicit(@NotNull Class<T> type) {
-        return implicit(TypeToken.get(type));
-    }
-
-    /**
-     * Creates a field that assumes that any provided configuration node already has a converter for the given type.
-     * @param type the type to convert
-     * @return a field representing the type
-     * @param <T> the type to convert
-     */
-    public static <T> @NotNull Field<T> implicit(@NotNull TypeToken<T> type) {
-        return field(TypedLootConverter.join(type,
-                (input, result) -> result.set(type, input),
-                input -> {
-                    var instance = input.get(type);
-                    if (instance == null) {
-                        throw new SerializationException(input, type.getType(), "Cannot coerce node to expected type");
-                    }
-                    return instance;
+    public static final @NotNull TypeSerializerCollection STANDARD_TYPES = FieldTypes.wrap(
+            Converters.proxied(String.class, UUID.class, string -> {
+                try {
+                    return UUID.fromString(string);
+                } catch (IllegalArgumentException e) {
+                    return null;
                 }
-        ));
+            }, UUID::toString));
+
+    /**
+     * Wraps the provided converters in a new type serializer collection.
+     * @param converters the converters to wrap in a type serializer collection
+     * @return a type serializer collection representing each provided converter
+     */
+    public static @NotNull TypeSerializerCollection wrap(@NotNull TypedLootConverter<?> @NotNull ... converters) {
+        var builder = TypeSerializerCollection.builder();
+        for (var converter : converters) {
+            add(converter, builder);
+        }
+        return builder.build();
     }
 
     /**
-     * @return a field converting UUIDs
+     * Wraps the provided converter in a new type serializer.
+     * @param converter the converter to convert to a type serializer
+     * @return a type serializer that uses the provided converter
+     * @param <V> the converted type
      */
-    public static @NotNull Field<UUID> uuid() {
-        return implicit(String.class).map(UUID.class, string -> {
-            try {
-                return UUID.fromString(string);
-            } catch (IllegalArgumentException e) {
-                return null;
+    public static <V> @NotNull TypeSerializer<V> wrapSingular(@NotNull TypedLootConverter<V> converter) {
+        return new TypeSerializer<>() {
+            @Override
+            public V deserialize(Type type, ConfigurationNode node) throws SerializationException {
+                return converter.deserialize(node);
             }
-        }, UUID::toString);
+
+            @Override
+            public void serialize(Type type, @Nullable V obj, ConfigurationNode node) throws SerializationException {
+                if (obj == null) {
+                    throw new SerializationException(node, converter.convertedType().getType(), "Cannot serialize null object");
+                }
+                converter.serialize(obj, node);
+            }
+        };
+    }
+
+    private static <V> void add(@NotNull TypedLootConverter<V> converter, @NotNull TypeSerializerCollection.Builder builder) {
+        builder.register(converter.convertedType(), wrapSingular(converter));
     }
 
     /**
@@ -73,7 +77,7 @@ public class FieldTypes {
      * @return a field converting whatever &lt;T&gt; is
      * @param <T> the enumerated type
      */
-    public static <T extends Enum<T>> @NotNull Field<T> enumerated(@NotNull Class<T> type, @NotNull Function<T, String> namer) {
+    public static <T extends Enum<T>> @NotNull TypedLootConverter<T> enumerated(@NotNull Class<T> type, @NotNull Function<T, String> namer) {
         return enumerated(type, Arrays.asList(type.getEnumConstants()), namer);
     }
 
@@ -85,37 +89,9 @@ public class FieldTypes {
      * @return a field converting whatever &lt;T&gt; is
      * @param <T> the enumerated type
      */
-    public static <T> @NotNull Field<T> enumerated(@NotNull Class<T> type, @NotNull Collection<T> values, @NotNull Function<T, String> namer) {
+    public static <T> @NotNull TypedLootConverter<T> enumerated(@NotNull Class<T> type, @NotNull Collection<T> values, @NotNull Function<T, String> namer) {
         Map<String, T> mappings = values.stream().collect(Collectors.toMap(namer, Function.identity()));
-        return implicit(String.class).map(type, mappings::get, namer::apply);
-    }
-
-    /**
-     * @return a field converting loot conditions
-     */
-    public static @NotNull Field<LootCondition> condition() {
-        return implicit(LootCondition.class);
-    }
-
-    /**
-     * @return a field converting loot entries
-     */
-    public static @NotNull Field<LootEntry> entry() {
-        return implicit(LootEntry.class);
-    }
-
-    /**
-     * @return a field converting loot modifiers
-     */
-    public static @NotNull Field<LootModifier> modifier() {
-        return implicit(LootModifier.class);
-    }
-
-    /**
-     * @return a field converting loot numbers
-     */
-    public static @NotNull Field<LootNumber> number() {
-        return implicit(LootNumber.class);
+        return Converters.proxied(String.class, type, mappings::get, namer);
     }
 
 }

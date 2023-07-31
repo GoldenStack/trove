@@ -11,8 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.minestom.util.MinestomTypes.*;
+import static dev.goldenstack.loot.converter.generator.Converters.*;
 
 /**
  * A modifier that enchants items with a specific level.
@@ -31,9 +30,9 @@ public record LevelledEnchantModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull TypedLootConverter<LevelledEnchantModifier> CONVERTER =
             converter(LevelledEnchantModifier.class,
-                    condition().list().name("conditions").withDefault(List::of),
-                    number().name("levelRange").nodePath("levels"),
-                    implicit(boolean.class).name("permitTreasure").nodePath("treasureEnchantmentsAllowed").withDefault(false)
+                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
+                    type(LootNumber.class).name("levelRange").nodePath("levels"),
+                    type(boolean.class).name("permitTreasure").nodePath("treasureEnchantmentsAllowed").withDefault(false)
             );
 
     @Override
