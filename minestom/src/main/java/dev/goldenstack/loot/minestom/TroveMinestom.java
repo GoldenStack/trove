@@ -25,7 +25,6 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.gson.GsonConfigurationLoader;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
@@ -98,16 +97,6 @@ public class TroveMinestom {
     public static final @NotNull VanillaInterface DEFAULT_INTERFACE = new FallbackVanillaInterface() {};
 
     /**
-     * Reads a loot table from the provided input.
-     * @param input the input node to parse
-     * @return the parsed loot table
-     * @throws ConfigurateException if a loot table could not be read from the provided node
-     */
-    public static @NotNull LootTable readTable(@NotNull ConfigurationNode input) throws ConfigurateException {
-        return LootTable.CONVERTER.deserialize(input);
-    }
-
-    /**
      * Parses every JSON file in the provided directory, or one of its subdirectories, into loot tables, returning the
      * results in to a table registry instance.
      * @param directory the directory to parse
@@ -139,7 +128,7 @@ public class TroveMinestom {
 
             var root = builderSupplier.get().source(() -> Files.newBufferedReader(path)).build();
             try {
-                tables.put(key, readTable(root.load()));
+                tables.put(key, root.load().get(LootTable.class));
             } catch (ConfigurateException exception) {
                 exceptions.put(key, exception);
             }
