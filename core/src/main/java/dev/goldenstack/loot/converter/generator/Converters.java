@@ -294,7 +294,7 @@ class ConvertersImpl {
 
             for (int i = 0; i < fields.size(); i++) {
                 var field = fields.get(i);
-                objects[i] = deserialize(field, input.node(field.nodePath()));
+                objects[i] = deserialize(field, input.node(field.nodePath));
             }
 
             return constructor.construct(objects, input);
@@ -334,7 +334,7 @@ class ConvertersImpl {
                     throw new SerializationException(result, field.converter.convertedType().getType(), "Could not retrieve value of field '" + actualFields[i].getName() + "' on type '" + type + "'", e);
                 }
 
-                serialize(field, fieldValue, result.node(field.nodePath()));
+                serialize(field, fieldValue, result.node(field.nodePath));
             }
         };
 
