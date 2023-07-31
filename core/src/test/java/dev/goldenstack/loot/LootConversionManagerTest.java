@@ -22,7 +22,7 @@ public class LootConversionManagerTest {
 
     @Test
     public void testBuilderSubtyping(){
-        var builder = LootConversionManager.builder(TypeToken.get(A.class))
+        var builder = new LootConversionManager<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
         builder.add("a", emptySerializer(A.class, A::new));
@@ -37,7 +37,7 @@ public class LootConversionManagerTest {
 
     @Test
     public void testDuplicateKey() {
-        var builder = LootConversionManager.builder(TypeToken.get(A.class))
+        var builder = new LootConversionManager<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
         builder.add("a", emptySerializer(A.class, A::new));
@@ -49,7 +49,7 @@ public class LootConversionManagerTest {
 
     @Test
     public void testDuplicateType() {
-        var builder = LootConversionManager.builder(TypeToken.get(A.class))
+        var builder = new LootConversionManager<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
         builder.add("a", emptySerializer(A.class, A::new));
@@ -61,7 +61,7 @@ public class LootConversionManagerTest {
 
     @Test
     public void testActiveConditionalSerializer() throws ConfigurateException {
-        var builder = LootConversionManager.builder(TypeToken.get(A.class))
+        var builder = new LootConversionManager<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
         builder.add("a", emptySerializer(A.class, A::new));
@@ -78,7 +78,7 @@ public class LootConversionManagerTest {
 
     @Test
     public void testInactiveConditionalSerializer() throws ConfigurateException {
-        var builder = LootConversionManager.builder(TypeToken.get(A.class))
+        var builder = new LootConversionManager<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
         builder.add("a", emptySerializer(A.class, A::new));
@@ -93,7 +93,7 @@ public class LootConversionManagerTest {
         assertEquals(node(Map.of("location", "a")), node);
     }
 
-    private static <O> @NotNull O handle(@NotNull LootConversionManager<O> deserializer, @NotNull String keyLocation, @NotNull String keyValue) throws ConfigurateException {
+    private static <O> @NotNull O handle(@NotNull TypedLootConverter<O> deserializer, @NotNull String keyLocation, @NotNull String keyValue) throws ConfigurateException {
         return deserializer.deserialize(node(Map.of(keyLocation, keyValue)));
     }
 

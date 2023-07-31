@@ -14,88 +14,75 @@ import java.util.*;
  * Manages serialization for when multiple subtypes of a base class must be chosen from.
  * @param <V> the base type of object that will be converted
  */
-public sealed interface LootConversionManager<V> extends TypedLootConverter<V> permits LootConversionManagerImpl {
+public class LootConversionManager<V> {
 
-    /**
-     * Creates a new LootConversionManager builder that will convert the provided type.
-     * @param convertedType the converted type
-     * @return a new builder
-     */
-    static <V> @NotNull Builder<V> builder(@NotNull TypeToken<V> convertedType) {
-        return new Builder<>(convertedType);
+    private final @NotNull TypeToken<V> convertedType;
+    private String keyLocation;
+    private final @NotNull List<ConditionalLootConverter<V>> initialConverters = new ArrayList<>();
+
+    private final @NotNull Map<String, TypedLootConverter<? extends V>> keyToConverter = new HashMap<>();
+    private final @NotNull Map<TypeToken<? extends V>, TypedLootConverter<? extends V>> typeToConverter = new HashMap<>();
+    private final @NotNull Map<TypeToken<? extends V>, String> typeToKey = new HashMap<>();
+
+    public LootConversionManager(@NotNull TypeToken<V> convertedType) {
+        this.convertedType = convertedType;
     }
 
-    final class Builder<V> {
+    /**
+     * Sets the location of the key that will be used to determine which typed converter to use.
+     * @param keyLocation the location of the key that will be used
+     * @return this, for chaining
+     */
+    @Contract("_ -> this")
+    public @NotNull LootConversionManager<V> keyLocation(@NotNull String keyLocation) {
+        this.keyLocation = keyLocation;
+        return this;
+    }
 
-        private final @NotNull TypeToken<V> convertedType;
-        private String keyLocation;
-        private final @NotNull List<ConditionalLootConverter<V>> initialConverters = new ArrayList<>();
+    /**
+     * Adds a conditional converter to this builder. These conditional converters are applied before any
+     * typed converters are.
+     * @param converter the conditional converter to add
+     * @return this, for chaining
+     */
+    @Contract("_ -> this")
+    public @NotNull LootConversionManager<V> add(@NotNull ConditionalLootConverter<V> converter) {
+        this.initialConverters.add(converter);
+        return this;
+    }
 
-        private final @NotNull Map<String, TypedLootConverter<? extends V>> keyToConverter = new HashMap<>();
-        private final @NotNull Map<TypeToken<? extends V>, TypedLootConverter<? extends V>> typeToConverter = new HashMap<>();
-        private final @NotNull Map<TypeToken<? extends V>, String> typeToKey = new HashMap<>();
-
-        private Builder(@NotNull TypeToken<V> convertedType) {
-            this.convertedType = convertedType;
+    /**
+     * Adds a typed converter under a specific key to this builder. These typed converters are always applied after
+     * any conditional converters are.
+     * @param key the key to associate the converter with
+     * @param converter the converter to be added
+     * @return this, for chaining
+     */
+    @Contract("_, _ -> this")
+    public @NotNull LootConversionManager<V> add(@NotNull String key, @NotNull TypedLootConverter<? extends V> converter) {
+        if (!GenericTypeReflector.isSuperType(convertedType.getType(), converter.convertedType().getType())) {
+            throw new IllegalArgumentException("Converter '" + key + "' has invalid type '" + converter.convertedType().getType() + "' as it is not a subtype of '" + convertedType.getType() + "'");
+        } else if (keyToConverter.put(key, converter) != null) {
+            throw new IllegalArgumentException("Converter '" + key + "' has a key that has already been registered");
+        } else if (typeToConverter.put(converter.convertedType(), converter) != null || typeToKey.put(converter.convertedType(), key) != null) {
+            throw new IllegalArgumentException("Converter '" + key + "' has a type '" + converter.convertedType().getType() + "' that has already been registered");
         }
 
-        /**
-         * Sets the location of the key that will be used to determine which typed converter to use.
-         * @param keyLocation the location of the key that will be used
-         * @return this, for chaining
-         */
-        @Contract("_ -> this")
-        public @NotNull Builder<V> keyLocation(@NotNull String keyLocation) {
-            this.keyLocation = keyLocation;
-            return this;
-        }
+        return this;
+    }
 
-        /**
-         * Adds a conditional converter to this builder. These conditional converters are applied before any
-         * typed converters are.
-         * @param converter the conditional converter to add
-         * @return this, for chaining
-         */
-        @Contract("_ -> this")
-        public @NotNull Builder<V> add(@NotNull ConditionalLootConverter<V> converter) {
-            this.initialConverters.add(converter);
-            return this;
-        }
-
-        /**
-         * Adds a typed converter under a specific key to this builder. These typed converters are always applied after
-         * any conditional converters are.
-         * @param key the key to associate the converter with
-         * @param converter the converter to be added
-         * @return this, for chaining
-         */
-        @Contract("_, _ -> this")
-        public @NotNull Builder<V> add(@NotNull String key, @NotNull TypedLootConverter<? extends V> converter) {
-            if (!GenericTypeReflector.isSuperType(convertedType.getType(), converter.convertedType().getType())) {
-                throw new IllegalArgumentException("Converter '" + key + "' has invalid type '" + converter.convertedType().getType() + "' as it is not a subtype of '" + convertedType.getType() + "'");
-            } else if (keyToConverter.put(key, converter) != null) {
-                throw new IllegalArgumentException("Converter '" + key + "' has a key that has already been registered");
-            } else if (typeToConverter.put(converter.convertedType(), converter) != null || typeToKey.put(converter.convertedType(), key) != null) {
-                throw new IllegalArgumentException("Converter '" + key + "' has a type '" + converter.convertedType().getType() + "' that has already been registered");
-            }
-
-            return this;
-        }
-
-        /**
-         * Builds this builder into a new LootConversionManager instance.
-         * @return the new loot conversion manager
-         */
-        @Contract(" -> new")
-        public @NotNull LootConversionManager<V> build() {
-            return new LootConversionManagerImpl<>(
-                    convertedType,
-                    Objects.requireNonNull(keyLocation, "This builder cannot be built without a key location"),
-                    initialConverters,
-                    keyToConverter, typeToConverter, typeToKey
-            );
-        }
-
+    /**
+     * Builds this builder into a new LootConversionManager instance.
+     * @return the new loot conversion manager
+     */
+    @Contract(" -> new")
+    public @NotNull TypedLootConverter<V> build() {
+        return new LootConversionManagerImpl<>(
+                convertedType,
+                Objects.requireNonNull(keyLocation, "This builder cannot be built without a key location"),
+                initialConverters,
+                keyToConverter, typeToConverter, typeToKey
+        );
     }
 
 }
@@ -104,7 +91,7 @@ record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNul
                                     @NotNull List<ConditionalLootConverter<V>> initialConverters,
                                     @NotNull Map<String, TypedLootConverter<? extends V>> keyToConverter,
                                     @NotNull Map<TypeToken<? extends V>, TypedLootConverter<? extends V>> typeToConverter,
-                                    @NotNull Map<TypeToken<? extends V>, String> typeToKey) implements LootConversionManager<V> {
+                                    @NotNull Map<TypeToken<? extends V>, String> typeToKey) implements TypedLootConverter<V> {
 
     LootConversionManagerImpl {
         Objects.requireNonNull(keyLocation, "This builder cannot be built without a key location");

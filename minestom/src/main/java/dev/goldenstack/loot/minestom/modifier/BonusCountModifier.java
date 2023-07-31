@@ -45,7 +45,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
      */
     public interface BonusType {
 
-        TypedLootConverter<BonusType> TYPE_CONVERTER = LootConversionManager.builder(TypeToken.get(BonusType.class))
+        TypedLootConverter<BonusType> TYPE_CONVERTER = new LootConversionManager<>(TypeToken.get(BonusType.class))
                 .keyLocation("formula")
                 .add(BinomialBonus.KEY, BinomialBonus.CONVERTER)
                 .add(UniformBonus.KEY, UniformBonus.CONVERTER)
