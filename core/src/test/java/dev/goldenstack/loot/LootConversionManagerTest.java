@@ -1,7 +1,7 @@
 package dev.goldenstack.loot;
 
-import dev.goldenstack.loot.converter.meta.LootConversionManager;
-import dev.goldenstack.loot.converter.meta.TypedLootConverter;
+import dev.goldenstack.loot.converter.generator.LootConversionManager;
+import dev.goldenstack.loot.converter.TypedLootConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;

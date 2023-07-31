@@ -2,7 +2,7 @@ package dev.goldenstack.loot;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
-import dev.goldenstack.loot.converter.meta.TypedLootConverter;
+import dev.goldenstack.loot.converter.TypedLootConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

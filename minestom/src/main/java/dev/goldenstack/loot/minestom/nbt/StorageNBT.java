@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.nbt;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.TypedLootConverter;
+import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;

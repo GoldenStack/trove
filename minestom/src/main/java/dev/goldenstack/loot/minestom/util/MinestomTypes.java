@@ -3,7 +3,7 @@ package dev.goldenstack.loot.minestom.util;
 import dev.goldenstack.loot.converter.generator.Converters;
 import dev.goldenstack.loot.converter.generator.Converters.Field;
 import dev.goldenstack.loot.converter.generator.FieldTypes;
-import dev.goldenstack.loot.converter.meta.TypedLootConverter;
+import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
 import dev.goldenstack.loot.minestom.modifier.*;

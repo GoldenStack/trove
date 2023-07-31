@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.TypedLootConverter;
+import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootNumber;

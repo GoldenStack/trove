@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.generation;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.TypedLootConverter;
+import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.generation.LootGenerator;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;

@@ -1,6 +1,7 @@
-package dev.goldenstack.loot.converter.meta;
+package dev.goldenstack.loot.converter.generator;
 
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
+import dev.goldenstack.loot.converter.TypedLootConverter;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;

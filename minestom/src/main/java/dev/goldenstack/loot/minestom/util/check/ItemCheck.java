@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.util.check;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.meta.TypedLootConverter;
+import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.item.ItemStack;

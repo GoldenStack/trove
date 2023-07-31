@@ -1,8 +1,8 @@
 package dev.goldenstack.loot.minestom;
 
 import dev.goldenstack.loot.converter.generator.FieldTypes;
-import dev.goldenstack.loot.converter.meta.LootConversionManager;
-import dev.goldenstack.loot.converter.meta.TypedLootConverter;
+import dev.goldenstack.loot.converter.generator.LootConversionManager;
+import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.condition.*;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
 import dev.goldenstack.loot.minestom.entry.*;

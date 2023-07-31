@@ -2,7 +2,7 @@ package dev.goldenstack.loot.converter.generator;
 
 import dev.goldenstack.loot.converter.LootDeserializer;
 import dev.goldenstack.loot.converter.LootSerializer;
-import dev.goldenstack.loot.converter.meta.TypedLootConverter;
+import dev.goldenstack.loot.converter.TypedLootConverter;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeFactory;
 import io.leangen.geantyref.TypeToken;

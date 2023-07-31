@@ -3,7 +3,7 @@ package dev.goldenstack.loot.minestom.nbt;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.ConditionalLootConverter;
 import dev.goldenstack.loot.converter.generator.Converters;
-import dev.goldenstack.loot.converter.meta.TypedLootConverter;
+import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.RelevantEntity;
 import org.jetbrains.annotations.NotNull;

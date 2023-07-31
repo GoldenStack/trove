@@ -1,8 +1,5 @@
-package dev.goldenstack.loot.converter.meta;
+package dev.goldenstack.loot.converter;
 
-import dev.goldenstack.loot.converter.LootConverter;
-import dev.goldenstack.loot.converter.LootDeserializer;
-import dev.goldenstack.loot.converter.LootSerializer;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurationNode;
