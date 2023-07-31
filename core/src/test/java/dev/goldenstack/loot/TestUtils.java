@@ -11,11 +11,16 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.Supplier;
 
 @SuppressWarnings("ConstantConditions")
 public class TestUtils {
     private TestUtils() {}
+
+    public static <T> @NotNull LootContext context(@NotNull LootContext.Key<T> key, @NotNull T value) {
+        return LootContext.builder().random(new Random(0)).with(key, value).build();
+    }
 
     public static <T> LootContext.@NotNull Key<T> key(@NotNull String name, @NotNull Class<T> type) {
         return new LootContext.Key<>(name, TypeToken.get(type));
@@ -33,15 +38,10 @@ public class TestUtils {
         }
     }
 
-    public static <V> @NotNull ConditionalLootConverter<V> emptyConditionalSerializer(@NotNull Supplier<V> initializer,
-                                                                                      boolean canSerialize,
-                                                                                      boolean canDeserialize) {
+    public static <V> @NotNull ConditionalLootConverter<V> emptyConditionalSerializer(@Nullable Object serialize, @Nullable V deserialize) {
         return ConditionalLootConverter.join(
-                (input, result) -> {
-                    if (canSerialize) {
-                        result.set(null);
-                    }
-                }, input -> Optional.ofNullable(canDeserialize ? initializer.get() : null)
+                (input, result) -> result.set(serialize),
+                input -> Optional.ofNullable(deserialize)
         );
     }
 

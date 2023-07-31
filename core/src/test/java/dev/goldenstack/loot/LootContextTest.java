@@ -1,6 +1,5 @@
 package dev.goldenstack.loot;
 
-import dev.goldenstack.loot.context.LootContext;
 import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
@@ -14,7 +13,7 @@ public class LootContextTest {
         var key1 = TestUtils.key("key1", String.class);
         var key2 = TestUtils.key("key2", String.class);
 
-        var context = LootContext.builder().with(key1, "value").build();
+        var context = TestUtils.context(key1, "value");
 
         assertTrue(context.has(key1));
         assertFalse(context.has(key2));
@@ -31,7 +30,7 @@ public class LootContextTest {
         var type1 = TestUtils.key("type", String.class);
         var type2 = TestUtils.key("type", Integer.class);
 
-        var context = LootContext.builder().with(type1, "value").build();
+        var context = TestUtils.context(type1, "value");
 
         assertTrue(context.has(type1));
         assertFalse(context.has(type2));
@@ -52,10 +51,10 @@ public class LootContextTest {
         var superTypeKey = TestUtils.key("type", SuperType.class);
         var subTypeKey = TestUtils.key("type", SubType.class);
 
-        var context = LootContext.builder().with(superTypeKey, new SubType()).build();
+        var context = TestUtils.context(superTypeKey, new SubType());
         assertNotNull(context.get(superTypeKey));
 
-        var context2 = LootContext.builder().with(superTypeKey, new SuperType()).build();
+        var context2 = TestUtils.context(superTypeKey, new SuperType());
         assertNull(context2.get(subTypeKey));
     }
 

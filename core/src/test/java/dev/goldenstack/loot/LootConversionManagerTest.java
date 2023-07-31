@@ -31,8 +31,7 @@ public class LootConversionManagerTest {
         builder.add("b", emptySerializer(B.class, B::new));
         assertDoesNotThrow(builder::build);
 
-        builder.add("x", (TypedLootConverter<? extends A>) (Object) emptySerializer(X.class, X::new));
-        assertThrows(IllegalArgumentException.class, builder::build);
+        assertThrows(IllegalArgumentException.class, () -> builder.add("x", (TypedLootConverter<? extends A>) (Object) emptySerializer(X.class, X::new)));
     }
 
     @Test
@@ -43,8 +42,7 @@ public class LootConversionManagerTest {
         builder.add("a", emptySerializer(A.class, A::new));
         assertDoesNotThrow(builder::build);
 
-        builder.add("b", emptySerializer(B.class, B::new));
-        assertThrows(IllegalArgumentException.class, builder::build);
+        assertThrows(IllegalArgumentException.class, () -> builder.add("a", emptySerializer(B.class, B::new)));
     }
 
     @Test
@@ -55,8 +53,7 @@ public class LootConversionManagerTest {
         builder.add("a", emptySerializer(A.class, A::new));
         assertDoesNotThrow(builder::build);
 
-        builder.add("b", emptySerializer(A.class, A::new));
-        assertThrows(IllegalArgumentException.class, builder::build);
+        assertThrows(IllegalArgumentException.class, () -> builder.add("b", emptySerializer(A.class, A::new)));
     }
 
     @Test
@@ -65,7 +62,7 @@ public class LootConversionManagerTest {
                 .keyLocation("location");
 
         builder.add("a", emptySerializer(A.class, A::new));
-        builder.add(emptyConditionalSerializer(B::new, true, true));
+        builder.add(emptyConditionalSerializer("empty", new B()));
 
         var manager = builder.build();
 
@@ -73,7 +70,7 @@ public class LootConversionManagerTest {
         manager.serialize(new A(), node);
 
         assertEquals(B.class, handle(manager, "location", "a").getClass());
-        assertEquals(node(null), node);
+        assertEquals(node("empty"), node);
     }
 
     @Test
@@ -82,7 +79,7 @@ public class LootConversionManagerTest {
                 .keyLocation("location");
 
         builder.add("a", emptySerializer(A.class, A::new));
-        builder.add(emptyConditionalSerializer(B::new, false, false));
+        builder.add(emptyConditionalSerializer(null, null));
 
         var manager = builder.build();
 
