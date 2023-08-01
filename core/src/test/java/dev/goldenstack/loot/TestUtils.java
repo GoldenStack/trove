@@ -1,7 +1,7 @@
 package dev.goldenstack.loot;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.ConditionalLootConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.TypedLootConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +10,6 @@ import org.spongepowered.configurate.BasicConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
-import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
 
@@ -38,10 +37,10 @@ public class TestUtils {
         }
     }
 
-    public static <V> @NotNull ConditionalLootConverter<V> emptyConditionalSerializer(@Nullable Object serialize, @Nullable V deserialize) {
-        return ConditionalLootConverter.join(
+    public static <V> @NotNull LootConverter<V> converter(@Nullable Object serialize, @Nullable V deserialize) {
+        return LootConverter.join(
                 (input, result) -> result.set(serialize),
-                input -> Optional.ofNullable(deserialize)
+                input -> deserialize
         );
     }
 

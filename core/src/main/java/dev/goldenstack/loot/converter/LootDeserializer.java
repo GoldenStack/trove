@@ -1,6 +1,7 @@
 package dev.goldenstack.loot.converter;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
@@ -17,6 +18,6 @@ public interface LootDeserializer<V> {
      * @return the provided configuration node deserialized into an object
      * @throws SerializationException if the input could not be deserialized for some reason
      */
-    @NotNull V deserialize(@NotNull ConfigurationNode input) throws SerializationException;
+    @Nullable V deserialize(@NotNull ConfigurationNode input) throws SerializationException;
 
 }

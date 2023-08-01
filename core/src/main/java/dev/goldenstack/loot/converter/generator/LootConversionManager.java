@@ -1,11 +1,12 @@
 package dev.goldenstack.loot.converter.generator;
 
-import dev.goldenstack.loot.converter.ConditionalLootConverter;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.TypedLootConverter;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
@@ -19,7 +20,7 @@ public class LootConversionManager<V> {
 
     private final @NotNull TypeToken<V> convertedType;
     private String keyLocation;
-    private final @NotNull List<ConditionalLootConverter<V>> initialConverters = new ArrayList<>();
+    private final @NotNull List<LootConverter<V>> initialConverters = new ArrayList<>();
 
     private final @NotNull Map<String, TypedLootConverter<? extends V>> keyToConverter = new HashMap<>();
     private final @NotNull Map<TypeToken<? extends V>, TypedLootConverter<? extends V>> typeToConverter = new HashMap<>();
@@ -41,20 +42,19 @@ public class LootConversionManager<V> {
     }
 
     /**
-     * Adds a conditional converter to this builder. These conditional converters are applied before any
-     * typed converters are.
-     * @param converter the conditional converter to add
+     * Adds a converter to this builder. These converters are applied before any typed converters are.
+     * @param converter the converter to add
      * @return this, for chaining
      */
     @Contract("_ -> this")
-    public @NotNull LootConversionManager<V> add(@NotNull ConditionalLootConverter<V> converter) {
+    public @NotNull LootConversionManager<V> add(@NotNull LootConverter<V> converter) {
         this.initialConverters.add(converter);
         return this;
     }
 
     /**
      * Adds a typed converter under a specific key to this builder. These typed converters are always applied after
-     * any conditional converters are.
+     * any normal converters are.
      * @param key the key to associate the converter with
      * @param converter the converter to be added
      * @return this, for chaining
@@ -89,7 +89,7 @@ public class LootConversionManager<V> {
 }
 
 record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull String keyLocation,
-                                    @NotNull List<ConditionalLootConverter<V>> initialConverters,
+                                    @NotNull List<LootConverter<V>> initialConverters,
                                     @NotNull Map<String, TypedLootConverter<? extends V>> keyToConverter,
                                     @NotNull Map<TypeToken<? extends V>, TypedLootConverter<? extends V>> typeToConverter,
                                     @NotNull Map<TypeToken<? extends V>, String> typeToKey) implements TypedLootConverter<V> {
@@ -130,12 +130,12 @@ record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNul
     }
 
     @Override
-    public @NotNull V deserialize(@NotNull ConfigurationNode input) throws SerializationException {
+    public @Nullable V deserialize(@NotNull ConfigurationNode input) throws SerializationException {
         // Initial pass with conditional converters
         for (var conditional : initialConverters) {
             var result = conditional.deserialize(input);
-            if (result.isPresent()) {
-                return result.get();
+            if (result != null) {
+                return result;
             }
         }
         ConfigurationNode keyNode = input.node(keyLocation);

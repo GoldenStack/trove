@@ -1,9 +1,9 @@
 package dev.goldenstack.loot.minestom.nbt;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.ConditionalLootConverter;
-import dev.goldenstack.loot.converter.generator.Converters;
+import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.TypedLootConverter;
+import dev.goldenstack.loot.converter.generator.Converters;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.RelevantEntity;
 import org.jetbrains.annotations.NotNull;
@@ -11,8 +11,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.spongepowered.configurate.serialize.SerializationException;
-
-import java.util.Optional;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.type;
@@ -27,20 +25,20 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
      * A converter for constant NBT that always serializes to a string scalar and deserializes when the input is a
      * single string scalar.
      */
-    public static final @NotNull ConditionalLootConverter<LootNBT> ACCURATE_CONVERTER = ConditionalLootConverter.join(
+    public static final @NotNull LootConverter<LootNBT> ACCURATE_CONVERTER = LootConverter.join(
             (input, result) -> {
                 if (input instanceof ContextNBT contextNBT) {
                     result.set(contextNBT.target().serializedString());
                 }
             }, input -> {
-                if (input.rawScalar() instanceof String string) {
-                    var target = fromString(string);
-                    if (target == null) {
-                        throw new SerializationException(input, ContextNBT.NBTTarget.class, "Could not read block entity or a RelevantEntity from the provided node");
-                    }
-                    return Optional.of(new ContextNBT(target));
+                if (!(input.rawScalar() instanceof String string)) {
+                    return null;
                 }
-                return Optional.empty();
+                var target = fromString(string);
+                if (target == null) {
+                    throw new SerializationException(input, ContextNBT.NBTTarget.class, "Could not read block entity or a RelevantEntity from the provided node");
+                }
+                return new ContextNBT(target);
             }
     );
 

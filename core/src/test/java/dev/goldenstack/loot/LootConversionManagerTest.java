@@ -4,6 +4,7 @@ import dev.goldenstack.loot.converter.generator.LootConversionManager;
 import dev.goldenstack.loot.converter.TypedLootConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.spongepowered.configurate.ConfigurateException;
 
@@ -62,14 +63,14 @@ public class LootConversionManagerTest {
                 .keyLocation("location");
 
         builder.add("a", emptySerializer(A.class, A::new));
-        builder.add(emptyConditionalSerializer("empty", new B()));
+        builder.add(converter("empty", new B()));
 
         var manager = builder.build();
 
         var node = node();
         manager.serialize(new A(), node);
 
-        assertEquals(B.class, handle(manager, "location", "a").getClass());
+        assertInstanceOf(B.class, handle(manager, "location", "a"));
         assertEquals(node("empty"), node);
     }
 
@@ -79,18 +80,18 @@ public class LootConversionManagerTest {
                 .keyLocation("location");
 
         builder.add("a", emptySerializer(A.class, A::new));
-        builder.add(emptyConditionalSerializer(null, null));
+        builder.add(converter(null, null));
 
         var manager = builder.build();
 
         var node = node();
         manager.serialize(new A(), node);
 
-        assertEquals(A.class, handle(manager, "location", "a").getClass());
+        assertInstanceOf(A.class, handle(manager, "location", "a"));
         assertEquals(node(Map.of("location", "a")), node);
     }
 
-    private static <O> @NotNull O handle(@NotNull TypedLootConverter<O> deserializer, @NotNull String keyLocation, @NotNull String keyValue) throws ConfigurateException {
+    private static <O> @Nullable O handle(@NotNull TypedLootConverter<O> deserializer, @NotNull String keyLocation, @NotNull String keyValue) throws ConfigurateException {
         return deserializer.deserialize(node(Map.of(keyLocation, keyValue)));
     }
 

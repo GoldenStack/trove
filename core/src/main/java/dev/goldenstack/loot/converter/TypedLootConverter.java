@@ -2,6 +2,7 @@ package dev.goldenstack.loot.converter;
 
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
@@ -73,7 +74,7 @@ record TypedLootConverterImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull L
     }
 
     @Override
-    public @NotNull V deserialize(@NotNull ConfigurationNode input) throws SerializationException {
+    public @Nullable V deserialize(@NotNull ConfigurationNode input) throws SerializationException {
         return deserializer.deserialize(input);
     }
 }
