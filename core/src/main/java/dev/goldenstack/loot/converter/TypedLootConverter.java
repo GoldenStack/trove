@@ -5,12 +5,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
+
+import java.lang.reflect.Type;
 
 /**
  * A loot converter that also stores a TypeToken representing the converted type.
  * @param <V> the converted type
  */
-public interface TypedLootConverter<V> extends LootConverter<V> {
+public interface TypedLootConverter<V> extends LootConverter<V>, TypeSerializer<V> {
 
     /**
      * Joins the provided type and converter into a new TypedLootConverter.
@@ -64,6 +67,18 @@ public interface TypedLootConverter<V> extends LootConverter<V> {
      */
     @NotNull TypeToken<V> convertedType();
 
+    @Override
+    default void serialize(Type type, @Nullable V obj, ConfigurationNode node) throws SerializationException {
+        if (obj == null) {
+            throw new SerializationException(node, convertedType().getType(), "Cannot serialize null object");
+        }
+        serialize(obj, node);
+    }
+
+    @Override
+    default V deserialize(Type type, ConfigurationNode node) throws SerializationException {
+        return deserialize(node);
+    }
 }
 
 record TypedLootConverterImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<V> deserializer) implements TypedLootConverter<V> {

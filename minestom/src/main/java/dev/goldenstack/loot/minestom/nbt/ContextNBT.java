@@ -52,8 +52,6 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
                     type(NBTTarget.class).name("target")
             );
 
-    public static final @NotNull TypedLootConverter<NBTTarget> TARGET_CONVERTER = Converters.proxied(String.class, NBTTarget.class, ContextNBT::fromString, NBTTarget::serializedString);
-
     private static @Nullable NBTTarget fromString(@NotNull String id) {
         if (id.equals("block_entity")) {
             return new BlockEntityTarget();
@@ -67,6 +65,8 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
      * Represents two types of targets that can provide NBT differently.
      */
     public sealed interface NBTTarget permits BlockEntityTarget, EntityTarget {
+
+        @NotNull TypedLootConverter<NBTTarget> CONVERTER = Converters.proxied(String.class, NBTTarget.class, ContextNBT::fromString, NBTTarget::serializedString);
 
         /**
          * Retrieves NBT from the provided context.

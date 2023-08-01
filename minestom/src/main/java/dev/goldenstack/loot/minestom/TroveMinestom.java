@@ -62,31 +62,29 @@ public class TroveMinestom {
      */
     public static final @NotNull TypeSerializerCollection DEFAULT_COLLECTION =
             TypeSerializerCollection.builder()
-                    .registerAll(FieldTypes.wrap(
-                            TroveMinestom.createEntryBuilder().build(),
-                            TroveMinestom.createModifierBuilder().build(),
-                            TroveMinestom.createConditionBuilder().build(),
-                            TroveMinestom.createNumberBuilder().build(),
-                            TroveMinestom.createNbtBuilder().build(),
-                            TypedLootConverter.join(VanillaInterface.EntityPredicate.class,
-                                    (input, result) -> {},
-                                    input -> (world, location, entity) -> false
-                            ),
-                            TypedLootConverter.join(VanillaInterface.LocationPredicate.class,
-                                    (input, result) -> {},
-                                    input -> (world, location) -> false
-                            ),
-                            TypedLootConverter.join(LootContextKeyGroup.class,
-                                    (input, result) -> result.set(input.id()),
-                                    input -> {
-                                        var id = input.getString();
-                                        if (id == null) {
-                                            throw new SerializationException(input, LootContextKeyGroup.class, "Expected a string");
-                                        }
-                                        return STANDARD_GROUPS.get(id);
+                    .register(LootEntry.class, TroveMinestom.createEntryBuilder().build())
+                    .register(LootModifier.class, TroveMinestom.createModifierBuilder().build())
+                    .register(LootCondition.class, TroveMinestom.createConditionBuilder().build())
+                    .register(LootNumber.class, TroveMinestom.createNumberBuilder().build())
+                    .register(LootNBT.class, TroveMinestom.createNbtBuilder().build())
+                    .register(VanillaInterface.EntityPredicate.class, TypedLootConverter.join(VanillaInterface.EntityPredicate.class,
+                                (input, result) -> {},
+                                input -> (world, location, entity) -> false
+                        ))
+                    .register(VanillaInterface.LocationPredicate.class, TypedLootConverter.join(VanillaInterface.LocationPredicate.class,
+                                (input, result) -> {},
+                                input -> (world, location) -> false
+                        ))
+                    .register(LootContextKeyGroup.class, TypedLootConverter.join(LootContextKeyGroup.class,
+                                (input, result) -> result.set(input.id()),
+                                input -> {
+                                    var id = input.getString();
+                                    if (id == null) {
+                                        throw new SerializationException(input, LootContextKeyGroup.class, "Expected a string");
                                     }
-                            )
-                    ))
+                                    return STANDARD_GROUPS.get(id);
+                                }
+                        ))
                     .registerAll(FieldTypes.STANDARD_TYPES)
                     .registerAll(MinestomTypes.STANDARD_TYPES)
                     .build();

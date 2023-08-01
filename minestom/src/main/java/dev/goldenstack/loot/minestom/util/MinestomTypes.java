@@ -40,34 +40,34 @@ import java.util.Locale;
  */
 public class MinestomTypes {
 
-    public static final @NotNull TypeSerializerCollection STANDARD_TYPES = FieldTypes.wrap(
-            Converters.proxied(String.class, NamespaceID.class, NamespaceID::from, NamespaceID::asString),
-            Converters.proxied(String.class, Material.class, Material::fromNamespaceId, Material::name),
-            Converters.proxied(String.class, Block.class, Block::fromNamespaceId, Block::name),
-            Converters.proxied(String.class, Enchantment.class, Enchantment::fromNamespaceId, Enchantment::name),
-            Converters.proxied(String.class, PotionType.class, PotionType::fromNamespaceId, PotionType::name),
-            Converters.proxied(String.class, PotionEffect.class, PotionEffect::fromNamespaceId, PotionEffect::name),
-            Converters.proxied(NamespaceID.class, Attribute.class, a -> Attribute.fromKey(a.asString()), a -> NamespaceID.from(a.key())),
-            BlockStateCheck.CONVERTER,
-            LootPool.CONVERTER,
-            LootTable.CONVERTER,
-            NBTPath.CONVERTER,
-            LootNumberRange.CONVERTER,
-            ContextNBT.TARGET_CONVERTER,
-            NBTCheck.CONVERTER,
-            ItemCheck.CONVERTER,
-            EnchantmentCheck.CONVERTER,
-            BonusCountModifier.BonusType.TYPE_CONVERTER,
-            CopyNbtModifier.Operation.CONVERTER,
-            SetStewEffectModifier.StewEffect.CONVERTER,
-            SetAttributesModifier.AttributeDirective.CONVERTER,
-            Converters.proxied(NBT.class, NBTCompound.class, input -> input instanceof NBTCompound compound ? compound : null, nbt -> nbt),
-            FieldTypes.enumerated(RelevantEntity.class, RelevantEntity::id),
-            FieldTypes.enumerated(AttributeSlot.class, operation -> operation.name().toLowerCase(Locale.ROOT)),
-            FieldTypes.enumerated(AttributeOperation.class, operation -> operation.name().toLowerCase(Locale.ROOT)),
-            FieldTypes.enumerated(CopyNameModifier.RelevantKey.class, CopyNameModifier.RelevantKey::getName),
-            FieldTypes.enumerated(CopyNbtModifier.Operator.class, CopyNbtModifier.Operator::id),
-            TypedLootConverter.join(NBT.class,
+    public static final @NotNull TypeSerializerCollection STANDARD_TYPES = TypeSerializerCollection.builder()
+            .register(NamespaceID.class, Converters.proxied(String.class, NamespaceID.class, NamespaceID::from, NamespaceID::asString))
+            .register(Material.class, Converters.proxied(String.class, Material.class, Material::fromNamespaceId, Material::name))
+            .register(Block.class, Converters.proxied(String.class, Block.class, Block::fromNamespaceId, Block::name))
+            .register(Enchantment.class, Converters.proxied(String.class, Enchantment.class, Enchantment::fromNamespaceId, Enchantment::name))
+            .register(PotionType.class, Converters.proxied(String.class, PotionType.class, PotionType::fromNamespaceId, PotionType::name))
+            .register(PotionEffect.class, Converters.proxied(String.class, PotionEffect.class, PotionEffect::fromNamespaceId, PotionEffect::name))
+            .register(Attribute.class, Converters.proxied(NamespaceID.class, Attribute.class, a -> Attribute.fromKey(a.asString()), a -> NamespaceID.from(a.key())))
+            .register(BlockStateCheck.class, BlockStateCheck.CONVERTER)
+            .register(LootPool.class, LootPool.CONVERTER)
+            .register(LootTable.class, LootTable.CONVERTER)
+            .register(NBTPath.class, NBTPath.CONVERTER)
+            .register(LootNumberRange.class, LootNumberRange.CONVERTER)
+            .register(ContextNBT.NBTTarget.class, ContextNBT.NBTTarget.CONVERTER)
+            .register(NBTCheck.class, NBTCheck.CONVERTER)
+            .register(ItemCheck.class, ItemCheck.CONVERTER)
+            .register(EnchantmentCheck.class, EnchantmentCheck.CONVERTER)
+            .register(BonusCountModifier.BonusType.class, BonusCountModifier.BonusType.TYPE_CONVERTER)
+            .register(CopyNbtModifier.Operation.class, CopyNbtModifier.Operation.CONVERTER)
+            .register(SetStewEffectModifier.StewEffect.class, SetStewEffectModifier.StewEffect.CONVERTER)
+            .register(SetAttributesModifier.AttributeDirective.class, SetAttributesModifier.AttributeDirective.CONVERTER)
+            .register(NBTCompound.class, Converters.proxied(NBT.class, NBTCompound.class, input -> input instanceof NBTCompound compound ? compound : null, nbt -> nbt))
+            .register(RelevantEntity.class, FieldTypes.enumerated(RelevantEntity.class, RelevantEntity::id))
+            .register(AttributeSlot.class, FieldTypes.enumerated(AttributeSlot.class, operation -> operation.name().toLowerCase(Locale.ROOT)))
+            .register(AttributeOperation.class, FieldTypes.enumerated(AttributeOperation.class, operation -> operation.name().toLowerCase(Locale.ROOT)))
+            .register(CopyNameModifier.RelevantKey.class, FieldTypes.enumerated(CopyNameModifier.RelevantKey.class, CopyNameModifier.RelevantKey::getName))
+            .register(CopyNbtModifier.Operator.class, FieldTypes.enumerated(CopyNbtModifier.Operator.class, CopyNbtModifier.Operator::id))
+            .register(NBT.class, TypedLootConverter.join(NBT.class,
                     (input, result) -> result.set(input.toSNBT()),
                     input -> {
                         var snbt = input.require(String.class);
@@ -79,8 +79,9 @@ public class MinestomTypes {
                             throw new SerializationException(input, NBT.class, e);
                         }
                     }
+                    )
             )
-    );
+            .build();
 
     /**
      * @return a field converting the provided basic tag type

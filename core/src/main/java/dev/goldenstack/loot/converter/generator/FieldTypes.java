@@ -2,13 +2,8 @@ package dev.goldenstack.loot.converter.generator;
 
 import dev.goldenstack.loot.converter.TypedLootConverter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.serialize.SerializationException;
-import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -21,54 +16,14 @@ import java.util.stream.Collectors;
  */
 public class FieldTypes {
 
-    public static final @NotNull TypeSerializerCollection STANDARD_TYPES = FieldTypes.wrap(
-            Converters.proxied(String.class, UUID.class, string -> {
+    public static final @NotNull TypeSerializerCollection STANDARD_TYPES = TypeSerializerCollection.builder()
+            .register(UUID.class, Converters.proxied(String.class, UUID.class, string -> {
                 try {
                     return UUID.fromString(string);
                 } catch (IllegalArgumentException e) {
                     return null;
                 }
-            }, UUID::toString));
-
-    /**
-     * Wraps the provided converters in a new type serializer collection.
-     * @param converters the converters to wrap in a type serializer collection
-     * @return a type serializer collection representing each provided converter
-     */
-    public static @NotNull TypeSerializerCollection wrap(@NotNull TypedLootConverter<?> @NotNull ... converters) {
-        var builder = TypeSerializerCollection.builder();
-        for (var converter : converters) {
-            add(converter, builder);
-        }
-        return builder.build();
-    }
-
-    /**
-     * Wraps the provided converter in a new type serializer.
-     * @param converter the converter to convert to a type serializer
-     * @return a type serializer that uses the provided converter
-     * @param <V> the converted type
-     */
-    public static <V> @NotNull TypeSerializer<V> wrapSingular(@NotNull TypedLootConverter<V> converter) {
-        return new TypeSerializer<>() {
-            @Override
-            public V deserialize(Type type, ConfigurationNode node) throws SerializationException {
-                return converter.deserialize(node);
-            }
-
-            @Override
-            public void serialize(Type type, @Nullable V obj, ConfigurationNode node) throws SerializationException {
-                if (obj == null) {
-                    throw new SerializationException(node, converter.convertedType().getType(), "Cannot serialize null object");
-                }
-                converter.serialize(obj, node);
-            }
-        };
-    }
-
-    private static <V> void add(@NotNull TypedLootConverter<V> converter, @NotNull TypeSerializerCollection.Builder builder) {
-        builder.register(converter.convertedType(), wrapSingular(converter));
-    }
+            }, UUID::toString)).build();
 
     /**
      * Creates a field that converts every enum value from the provided type.
