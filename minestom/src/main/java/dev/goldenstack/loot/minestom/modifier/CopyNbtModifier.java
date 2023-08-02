@@ -18,7 +18,9 @@ import org.jglrxavpok.hephaistos.nbt.NBTType;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * Copies the NBT from some {@link #source()} to the resulting item via a list of {@link #operations()}.
@@ -36,9 +38,9 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
      */
     public static final @NotNull TypedLootConverter<CopyNbtModifier> CONVERTER =
             converter(CopyNbtModifier.class,
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
-                    type(LootNBT.class).name("source"),
-                    typeList(Operation.class).name("operations").nodePath("ops")
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
+                    field(LootNBT.class).name("source"),
+                    field(Operation.class).name("operations").nodePath("ops").as(list())
             );
 
     /**
@@ -52,9 +54,9 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
 
         public static final @NotNull TypedLootConverter<Operation> CONVERTER =
                 converter(Operation.class,
-                        type(NBTPath.class).name("source"),
-                        type(NBTPath.class).name("target"),
-                        type(Operator.class).name("operator").nodePath("op")
+                        field(NBTPath.class).name("source"),
+                        field(NBTPath.class).name("target"),
+                        field(Operator.class).name("operator").nodePath("op")
                 );
 
         /**

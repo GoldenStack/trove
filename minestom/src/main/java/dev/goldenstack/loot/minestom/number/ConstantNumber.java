@@ -7,7 +7,7 @@ import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.type;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * A constant value that is always returned. When a {@code long} is needed, {@link Math#round(double)} is used.
@@ -39,7 +39,7 @@ public record ConstantNumber(double value) implements LootNumber {
      */
     public static final @NotNull TypedLootConverter<ConstantNumber> CONVERTER =
             converter(ConstantNumber.class,
-                    type(double.class).name("value")
+                    field(double.class).name("value")
             );
 
     @Override

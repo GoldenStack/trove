@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.type;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * Checks that the world's weather fits the required conditions.
@@ -24,8 +24,8 @@ public record WeatherCheckCondition(@Nullable Boolean raining, @Nullable Boolean
      */
     public static final @NotNull TypedLootConverter<WeatherCheckCondition> CONVERTER =
             converter(WeatherCheckCondition.class,
-                    type(Boolean.class).optional().name("raining"),
-                    type(Boolean.class).optional().name("thundering")
+                    field(Boolean.class).optional().name("raining"),
+                    field(Boolean.class).optional().name("thundering")
             );
 
     @Override

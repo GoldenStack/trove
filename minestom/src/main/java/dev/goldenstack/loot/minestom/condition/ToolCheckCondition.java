@@ -9,7 +9,7 @@ import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.type;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * Verifies that all provided contexts have a tool that passes the {@link #toolCheck()}.
@@ -23,7 +23,7 @@ public record ToolCheckCondition(@NotNull ItemCheck toolCheck) implements LootCo
      */
     public static final @NotNull TypedLootConverter<ToolCheckCondition> CONVERTER =
             converter(ToolCheckCondition.class,
-                    type(ItemCheck.class).name("toolCheck").nodePath("predicate").withDefault(ItemCheck.EMPTY)
+                    field(ItemCheck.class).name("toolCheck").nodePath("predicate").fallback(ItemCheck.EMPTY)
             );
 
     @Override

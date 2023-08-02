@@ -9,7 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.typeList;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * A loot entry that will return the results of the first child that returns any results.
@@ -25,8 +26,8 @@ public record AlternativeEntry(@NotNull List<LootEntry> children, @NotNull List<
      */
     public static final @NotNull TypedLootConverter<AlternativeEntry> CONVERTER =
             converter(AlternativeEntry.class,
-                    typeList(LootEntry.class).name("children"),
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of)
+                    field(LootEntry.class).name("children").as(list()),
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of)
             );
 
     public AlternativeEntry {

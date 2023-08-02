@@ -13,7 +13,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.tag;
 
 /**
@@ -48,14 +50,14 @@ public record ItemCheck(@NotNull NBTCheck nbtCheck,
      */
     public static final @NotNull TypedLootConverter<ItemCheck> CONVERTER =
             converter(ItemCheck.class,
-                    type(NBTCheck.class).withDefault(new NBTCheck(null)).name("nbtCheck").nodePath("nbt"),
-                    type(LootNumberRange.class).withDefault(new LootNumberRange(null, null)).name("count"),
-                    type(LootNumberRange.class).withDefault(new LootNumberRange(null, null)).name("durability"),
-                    typeList(EnchantmentCheck.class).withDefault(List::of).name("enchantmentChecks").nodePath("enchantments"),
-                    typeList(EnchantmentCheck.class).withDefault(List::of).name("storedEnchantmentChecks").nodePath("stored_enchantments"),
-                    typeList(Material.class).name("validMaterials").nodePath("items").optional(),
-                    tag(Tag.BasicType.ITEMS).name("materialTag").nodePath("tag").optional(),
-                    type(NamespaceID.class).name("potionId").nodePath("potion").optional()
+                    field(NBTCheck.class).fallback(new NBTCheck(null)).name("nbtCheck").nodePath("nbt"),
+                    field(LootNumberRange.class).fallback(new LootNumberRange(null, null)).name("count"),
+                    field(LootNumberRange.class).fallback(new LootNumberRange(null, null)).name("durability"),
+                    field(EnchantmentCheck.class).name("enchantmentChecks").nodePath("enchantments").as(list()).fallback(List::of),
+                    field(EnchantmentCheck.class).name("storedEnchantmentChecks").nodePath("stored_enchantments").as(list()).fallback(List::of),
+                    field(Material.class).name("validMaterials").nodePath("items").as(list()).optional(),
+                    field(Tag.class).name("materialTag").nodePath("tag").as(tag(Tag.BasicType.ITEMS)).optional(),
+                    field(NamespaceID.class).name("potionId").nodePath("potion").optional()
             );
 
     @SuppressWarnings("UnstableApiUsage")

@@ -18,7 +18,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.possibleList;
 
 /**
  * A modifier that adds a list of attributes to each provided item.
@@ -35,8 +38,8 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull TypedLootConverter<SetAttributesModifier> CONVERTER =
             converter(SetAttributesModifier.class,
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
-                    typeList(AttributeDirective.class).name("attributes").nodePath("modifiers")
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
+                    field(AttributeDirective.class).name("attributes").nodePath("modifiers").as(list())
             );
 
     @Override
@@ -73,12 +76,12 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
 
         public static final @NotNull TypedLootConverter<AttributeDirective> CONVERTER =
                 converter(AttributeDirective.class,
-                        type(String.class).name("name"),
-                        type(Attribute.class).name("attribute"),
-                        type(AttributeOperation.class).name("operation"),
-                        type(LootNumber.class).name("amount"),
-                        type(UUID.class).name("id").optional(),
-                        typePossibleList(AttributeSlot.class).name("slots").nodePath("slot")
+                        field(String.class).name("name"),
+                        field(Attribute.class).name("attribute"),
+                        field(AttributeOperation.class).name("operation"),
+                        field(LootNumber.class).name("amount"),
+                        field(UUID.class).name("id").optional(),
+                        field(AttributeSlot.class).name("slots").nodePath("slot").as(possibleList())
                 );
 
     }

@@ -12,7 +12,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * A modifier that changes the count of any items provided to it.
@@ -30,9 +32,9 @@ public record SetCountModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull TypedLootConverter<SetCountModifier> CONVERTER =
             converter(SetCountModifier.class,
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
-                    type(LootNumber.class).name("count"),
-                    type(boolean.class).name("add")
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
+                    field(LootNumber.class).name("count"),
+                    field(boolean.class).name("add")
             );
 
     @Override

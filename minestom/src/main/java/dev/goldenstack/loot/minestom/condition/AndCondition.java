@@ -8,7 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.typeList;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * Returns true if all of the {@link #conditions()} return true.
@@ -23,7 +24,7 @@ public record AndCondition(@NotNull List<LootCondition> conditions) implements L
      */
     public static final @NotNull TypedLootConverter<AndCondition> CONVERTER =
             converter(AndCondition.class,
-                    typeList(LootCondition.class).name("conditions").nodePath("terms").withDefault(List::of)
+                    field(LootCondition.class).name("conditions").nodePath("terms").as(list()).fallback(List::of)
             );
 
     @Override

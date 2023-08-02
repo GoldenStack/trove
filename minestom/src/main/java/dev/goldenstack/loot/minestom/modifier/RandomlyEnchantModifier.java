@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.typeList;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * Randomly adds one enchantment, of a random valid level, to each provided item. If {@link #validEnchantments()} is
@@ -36,8 +37,8 @@ public record RandomlyEnchantModifier(@NotNull List<LootCondition> conditions, @
      */
     public static final @NotNull TypedLootConverter<RandomlyEnchantModifier> CONVERTER =
             converter(RandomlyEnchantModifier.class,
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
-                    typeList(Enchantment.class).name("validEnchantments").nodePath("enchantments").withDefault(List::of)
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
+                    field(Enchantment.class).name("validEnchantments").nodePath("enchantments").as(list()).fallback(List::of)
             );
 
     @SuppressWarnings("UnstableApiUsage")

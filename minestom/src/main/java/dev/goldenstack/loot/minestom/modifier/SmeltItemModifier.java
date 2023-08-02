@@ -13,7 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.typeList;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * Smelts items provided to it, removing them if they couldn't be smelted.
@@ -28,7 +29,7 @@ public record SmeltItemModifier(@NotNull List<LootCondition> conditions) impleme
      */
     public static final @NotNull TypedLootConverter<SmeltItemModifier> CONVERTER =
             converter(SmeltItemModifier.class,
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of)
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of)
             );
 
     @Override

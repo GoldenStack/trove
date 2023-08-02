@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.type;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * Assures that the world's time is within a certain range, obeying a certain period.
@@ -25,8 +25,8 @@ public record TimeCheckCondition(@NotNull LootNumberRange range, @Nullable Long 
      */
     public static final @NotNull TypedLootConverter<TimeCheckCondition> CONVERTER =
             converter(TimeCheckCondition.class,
-                    type(LootNumberRange.class).name("range").nodePath("value"),
-                    type(Long.class).optional().name("period")
+                    field(LootNumberRange.class).name("range").nodePath("value"),
+                    field(Long.class).optional().name("period")
             );
 
     @Override

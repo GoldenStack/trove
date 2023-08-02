@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.type;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * A check that verifies a map of an enchantment with an optional enchantment and a range. See
@@ -25,8 +25,8 @@ public record EnchantmentCheck(@Nullable Enchantment enchantmentType, @NotNull L
      */
     public static final @NotNull TypedLootConverter<EnchantmentCheck> CONVERTER =
             converter(EnchantmentCheck.class,
-                    type(Enchantment.class).name("enchantmentType").nodePath("enchantment").optional(),
-                    type(LootNumberRange.class).name("levels").optional()
+                    field(Enchantment.class).name("enchantmentType").nodePath("enchantment").optional(),
+                    field(LootNumberRange.class).name("levels").optional()
             );
 
     /**

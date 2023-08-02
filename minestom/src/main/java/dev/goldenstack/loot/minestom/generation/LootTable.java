@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 
 /**
@@ -31,9 +33,9 @@ public record LootTable(@NotNull LootContextKeyGroup contextKeyGroup,
 
     public static final @NotNull TypedLootConverter<LootTable> CONVERTER =
             converter(LootTable.class,
-                    type(LootContextKeyGroup.class).name("contextKeyGroup").nodePath("type"),
-                    typeList(LootPool.class).name("pools").withDefault(List::of),
-                    typeList(LootModifier.class).name("modifiers").nodePath("functions").withDefault(List::of)
+                    field(LootContextKeyGroup.class).name("contextKeyGroup").nodePath("type"),
+                    field(LootPool.class).name("pools").as(list()).fallback(List::of),
+                    field(LootModifier.class).name("modifiers").nodePath("functions").as(list()).fallback(List::of)
             );
 
     public LootTable {

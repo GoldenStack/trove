@@ -14,7 +14,9 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * Copies the properties in {@link #copiedProperties()} onto the provided item if the context's block state key is equal
@@ -33,9 +35,9 @@ public record CopyStateModifier(@NotNull List<LootCondition> conditions, @NotNul
      */
     public static final @NotNull TypedLootConverter<CopyStateModifier> CONVERTER =
             converter(CopyStateModifier.class,
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
-                    type(Block.class).name("blockType").nodePath("block"),
-                    typeList(String.class).name("copiedProperties").nodePath("properties")
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
+                    field(Block.class).name("blockType").nodePath("block"),
+                    field(String.class).name("copiedProperties").nodePath("properties").as(list())
             );
 
     @SuppressWarnings("UnstableApiUsage")

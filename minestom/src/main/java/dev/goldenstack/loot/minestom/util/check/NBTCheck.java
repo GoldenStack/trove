@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.type;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * A standard predicate for NBT elements.
@@ -16,7 +16,7 @@ public record NBTCheck(@Nullable NBT guarantee) {
 
     public static final @NotNull TypedLootConverter<NBTCheck> CONVERTER =
             converter(NBTCheck.class,
-                    type(NBT.class).name("guarantee").nodePath("nbt").optional()
+                    field(NBT.class).name("guarantee").nodePath("nbt").optional()
             );
 
     /**

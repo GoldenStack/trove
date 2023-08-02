@@ -15,7 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.tag;
 
 /**
@@ -40,12 +42,12 @@ public record TagEntry(@NotNull Tag itemTag, boolean expand,
      */
     public static final @NotNull TypedLootConverter<TagEntry> CONVERTER =
             converter(TagEntry.class,
-                    tag(Tag.BasicType.ITEMS).name("itemTag").nodePath("name"),
-                    type(boolean.class).name("expand"),
-                    type(long.class).name("weight").withDefault(1L),
-                    type(long.class).name("quality").withDefault(0L),
-                    typeList(LootModifier.class).name("modifiers").nodePath("functions").withDefault(List::of),
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of)
+                    field(Tag.class).name("itemTag").nodePath("name").as(tag(Tag.BasicType.ITEMS)),
+                    field(boolean.class).name("expand"),
+                    field(long.class).name("weight").fallback(1L),
+                    field(long.class).name("quality").fallback(0L),
+                    field(LootModifier.class).name("modifiers").nodePath("functions").as(list()).fallback(List::of),
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of)
             );
 
     public TagEntry {

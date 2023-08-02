@@ -13,7 +13,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * Copies the name from the {@link #source()} onto the provided item.
@@ -30,8 +32,8 @@ public record CopyNameModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull TypedLootConverter<CopyNameModifier> CONVERTER =
             converter(CopyNameModifier.class,
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
-                    type(RelevantKey.class).name("source")
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
+                    field(RelevantKey.class).name("source")
             );
 
     private static final @NotNull Tag<Component> BLOCK_CUSTOM_NAME = Tag.Component("CustomName");

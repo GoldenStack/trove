@@ -8,7 +8,7 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.type;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * An entry that is dynamically linked to a loot condition using {@link LootContextKeys#REGISTERED_CONDITIONS} and {@link #id()}.
@@ -23,7 +23,7 @@ public record ReferenceCondition(@NotNull NamespaceID id) implements LootConditi
      */
     public static final @NotNull TypedLootConverter<ReferenceCondition> CONVERTER =
             converter(ReferenceCondition.class,
-                    type(NamespaceID.class).name("id").nodePath("name")
+                    field(NamespaceID.class).name("id").nodePath("name")
             );
 
     @Override

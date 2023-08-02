@@ -3,7 +3,7 @@ package dev.goldenstack.loot.minestom.nbt;
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.TypedLootConverter;
-import dev.goldenstack.loot.converter.generator.Converters;
+import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.RelevantEntity;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.type;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * Retrieves NBT based on some information from the provided context.
@@ -49,7 +49,7 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
      */
     public static final @NotNull TypedLootConverter<ContextNBT> CONVERTER =
             converter(ContextNBT.class,
-                    type(NBTTarget.class).name("target")
+                    field(NBTTarget.class).name("target")
             );
 
     private static @Nullable NBTTarget fromString(@NotNull String id) {
@@ -66,7 +66,7 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
      */
     public sealed interface NBTTarget permits BlockEntityTarget, EntityTarget {
 
-        @NotNull TypedLootConverter<NBTTarget> CONVERTER = Converters.proxied(String.class, NBTTarget.class, ContextNBT::fromString, NBTTarget::serializedString);
+        @NotNull TypedLootConverter<NBTTarget> CONVERTER = FieldTypes.proxied(String.class, NBTTarget.class, ContextNBT::fromString, NBTTarget::serializedString);
 
         /**
          * Retrieves NBT from the provided context.

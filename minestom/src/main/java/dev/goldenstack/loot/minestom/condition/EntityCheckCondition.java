@@ -9,7 +9,7 @@ import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.type;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * Checks the {@link #chosenEntity()} with the {@link #entityChecker()}.
@@ -26,8 +26,8 @@ public record EntityCheckCondition(@NotNull RelevantEntity chosenEntity,
      */
     public static final @NotNull TypedLootConverter<EntityCheckCondition> CONVERTER =
             converter(EntityCheckCondition.class,
-                    type(RelevantEntity.class).name("chosenEntity").nodePath("entity"),
-                    type(VanillaInterface.EntityPredicate.class).name("entityChecker").nodePath("predicate")
+                    field(RelevantEntity.class).name("chosenEntity").nodePath("entity"),
+                    field(VanillaInterface.EntityPredicate.class).name("entityChecker").nodePath("predicate")
             );
 
     @Override

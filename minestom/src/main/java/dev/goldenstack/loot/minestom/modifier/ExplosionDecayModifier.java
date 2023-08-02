@@ -11,7 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.typeList;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * A modifier that decreases the size of items provided to it, following roughly normal distribution, based on the
@@ -27,7 +28,7 @@ public record ExplosionDecayModifier(@NotNull List<LootCondition> conditions) im
      */
     public static final @NotNull TypedLootConverter<ExplosionDecayModifier> CONVERTER =
             converter(ExplosionDecayModifier.class,
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of)
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of)
             );
 
     @Override

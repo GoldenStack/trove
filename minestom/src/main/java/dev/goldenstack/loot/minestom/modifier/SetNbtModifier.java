@@ -11,7 +11,9 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * A modifier that merges each item's meta with the NBT stored in {@link #nbt()}, with the stored NBT taking precedence
@@ -28,8 +30,8 @@ public record SetNbtModifier(@NotNull List<LootCondition> conditions, @NotNull N
      */
     public static final @NotNull TypedLootConverter<SetNbtModifier> CONVERTER =
             converter(SetNbtModifier.class,
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
-                    type(NBTCompound.class).name("nbt").nodePath("tag")
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
+                    field(NBTCompound.class).name("nbt").nodePath("tag")
             );
 
     @Override

@@ -16,7 +16,9 @@ import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * Adds a random potion effect, from the pool, to each provided suspicious stew item.
@@ -34,8 +36,8 @@ public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull TypedLootConverter<SetStewEffectModifier> CONVERTER =
             converter(SetStewEffectModifier.class,
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
-                    typeList(StewEffect.class).name("effects")
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
+                    field(StewEffect.class).name("effects").as(list())
             );
 
     /**
@@ -46,8 +48,8 @@ public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
     public record StewEffect(@NotNull PotionEffect effect, @NotNull LootNumber duration) {
         public static final @NotNull TypedLootConverter<StewEffect> CONVERTER =
                 converter(StewEffect.class,
-                        type(PotionEffect.class).name("effect").nodePath("type"),
-                        type(LootNumber.class).name("duration")
+                        field(PotionEffect.class).name("effect").nodePath("type"),
+                        field(LootNumber.class).name("duration")
                 );
     }
 

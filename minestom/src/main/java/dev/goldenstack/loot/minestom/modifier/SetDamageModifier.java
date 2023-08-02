@@ -10,7 +10,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * Sets the damage of each provided item. If {@link #add()} is false, the item's durability is set to
@@ -30,9 +32,9 @@ public record SetDamageModifier(@NotNull List<LootCondition> conditions,
      */
     public static final @NotNull TypedLootConverter<SetDamageModifier> CONVERTER =
             converter(SetDamageModifier.class,
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of),
-                    type(LootNumber.class).name("modifiedDurability").nodePath("damage"),
-                    type(boolean.class).name("add").withDefault(false)
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
+                    field(LootNumber.class).name("modifiedDurability").nodePath("damage"),
+                    field(boolean.class).name("add").fallback(false)
             );
 
     @Override

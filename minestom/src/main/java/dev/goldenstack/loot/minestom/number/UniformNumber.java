@@ -6,7 +6,7 @@ import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.type;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * Generates a random number between (inclusive) the minimum and maximum. To be precise, for
@@ -25,8 +25,8 @@ public record UniformNumber(@NotNull LootNumber min, @NotNull LootNumber max) im
      */
     public static final @NotNull TypedLootConverter<UniformNumber> CONVERTER =
             converter(UniformNumber.class,
-                    type(LootNumber.class).name("min"),
-                    type(LootNumber.class).name("max")
+                    field(LootNumber.class).name("min"),
+                    field(LootNumber.class).name("max")
             );
 
     @Override

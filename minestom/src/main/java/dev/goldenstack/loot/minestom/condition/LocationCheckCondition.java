@@ -8,7 +8,7 @@ import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.type;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * Verifies that the location at the context (i.e. the {@link LootContextKeys#WORLD} and {@link LootContextKeys#ORIGIN})
@@ -24,10 +24,10 @@ public record LocationCheckCondition(@NotNull VanillaInterface.LocationPredicate
      */
     public static final @NotNull TypedLootConverter<LocationCheckCondition> CONVERTER =
             converter(LocationCheckCondition.class,
-                    type(VanillaInterface.LocationPredicate.class).name("predicate"),
-                    type(double.class).name("xOffset").nodePath("offsetX").withDefault(0d),
-                    type(double.class).name("yOffset").nodePath("offsetY").withDefault(0d),
-                    type(double.class).name("zOffset").nodePath("offsetZ").withDefault(0d)
+                    field(VanillaInterface.LocationPredicate.class).name("predicate"),
+                    field(double.class).name("xOffset").nodePath("offsetX").fallback(0d),
+                    field(double.class).name("yOffset").nodePath("offsetY").fallback(0d),
+                    field(double.class).name("zOffset").nodePath("offsetZ").fallback(0d)
             );
 
     @Override

@@ -6,7 +6,7 @@ import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.type;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
 
 /**
  * A condition that returns true based on {@link #chance()}. A chance of 0 has a 0% chance to return true, and a
@@ -22,7 +22,7 @@ public record RandomChanceCondition(double chance) implements LootCondition {
      */
     public static final @NotNull TypedLootConverter<RandomChanceCondition> CONVERTER =
             converter(RandomChanceCondition.class,
-                    type(double.class).name("chance")
+                    field(double.class).name("chance")
             );
 
     @Override

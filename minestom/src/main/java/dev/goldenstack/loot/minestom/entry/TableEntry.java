@@ -12,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.*;
+import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 
 /**
  * An entry that is dynamically linked to a loot table using {@link LootContextKeys#REGISTERED_TABLES} and {@link #tableIdentifier()}.
@@ -34,11 +36,11 @@ public record TableEntry(@NotNull NamespaceID tableIdentifier,
      */
     public static final @NotNull TypedLootConverter<TableEntry> CONVERTER =
             converter(TableEntry.class,
-                    type(NamespaceID.class).name("tableIdentifier").nodePath("name"),
-                    type(long.class).name("weight").withDefault(1L),
-                    type(long.class).name("quality").withDefault(0L),
-                    typeList(LootModifier.class).name("modifiers").nodePath("functions").withDefault(List::of),
-                    typeList(LootCondition.class).name("conditions").withDefault(List::of)
+                    field(NamespaceID.class).name("tableIdentifier").nodePath("name"),
+                    field(long.class).name("weight").fallback(1L),
+                    field(long.class).name("quality").fallback(0L),
+                    field(LootModifier.class).name("modifiers").nodePath("functions").as(list()).fallback(List::of),
+                    field(LootCondition.class).name("conditions").as(list()).fallback(List::of)
             );
 
     public TableEntry {

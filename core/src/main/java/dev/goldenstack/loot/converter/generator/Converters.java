@@ -4,7 +4,6 @@ import dev.goldenstack.loot.converter.LootDeserializer;
 import dev.goldenstack.loot.converter.LootSerializer;
 import dev.goldenstack.loot.converter.TypedLootConverter;
 import io.leangen.geantyref.GenericTypeReflector;
-import io.leangen.geantyref.TypeFactory;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,10 +65,10 @@ public class Converters {
      * @return the created field
      * @param <V> the type that the field represents
      */
-    public static <V> @NotNull Field<V> type(@NotNull TypeToken<V> type) {
+    public static <V> @NotNull Field<V> field(@NotNull TypeToken<V> type) {
         return field(TypedLootConverter.join(type,
-                (input, result) -> result.set(type, input),
-                input -> require(input, type)
+                (input, result) -> result.set(input),
+                input -> FieldTypes.require(input, type)
         ));
     }
 
@@ -79,74 +78,8 @@ public class Converters {
      * @return the created field
      * @param <V> the type that the field represents
      */
-    public static <V> @NotNull Field<V> type(@NotNull Class<V> type) {
-        return type(TypeToken.get(type));
-    }
-
-    private static <V> @NotNull V require(@NotNull ConfigurationNode input, @NotNull TypeToken<V> type) throws SerializationException {
-        var instance = input.get(type);
-        if (instance == null) {
-            throw new SerializationException(input, type.getType(), "Cannot coerce node to expected type");
-        }
-        return instance;
-    }
-
-    /**
-     * Creates a field of a list of the provided type.
-     * @param type the type that the field will be a list of
-     * @return the created field
-     * @param <V> the type that the field represents
-     */
-    @SuppressWarnings("unchecked")
-    public static <V> @NotNull Field<List<V>> typeList(@NotNull Class<V> type) {
-        TypeToken<List<V>> listType = (TypeToken<List<V>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, type));
-        return field(TypedLootConverter.join(listType,
-                (input, result) -> result.set(input), input -> require(input, listType)));
-    }
-
-    /**
-     * Creates a field of a list of the provided type.
-     * @param type the type that the field will be a list of
-     * @return the created field
-     * @param <V> the type that the field represents
-     */
-    @SuppressWarnings("unchecked")
-    public static <V> @NotNull Field<List<V>> typePossibleList(@NotNull Class<V> type) {
-        TypeToken<List<V>> listType = (TypeToken<List<V>>) TypeToken.get(TypeFactory.parameterizedClass(List.class, type));
-        return field(TypedLootConverter.join(listType,
-                (input, result) -> result.set(input.size() == 1 ? input.get(0) : input),
-                input -> require(input, listType)));
-    }
-
-    /**
-     * Creates a converter that converts type N but internally always converts it to P with the provided methods before
-     * interfacing with configuration nodes.
-     * @param originalType the original type that interfaces with the node
-     * @param newType the type that is converted
-     * @param toNew the mapper to the new type
-     * @param fromNew the mapper from the new type
-     * @return a converter that converts N
-     * @param <P> the original type
-     * @param <N> the new type
-     */
-    public static <P, N> @NotNull TypedLootConverter<N> proxied(@NotNull Class<P> originalType, @NotNull Class<N> newType,
-                                                                @NotNull Function<@NotNull P, @Nullable N> toNew,
-                                                                @NotNull Function<@NotNull N, @Nullable P> fromNew) {
-        return TypedLootConverter.join(newType, (input, result) -> {
-                var applied = fromNew.apply(input);
-                if (applied == null) {
-                    throw new SerializationException(originalType, "'" + input + "' could not be serialized or has an invalid type");
-                }
-                result.set(originalType, applied);
-            }, input -> {
-                var preliminaryObject = require(input, TypeToken.get(originalType));
-                var result = toNew.apply(preliminaryObject);
-                if (result == null) {
-                    throw new SerializationException(input, newType, "'" + preliminaryObject + "' could not be deserialized or has an invalid type");
-                }
-                return result;
-            }
-        );
+    public static <V> @NotNull Field<V> field(@NotNull Class<V> type) {
+        return field(TypeToken.get(type));
     }
 
     /**
@@ -205,12 +138,30 @@ public class Converters {
         }
 
         /**
+         * Makes this field use the provided converter.
+         * @param converter the new converter to use
+         * @return a new field with the updated information
+         */
+        public <N> @NotNull Field<N> as(@NotNull TypedLootConverter<N> converter) {
+            return new Field<>(converter, null, localName, nodePath);
+        }
+
+        /**
+         * Makes this field use the converter generated by the provided generator.
+         * @param converterGenerator the function to create a converter from this field's type
+         * @return a new field with the updated information
+         */
+        public <N> @NotNull Field<N> as(@NotNull Function<TypedLootConverter<V>, TypedLootConverter<N>> converterGenerator) {
+            return as(converterGenerator.apply(converter));
+        }
+
+        /**
          * Makes this field use a default value when serializing and deserializing.<br>
          * Be careful when providing a mutable object here, as it may have unexpected consequences.
          * @param defaultValue the supplier of new default values to use
          * @return a new field with the updated information
          */
-        public @NotNull Field<V> withDefault(@NotNull Supplier<V> defaultValue) {
+        public @NotNull Field<V> fallback(@NotNull Supplier<V> defaultValue) {
             return new Field<>(converter, defaultValue, localName, nodePath);
         }
 
@@ -220,8 +171,8 @@ public class Converters {
          * @param defaultValue the new default value to use
          * @return a new field with the updated information
          */
-        public @NotNull Field<V> withDefault(@NotNull V defaultValue) {
-            return withDefault(() -> defaultValue);
+        public @NotNull Field<V> fallback(@NotNull V defaultValue) {
+            return fallback(() -> defaultValue);
         }
 
         /**
@@ -229,7 +180,7 @@ public class Converters {
          * @return a new field with the updated information
          */
         public @NotNull Field<V> optional() {
-            return withDefault(() -> null);
+            return fallback(() -> null);
         }
 
     }

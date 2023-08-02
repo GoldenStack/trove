@@ -81,8 +81,8 @@ public class LootConversionManager<V> {
         return new LootConversionManagerImpl<>(
                 convertedType,
                 Objects.requireNonNull(keyLocation, "This builder cannot be built without a key location"),
-                initialConverters,
-                keyToConverter, typeToConverter, typeToKey
+                List.copyOf(initialConverters),
+                Map.copyOf(keyToConverter), Map.copyOf(typeToConverter), Map.copyOf(typeToKey)
         );
     }
 
@@ -94,27 +94,16 @@ record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNul
                                     @NotNull Map<TypeToken<? extends V>, TypedLootConverter<? extends V>> typeToConverter,
                                     @NotNull Map<TypeToken<? extends V>, String> typeToKey) implements TypedLootConverter<V> {
 
-    LootConversionManagerImpl {
-        Objects.requireNonNull(keyLocation, "This builder cannot be built without a key location");
-
-        initialConverters = List.copyOf(initialConverters);
-        keyToConverter = Map.copyOf(keyToConverter);
-        typeToConverter = Map.copyOf(typeToConverter);
-        typeToKey = Map.copyOf(typeToKey);
-    }
-
     @Override
     public void serialize(@NotNull V input, @NotNull ConfigurationNode result) throws SerializationException {
         serialize0(input, result);
     }
 
     private <R extends V> void serialize0(@NotNull R input, @NotNull ConfigurationNode result) throws SerializationException {
-        if (!initialConverters.isEmpty()) {
-            for (var conditional : initialConverters) {
-                conditional.serialize(input, result);
-                if (!result.isNull()) {
-                    return;
-                }
+        for (var conditional : initialConverters) {
+            conditional.serialize(input, result);
+            if (!result.isNull()) {
+                return;
             }
         }
         TypeToken<?> token = TypeToken.get(input.getClass());
