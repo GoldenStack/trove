@@ -5,6 +5,7 @@ import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
     /**
      * A standard map-based serializer for block state checks.
      */
-    public static final @NotNull TypedLootConverter<BlockStateCheck> CONVERTER = TypedLootConverter.join(BlockStateCheck.class,
+    public static final @NotNull TypeSerializer<BlockStateCheck> CONVERTER = TypedLootConverter.join(
             (input, result) -> {
                 if (input.checks.isEmpty()) {
                     return;

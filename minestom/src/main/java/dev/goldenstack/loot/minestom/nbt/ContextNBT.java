@@ -66,7 +66,7 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
      */
     public sealed interface NBTTarget permits BlockEntityTarget, EntityTarget {
 
-        @NotNull TypedLootConverter<NBTTarget> CONVERTER = FieldTypes.proxied(String.class, NBTTarget.class, ContextNBT::fromString, NBTTarget::serializedString);
+        @NotNull TypeSerializer<NBTTarget> CONVERTER = FieldTypes.proxied(String.class, NBTTarget.class, ContextNBT::fromString, NBTTarget::serializedString);
 
         /**
          * Retrieves NBT from the provided context.

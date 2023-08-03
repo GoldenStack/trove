@@ -16,30 +16,6 @@ import java.lang.reflect.Type;
 public interface TypedLootConverter<V> extends TypeSerializer<V> {
 
     /**
-     * Joins the provided type, serializer, and deserializer into a new TypedLootConverter.
-     * @param type the converted type
-     * @param serializer the serializer to use
-     * @param deserializer the deserializer to use
-     * @return a typed converter joining the provided type and converter
-     * @param <V> the converted type
-     */
-    static <V> @NotNull TypedLootConverter<V> join(@NotNull TypeToken<V> type, @NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<V> deserializer) {
-        return new TypedLootConverterImpl<>(type, serializer, deserializer);
-    }
-
-    /**
-     * Joins the provided type, serializer, and deserializer into a new TypedLootConverter.
-     * @param type the converted type
-     * @param serializer the serializer to use
-     * @param deserializer the deserializer to use
-     * @return a typed converter joining the provided type and converter
-     * @param <V> the converted type
-     */
-    static <V> @NotNull TypedLootConverter<V> join(@NotNull Class<V> type, @NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<V> deserializer) {
-        return join(TypeToken.get(type), serializer, deserializer);
-    }
-
-    /**
      * Joins the provided serializer and deserializer into a LootConverter instance.
      * @param serializer the new converter's serializer
      * @param deserializer the new converter's deserializer
@@ -64,26 +40,44 @@ public interface TypedLootConverter<V> extends TypeSerializer<V> {
     }
 
     /**
+     * Joins the provided serializer with its type.
+     * @param type the type of the serializer
+     * @param serializer the serializer itself
+     * @return the typed converter joining the arguments
+     */
+    static <V> @NotNull TypedLootConverter<V> join(@NotNull TypeToken<V> type, @NotNull TypeSerializer<V> serializer) {
+        return new TypedLootConverter<>() {
+            @Override
+            public @NotNull TypeToken<V> convertedType() {
+                return type;
+            }
+
+            @Override
+            public V deserialize(Type type, ConfigurationNode node) throws SerializationException {
+                return serializer.deserialize(type, node);
+            }
+
+            @Override
+            public void serialize(Type type, @Nullable V obj, ConfigurationNode node) throws SerializationException {
+                serializer.serialize(type, obj, node);
+            }
+        };
+    }
+
+    /**
+     * Joins the provided serializer with its type.
+     * @param type the type of the serializer
+     * @param serializer the serializer itself
+     * @return the typed converter joining the arguments
+     */
+    static <V> @NotNull TypedLootConverter<V> join(@NotNull Class<V> type, @NotNull TypeSerializer<V> serializer) {
+        return join(TypeToken.get(type), serializer);
+    }
+
+    /**
      * Returns a type token representing the type that this converter is able to convert.
      * @return the converted type
      */
     @NotNull TypeToken<V> convertedType();
-
-}
-
-record TypedLootConverterImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<V> deserializer) implements TypedLootConverter<V> {
-
-    @Override
-    public void serialize(Type type, @Nullable V obj, ConfigurationNode node) throws SerializationException {
-        if (obj == null) {
-            throw new SerializationException(node, convertedType().getType(), "Cannot serialize null object");
-        }
-        serializer.serialize(obj, node);
-    }
-
-    @Override
-    public V deserialize(Type type, ConfigurationNode node) throws SerializationException {
-        return deserializer.deserialize(node);
-    }
 
 }

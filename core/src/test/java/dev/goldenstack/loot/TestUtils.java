@@ -46,7 +46,7 @@ public class TestUtils {
 
     public static <V> @NotNull TypedLootConverter<V> emptySerializer(@NotNull Class<V> convertedType,
                                                                      @NotNull Supplier<V> initializer) {
-        return TypedLootConverter.join(convertedType, (input, result) -> {}, input -> initializer.get());
+        return TypedLootConverter.join(convertedType, TypedLootConverter.join((input, result) -> {}, input -> initializer.get()));
     }
 
 }

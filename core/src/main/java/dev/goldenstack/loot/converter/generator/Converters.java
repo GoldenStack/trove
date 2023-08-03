@@ -66,10 +66,10 @@ public class Converters {
      * @param <V> the type that the field represents
      */
     public static <V> @NotNull Field<V> field(@NotNull TypeToken<V> type) {
-        return field(TypedLootConverter.join(type,
+        return field(TypedLootConverter.join(type, TypedLootConverter.join(
                 (input, result) -> result.set(input),
                 input -> FieldTypes.require(input, type)
-        ));
+        )));
     }
 
     /**
@@ -289,7 +289,7 @@ class ConvertersImpl {
             }
         };
 
-        return TypedLootConverter.join(type, actualSerializer, actualDeserializer);
+        return TypedLootConverter.join(type, TypedLootConverter.join(actualSerializer, actualDeserializer));
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical

@@ -67,15 +67,15 @@ public class TroveMinestom {
                     .register(LootCondition.class, TroveMinestom.createConditionBuilder().build())
                     .register(LootNumber.class, TroveMinestom.createNumberBuilder().build())
                     .register(LootNBT.class, TroveMinestom.createNbtBuilder().build())
-                    .register(VanillaInterface.EntityPredicate.class, TypedLootConverter.join(VanillaInterface.EntityPredicate.class,
+                    .register(VanillaInterface.EntityPredicate.class, TypedLootConverter.join(
                                 (input, result) -> {},
                                 input -> (world, location, entity) -> false
                         ))
-                    .register(VanillaInterface.LocationPredicate.class, TypedLootConverter.join(VanillaInterface.LocationPredicate.class,
+                    .register(VanillaInterface.LocationPredicate.class, TypedLootConverter.join(
                                 (input, result) -> {},
                                 input -> (world, location) -> false
                         ))
-                    .register(LootContextKeyGroup.class, TypedLootConverter.join(LootContextKeyGroup.class,
+                    .register(LootContextKeyGroup.class, TypedLootConverter.join(
                                 (input, result) -> result.set(input.id()),
                                 input -> {
                                     var id = input.getString();

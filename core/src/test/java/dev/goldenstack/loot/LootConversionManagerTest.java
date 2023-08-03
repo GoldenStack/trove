@@ -68,7 +68,7 @@ public class LootConversionManagerTest {
         var manager = builder.build();
 
         var node = node();
-        manager.serialize(new A(), node);
+        manager.serialize(A.class, new A(), node);
 
         assertInstanceOf(B.class, handle(manager, "location", "a"));
         assertEquals(node("empty"), node);
@@ -85,14 +85,14 @@ public class LootConversionManagerTest {
         var manager = builder.build();
 
         var node = node();
-        manager.serialize(new A(), node);
+        manager.serialize(A.class, new A(), node);
 
         assertInstanceOf(A.class, handle(manager, "location", "a"));
         assertEquals(node(Map.of("location", "a")), node);
     }
 
     private static <O> @Nullable O handle(@NotNull TypedLootConverter<O> deserializer, @NotNull String keyLocation, @NotNull String keyValue) throws ConfigurateException {
-        return deserializer.deserialize(node(Map.of(keyLocation, keyValue)));
+        return deserializer.deserialize(deserializer.convertedType().getType(), node(Map.of(keyLocation, keyValue)));
     }
 
 }

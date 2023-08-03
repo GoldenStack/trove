@@ -7,6 +7,7 @@ import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 /**
  * An inclusive number range based on loot numbers.
@@ -20,7 +21,7 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
      * equivalent {@link ConstantNumber} instances holding the number, but otherwise handles it normally with map-based
      * values.
      */
-    public static final @NotNull TypedLootConverter<LootNumberRange> CONVERTER = TypedLootConverter.join(LootNumberRange.class,
+    public static final @NotNull TypeSerializer<LootNumberRange> CONVERTER = TypedLootConverter.join(
             (input, result) -> {
                 result.node("min").set(LootNumber.class, input.min);
                 result.node("max").set(LootNumber.class, input.max);

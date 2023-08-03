@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
 import java.util.*;
@@ -34,7 +35,7 @@ public class FieldTypes {
      * @return a field converting whatever &lt;T&gt; is
      * @param <T> the enumerated type
      */
-    public static <T extends Enum<T>> @NotNull TypedLootConverter<T> enumerated(@NotNull Class<T> type, @NotNull Function<T, String> namer) {
+    public static <T extends Enum<T>> @NotNull TypeSerializer<T> enumerated(@NotNull Class<T> type, @NotNull Function<T, String> namer) {
         return enumerated(type, Arrays.asList(type.getEnumConstants()), namer);
     }
 
@@ -46,7 +47,7 @@ public class FieldTypes {
      * @return a field converting whatever &lt;T&gt; is
      * @param <T> the enumerated type
      */
-    public static <T> @NotNull TypedLootConverter<T> enumerated(@NotNull Class<T> type, @NotNull Collection<T> values, @NotNull Function<T, String> namer) {
+    public static <T> @NotNull TypeSerializer<T> enumerated(@NotNull Class<T> type, @NotNull Collection<T> values, @NotNull Function<T, String> namer) {
         Map<String, T> mappings = values.stream().collect(Collectors.toMap(namer, Function.identity()));
         return proxied(String.class, type, mappings::get, namer);
     }
@@ -57,10 +58,10 @@ public class FieldTypes {
     public static <V> @NotNull Function<TypedLootConverter<V>, TypedLootConverter<List<V>>> list() {
         return converter -> {
             var type = list(converter.convertedType());
-            return TypedLootConverter.join(type,
+            return TypedLootConverter.join(type, TypedLootConverter.join(
                     (input, result) -> result.set(type),
                     input -> require(input, type)
-            );
+            ));
         };
     }
 
@@ -71,10 +72,10 @@ public class FieldTypes {
     public static <V> @NotNull Function<TypedLootConverter<V>, TypedLootConverter<List<V>>> possibleList() {
         return converter -> {
             var type = list(converter.convertedType());
-            return TypedLootConverter.join(type,
+            return TypedLootConverter.join(type, TypedLootConverter.join(
                     (input, result) -> result.set(input.size() == 1 ? input.get(0) : input),
                     input -> require(input, type)
-            );
+            ));
         };
     }
 
@@ -92,7 +93,7 @@ public class FieldTypes {
     public static <P, N> @NotNull TypedLootConverter<N> proxied(@NotNull Class<P> originalType, @NotNull Class<N> newType,
                                                                 @NotNull Function<@NotNull P, @Nullable N> toNew,
                                                                 @NotNull Function<@NotNull N, @Nullable P> fromNew) {
-        return TypedLootConverter.join(newType, (input, result) -> {
+        return TypedLootConverter.join(newType, TypedLootConverter.join((input, result) -> {
                 var applied = fromNew.apply(input);
                 if (applied == null) {
                     throw new SerializationException(originalType, "'" + input + "' could not be serialized or has an invalid type");
@@ -106,7 +107,7 @@ public class FieldTypes {
                 }
                 return result;
             }
-        );
+        ));
     }
 
     @SuppressWarnings("unchecked")

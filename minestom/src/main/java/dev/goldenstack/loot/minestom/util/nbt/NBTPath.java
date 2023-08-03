@@ -12,6 +12,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTType;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -32,7 +33,7 @@ public sealed interface NBTPath permits NBTPathImpl {
     /**
      * A converter that tries to read a NBT path from a string, and will convert it back to a string, too.
      */
-    @NotNull TypedLootConverter<NBTPath> CONVERTER = NBTPathImpl.CONVERTER;
+    @NotNull TypeSerializer<NBTPath> CONVERTER = NBTPathImpl.CONVERTER;
 
     /**
      * Reads a NBT path from the provided reader. It is possible that this does not consume the entire reader, so
@@ -348,7 +349,7 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
     static final @NotNull IntSet VALID_INTEGER_CHARACTERS = IntSet.of('-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
     static final @NotNull IntSet INVALID_UNQUOTED_CHARACTERS = IntSet.of(-1, '.', '\'', '\"', '{', '}', '[', ']');
 
-    static final @NotNull TypedLootConverter<NBTPath> CONVERTER = TypedLootConverter.join(NBTPath.class,
+    static final @NotNull TypeSerializer<NBTPath> CONVERTER = TypedLootConverter.join(
             (input, result) -> result.set(input.toString()), input -> {
                 var path = input.getString();
                 if (path == null) {

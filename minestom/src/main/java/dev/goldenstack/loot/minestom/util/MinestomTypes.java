@@ -65,7 +65,7 @@ public class MinestomTypes {
             .register(AttributeOperation.class, FieldTypes.enumerated(AttributeOperation.class, operation -> operation.name().toLowerCase(Locale.ROOT)))
             .register(CopyNameModifier.RelevantKey.class, FieldTypes.enumerated(CopyNameModifier.RelevantKey.class, CopyNameModifier.RelevantKey::getName))
             .register(CopyNbtModifier.Operator.class, FieldTypes.enumerated(CopyNbtModifier.Operator.class, CopyNbtModifier.Operator::id))
-            .register(NBT.class, TypedLootConverter.join(NBT.class,
+            .register(NBT.class, TypedLootConverter.join(
                     (input, result) -> result.set(input.toSNBT()),
                     input -> {
                         var snbt = input.require(String.class);
