@@ -1,7 +1,6 @@
 package dev.goldenstack.loot;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.TypedLootConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -9,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.BasicConfigurationNode;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.Random;
 import java.util.function.Supplier;
@@ -37,8 +37,8 @@ public class TestUtils {
         }
     }
 
-    public static <V> @NotNull LootConverter<V> converter(@Nullable Object serialize, @Nullable V deserialize) {
-        return LootConverter.join(
+    public static <V> @NotNull TypeSerializer<V> converter(@Nullable Object serialize, @Nullable V deserialize) {
+        return TypedLootConverter.join(
                 (input, result) -> result.set(serialize),
                 input -> deserialize
         );

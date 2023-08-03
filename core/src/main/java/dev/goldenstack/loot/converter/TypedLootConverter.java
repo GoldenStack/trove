@@ -13,29 +13,7 @@ import java.lang.reflect.Type;
  * A loot converter that also stores a TypeToken representing the converted type.
  * @param <V> the converted type
  */
-public interface TypedLootConverter<V> extends LootConverter<V>, TypeSerializer<V> {
-
-    /**
-     * Joins the provided type and converter into a new TypedLootConverter.
-     * @param type the converted type
-     * @param converter the converter to use
-     * @return a typed converter joining the provided type and converter
-     * @param <V> the converted type
-     */
-    static <V> @NotNull TypedLootConverter<V> join(@NotNull TypeToken<V> type, @NotNull LootConverter<V> converter) {
-        return join(type, converter, converter);
-    }
-
-    /**
-     * Joins the provided type and converter into a new TypedLootConverter.
-     * @param type the converted type
-     * @param converter the converter to use
-     * @return a typed converter joining the provided type and converter
-     * @param <V> the converted type
-     */
-    static <V> @NotNull TypedLootConverter<V> join(@NotNull Class<V> type, @NotNull LootConverter<V> converter) {
-        return join(TypeToken.get(type), converter, converter);
-    }
+public interface TypedLootConverter<V> extends TypeSerializer<V> {
 
     /**
      * Joins the provided type, serializer, and deserializer into a new TypedLootConverter.
@@ -62,34 +40,50 @@ public interface TypedLootConverter<V> extends LootConverter<V>, TypeSerializer<
     }
 
     /**
+     * Joins the provided serializer and deserializer into a LootConverter instance.
+     * @param serializer the new converter's serializer
+     * @param deserializer the new converter's deserializer
+     * @return a converter that joins the provided instances
+     * @param <V> the type to convert
+     */
+    static <V> @NotNull TypeSerializer<V> join(@NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<V> deserializer) {
+        return new TypeSerializer<>() {
+            @Override
+            public void serialize(Type type, @Nullable V obj, ConfigurationNode node) throws SerializationException {
+                if (obj == null) {
+                    throw new SerializationException(node, type, "Cannot serialize null object");
+                }
+                serializer.serialize(obj, node);
+            }
+
+            @Override
+            public V deserialize(Type type, ConfigurationNode node) throws SerializationException {
+                return deserializer.deserialize(node);
+            }
+        };
+    }
+
+    /**
      * Returns a type token representing the type that this converter is able to convert.
      * @return the converted type
      */
     @NotNull TypeToken<V> convertedType();
 
-    @Override
-    default void serialize(Type type, @Nullable V obj, ConfigurationNode node) throws SerializationException {
-        if (obj == null) {
-            throw new SerializationException(node, convertedType().getType(), "Cannot serialize null object");
-        }
-        serialize(obj, node);
-    }
-
-    @Override
-    default V deserialize(Type type, ConfigurationNode node) throws SerializationException {
-        return deserialize(node);
-    }
 }
 
 record TypedLootConverterImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<V> deserializer) implements TypedLootConverter<V> {
 
     @Override
-    public void serialize(@NotNull V input, @NotNull ConfigurationNode result) throws SerializationException {
-        serializer.serialize(input, result);
+    public void serialize(Type type, @Nullable V obj, ConfigurationNode node) throws SerializationException {
+        if (obj == null) {
+            throw new SerializationException(node, convertedType().getType(), "Cannot serialize null object");
+        }
+        serializer.serialize(obj, node);
     }
 
     @Override
-    public @Nullable V deserialize(@NotNull ConfigurationNode input) throws SerializationException {
-        return deserializer.deserialize(input);
+    public V deserialize(Type type, ConfigurationNode node) throws SerializationException {
+        return deserializer.deserialize(node);
     }
+
 }

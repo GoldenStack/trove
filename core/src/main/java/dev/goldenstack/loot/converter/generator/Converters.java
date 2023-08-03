@@ -297,7 +297,7 @@ class ConvertersImpl {
         if (input.isNull() && field.defaultValue != null) {
             return field.defaultValue.get();
         }
-        return field.converter.deserialize(input);
+        return field.converter.deserialize(field.converter.convertedType().getType(), input);
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
@@ -314,7 +314,7 @@ class ConvertersImpl {
             }
         }
         // This cast is safe because we grab the object directly from the field; it's just that Field#get always returns an object.
-        field.converter.serialize((V) input, result);
+        field.converter.serialize(field.converter.convertedType().getType(), (V) input, result);
     }
 
 }

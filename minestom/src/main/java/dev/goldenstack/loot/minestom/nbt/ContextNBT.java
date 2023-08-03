@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.nbt;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
@@ -11,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -25,7 +25,7 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
      * A converter for constant NBT that always serializes to a string scalar and deserializes when the input is a
      * single string scalar.
      */
-    public static final @NotNull LootConverter<LootNBT> ACCURATE_CONVERTER = LootConverter.join(
+    public static final @NotNull TypeSerializer<LootNBT> ACCURATE_CONVERTER = TypedLootConverter.join(
             (input, result) -> {
                 if (input instanceof ContextNBT contextNBT) {
                     result.set(contextNBT.target().serializedString());

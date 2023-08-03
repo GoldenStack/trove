@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.converter.generator;
 
-import dev.goldenstack.loot.converter.LootConverter;
 import dev.goldenstack.loot.converter.TypedLootConverter;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
@@ -9,7 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -20,7 +21,7 @@ public class LootConversionManager<V> {
 
     private final @NotNull TypeToken<V> convertedType;
     private String keyLocation;
-    private final @NotNull List<LootConverter<V>> initialConverters = new ArrayList<>();
+    private final @NotNull List<TypeSerializer<V>> initialConverters = new ArrayList<>();
 
     private final @NotNull Map<String, TypedLootConverter<? extends V>> keyToConverter = new HashMap<>();
     private final @NotNull Map<TypeToken<? extends V>, TypedLootConverter<? extends V>> typeToConverter = new HashMap<>();
@@ -47,7 +48,7 @@ public class LootConversionManager<V> {
      * @return this, for chaining
      */
     @Contract("_ -> this")
-    public @NotNull LootConversionManager<V> add(@NotNull LootConverter<V> converter) {
+    public @NotNull LootConversionManager<V> add(@NotNull TypeSerializer<V> converter) {
         this.initialConverters.add(converter);
         return this;
     }
@@ -89,19 +90,21 @@ public class LootConversionManager<V> {
 }
 
 record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull String keyLocation,
-                                    @NotNull List<LootConverter<V>> initialConverters,
+                                    @NotNull List<TypeSerializer<V>> initialConverters,
                                     @NotNull Map<String, TypedLootConverter<? extends V>> keyToConverter,
                                     @NotNull Map<TypeToken<? extends V>, TypedLootConverter<? extends V>> typeToConverter,
                                     @NotNull Map<TypeToken<? extends V>, String> typeToKey) implements TypedLootConverter<V> {
-
     @Override
-    public void serialize(@NotNull V input, @NotNull ConfigurationNode result) throws SerializationException {
-        serialize0(input, result);
+    public void serialize(Type type, @Nullable V input, ConfigurationNode result) throws SerializationException {
+        if (input == null) {
+            throw new SerializationException(result, type, "Cannot serialize null object");
+        }
+        serialize0(type, input, result);
     }
 
-    private <R extends V> void serialize0(@NotNull R input, @NotNull ConfigurationNode result) throws SerializationException {
+    private <R extends V> void serialize0(Type type, @NotNull R input, @NotNull ConfigurationNode result) throws SerializationException {
         for (var conditional : initialConverters) {
-            conditional.serialize(input, result);
+            conditional.serialize(type, input, result);
             if (!result.isNull()) {
                 return;
             }
@@ -115,14 +118,14 @@ record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNul
             throw new SerializationException(result, convertedType.getType(), "Unknown input type '" + input.getClass() + "'");
         }
         result.node(keyLocation).set(key);
-        converter.serialize(input, result);
+        converter.serialize(input.getClass(), input, result);
     }
 
     @Override
-    public @Nullable V deserialize(@NotNull ConfigurationNode input) throws SerializationException {
+    public V deserialize(Type type, ConfigurationNode input) throws SerializationException {
         // Initial pass with conditional converters
         for (var conditional : initialConverters) {
-            var result = conditional.deserialize(input);
+            var result = conditional.deserialize(type, input);
             if (result != null) {
                 return result;
             }
@@ -138,7 +141,7 @@ record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNul
         if (converter == null) {
             throw new SerializationException(keyNode, convertedType.getType(), "Unknown key '" + actualKey + "'");
         }
-        return converter.deserialize(input);
+        return converter.deserialize(converter.convertedType().getType(), input);
     }
 
 }
