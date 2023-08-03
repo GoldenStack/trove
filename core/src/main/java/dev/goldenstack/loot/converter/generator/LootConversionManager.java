@@ -20,7 +20,7 @@ import java.util.*;
 public class LootConversionManager<V> {
 
     private final @NotNull TypeToken<V> convertedType;
-    private String keyLocation;
+    private List<Object> keyLocation;
     private final @NotNull List<TypeSerializer<V>> initialConverters = new ArrayList<>();
 
     private final @NotNull Map<String, TypedLootConverter<? extends V>> keyToConverter = new HashMap<>();
@@ -37,8 +37,8 @@ public class LootConversionManager<V> {
      * @return this, for chaining
      */
     @Contract("_ -> this")
-    public @NotNull LootConversionManager<V> keyLocation(@NotNull String keyLocation) {
-        this.keyLocation = keyLocation;
+    public @NotNull LootConversionManager<V> keyLocation(@NotNull Object @NotNull ... keyLocation) {
+        this.keyLocation = List.of(keyLocation);
         return this;
     }
 
@@ -89,7 +89,7 @@ public class LootConversionManager<V> {
 
 }
 
-record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull String keyLocation,
+record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull List<Object> keyLocation,
                                     @NotNull List<TypeSerializer<V>> initialConverters,
                                     @NotNull Map<String, TypedLootConverter<? extends V>> keyToConverter,
                                     @NotNull Map<TypeToken<? extends V>, TypedLootConverter<? extends V>> typeToConverter,
