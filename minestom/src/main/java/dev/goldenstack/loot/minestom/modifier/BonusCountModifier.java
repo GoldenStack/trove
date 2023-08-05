@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.generator.LootConversionManager;
+import dev.goldenstack.loot.converter.generator.SerializerSelector;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -47,7 +47,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
      */
     public interface BonusType {
 
-        TypeSerializer<BonusType> TYPE_CONVERTER = new LootConversionManager<>(TypeToken.get(BonusType.class))
+        TypeSerializer<BonusType> TYPE_CONVERTER = new SerializerSelector<>(TypeToken.get(BonusType.class))
                 .keyLocation("formula")
                 .add(BinomialBonus.KEY, BinomialBonus.class)
                 .add(UniformBonus.KEY, UniformBonus.class)

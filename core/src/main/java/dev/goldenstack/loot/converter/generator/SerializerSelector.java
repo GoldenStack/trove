@@ -13,10 +13,12 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 /**
- * Manages serialization for when multiple subtypes of a base class must be chosen from.
+ * Manages serialization for when multiple subtypes of a base class must be selected from. In the case of initial
+ * converters, this class stores them directly, but for converters with keys and types it will simply redirect to the
+ * desired type via {@link ConfigurationNode#get(TypeToken)}.
  * @param <V> the base type of object that will be converted
  */
-public class LootConversionManager<V> {
+public class SerializerSelector<V> {
 
     private final @NotNull TypeToken<V> convertedType;
     private List<Object> keyLocation;
@@ -25,7 +27,7 @@ public class LootConversionManager<V> {
     private final @NotNull Map<String, TypeToken<? extends V>> keyToType = new HashMap<>();
     private final @NotNull Map<TypeToken<? extends V>, String> typeToKey = new HashMap<>();
 
-    public LootConversionManager(@NotNull TypeToken<V> convertedType) {
+    public SerializerSelector(@NotNull TypeToken<V> convertedType) {
         this.convertedType = convertedType;
     }
 
@@ -35,7 +37,7 @@ public class LootConversionManager<V> {
      * @return this, for chaining
      */
     @Contract("_ -> this")
-    public @NotNull LootConversionManager<V> keyLocation(@NotNull Object @NotNull ... keyLocation) {
+    public @NotNull SerializerSelector<V> keyLocation(@NotNull Object @NotNull ... keyLocation) {
         this.keyLocation = List.of(keyLocation);
         return this;
     }
@@ -46,7 +48,7 @@ public class LootConversionManager<V> {
      * @return this, for chaining
      */
     @Contract("_ -> this")
-    public @NotNull LootConversionManager<V> add(@NotNull TypeSerializer<V> serializer) {
+    public @NotNull SerializerSelector<V> add(@NotNull TypeSerializer<V> serializer) {
         this.initialSerializers.add(serializer);
         return this;
     }
@@ -57,7 +59,7 @@ public class LootConversionManager<V> {
      * @param type the type to be added
      * @return this, for chaining
      */
-    public @NotNull LootConversionManager<V> add(@NotNull String key, @NotNull Class<? extends V> type) {
+    public @NotNull SerializerSelector<V> add(@NotNull String key, @NotNull Class<? extends V> type) {
         return add(key, TypeToken.get(type));
     }
 
@@ -68,7 +70,7 @@ public class LootConversionManager<V> {
      * @return this, for chaining
      */
     @Contract("_, _ -> this")
-    public @NotNull LootConversionManager<V> add(@NotNull String key, @NotNull TypeToken<? extends V> type) {
+    public @NotNull SerializerSelector<V> add(@NotNull String key, @NotNull TypeToken<? extends V> type) {
         if (!GenericTypeReflector.isSuperType(convertedType.getType(), type.getType())) {
             throw new IllegalArgumentException("Converter '" + key + "' has invalid type '" + type.getType() + "' as it is not a subtype of '" + convertedType.getType() + "'");
         } else if (keyToType.put(key, type) != null) {
@@ -81,12 +83,12 @@ public class LootConversionManager<V> {
     }
 
     /**
-     * Builds this builder into a new LootConversionManager instance.
-     * @return the new loot conversion manager
+     * Builds this builder into a new type selector.
+     * @return the new serializer selector
      */
     @Contract(" -> new")
     public @NotNull TypeSerializer<V> build() {
-        return new LootConversionManagerImpl<>(
+        return new SerializerSelectorImpl<>(
                 convertedType,
                 Objects.requireNonNull(keyLocation, "This builder cannot be built without a key location"),
                 List.copyOf(initialSerializers),
@@ -96,10 +98,10 @@ public class LootConversionManager<V> {
 
 }
 
-record LootConversionManagerImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull List<Object> keyLocation,
-                                    @NotNull List<TypeSerializer<V>> initialSerializers,
-                                    @NotNull Map<String, TypeToken<? extends V>> keyToType,
-                                    @NotNull Map<TypeToken<? extends V>, String> typeToKey) implements TypeSerializer<V> {
+record SerializerSelectorImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull List<Object> keyLocation,
+                                 @NotNull List<TypeSerializer<V>> initialSerializers,
+                                 @NotNull Map<String, TypeToken<? extends V>> keyToType,
+                                 @NotNull Map<TypeToken<? extends V>, String> typeToKey) implements TypeSerializer<V> {
     @Override
     public void serialize(Type type, @Nullable V input, ConfigurationNode result) throws SerializationException {
         if (input == null) {

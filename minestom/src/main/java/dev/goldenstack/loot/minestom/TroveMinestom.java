@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom;
 
 import dev.goldenstack.loot.converter.generator.FieldTypes;
-import dev.goldenstack.loot.converter.generator.LootConversionManager;
+import dev.goldenstack.loot.converter.generator.SerializerSelector;
 import dev.goldenstack.loot.minestom.condition.*;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
 import dev.goldenstack.loot.minestom.entry.*;
@@ -234,8 +234,8 @@ public class TroveMinestom {
 
     }
 
-    public static @NotNull LootConversionManager<LootEntry> createEntryBuilder() {
-        return new LootConversionManager<>(TypeToken.get(LootEntry.class))
+    public static @NotNull SerializerSelector<LootEntry> createEntryBuilder() {
+        return new SerializerSelector<>(TypeToken.get(LootEntry.class))
                 .keyLocation("type")
                 .add(AlternativeEntry.KEY, AlternativeEntry.class)
                 .add(DynamicEntry.KEY, DynamicEntry.class)
@@ -247,8 +247,8 @@ public class TroveMinestom {
                 .add(TagEntry.KEY, TagEntry.class);
     }
 
-    public static @NotNull LootConversionManager<LootModifier> createModifierBuilder() {
-        return new LootConversionManager<>(TypeToken.get(LootModifier.class))
+    public static @NotNull SerializerSelector<LootModifier> createModifierBuilder() {
+        return new SerializerSelector<>(TypeToken.get(LootModifier.class))
                 .keyLocation("function")
                 .add(ApplyLootingModifier.KEY, ApplyLootingModifier.class)
                 .add(BonusCountModifier.KEY, BonusCountModifier.class)
@@ -269,8 +269,8 @@ public class TroveMinestom {
                 .add(SmeltItemModifier.KEY, SmeltItemModifier.class);
     }
 
-    public static @NotNull LootConversionManager<LootCondition> createConditionBuilder() {
-        return new LootConversionManager<>(TypeToken.get(LootCondition.class))
+    public static @NotNull SerializerSelector<LootCondition> createConditionBuilder() {
+        return new SerializerSelector<>(TypeToken.get(LootCondition.class))
                 .keyLocation("condition")
                 .add(AndCondition.KEY, AndCondition.class)
                 .add(BlockStateCondition.KEY, BlockStateCondition.class)
@@ -290,8 +290,8 @@ public class TroveMinestom {
                 .add(WeatherCheckCondition.KEY, WeatherCheckCondition.class);
     }
 
-    public static @NotNull LootConversionManager<LootNumber> createNumberBuilder() {
-        return new LootConversionManager<>(TypeToken.get(LootNumber.class))
+    public static @NotNull SerializerSelector<LootNumber> createNumberBuilder() {
+        return new SerializerSelector<>(TypeToken.get(LootNumber.class))
                 .keyLocation("type")
                 .add(ConstantNumber.ACCURATE_CONVERTER)
                 .add(ConstantNumber.KEY, ConstantNumber.class)
@@ -299,8 +299,8 @@ public class TroveMinestom {
                 .add(UniformNumber.KEY, UniformNumber.class);
     }
 
-    public static @NotNull LootConversionManager<LootNBT> createNbtBuilder() {
-        return new LootConversionManager<>(TypeToken.get(LootNBT.class))
+    public static @NotNull SerializerSelector<LootNBT> createNbtBuilder() {
+        return new SerializerSelector<>(TypeToken.get(LootNBT.class))
                 .keyLocation("type")
                 .add(ContextNBT.ACCURATE_CONVERTER)
                 .add(ContextNBT.KEY, ContextNBT.class)

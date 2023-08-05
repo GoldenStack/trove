@@ -1,6 +1,6 @@
 package dev.goldenstack.loot;
 
-import dev.goldenstack.loot.converter.generator.LootConversionManager;
+import dev.goldenstack.loot.converter.generator.SerializerSelector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ import static dev.goldenstack.loot.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("unchecked")
-public class LootConversionManagerTest {
+public class SerializerSelectorTest {
 
     static class A {}
     static class B extends A {}
@@ -25,7 +25,7 @@ public class LootConversionManagerTest {
 
     @Test
     public void testBuilderSubtyping(){
-        var builder = new LootConversionManager<>(TypeToken.get(A.class))
+        var builder = new SerializerSelector<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
         builder.add("a", A.class);
@@ -39,7 +39,7 @@ public class LootConversionManagerTest {
 
     @Test
     public void testDuplicateKey() {
-        var builder = new LootConversionManager<>(TypeToken.get(A.class))
+        var builder = new SerializerSelector<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
         builder.add("a", A.class);
@@ -50,7 +50,7 @@ public class LootConversionManagerTest {
 
     @Test
     public void testDuplicateType() {
-        var builder = new LootConversionManager<>(TypeToken.get(A.class))
+        var builder = new SerializerSelector<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
         builder.add("a", A.class);
@@ -61,34 +61,34 @@ public class LootConversionManagerTest {
 
     @Test
     public void testActiveConditionalSerializer() throws ConfigurateException {
-        var builder = new LootConversionManager<>(TypeToken.get(A.class))
+        var builder = new SerializerSelector<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
         builder.add("a", A.class);
         builder.add(converter("empty", new B()));
 
-        var manager = builder.build();
+        var selector = builder.build();
 
-        var node = nodeWith(manager).set(A.class, new A());
+        var node = nodeWith(selector).set(A.class, new A());
         assertEquals(node("empty"), node);
 
-        assertDoesNotThrow(() -> nodeWith(manager).set(Map.of("location", "a")).require(B.class));
+        assertDoesNotThrow(() -> nodeWith(selector).set(Map.of("location", "a")).require(B.class));
     }
 
     @Test
     public void testInactiveConditionalSerializer() throws ConfigurateException {
-        var builder = new LootConversionManager<>(TypeToken.get(A.class))
+        var builder = new SerializerSelector<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
         builder.add(converter(null, null));
         builder.add("b", B.class);
 
-        var manager = builder.build();
+        var selector = builder.build();
 
-        var node = nodeWith(manager).set(A.class, new B());
+        var node = nodeWith(selector).set(A.class, new B());
         assertEquals(node(Map.of("location", "b")), node);
 
-        assertDoesNotThrow(() -> nodeWith(manager).set(Map.of("location", "b")).require(B.class));
+        assertDoesNotThrow(() -> nodeWith(selector).set(Map.of("location", "b")).require(B.class));
     }
 
     private static @NotNull ConfigurationNode nodeWith(@NotNull TypeSerializer<A> serializer) {
