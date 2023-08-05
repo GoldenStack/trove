@@ -59,7 +59,7 @@ public class FieldTypes {
      */
     public static <V> @NotNull Function<Converters.Field<V>, Converters.Field<V>> get() {
         return field -> field.serializer(join(
-                (input, result) -> result.set(field.type()),
+                (input, result) -> result.set(input),
                 input -> require(input, field.type())
         ));
     }
