@@ -5,9 +5,9 @@ import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.spongepowered.configurate.BasicConfigurationNode;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.ConfigurationOptions;
+import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.Map;
@@ -60,7 +60,7 @@ public class SerializerSelectorTest {
     }
 
     @Test
-    public void testActiveConditionalSerializer() throws ConfigurateException {
+    public void testActiveConditionalSerializer() throws SerializationException {
         var builder = new SerializerSelector<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
@@ -76,7 +76,7 @@ public class SerializerSelectorTest {
     }
 
     @Test
-    public void testInactiveConditionalSerializer() throws ConfigurateException {
+    public void testInactiveConditionalSerializer() throws SerializationException {
         var builder = new SerializerSelector<>(TypeToken.get(A.class))
                 .keyLocation("location");
 

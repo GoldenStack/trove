@@ -9,7 +9,6 @@ import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTList;
 import org.jglrxavpok.hephaistos.nbt.NBTType;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
@@ -362,13 +361,13 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
                     var parsedPath = readPath(reader, input);
 
                     if (reader.read() != -1) { // Make sure we read the entire string
-                        throw new ConfigurateException(input, "Reading a path from '" + path + "' did not consume the entire reader");
+                        throw new SerializationException(input, NBTPath.class, "Reading a path from '" + path + "' did not consume the entire reader");
                     }
 
                     return parsedPath;
                 } catch (IOException e) {
-                    if (e instanceof SerializationException configurate) {
-                        throw configurate;
+                    if (e instanceof SerializationException serialize) {
+                        throw serialize;
                     } else {
                         throw new SerializationException(input, NBTPath.class, "Could not read a NBT path from '" + path + "'", e);
                     }
@@ -392,7 +391,7 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
                 if (selectors.isEmpty()) {
                     reader.reset();
                     String message = "NBT paths must contain at least one selector (reading from " + reader + ")";
-                    throw source != null ? new ConfigurateException(source, message) : new ConfigurateException(message);
+                    throw source != null ? new SerializationException(source, NBTPath.class, message) : new SerializationException(NBTPath.class, message);
                 }
                 return new NBTPathImpl(List.copyOf(selectors));
             }
@@ -401,7 +400,7 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
             if (selector == null) {
                 reader.reset();
                 String message = "Invalid NBT path selector (reading from " + reader + ")";
-                throw source != null ? new ConfigurateException(source, message) : new ConfigurateException(message);
+                throw source != null ? new SerializationException(source, NBTPath.class, message) : new SerializationException(NBTPath.class, message);
             }
 
             selectors.add(selector);
