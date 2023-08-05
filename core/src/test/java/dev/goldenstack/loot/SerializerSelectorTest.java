@@ -1,6 +1,6 @@
 package dev.goldenstack.loot;
 
-import dev.goldenstack.loot.converter.generator.SerializerSelector;
+import dev.goldenstack.loot.serialize.generator.SerializerSelector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -65,7 +65,7 @@ public class SerializerSelectorTest {
                 .keyLocation("location");
 
         builder.add("a", A.class);
-        builder.add(converter("empty", new B()));
+        builder.add(serializer("empty", new B()));
 
         var selector = builder.build();
 
@@ -80,7 +80,7 @@ public class SerializerSelectorTest {
         var builder = new SerializerSelector<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
-        builder.add(converter(null, null));
+        builder.add(serializer(null, null));
         builder.add("b", B.class);
 
         var selector = builder.build();

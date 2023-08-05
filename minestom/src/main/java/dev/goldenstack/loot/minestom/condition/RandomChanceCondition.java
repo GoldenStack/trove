@@ -5,8 +5,8 @@ import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A condition that returns true based on {@link #chance()}. A chance of 0 has a 0% chance to return true, and a
@@ -18,10 +18,10 @@ public record RandomChanceCondition(double chance) implements LootCondition {
     public static final @NotNull String KEY = "minecraft:random_chance";
 
     /**
-     * A standard map-based converter for random chance conditions.
+     * A standard map-based serializer for random chance conditions.
      */
-    public static final @NotNull TypeSerializer<RandomChanceCondition> CONVERTER =
-            converter(RandomChanceCondition.class,
+    public static final @NotNull TypeSerializer<RandomChanceCondition> SERIALIZER =
+            serializer(RandomChanceCondition.class,
                     field(double.class).name("chance")
             );
 

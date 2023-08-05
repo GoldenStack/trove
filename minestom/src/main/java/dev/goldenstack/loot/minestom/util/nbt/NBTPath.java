@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.util.nbt;
 
-import dev.goldenstack.loot.converter.generator.FieldTypes;
+import dev.goldenstack.loot.serialize.generator.FieldTypes;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -31,9 +31,9 @@ import java.util.stream.Collectors;
 public sealed interface NBTPath permits NBTPathImpl {
 
     /**
-     * A converter that tries to read a NBT path from a string, and will convert it back to a string, too.
+     * A serializer that tries to read a NBT path from a string, and will serialize it back to a string, too.
      */
-    @NotNull TypeSerializer<NBTPath> CONVERTER = NBTPathImpl.CONVERTER;
+    @NotNull TypeSerializer<NBTPath> SERIALIZER = NBTPathImpl.SERIALIZER;
 
     /**
      * Reads a NBT path from the provided reader. It is possible that this does not consume the entire reader, so
@@ -349,7 +349,7 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
     static final @NotNull IntSet VALID_INTEGER_CHARACTERS = IntSet.of('-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
     static final @NotNull IntSet INVALID_UNQUOTED_CHARACTERS = IntSet.of(-1, '.', '\'', '\"', '{', '}', '[', ']');
 
-    static final @NotNull TypeSerializer<NBTPath> CONVERTER = FieldTypes.join(
+    static final @NotNull TypeSerializer<NBTPath> SERIALIZER = FieldTypes.join(
             (input, result) -> result.set(input.toString()), input -> {
                 var path = input.getString();
                 if (path == null) {

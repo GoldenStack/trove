@@ -12,9 +12,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * An entry that is dynamically linked to a loot table using {@link LootContextKeys#REGISTERED_TABLES} and {@link #tableIdentifier()}.
@@ -32,10 +32,10 @@ public record TableEntry(@NotNull NamespaceID tableIdentifier,
     public static final @NotNull String KEY = "minecraft:loot_table";
 
     /**
-     * A standard map-based converter for table entries.
+     * A standard map-based serializer for table entries.
      */
-    public static final @NotNull TypeSerializer<TableEntry> CONVERTER =
-            converter(TableEntry.class,
+    public static final @NotNull TypeSerializer<TableEntry> SERIALIZER =
+            serializer(TableEntry.class,
                     field(NamespaceID.class).name("tableIdentifier").nodePath("name"),
                     field(long.class).name("weight").fallback(1L),
                     field(long.class).name("quality").fallback(0L),

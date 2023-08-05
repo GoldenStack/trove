@@ -7,8 +7,8 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * An entry that is dynamically linked to a loot condition using {@link LootContextKeys#REGISTERED_CONDITIONS} and {@link #id()}.
@@ -19,10 +19,10 @@ public record ReferenceCondition(@NotNull NamespaceID id) implements LootConditi
     public static final @NotNull String KEY = "minecraft:reference";
 
     /**
-     * A standard map-based converter for reference conditions.
+     * A standard map-based serializer for reference conditions.
      */
-    public static final @NotNull TypeSerializer<ReferenceCondition> CONVERTER =
-            converter(ReferenceCondition.class,
+    public static final @NotNull TypeSerializer<ReferenceCondition> SERIALIZER =
+            serializer(ReferenceCondition.class,
                     field(NamespaceID.class).name("id").nodePath("name")
             );
 

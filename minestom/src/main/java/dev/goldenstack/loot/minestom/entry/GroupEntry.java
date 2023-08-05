@@ -9,9 +9,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A loot entry that will return the combined results of all of its children.
@@ -23,10 +23,10 @@ public record GroupEntry(@NotNull List<LootEntry> children, @NotNull List<LootCo
     public static final @NotNull String KEY = "minecraft:group";
 
     /**
-     * A standard map-based converter for group entries.
+     * A standard map-based serializer for group entries.
      */
-    public static final @NotNull TypeSerializer<GroupEntry> CONVERTER =
-            converter(GroupEntry.class,
+    public static final @NotNull TypeSerializer<GroupEntry> SERIALIZER =
+            serializer(GroupEntry.class,
                     field(LootEntry.class).name("children").as(list()),
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of)
             );

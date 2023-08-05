@@ -15,9 +15,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A standard loot pool implementation for Minestom.
@@ -33,8 +33,8 @@ public record LootPool(@NotNull LootNumber rolls,
                        @NotNull List<LootCondition> conditions,
                        @NotNull List<LootModifier> modifiers) implements LootGenerator {
 
-    public static final @NotNull TypeSerializer<LootPool> CONVERTER =
-            converter(LootPool.class,
+    public static final @NotNull TypeSerializer<LootPool> SERIALIZER =
+            serializer(LootPool.class,
                     field(LootNumber.class).name("rolls"),
                     field(LootNumber.class).name("bonusRolls").nodePath("bonus_rolls").fallback(new ConstantNumber(0)),
                     field(LootEntry.class).name("entries").as(list()),

@@ -16,9 +16,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Adds a random potion effect, from the pool, to each provided suspicious stew item.
@@ -32,10 +32,10 @@ public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull String KEY = "minecraft:set_stew_effect";
 
     /**
-     * A standard map-based converter for set stew effect modifiers.
+     * A standard map-based serializer for set stew effect modifiers.
      */
-    public static final @NotNull TypeSerializer<SetStewEffectModifier> CONVERTER =
-            converter(SetStewEffectModifier.class,
+    public static final @NotNull TypeSerializer<SetStewEffectModifier> SERIALIZER =
+            serializer(SetStewEffectModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(StewEffect.class).name("effects").as(list())
             );
@@ -46,8 +46,8 @@ public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
      * @param duration the number that will provide the duration (measured in seconds)
      */
     public record StewEffect(@NotNull PotionEffect effect, @NotNull LootNumber duration) {
-        public static final @NotNull TypeSerializer<StewEffect> CONVERTER =
-                converter(StewEffect.class,
+        public static final @NotNull TypeSerializer<StewEffect> SERIALIZER =
+                serializer(StewEffect.class,
                         field(PotionEffect.class).name("effect").nodePath("type"),
                         field(LootNumber.class).name("duration")
                 );

@@ -5,8 +5,8 @@ import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A condition that inverts the result of the child condition.
@@ -17,10 +17,10 @@ public record InvertedCondition(@NotNull LootCondition original) implements Loot
     public static final @NotNull String KEY = "minecraft:inverted";
 
     /**
-     * A standard map-based converter for inverted conditions.
+     * A standard map-based serializer for inverted conditions.
      */
-    public static final @NotNull TypeSerializer<InvertedCondition> CONVERTER =
-            converter(InvertedCondition.class,
+    public static final @NotNull TypeSerializer<InvertedCondition> SERIALIZER =
+            serializer(InvertedCondition.class,
                     field(LootCondition.class).name("original").nodePath("term")
             );
 

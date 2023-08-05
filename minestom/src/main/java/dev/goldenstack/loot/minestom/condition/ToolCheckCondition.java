@@ -8,8 +8,8 @@ import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Verifies that all provided contexts have a tool that passes the {@link #toolCheck()}.
@@ -19,10 +19,10 @@ public record ToolCheckCondition(@NotNull ItemCheck toolCheck) implements LootCo
     public static final @NotNull String KEY = "minecraft:match_tool";
 
     /**
-     * A standard map-based converter for tool check conditions.
+     * A standard map-based serializer for tool check conditions.
      */
-    public static final @NotNull TypeSerializer<ToolCheckCondition> CONVERTER =
-            converter(ToolCheckCondition.class,
+    public static final @NotNull TypeSerializer<ToolCheckCondition> SERIALIZER =
+            serializer(ToolCheckCondition.class,
                     field(ItemCheck.class).name("toolCheck").nodePath("predicate").fallback(ItemCheck.EMPTY)
             );
 

@@ -126,8 +126,8 @@ public class NBTUtils {
     }
 
     /**
-     * Converts the provided list of items into a NBTList of them, each containing the item NBT and the slot index.
-     * @param items the items to convert to NBT
+     * Serializes the provided list of items into a NBTList of them, each containing the item NBT and the slot index.
+     * @param items the items to serialize to NBT
      * @return the NBT list representing the items
      */
     @SuppressWarnings("UnstableApiUsage")
@@ -148,10 +148,10 @@ public class NBTUtils {
     }
 
     /**
-     * Converts the provided NBT list into a list of items, using the byte stored under the {@code Slot} key in each
+     * Deserializes the provided NBT list into a list of items, using the byte stored under the {@code Slot} key in each
      * compound as its index, but falling back to its actual index in the list if it does not have the slot stored.
      * @param itemNBT the NBT list representing the items
-     * @return the items converted from NBT
+     * @return the items deserialized from NBT
      */
     @SuppressWarnings("UnstableApiUsage")
     public static @NotNull List<ItemStack> listToItems(@NotNull NBTList<NBTCompound> itemNBT) {

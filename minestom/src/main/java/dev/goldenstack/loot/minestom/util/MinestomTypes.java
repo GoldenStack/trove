@@ -1,7 +1,5 @@
 package dev.goldenstack.loot.minestom.util;
 
-import dev.goldenstack.loot.converter.generator.Converters;
-import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
 import dev.goldenstack.loot.minestom.modifier.*;
@@ -11,6 +9,8 @@ import dev.goldenstack.loot.minestom.util.check.EnchantmentCheck;
 import dev.goldenstack.loot.minestom.util.check.ItemCheck;
 import dev.goldenstack.loot.minestom.util.check.NBTCheck;
 import dev.goldenstack.loot.minestom.util.nbt.NBTPath;
+import dev.goldenstack.loot.serialize.generator.FieldTypes;
+import dev.goldenstack.loot.serialize.generator.Serializers;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.attribute.Attribute;
 import net.minestom.server.attribute.AttributeOperation;
@@ -47,19 +47,19 @@ public class MinestomTypes {
             .register(PotionType.class, FieldTypes.proxied(String.class, PotionType.class, PotionType::fromNamespaceId, PotionType::name))
             .register(PotionEffect.class, FieldTypes.proxied(String.class, PotionEffect.class, PotionEffect::fromNamespaceId, PotionEffect::name))
             .register(Attribute.class, FieldTypes.proxied(NamespaceID.class, Attribute.class, a -> Attribute.fromKey(a.asString()), a -> NamespaceID.from(a.key())))
-            .register(BlockStateCheck.class, BlockStateCheck.CONVERTER)
-            .register(LootPool.class, LootPool.CONVERTER)
-            .register(LootTable.class, LootTable.CONVERTER)
-            .register(NBTPath.class, NBTPath.CONVERTER)
-            .register(LootNumberRange.class, LootNumberRange.CONVERTER)
-            .register(ContextNBT.NBTTarget.class, ContextNBT.NBTTarget.CONVERTER)
-            .register(NBTCheck.class, NBTCheck.CONVERTER)
-            .register(ItemCheck.class, ItemCheck.CONVERTER)
-            .register(EnchantmentCheck.class, EnchantmentCheck.CONVERTER)
-            .registerExact(BonusCountModifier.BonusType.class, BonusCountModifier.BonusType.TYPE_CONVERTER)
-            .register(CopyNbtModifier.Operation.class, CopyNbtModifier.Operation.CONVERTER)
-            .register(SetStewEffectModifier.StewEffect.class, SetStewEffectModifier.StewEffect.CONVERTER)
-            .register(SetAttributesModifier.AttributeDirective.class, SetAttributesModifier.AttributeDirective.CONVERTER)
+            .register(BlockStateCheck.class, BlockStateCheck.SERIALIZER)
+            .register(LootPool.class, LootPool.SERIALIZER)
+            .register(LootTable.class, LootTable.SERIALIZER)
+            .register(NBTPath.class, NBTPath.SERIALIZER)
+            .register(LootNumberRange.class, LootNumberRange.SERIALIZER)
+            .register(ContextNBT.NBTTarget.class, ContextNBT.NBTTarget.SERIALIZER)
+            .register(NBTCheck.class, NBTCheck.SERIALIZER)
+            .register(ItemCheck.class, ItemCheck.SERIALIZER)
+            .register(EnchantmentCheck.class, EnchantmentCheck.SERIALIZER)
+            .registerExact(BonusCountModifier.BonusType.class, BonusCountModifier.BonusType.TYPE_SERIALIZER)
+            .register(CopyNbtModifier.Operation.class, CopyNbtModifier.Operation.SERIALIZER)
+            .register(SetStewEffectModifier.StewEffect.class, SetStewEffectModifier.StewEffect.SERIALIZER)
+            .register(SetAttributesModifier.AttributeDirective.class, SetAttributesModifier.AttributeDirective.SERIALIZER)
             .register(NBTCompound.class, FieldTypes.proxied(NBT.class, NBTCompound.class, input -> input instanceof NBTCompound compound ? compound : null, nbt -> nbt))
             .register(RelevantEntity.class, FieldTypes.enumerated(RelevantEntity.class, RelevantEntity::id))
             .register(AttributeSlot.class, FieldTypes.enumerated(AttributeSlot.class, operation -> operation.name().toLowerCase(Locale.ROOT)))
@@ -83,7 +83,7 @@ public class MinestomTypes {
             .build();
 
 
-    public static @NotNull Function<Converters.Field<Tag>, Converters.Field<Tag>> tag(@NotNull Tag.BasicType tagType) {
+    public static @NotNull Function<Serializers.Field<Tag>, Serializers.Field<Tag>> tag(@NotNull Tag.BasicType tagType) {
         return field -> field.serializer(FieldTypes.proxied(String.class, Tag.class,
                 str -> MinecraftServer.getTagManager().getTag(tagType, str),
                 tag -> tag.getName().asString()

@@ -8,8 +8,8 @@ import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Returns the NBT compound contained in the
@@ -22,10 +22,10 @@ public record StorageNBT(@NotNull NamespaceID storageKey) implements LootNBT {
     public static final @NotNull String KEY = "minecraft:storage";
 
     /**
-     * A standard map-based converter for storage NBT providers.
+     * A standard map-based serializer for storage NBT providers.
      */
-    public static final @NotNull TypeSerializer<StorageNBT> CONVERTER =
-            converter(StorageNBT.class,
+    public static final @NotNull TypeSerializer<StorageNBT> SERIALIZER =
+            serializer(StorageNBT.class,
                     field(NamespaceID.class).name("storageKey").nodePath("source")
             );
 

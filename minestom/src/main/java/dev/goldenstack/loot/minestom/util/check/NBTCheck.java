@@ -6,16 +6,16 @@ import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A standard predicate for NBT elements.
  */
 public record NBTCheck(@Nullable NBT guarantee) {
 
-    public static final @NotNull TypeSerializer<NBTCheck> CONVERTER =
-            converter(NBTCheck.class,
+    public static final @NotNull TypeSerializer<NBTCheck> SERIALIZER =
+            serializer(NBTCheck.class,
                     field(NBT.class).name("guarantee").nodePath("nbt").optional()
             );
 

@@ -1,7 +1,7 @@
-package dev.goldenstack.loot.converter.generator;
+package dev.goldenstack.loot.serialize.generator;
 
-import dev.goldenstack.loot.converter.LootDeserializer;
-import dev.goldenstack.loot.converter.LootSerializer;
+import dev.goldenstack.loot.serialize.LootDeserializer;
+import dev.goldenstack.loot.serialize.LootSerializer;
 import io.leangen.geantyref.TypeFactory;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -31,10 +31,10 @@ public class FieldTypes {
             }, UUID::toString)).build();
 
     /**
-     * Creates a field that converts every enum value from the provided type.
-     * @param type the type being converted
+     * Creates a field that serializes every enum value from the provided type.
+     * @param type the type being serialized
      * @param namer the function that gets the names for each value
-     * @return a field converting whatever &lt;T&gt; is
+     * @return a field serializing whatever &lt;T&gt; is
      * @param <T> the enumerated type
      */
     public static <T extends Enum<T>> @NotNull TypeSerializer<T> enumerated(@NotNull Class<T> type, @NotNull Function<T, String> namer) {
@@ -42,11 +42,11 @@ public class FieldTypes {
     }
 
     /**
-     * Creates a field that converts every value in the provided collection.
-     * @param type the type being converted
-     * @param values the list of values being converted
+     * Creates a field that serializes every value in the provided collection.
+     * @param type the type being serialized
+     * @param values the list of values being serialized
      * @param namer the function that gets the names for each value
-     * @return a field converting whatever &lt;T&gt; is
+     * @return a field serializing whatever &lt;T&gt; is
      * @param <T> the enumerated type
      */
     public static <T> @NotNull TypeSerializer<T> enumerated(@NotNull Class<T> type, @NotNull Collection<T> values, @NotNull Function<T, String> namer) {
@@ -57,7 +57,7 @@ public class FieldTypes {
     /**
      * When applied to a field, sets its serializer to simply using #set and #get methods.
      */
-    public static <V> @NotNull Function<Converters.Field<V>, Converters.Field<V>> get() {
+    public static <V> @NotNull Function<Serializers.Field<V>, Serializers.Field<V>> get() {
         return field -> field.serializer(join(
                 (input, result) -> result.set(input),
                 input -> require(input, field.type())
@@ -67,7 +67,7 @@ public class FieldTypes {
     /**
      * When applied to a field, turns it into a list of its previous type.
      */
-    public static <V> @NotNull Function<Converters.Field<V>, Converters.Field<List<V>>> list() {
+    public static <V> @NotNull Function<Serializers.Field<V>, Serializers.Field<List<V>>> list() {
         return field -> field.type(list(field.type())).as(get());
     }
 
@@ -75,7 +75,7 @@ public class FieldTypes {
      * When applied to a field, turns it into a list of its previous type, but treating a value instead of a list as a
      * list with one item.
      */
-    public static <V> @NotNull Function<Converters.Field<V>, Converters.Field<List<V>>> possibleList() {
+    public static <V> @NotNull Function<Serializers.Field<V>, Serializers.Field<List<V>>> possibleList() {
         return field -> {
             var type = list(field.type());
             return field.type(type).serializer(join(
@@ -86,13 +86,13 @@ public class FieldTypes {
     }
 
     /**
-     * Creates a converter that converts type N but internally always converts it to P with the provided methods before
+     * Creates a serializer that uses type N but internally always converts it to P with the provided functions before
      * interfacing with configuration nodes.
      * @param originalType the original type that interfaces with the node
-     * @param newType the type that is converted
+     * @param newType the type that is serialized
      * @param toNew the mapper to the new type
      * @param fromNew the mapper from the new type
-     * @return a converter that converts N
+     * @return a serializer that serializes N
      * @param <P> the original type
      * @param <N> the new type
      */
@@ -130,11 +130,11 @@ public class FieldTypes {
     }
 
     /**
-     * Joins the provided serializer and deserializer into a LootConverter instance.
-     * @param serializer the new converter's serializer
-     * @param deserializer the new converter's deserializer
-     * @return a converter that joins the provided instances
-     * @param <V> the type to convert
+     * Joins the provided serializer and deserializer into a type serializer.
+     * @param serializer the new type serializer's serializer
+     * @param deserializer the new type serializer's deserializer
+     * @return a new type serializer that joins the provided instances
+     * @param <V> the type to serialize
      */
     public static <V> @NotNull TypeSerializer<V> join(@NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<V> deserializer) {
         return new TypeSerializer<>() {

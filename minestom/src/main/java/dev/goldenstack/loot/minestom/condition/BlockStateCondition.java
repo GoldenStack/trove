@@ -8,8 +8,8 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Checks that the {@link LootContextKeys#BLOCK_STATE} fits the information of this condition.
@@ -21,10 +21,10 @@ public record BlockStateCondition(@NotNull NamespaceID blockKey, @NotNull BlockS
     public static final @NotNull String KEY = "minecraft:block_state_property";
 
     /**
-     * A standard map-based converter for block state conditions.
+     * A standard map-based serializer for block state conditions.
      */
-    public static final @NotNull TypeSerializer<BlockStateCondition> CONVERTER =
-            converter(BlockStateCondition.class,
+    public static final @NotNull TypeSerializer<BlockStateCondition> SERIALIZER =
+            serializer(BlockStateCondition.class,
                     field(NamespaceID.class).name("blockKey").nodePath("block"),
                     field(BlockStateCheck.class).name("check").nodePath("properties")
             );

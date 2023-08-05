@@ -12,9 +12,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A modifier that changes the count of any items provided to it.
@@ -28,10 +28,10 @@ public record SetCountModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull String KEY = "minecraft:set_count";
 
     /**
-     * A standard map-based converter for count set modifiers.
+     * A standard map-based serializer for count set modifiers.
      */
-    public static final @NotNull TypeSerializer<SetCountModifier> CONVERTER =
-            converter(SetCountModifier.class,
+    public static final @NotNull TypeSerializer<SetCountModifier> SERIALIZER =
+            serializer(SetCountModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(LootNumber.class).name("count"),
                     field(boolean.class).name("add")

@@ -11,9 +11,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A modifier that enchants items with a specific level.
@@ -28,10 +28,10 @@ public record LevelledEnchantModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull String KEY = "minecraft:enchant_with_levels";
 
     /**
-     * A standard map-based converter for enchant-with-levels modifiers.
+     * A standard map-based serializer for enchant-with-levels modifiers.
      */
-    public static final @NotNull TypeSerializer<LevelledEnchantModifier> CONVERTER =
-            converter(LevelledEnchantModifier.class,
+    public static final @NotNull TypeSerializer<LevelledEnchantModifier> SERIALIZER =
+            serializer(LevelledEnchantModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(LootNumber.class).name("levelRange").nodePath("levels"),
                     field(boolean.class).name("permitTreasure").nodePath("treasureEnchantmentsAllowed").fallback(false)

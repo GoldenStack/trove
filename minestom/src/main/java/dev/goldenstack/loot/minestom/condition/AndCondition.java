@@ -7,9 +7,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Returns true if all of the {@link #conditions()} return true.
@@ -20,10 +20,10 @@ public record AndCondition(@NotNull List<LootCondition> conditions) implements L
     public static final @NotNull String KEY = "minecraft:all_of";
 
     /**
-     * A standard map-based converter for AND operator conditions.
+     * A standard map-based serializer for AND operator conditions.
      */
-    public static final @NotNull TypeSerializer<AndCondition> CONVERTER =
-            converter(AndCondition.class,
+    public static final @NotNull TypeSerializer<AndCondition> SERIALIZER =
+            serializer(AndCondition.class,
                     field(LootCondition.class).name("conditions").nodePath("terms").as(list()).fallback(List::of)
             );
 

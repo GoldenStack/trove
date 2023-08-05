@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Sets the contents of each provided item (stored in NBT as BlockEntityTag.Items) based on the {@link #entries()}.
@@ -37,10 +37,10 @@ public record SetContentsModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull String KEY = "minecraft:set_contents";
 
     /**
-     * A standard map-based converter for set contents modifiers.
+     * A standard map-based serializer for set contents modifiers.
      */
-    public static final @NotNull TypeSerializer<SetContentsModifier> CONVERTER =
-            converter(SetContentsModifier.class,
+    public static final @NotNull TypeSerializer<SetContentsModifier> SERIALIZER =
+            serializer(SetContentsModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(LootEntry.class).name("entries").as(list()),
                     field(NamespaceID.class).name("blockEntityKey").nodePath("type")

@@ -13,9 +13,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Copies the name from the {@link #source()} onto the provided item.
@@ -28,10 +28,10 @@ public record CopyNameModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull String KEY = "minecraft:copy_name";
 
     /**
-     * A standard map-based converter for copy name modifiers.
+     * A standard map-based serializer for copy name modifiers.
      */
-    public static final @NotNull TypeSerializer<CopyNameModifier> CONVERTER =
-            converter(CopyNameModifier.class,
+    public static final @NotNull TypeSerializer<CopyNameModifier> SERIALIZER =
+            serializer(CopyNameModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(RelevantKey.class).name("source")
             );

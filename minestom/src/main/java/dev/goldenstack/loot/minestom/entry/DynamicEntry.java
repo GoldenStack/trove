@@ -14,9 +14,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Dynamically returns items based on {@link VanillaInterface#getDynamicDrops(NamespaceID, NBTCompound)} and
@@ -34,10 +34,10 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
     public static final @NotNull String KEY = "minecraft:dynamic";
 
     /**
-     * A standard map-based converter for dynamic entries.
+     * A standard map-based serializer for dynamic entries.
      */
-    public static final @NotNull TypeSerializer<DynamicEntry> CONVERTER =
-            converter(DynamicEntry.class,
+    public static final @NotNull TypeSerializer<DynamicEntry> SERIALIZER =
+            serializer(DynamicEntry.class,
                     field(NamespaceID.class).name("dynamicChoiceId").nodePath("name"),
                     field(long.class).name("weight").fallback(1L),
                     field(long.class).name("quality").fallback(0L),

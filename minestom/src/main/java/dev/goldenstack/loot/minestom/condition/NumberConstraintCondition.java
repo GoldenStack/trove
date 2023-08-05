@@ -7,8 +7,8 @@ import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Verifies that the result of the provided value is within the provided range.
@@ -20,10 +20,10 @@ public record NumberConstraintCondition(@NotNull LootNumberRange range, @NotNull
     public static final @NotNull String KEY = "minecraft:value_check";
 
     /**
-     * A standard map-based converter for value check conditions.
+     * A standard map-based serializer for value check conditions.
      */
-    public static final @NotNull TypeSerializer<NumberConstraintCondition> CONVERTER =
-            converter(NumberConstraintCondition.class,
+    public static final @NotNull TypeSerializer<NumberConstraintCondition> SERIALIZER =
+            serializer(NumberConstraintCondition.class,
                     field(LootNumberRange.class).name("range"),
                     field(LootNumber.class).name("value")
             );

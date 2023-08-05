@@ -6,7 +6,7 @@ import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A condition that returns true if the explosion was considered survived. This is simply a check for if a random number
@@ -17,10 +17,10 @@ public record SurvivesExplosionCondition() implements LootCondition {
     public static final @NotNull String KEY = "minecraft:survives_explosion";
 
     /**
-     * A standard map-based converter for explosion survival conditions.
+     * A standard map-based serializer for explosion survival conditions.
      */
-    public static final @NotNull TypeSerializer<SurvivesExplosionCondition> CONVERTER =
-            converter(SurvivesExplosionCondition.class);
+    public static final @NotNull TypeSerializer<SurvivesExplosionCondition> SERIALIZER =
+            serializer(SurvivesExplosionCondition.class);
 
     @Override
     public boolean verify(@NotNull LootContext context) {

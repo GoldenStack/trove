@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.util.check;
 
-import dev.goldenstack.loot.converter.generator.FieldTypes;
+import dev.goldenstack.loot.serialize.generator.FieldTypes;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +19,7 @@ public record BlockStateCheck(@NotNull List<SingularCheck> checks) {
     /**
      * A standard map-based serializer for block state checks.
      */
-    public static final @NotNull TypeSerializer<BlockStateCheck> CONVERTER = FieldTypes.join(
+    public static final @NotNull TypeSerializer<BlockStateCheck> SERIALIZER = FieldTypes.join(
             (input, result) -> {
                 if (input.checks.isEmpty()) {
                     return;

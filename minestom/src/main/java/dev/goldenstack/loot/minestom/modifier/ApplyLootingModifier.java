@@ -13,9 +13,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A modifier that adds a certain amount to each item, where the amount added is the killer's looting multiplied by
@@ -32,10 +32,10 @@ public record ApplyLootingModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull String KEY = "minecraft:looting_enchant";
 
     /**
-     * A standard map-based converter for apply looting modifiers.
+     * A standard map-based serializer for apply looting modifiers.
      */
-    public static final @NotNull TypeSerializer<ApplyLootingModifier> CONVERTER =
-            converter(ApplyLootingModifier.class,
+    public static final @NotNull TypeSerializer<ApplyLootingModifier> SERIALIZER =
+            serializer(ApplyLootingModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(LootNumber.class).name("lootingMultiplier").nodePath("count"),
                     field(int.class).name("limiter").nodePath("limit").fallback(0)

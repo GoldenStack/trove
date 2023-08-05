@@ -9,9 +9,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * An entry that always returns an empty list of items.
@@ -27,10 +27,10 @@ public record EmptyEntry(long weight, long quality,
     public static final @NotNull String KEY = "minecraft:empty";
 
     /**
-     * A standard map-based converter for empty entries.
+     * A standard map-based serializer for empty entries.
      */
-    public static final @NotNull TypeSerializer<EmptyEntry> CONVERTER =
-            converter(EmptyEntry.class,
+    public static final @NotNull TypeSerializer<EmptyEntry> SERIALIZER =
+            serializer(EmptyEntry.class,
                     field(long.class).name("weight").fallback(1L),
                     field(long.class).name("quality").fallback(0L),
                     field(LootModifier.class).name("modifiers").nodePath("functions").as(list()).fallback(List::of),

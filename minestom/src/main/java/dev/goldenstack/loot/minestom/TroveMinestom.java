@@ -1,7 +1,5 @@
 package dev.goldenstack.loot.minestom;
 
-import dev.goldenstack.loot.converter.generator.FieldTypes;
-import dev.goldenstack.loot.converter.generator.SerializerSelector;
 import dev.goldenstack.loot.minestom.condition.*;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
 import dev.goldenstack.loot.minestom.entry.*;
@@ -15,6 +13,8 @@ import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.minestom.number.UniformNumber;
 import dev.goldenstack.loot.minestom.util.FallbackVanillaInterface;
 import dev.goldenstack.loot.minestom.util.MinestomTypes;
+import dev.goldenstack.loot.serialize.generator.FieldTypes;
+import dev.goldenstack.loot.serialize.generator.SerializerSelector;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
 import dev.goldenstack.loot.structure.LootModifier;
@@ -56,55 +56,55 @@ public class TroveMinestom {
 
 
     public static final @NotNull TypeSerializerCollection INSTANCE_COLLECTION = TypeSerializerCollection.builder()
-            .register(AlternativeEntry.class, AlternativeEntry.CONVERTER)
-            .register(DynamicEntry.class, DynamicEntry.CONVERTER)
-            .register(EmptyEntry.class, EmptyEntry.CONVERTER)
-            .register(GroupEntry.class, GroupEntry.CONVERTER)
-            .register(ItemEntry.class, ItemEntry.CONVERTER)
-            .register(SequenceEntry.class, SequenceEntry.CONVERTER)
-            .register(TableEntry.class, TableEntry.CONVERTER)
-            .register(TagEntry.class, TagEntry.CONVERTER)
-            .register(ApplyLootingModifier.class, ApplyLootingModifier.CONVERTER)
-            .register(BonusCountModifier.class, BonusCountModifier.CONVERTER)
-            .register(CopyNameModifier.class, CopyNameModifier.CONVERTER)
-            .register(CopyNbtModifier.class, CopyNbtModifier.CONVERTER)
-            .register(CopyStateModifier.class, CopyStateModifier.CONVERTER)
-            .register(ExplosionDecayModifier.class, ExplosionDecayModifier.CONVERTER)
-            .register(LevelledEnchantModifier.class, LevelledEnchantModifier.CONVERTER)
-            .register(LimitCountModifier.class, LimitCountModifier.CONVERTER)
-            .register(RandomlyEnchantModifier.class, RandomlyEnchantModifier.CONVERTER)
-            .register(SetAttributesModifier.class, SetAttributesModifier.CONVERTER)
-            .register(SetContentsModifier.class, SetContentsModifier.CONVERTER)
-            .register(SetCountModifier.class, SetCountModifier.CONVERTER)
-            .register(SetDamageModifier.class, SetDamageModifier.CONVERTER)
-            .register(SetNbtModifier.class, SetNbtModifier.CONVERTER)
-            .register(SetPotionModifier.class, SetPotionModifier.CONVERTER)
-            .register(SetStewEffectModifier.class, SetStewEffectModifier.CONVERTER)
-            .register(SmeltItemModifier.class, SmeltItemModifier.CONVERTER)
-            .register(AndCondition.class, AndCondition.CONVERTER)
-            .register(BlockStateCondition.class, BlockStateCondition.CONVERTER)
-            .register(EnchantmentLevelCondition.class, EnchantmentLevelCondition.CONVERTER)
-            .register(EntityCheckCondition.class, EntityCheckCondition.CONVERTER)
-            .register(InvertedCondition.class, InvertedCondition.CONVERTER)
-            .register(KilledByPlayerCondition.class, KilledByPlayerCondition.CONVERTER)
-            .register(LocationCheckCondition.class, LocationCheckCondition.CONVERTER)
-            .register(LootingRandomChanceCondition.class, LootingRandomChanceCondition.CONVERTER)
-            .register(NumberConstraintCondition.class, NumberConstraintCondition.CONVERTER)
-            .register(OrCondition.class, OrCondition.CONVERTER)
-            .register(RandomChanceCondition.class, RandomChanceCondition.CONVERTER)
-            .register(ReferenceCondition.class, ReferenceCondition.CONVERTER)
-            .register(SurvivesExplosionCondition.class, SurvivesExplosionCondition.CONVERTER)
-            .register(TimeCheckCondition.class, TimeCheckCondition.CONVERTER)
-            .register(ToolCheckCondition.class, ToolCheckCondition.CONVERTER)
-            .register(WeatherCheckCondition.class, WeatherCheckCondition.CONVERTER)
-            .register(ConstantNumber.class, ConstantNumber.CONVERTER)
-            .register(BinomialNumber.class, BinomialNumber.CONVERTER)
-            .register(UniformNumber.class, UniformNumber.CONVERTER)
-            .register(ContextNBT.class, ContextNBT.CONVERTER)
-            .register(StorageNBT.class, StorageNBT.CONVERTER)
-            .register(BonusCountModifier.BinomialBonus.class, BonusCountModifier.BinomialBonus.CONVERTER)
-            .register(BonusCountModifier.UniformBonus.class, BonusCountModifier.UniformBonus.CONVERTER)
-            .register(BonusCountModifier.FortuneDrops.class, BonusCountModifier.FortuneDrops.CONVERTER)
+            .register(AlternativeEntry.class, AlternativeEntry.SERIALIZER)
+            .register(DynamicEntry.class, DynamicEntry.SERIALIZER)
+            .register(EmptyEntry.class, EmptyEntry.SERIALIZER)
+            .register(GroupEntry.class, GroupEntry.SERIALIZER)
+            .register(ItemEntry.class, ItemEntry.SERIALIZER)
+            .register(SequenceEntry.class, SequenceEntry.SERIALIZER)
+            .register(TableEntry.class, TableEntry.SERIALIZER)
+            .register(TagEntry.class, TagEntry.SERIALIZER)
+            .register(ApplyLootingModifier.class, ApplyLootingModifier.SERIALIZER)
+            .register(BonusCountModifier.class, BonusCountModifier.SERIALIZER)
+            .register(CopyNameModifier.class, CopyNameModifier.SERIALIZER)
+            .register(CopyNbtModifier.class, CopyNbtModifier.SERIALIZER)
+            .register(CopyStateModifier.class, CopyStateModifier.SERIALIZER)
+            .register(ExplosionDecayModifier.class, ExplosionDecayModifier.SERIALIZER)
+            .register(LevelledEnchantModifier.class, LevelledEnchantModifier.SERIALIZER)
+            .register(LimitCountModifier.class, LimitCountModifier.SERIALIZER)
+            .register(RandomlyEnchantModifier.class, RandomlyEnchantModifier.SERIALIZER)
+            .register(SetAttributesModifier.class, SetAttributesModifier.SERIALIZER)
+            .register(SetContentsModifier.class, SetContentsModifier.SERIALIZER)
+            .register(SetCountModifier.class, SetCountModifier.SERIALIZER)
+            .register(SetDamageModifier.class, SetDamageModifier.SERIALIZER)
+            .register(SetNbtModifier.class, SetNbtModifier.SERIALIZER)
+            .register(SetPotionModifier.class, SetPotionModifier.SERIALIZER)
+            .register(SetStewEffectModifier.class, SetStewEffectModifier.SERIALIZER)
+            .register(SmeltItemModifier.class, SmeltItemModifier.SERIALIZER)
+            .register(AndCondition.class, AndCondition.SERIALIZER)
+            .register(BlockStateCondition.class, BlockStateCondition.SERIALIZER)
+            .register(EnchantmentLevelCondition.class, EnchantmentLevelCondition.SERIALIZER)
+            .register(EntityCheckCondition.class, EntityCheckCondition.SERIALIZER)
+            .register(InvertedCondition.class, InvertedCondition.SERIALIZER)
+            .register(KilledByPlayerCondition.class, KilledByPlayerCondition.SERIALIZER)
+            .register(LocationCheckCondition.class, LocationCheckCondition.SERIALIZER)
+            .register(LootingRandomChanceCondition.class, LootingRandomChanceCondition.SERIALIZER)
+            .register(NumberConstraintCondition.class, NumberConstraintCondition.SERIALIZER)
+            .register(OrCondition.class, OrCondition.SERIALIZER)
+            .register(RandomChanceCondition.class, RandomChanceCondition.SERIALIZER)
+            .register(ReferenceCondition.class, ReferenceCondition.SERIALIZER)
+            .register(SurvivesExplosionCondition.class, SurvivesExplosionCondition.SERIALIZER)
+            .register(TimeCheckCondition.class, TimeCheckCondition.SERIALIZER)
+            .register(ToolCheckCondition.class, ToolCheckCondition.SERIALIZER)
+            .register(WeatherCheckCondition.class, WeatherCheckCondition.SERIALIZER)
+            .register(ConstantNumber.class, ConstantNumber.SERIALIZER)
+            .register(BinomialNumber.class, BinomialNumber.SERIALIZER)
+            .register(UniformNumber.class, UniformNumber.SERIALIZER)
+            .register(ContextNBT.class, ContextNBT.SERIALIZER)
+            .register(StorageNBT.class, StorageNBT.SERIALIZER)
+            .register(BonusCountModifier.BinomialBonus.class, BonusCountModifier.BinomialBonus.SERIALIZER)
+            .register(BonusCountModifier.UniformBonus.class, BonusCountModifier.UniformBonus.SERIALIZER)
+            .register(BonusCountModifier.FortuneDrops.class, BonusCountModifier.FortuneDrops.SERIALIZER)
             .build();
 
     /**
@@ -293,7 +293,7 @@ public class TroveMinestom {
     public static @NotNull SerializerSelector<LootNumber> createNumberBuilder() {
         return new SerializerSelector<>(TypeToken.get(LootNumber.class))
                 .keyLocation("type")
-                .add(ConstantNumber.ACCURATE_CONVERTER)
+                .add(ConstantNumber.ACCURATE_SERIALIZER)
                 .add(ConstantNumber.KEY, ConstantNumber.class)
                 .add(BinomialNumber.KEY, BinomialNumber.class)
                 .add(UniformNumber.KEY, UniformNumber.class);
@@ -302,7 +302,7 @@ public class TroveMinestom {
     public static @NotNull SerializerSelector<LootNBT> createNbtBuilder() {
         return new SerializerSelector<>(TypeToken.get(LootNBT.class))
                 .keyLocation("type")
-                .add(ContextNBT.ACCURATE_CONVERTER)
+                .add(ContextNBT.ACCURATE_SERIALIZER)
                 .add(ContextNBT.KEY, ContextNBT.class)
                 .add(StorageNBT.KEY, StorageNBT.class);
     }

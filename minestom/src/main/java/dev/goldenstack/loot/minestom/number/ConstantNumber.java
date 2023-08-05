@@ -1,13 +1,13 @@
 package dev.goldenstack.loot.minestom.number;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.generator.FieldTypes;
+import dev.goldenstack.loot.serialize.generator.FieldTypes;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A constant value that is always returned. When a {@code long} is needed, {@link Math#round(double)} is used.
@@ -16,10 +16,10 @@ import static dev.goldenstack.loot.converter.generator.Converters.field;
 public record ConstantNumber(double value) implements LootNumber {
 
     /**
-     * A converter for constant numbers that always serializes to a numerical scalar and deserializes when the input is
+     * A serializer for constant numbers that always serializes to a numerical scalar and deserializes when the input is
      * a singular numerical scalar.
      */
-    public static final @NotNull TypeSerializer<LootNumber> ACCURATE_CONVERTER = FieldTypes.join(
+    public static final @NotNull TypeSerializer<LootNumber> ACCURATE_SERIALIZER = FieldTypes.join(
             (input, result) -> {
                 if (input instanceof ConstantNumber constant) {
                     result.set(constant.value());
@@ -35,10 +35,10 @@ public record ConstantNumber(double value) implements LootNumber {
     public static final @NotNull String KEY = "minecraft:constant";
 
     /**
-     * A standard map-based converter for constant numbers.
+     * A standard map-based serializer for constant numbers.
      */
-    public static final @NotNull TypeSerializer<ConstantNumber> CONVERTER =
-            converter(ConstantNumber.class,
+    public static final @NotNull TypeSerializer<ConstantNumber> SERIALIZER =
+            serializer(ConstantNumber.class,
                     field(double.class).name("value")
             );
 

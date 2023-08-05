@@ -14,9 +14,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Copies the properties in {@link #copiedProperties()} onto the provided item if the context's block state key is equal
@@ -31,10 +31,10 @@ public record CopyStateModifier(@NotNull List<LootCondition> conditions, @NotNul
     public static final @NotNull String KEY = "minecraft:copy_state";
 
     /**
-     * A standard map-based converter for copy state modifiers.
+     * A standard map-based serializer for copy state modifiers.
      */
-    public static final @NotNull TypeSerializer<CopyStateModifier> CONVERTER =
-            converter(CopyStateModifier.class,
+    public static final @NotNull TypeSerializer<CopyStateModifier> SERIALIZER =
+            serializer(CopyStateModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(Block.class).name("blockType").nodePath("block"),
                     field(String.class).name("copiedProperties").nodePath("properties").as(list())

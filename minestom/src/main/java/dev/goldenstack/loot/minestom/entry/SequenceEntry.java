@@ -9,9 +9,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A loot entry that will return the combined results of all of the entry's children until one of them returns nothing.
@@ -23,10 +23,10 @@ public record SequenceEntry(@NotNull List<LootEntry> children, @NotNull List<Loo
     public static final @NotNull String KEY = "minecraft:sequence";
 
     /**
-     * A standard map-based converter for sequence entries.
+     * A standard map-based serializer for sequence entries.
      */
-    public static final @NotNull TypeSerializer<SequenceEntry> CONVERTER =
-            converter(SequenceEntry.class,
+    public static final @NotNull TypeSerializer<SequenceEntry> SERIALIZER =
+            serializer(SequenceEntry.class,
                     field(LootEntry.class).name("children").as(list()),
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of)
             );

@@ -18,9 +18,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Copies the NBT from some {@link #source()} to the resulting item via a list of {@link #operations()}.
@@ -34,10 +34,10 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
     public static final @NotNull String KEY = "minecraft:copy_nbt";
 
     /**
-     * A standard map-based converter for copy NBT modifiers.
+     * A standard map-based serializer for copy NBT modifiers.
      */
-    public static final @NotNull TypeSerializer<CopyNbtModifier> CONVERTER =
-            converter(CopyNbtModifier.class,
+    public static final @NotNull TypeSerializer<CopyNbtModifier> SERIALIZER =
+            serializer(CopyNbtModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(LootNBT.class).name("source"),
                     field(Operation.class).name("operations").nodePath("ops").as(list())
@@ -52,8 +52,8 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
      */
     public record Operation(@NotNull NBTPath source, @NotNull NBTPath target, @NotNull Operator operator) {
 
-        public static final @NotNull TypeSerializer<Operation> CONVERTER =
-                converter(Operation.class,
+        public static final @NotNull TypeSerializer<Operation> SERIALIZER =
+                serializer(Operation.class,
                         field(NBTPath.class).name("source"),
                         field(NBTPath.class).name("target"),
                         field(Operator.class).name("operator").nodePath("op")

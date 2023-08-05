@@ -9,8 +9,8 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.Map;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A check that verifies a map of an enchantment with an optional enchantment and a range. See
@@ -23,8 +23,8 @@ public record EnchantmentCheck(@Nullable Enchantment enchantmentType, @NotNull L
     /**
      * A standard map-based serializer for enchantment checks.
      */
-    public static final @NotNull TypeSerializer<EnchantmentCheck> CONVERTER =
-            converter(EnchantmentCheck.class,
+    public static final @NotNull TypeSerializer<EnchantmentCheck> SERIALIZER =
+            serializer(EnchantmentCheck.class,
                     field(Enchantment.class).name("enchantmentType").nodePath("enchantment").optional(),
                     field(LootNumberRange.class).name("levels").optional()
             );

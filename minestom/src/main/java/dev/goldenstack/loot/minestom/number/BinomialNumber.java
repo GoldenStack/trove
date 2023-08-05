@@ -5,8 +5,8 @@ import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Generates numbers that follow binomial distribution.
@@ -18,10 +18,10 @@ public record BinomialNumber(@NotNull LootNumber trials, @NotNull LootNumber pro
     public static final @NotNull String KEY = "minecraft:binomial";
 
     /**
-     * A standard map-based converter for binomial numbers.
+     * A standard map-based serializer for binomial numbers.
      */
-    public static final @NotNull TypeSerializer<BinomialNumber> CONVERTER =
-            converter(BinomialNumber.class,
+    public static final @NotNull TypeSerializer<BinomialNumber> SERIALIZER =
+            serializer(BinomialNumber.class,
                     field(LootNumber.class).name("trials").nodePath("n"),
                     field(LootNumber.class).name("probability").nodePath("p")
             );

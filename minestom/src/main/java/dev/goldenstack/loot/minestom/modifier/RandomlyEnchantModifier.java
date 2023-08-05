@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Randomly adds one enchantment, of a random valid level, to each provided item. If {@link #validEnchantments()} is
@@ -33,10 +33,10 @@ public record RandomlyEnchantModifier(@NotNull List<LootCondition> conditions, @
     public static final @NotNull String KEY = "minecraft:enchant_randomly";
 
     /**
-     * A standard map-based converter for randomly enchant modifiers.
+     * A standard map-based serializer for randomly enchant modifiers.
      */
-    public static final @NotNull TypeSerializer<RandomlyEnchantModifier> CONVERTER =
-            converter(RandomlyEnchantModifier.class,
+    public static final @NotNull TypeSerializer<RandomlyEnchantModifier> SERIALIZER =
+            serializer(RandomlyEnchantModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(Enchantment.class).name("validEnchantments").nodePath("enchantments").as(list()).fallback(List::of)
             );

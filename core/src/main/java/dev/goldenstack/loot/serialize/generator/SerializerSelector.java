@@ -1,4 +1,4 @@
-package dev.goldenstack.loot.converter.generator;
+package dev.goldenstack.loot.serialize.generator;
 
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
@@ -14,25 +14,25 @@ import java.util.*;
 
 /**
  * Manages serialization for when multiple subtypes of a base class must be selected from. In the case of initial
- * converters, this class stores them directly, but for converters with keys and types it will simply redirect to the
+ * serializers, this class stores them directly, but for serializers with keys and types it will simply redirect to the
  * desired type via {@link ConfigurationNode#get(TypeToken)}.
- * @param <V> the base type of object that will be converted
+ * @param <V> the base type of object that will be serialized/deserialized
  */
 public class SerializerSelector<V> {
 
-    private final @NotNull TypeToken<V> convertedType;
+    private final @NotNull TypeToken<V> serializedType;
     private List<Object> keyLocation;
     private final @NotNull List<TypeSerializer<V>> initialSerializers = new ArrayList<>();
 
     private final @NotNull Map<String, TypeToken<? extends V>> keyToType = new HashMap<>();
     private final @NotNull Map<TypeToken<? extends V>, String> typeToKey = new HashMap<>();
 
-    public SerializerSelector(@NotNull TypeToken<V> convertedType) {
-        this.convertedType = convertedType;
+    public SerializerSelector(@NotNull TypeToken<V> serializedType) {
+        this.serializedType = serializedType;
     }
 
     /**
-     * Sets the location of the key that will be used to determine which typed converter to use.
+     * Sets the location of the key that will be used to determine which serializer to use.
      * @param keyLocation the location of the key that will be used
      * @return this, for chaining
      */
@@ -71,12 +71,12 @@ public class SerializerSelector<V> {
      */
     @Contract("_, _ -> this")
     public @NotNull SerializerSelector<V> add(@NotNull String key, @NotNull TypeToken<? extends V> type) {
-        if (!GenericTypeReflector.isSuperType(convertedType.getType(), type.getType())) {
-            throw new IllegalArgumentException("Converter '" + key + "' has invalid type '" + type.getType() + "' as it is not a subtype of '" + convertedType.getType() + "'");
+        if (!GenericTypeReflector.isSuperType(serializedType.getType(), type.getType())) {
+            throw new IllegalArgumentException("Serializer '" + key + "' has invalid type '" + type.getType() + "' as it is not a subtype of '" + serializedType.getType() + "'");
         } else if (keyToType.put(key, type) != null) {
-            throw new IllegalArgumentException("Converter '" + key + "' has a key that has already been registered");
+            throw new IllegalArgumentException("Serializer '" + key + "' has a key that has already been registered");
         } else if (typeToKey.put(type, key) != null) {
-            throw new IllegalArgumentException("Converter '" + key + "' has a type '" + type.getType() + "' that has already been registered");
+            throw new IllegalArgumentException("Serializer '" + key + "' has a type '" + type.getType() + "' that has already been registered");
         }
 
         return this;
@@ -89,7 +89,7 @@ public class SerializerSelector<V> {
     @Contract(" -> new")
     public @NotNull TypeSerializer<V> build() {
         return new SerializerSelectorImpl<>(
-                convertedType,
+                serializedType,
                 Objects.requireNonNull(keyLocation, "This builder cannot be built without a key location"),
                 List.copyOf(initialSerializers),
                 Map.copyOf(keyToType), Map.copyOf(typeToKey)
@@ -98,7 +98,7 @@ public class SerializerSelector<V> {
 
 }
 
-record SerializerSelectorImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull List<Object> keyLocation,
+record SerializerSelectorImpl<V>(@NotNull TypeToken<V> serializedType, @NotNull List<Object> keyLocation,
                                  @NotNull List<TypeSerializer<V>> initialSerializers,
                                  @NotNull Map<String, TypeToken<? extends V>> keyToType,
                                  @NotNull Map<TypeToken<? extends V>, String> typeToKey) implements TypeSerializer<V> {
@@ -121,7 +121,7 @@ record SerializerSelectorImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull L
 
         String key = typeToKey.get(token);
         if (key == null) {
-            throw new SerializationException(result, convertedType.getType(), "Unknown input type '" + input.getClass() + "'");
+            throw new SerializationException(result, serializedType.getType(), "Unknown input type '" + input.getClass() + "'");
         }
         result.node(keyLocation).set(key);
         result.set(input);
@@ -139,12 +139,12 @@ record SerializerSelectorImpl<V>(@NotNull TypeToken<V> convertedType, @NotNull L
 
         String actualKey = keyNode.getString();
         if (actualKey == null) {
-            throw new SerializationException(keyNode, convertedType.getType(), "Expected a key in the form of a string");
+            throw new SerializationException(keyNode, serializedType.getType(), "Expected a key in the form of a string");
         }
 
         TypeToken<? extends V> subtype = keyToType.get(actualKey);
         if (subtype == null) {
-            throw new SerializationException(keyNode, convertedType.getType(), "Unknown key '" + actualKey + "'");
+            throw new SerializationException(keyNode, serializedType.getType(), "Unknown key '" + actualKey + "'");
         }
         return input.get(subtype);
     }

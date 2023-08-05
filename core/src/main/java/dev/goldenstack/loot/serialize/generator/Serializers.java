@@ -1,7 +1,7 @@
-package dev.goldenstack.loot.converter.generator;
+package dev.goldenstack.loot.serialize.generator;
 
-import dev.goldenstack.loot.converter.LootDeserializer;
-import dev.goldenstack.loot.converter.LootSerializer;
+import dev.goldenstack.loot.serialize.LootDeserializer;
+import dev.goldenstack.loot.serialize.LootSerializer;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -18,37 +18,37 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static dev.goldenstack.loot.converter.generator.FieldTypes.get;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.get;
 
 /**
- * Manages the creation of reflective loot converters.
+ * Manages the creation of reflective serializers.
  */
-public class Converters {
+public class Serializers {
 
     /**
-     * Creates a typed converter from the provided type and fields. This basically just calls
-     * {@link #converter(Class, Constructor, List)} except that the constructor is searched for on the class that
+     * Creates a type serializer from the provided type and fields. This basically just calls
+     * {@link #serializer(Class, Constructor, List)} except that the constructor is searched for on the class that
      * is provided.
-     * @param type the class of the object that will be converted
+     * @param type the class of the object that will be serialized
      * @param fields the information about fields for this type
-     * @return a new typed converter for the provided type
-     * @param <V> the type of object that will be converted
+     * @return a new type serializer for the provided type
+     * @param <V> the type of object that will be serialized
      */
-    public static <V> @NotNull TypeSerializer<V> converter(@NotNull Class<V> type, Converters.@NotNull Field<?>... fields) {
-        return ConvertersImpl.converter(type, List.of(fields));
+    public static <V> @NotNull TypeSerializer<V> serializer(@NotNull Class<V> type, Serializers.@NotNull Field<?>... fields) {
+        return SerializersImpl.serializer(type, List.of(fields));
     }
 
     /**
-     * Creates a typed converter from the provided type, fields, and constructor.
-     * @param type the class of the object that will be converted
+     * Creates a type serializer from the provided type, fields, and constructor.
+     * @param type the class of the object that will be serialized
      * @param constructor the constructor of instances of the type
      * @param fields the information about fields of this type
-     * @return a new typed converter for the provided type
-     * @param <V> the type of object that will be converted
+     * @return a new type serializer for the provided type
+     * @param <V> the type of object that will be serialized
      */
-    public static <V> @NotNull TypeSerializer<V> converter(@NotNull Class<V> type, @NotNull Constructor<V> constructor,
-                                                           @NotNull List<Converters.Field<?>> fields) {
-        return ConvertersImpl.converter(type, constructor, fields);
+    public static <V> @NotNull TypeSerializer<V> serializer(@NotNull Class<V> type, @NotNull Constructor<V> constructor,
+                                                            @NotNull List<Serializers.Field<?>> fields) {
+        return SerializersImpl.serializer(type, constructor, fields);
     }
 
     /**
@@ -72,7 +72,7 @@ public class Converters {
     }
 
     /**
-     * Stores the necessary information about a field that is required to convert it on some arbitrary object.
+     * Stores the necessary information about a field that is required to serialize it on some arbitrary object.
      * @param <V> the actual type of this field
      */
     public record Field<V>(@UnknownNullability TypeToken<V> type, @UnknownNullability TypeSerializer<V> serializer, @Nullable Supplier<V> defaultValue,
@@ -196,19 +196,19 @@ public class Converters {
 
 }
 
-class ConvertersImpl {
+class SerializersImpl {
 
-    static <V> TypeSerializer<V> converter(@NotNull Class<V> type, @NotNull List<Converters.Field<?>> fields) {
+    static <V> TypeSerializer<V> serializer(@NotNull Class<V> type, @NotNull List<Serializers.Field<?>> fields) {
         var constructor = getConstructor(type, fields.stream()
-                .map(Converters.Field::type)
+                .map(Serializers.Field::type)
                 .map(TypeToken::getType)
                 .map(Objects::requireNonNull)
                 .map(GenericTypeReflector::erase)
                 .toArray(Class[]::new));
-        return converter(type, constructor, fields);
+        return serializer(type, constructor, fields);
     }
 
-    static <V> Converters.@NotNull Constructor<V> getConstructor(@NotNull Class<V> type, @NotNull Class<?>[] fields) {
+    static <V> Serializers.@NotNull Constructor<V> getConstructor(@NotNull Class<V> type, @NotNull Class<?>[] fields) {
         Constructor<V> constructor;
         try {
             constructor = type.getDeclaredConstructor(fields);
@@ -225,8 +225,8 @@ class ConvertersImpl {
         };
     }
 
-    static <V> @NotNull TypeSerializer<V> converter(@NotNull Class<V> type, @NotNull Converters.Constructor<V> constructor,
-                                           @NotNull List<Converters.Field<?>> fields) {
+    static <V> @NotNull TypeSerializer<V> serializer(@NotNull Class<V> type, @NotNull Serializers.Constructor<V> constructor,
+                                                     @NotNull List<Serializers.Field<?>> fields) {
         for (var field : fields) {
             Objects.requireNonNull(field.type(), "Field must have a type!");
             Objects.requireNonNull(field.serializer(), "Field must have a serializer!");
@@ -287,7 +287,7 @@ class ConvertersImpl {
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
-    private static <V> @Nullable V deserialize(@NotNull Converters.Field<V> field, @NotNull ConfigurationNode input) throws SerializationException {
+    private static <V> @Nullable V deserialize(@NotNull Serializers.Field<V> field, @NotNull ConfigurationNode input) throws SerializationException {
         if (input.isNull() && field.defaultValue() != null) {
             return field.defaultValue().get();
         }
@@ -296,7 +296,7 @@ class ConvertersImpl {
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
     @SuppressWarnings("unchecked")
-    private static <V> void serialize(@NotNull Converters.Field<V> field, @Nullable Object input, @NotNull ConfigurationNode result) throws SerializationException {
+    private static <V> void serialize(@NotNull Serializers.Field<V> field, @Nullable Object input, @NotNull ConfigurationNode result) throws SerializationException {
         if (input == null) {
             if (field.defaultValue() != null) {
                 input = field.defaultValue().get();

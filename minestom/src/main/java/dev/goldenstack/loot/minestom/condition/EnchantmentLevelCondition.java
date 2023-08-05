@@ -9,9 +9,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Verifies each context based on the chance of the level of {@link #addedEnchantment()} on {@link LootContextKeys#TOOL}
@@ -23,10 +23,10 @@ public record EnchantmentLevelCondition(@NotNull Enchantment addedEnchantment,
     public static final @NotNull String KEY = "minecraft:table_bonus";
 
     /**
-     * A standard map-based converter for enchantment level conditions.
+     * A standard map-based serializer for enchantment level conditions.
      */
-    public static final @NotNull TypeSerializer<EnchantmentLevelCondition> CONVERTER =
-            converter(EnchantmentLevelCondition.class,
+    public static final @NotNull TypeSerializer<EnchantmentLevelCondition> SERIALIZER =
+            serializer(EnchantmentLevelCondition.class,
                 field(Enchantment.class).name("addedEnchantment").nodePath("enchantment"),
                 field(Double.class).name("chances").as(list())
             );

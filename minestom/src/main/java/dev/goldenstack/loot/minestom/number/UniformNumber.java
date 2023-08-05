@@ -5,8 +5,8 @@ import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Generates a random number between (inclusive) the minimum and maximum. To be precise, for
@@ -21,10 +21,10 @@ public record UniformNumber(@NotNull LootNumber min, @NotNull LootNumber max) im
     public static final @NotNull String KEY = "minecraft:uniform";
 
     /**
-     * A standard map-based converter for uniform numbers.
+     * A standard map-based serializer for uniform numbers.
      */
-    public static final @NotNull TypeSerializer<UniformNumber> CONVERTER =
-            converter(UniformNumber.class,
+    public static final @NotNull TypeSerializer<UniformNumber> SERIALIZER =
+            serializer(UniformNumber.class,
                     field(LootNumber.class).name("min"),
                     field(LootNumber.class).name("max")
             );

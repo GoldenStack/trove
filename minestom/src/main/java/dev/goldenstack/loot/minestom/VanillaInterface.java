@@ -94,7 +94,7 @@ public interface VanillaInterface {
     }
 
     /**
-     * Converts the provided entity into an NBT compound representing it.
+     * Serializes the provided entity into an NBT compound representing it.
      * @param entity the entity to convert to NBT
      * @return NBT representing the entity
      */

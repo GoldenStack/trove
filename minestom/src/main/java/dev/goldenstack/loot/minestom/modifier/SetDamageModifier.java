@@ -10,9 +10,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Sets the damage of each provided item. If {@link #add()} is false, the item's durability is set to
@@ -28,10 +28,10 @@ public record SetDamageModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull String KEY = "minecraft:set_damage";
 
     /**
-     * A standard map-based converter for set damage modifiers.
+     * A standard map-based serializer for set damage modifiers.
      */
-    public static final @NotNull TypeSerializer<SetDamageModifier> CONVERTER =
-            converter(SetDamageModifier.class,
+    public static final @NotNull TypeSerializer<SetDamageModifier> SERIALIZER =
+            serializer(SetDamageModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(LootNumber.class).name("modifiedDurability").nodePath("damage"),
                     field(boolean.class).name("add").fallback(false)

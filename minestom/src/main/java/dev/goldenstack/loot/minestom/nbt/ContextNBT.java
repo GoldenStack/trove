@@ -1,9 +1,9 @@
 package dev.goldenstack.loot.minestom.nbt;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.RelevantEntity;
+import dev.goldenstack.loot.serialize.generator.FieldTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
@@ -11,8 +11,8 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Retrieves NBT based on some information from the provided context.
@@ -21,10 +21,10 @@ import static dev.goldenstack.loot.converter.generator.Converters.field;
 public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
 
     /**
-     * A converter for constant NBT that always serializes to a string scalar and deserializes when the input is a
+     * A serializer for constant NBT that always serializes to a string scalar and deserializes when the input is a
      * single string scalar.
      */
-    public static final @NotNull TypeSerializer<LootNBT> ACCURATE_CONVERTER = FieldTypes.join(
+    public static final @NotNull TypeSerializer<LootNBT> ACCURATE_SERIALIZER = FieldTypes.join(
             (input, result) -> {
                 if (input instanceof ContextNBT contextNBT) {
                     result.set(contextNBT.target().serializedString());
@@ -44,10 +44,10 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
     public static final @NotNull String KEY = "minecraft:context";
 
     /**
-     * A standard map-based converter for context NBT providers.
+     * A standard map-based serializer for context NBT providers.
      */
-    public static final @NotNull TypeSerializer<ContextNBT> CONVERTER =
-            converter(ContextNBT.class,
+    public static final @NotNull TypeSerializer<ContextNBT> SERIALIZER =
+            serializer(ContextNBT.class,
                     field(NBTTarget.class).name("target")
             );
 
@@ -65,7 +65,7 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
      */
     public sealed interface NBTTarget permits BlockEntityTarget, EntityTarget {
 
-        @NotNull TypeSerializer<NBTTarget> CONVERTER = FieldTypes.proxied(String.class, NBTTarget.class, ContextNBT::fromString, NBTTarget::serializedString);
+        @NotNull TypeSerializer<NBTTarget> SERIALIZER = FieldTypes.proxied(String.class, NBTTarget.class, ContextNBT::fromString, NBTTarget::serializedString);
 
         /**
          * Retrieves NBT from the provided context.
@@ -75,7 +75,7 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
         @Nullable NBT getNBT(@NotNull LootContext context);
 
         /**
-         * Converts this NBT target back into a string.
+         * Serializes this NBT target back into a string.
          * @return this target, as a string
          */
         @NotNull String serializedString();

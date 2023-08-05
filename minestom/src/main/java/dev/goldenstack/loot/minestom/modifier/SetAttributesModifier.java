@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.possibleList;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.possibleList;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A modifier that adds a list of attributes to each provided item.
@@ -34,10 +34,10 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull String KEY = "minecraft:set_attributes";
 
     /**
-     * A standard map-based converter for set attribute modifiers.
+     * A standard map-based serializer for set attribute modifiers.
      */
-    public static final @NotNull TypeSerializer<SetAttributesModifier> CONVERTER =
-            converter(SetAttributesModifier.class,
+    public static final @NotNull TypeSerializer<SetAttributesModifier> SERIALIZER =
+            serializer(SetAttributesModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(AttributeDirective.class).name("attributes").nodePath("modifiers").as(list())
             );
@@ -74,8 +74,8 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
                                      @NotNull AttributeOperation operation, @NotNull LootNumber amount,
                                      @Nullable UUID id, @NotNull List<AttributeSlot> slots) {
 
-        public static final @NotNull TypeSerializer<AttributeDirective> CONVERTER =
-                converter(AttributeDirective.class,
+        public static final @NotNull TypeSerializer<AttributeDirective> SERIALIZER =
+                serializer(AttributeDirective.class,
                         field(String.class).name("name"),
                         field(Attribute.class).name("attribute"),
                         field(AttributeOperation.class).name("operation"),

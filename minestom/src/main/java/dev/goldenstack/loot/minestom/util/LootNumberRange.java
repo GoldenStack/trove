@@ -1,8 +1,8 @@
 package dev.goldenstack.loot.minestom.util;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
+import dev.goldenstack.loot.serialize.generator.FieldTypes;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,11 +17,11 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max) {
 
     /**
-     * A standard converter for loot number ranges that deserializes any numerical scalars to a range consisting of two
+     * A standard serializer for loot number ranges that deserializes any numerical scalars to a range consisting of two
      * equivalent {@link ConstantNumber} instances holding the number, but otherwise handles it normally with map-based
      * values.
      */
-    public static final @NotNull TypeSerializer<LootNumberRange> CONVERTER = FieldTypes.join(
+    public static final @NotNull TypeSerializer<LootNumberRange> SERIALIZER = FieldTypes.join(
             (input, result) -> {
                 result.node("min").set(LootNumber.class, input.min);
                 result.node("max").set(LootNumber.class, input.max);

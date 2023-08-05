@@ -11,9 +11,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Sets the potion effect attached to each provided item.
@@ -25,10 +25,10 @@ public record SetPotionModifier(@NotNull List<LootCondition> conditions, @NotNul
     public static final @NotNull String KEY = "minecraft:set_potion";
 
     /**
-     * A standard map-based converter for set potion modifiers.
+     * A standard map-based serializer for set potion modifiers.
      */
-    public static final @NotNull TypeSerializer<SetPotionModifier> CONVERTER =
-            converter(SetPotionModifier.class,
+    public static final @NotNull TypeSerializer<SetPotionModifier> SERIALIZER =
+            serializer(SetPotionModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(PotionType.class).name("potion").nodePath("id")
             );

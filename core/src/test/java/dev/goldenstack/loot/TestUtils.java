@@ -1,7 +1,7 @@
 package dev.goldenstack.loot;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.generator.FieldTypes;
+import dev.goldenstack.loot.serialize.generator.FieldTypes;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +37,7 @@ public class TestUtils {
         }
     }
 
-    public static <V> @NotNull TypeSerializer<V> converter(@Nullable Object serialize, @Nullable V deserialize) {
+    public static <V> @NotNull TypeSerializer<V> serializer(@Nullable Object serialize, @Nullable V deserialize) {
         return FieldTypes.join(
                 (input, result) -> result.set(serialize),
                 input -> deserialize

@@ -13,10 +13,10 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.tag;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Represents a check for items, returning true or false depending on whether or not they were verified.
@@ -46,10 +46,10 @@ public record ItemCheck(@NotNull NBTCheck nbtCheck,
     );
 
     /**
-     * The general converter for item checks.
+     * The general serializer for item checks.
      */
-    public static final @NotNull TypeSerializer<ItemCheck> CONVERTER =
-            converter(ItemCheck.class,
+    public static final @NotNull TypeSerializer<ItemCheck> SERIALIZER =
+            serializer(ItemCheck.class,
                     field(NBTCheck.class).fallback(new NBTCheck(null)).name("nbtCheck").nodePath("nbt"),
                     field(LootNumberRange.class).fallback(new LootNumberRange(null, null)).name("count"),
                     field(LootNumberRange.class).fallback(new LootNumberRange(null, null)).name("durability"),

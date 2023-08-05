@@ -7,8 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Checks that the world's weather fits the required conditions.
@@ -20,10 +20,10 @@ public record WeatherCheckCondition(@Nullable Boolean raining, @Nullable Boolean
     public static final @NotNull String KEY = "minecraft:weather_check";
 
     /**
-     * A standard map-based converter for weather check conditions.
+     * A standard map-based serializer for weather check conditions.
      */
-    public static final @NotNull TypeSerializer<WeatherCheckCondition> CONVERTER =
-            converter(WeatherCheckCondition.class,
+    public static final @NotNull TypeSerializer<WeatherCheckCondition> SERIALIZER =
+            serializer(WeatherCheckCondition.class,
                     field(Boolean.class).optional().name("raining"),
                     field(Boolean.class).optional().name("thundering")
             );

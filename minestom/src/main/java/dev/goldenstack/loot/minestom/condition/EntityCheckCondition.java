@@ -8,8 +8,8 @@ import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Checks the {@link #chosenEntity()} with the {@link #entityChecker()}.
@@ -22,10 +22,10 @@ public record EntityCheckCondition(@NotNull RelevantEntity chosenEntity,
     public static final @NotNull String KEY = "minecraft:entity_properties";
 
     /**
-     * A standard map-based converter entity check conditions.
+     * A standard map-based serializer entity check conditions.
      */
-    public static final @NotNull TypeSerializer<EntityCheckCondition> CONVERTER =
-            converter(EntityCheckCondition.class,
+    public static final @NotNull TypeSerializer<EntityCheckCondition> SERIALIZER =
+            serializer(EntityCheckCondition.class,
                     field(RelevantEntity.class).name("chosenEntity").nodePath("entity"),
                     field(VanillaInterface.EntityPredicate.class).name("entityChecker").nodePath("predicate")
             );

@@ -1,4 +1,4 @@
-package dev.goldenstack.loot.converter;
+package dev.goldenstack.loot.serialize;
 
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurationNode;

@@ -11,9 +11,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A modifier that merges each item's meta with the NBT stored in {@link #nbt()}, with the stored NBT taking precedence
@@ -26,10 +26,10 @@ public record SetNbtModifier(@NotNull List<LootCondition> conditions, @NotNull N
     public static final @NotNull String KEY = "minecraft:set_nbt";
 
     /**
-     * A standard map-based converter for NBT set modifiers.
+     * A standard map-based serializer for NBT set modifiers.
      */
-    public static final @NotNull TypeSerializer<SetNbtModifier> CONVERTER =
-            converter(SetNbtModifier.class,
+    public static final @NotNull TypeSerializer<SetNbtModifier> SERIALIZER =
+            serializer(SetNbtModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(NBTCompound.class).name("nbt").nodePath("tag")
             );

@@ -12,9 +12,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A modifier that limits the count of an item.
@@ -27,10 +27,10 @@ public record LimitCountModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull String KEY = "minecraft:limit_count";
 
     /**
-     * A standard map-based converter for limit count modifiers.
+     * A standard map-based serializer for limit count modifiers.
      */
-    public static final @NotNull TypeSerializer<LimitCountModifier> CONVERTER =
-            converter(LimitCountModifier.class,
+    public static final @NotNull TypeSerializer<LimitCountModifier> SERIALIZER =
+            serializer(LimitCountModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(LootNumberRange.class).name("limit")
             );

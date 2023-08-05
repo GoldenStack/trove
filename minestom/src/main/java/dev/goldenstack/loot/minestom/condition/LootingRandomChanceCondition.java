@@ -7,8 +7,8 @@ import net.minestom.server.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A condition that returns true based on {@link #chance()}, and scales {@link #lootingCoefficient()} based on the
@@ -21,10 +21,10 @@ public record LootingRandomChanceCondition(double chance, double lootingCoeffici
     public static final @NotNull String KEY = "minecraft:random_chance_with_looting";
 
     /**
-     * A standard map-based converter for looting random chance conditions.
+     * A standard map-based serializer for looting random chance conditions.
      */
-    public static final @NotNull TypeSerializer<LootingRandomChanceCondition> CONVERTER =
-            converter(LootingRandomChanceCondition.class,
+    public static final @NotNull TypeSerializer<LootingRandomChanceCondition> SERIALIZER =
+            serializer(LootingRandomChanceCondition.class,
                     field(double.class).name("chance"),
                     field(double.class).name("lootingCoefficient").nodePath("looting_multiplier")
             );

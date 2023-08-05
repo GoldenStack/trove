@@ -7,8 +7,8 @@ import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Verifies that the location at the context (i.e. the {@link LootContextKeys#WORLD} and {@link LootContextKeys#ORIGIN})
@@ -20,10 +20,10 @@ public record LocationCheckCondition(@NotNull VanillaInterface.LocationPredicate
     public static final @NotNull String KEY = "minecraft:location_check";
 
     /**
-     * A standard map-based converter for location check conditions.
+     * A standard map-based serializer for location check conditions.
      */
-    public static final @NotNull TypeSerializer<LocationCheckCondition> CONVERTER =
-            converter(LocationCheckCondition.class,
+    public static final @NotNull TypeSerializer<LocationCheckCondition> SERIALIZER =
+            serializer(LocationCheckCondition.class,
                     field(VanillaInterface.LocationPredicate.class).name("predicate"),
                     field(double.class).name("xOffset").nodePath("offsetX").fallback(0d),
                     field(double.class).name("yOffset").nodePath("offsetY").fallback(0d),

@@ -1,9 +1,9 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.generator.SerializerSelector;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
+import dev.goldenstack.loot.serialize.generator.SerializerSelector;
 import dev.goldenstack.loot.structure.LootCondition;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.Enchantment;
@@ -14,9 +14,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.util.List;
 import java.util.Random;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Modifies the count of each provided item based on the {@link #bonus()} and the enchantment level on the
@@ -32,10 +32,10 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
     public static final @NotNull String KEY = "minecraft:apply_bonus";
 
     /**
-     * A standard map-based converter for bonus count modifiers.
+     * A standard map-based serializer for bonus count modifiers.
      */
-    public static final @NotNull TypeSerializer<BonusCountModifier> CONVERTER =
-            converter(BonusCountModifier.class,
+    public static final @NotNull TypeSerializer<BonusCountModifier> SERIALIZER =
+            serializer(BonusCountModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(Enchantment.class).name("addedEnchantment").nodePath("enchantment"),
                     field(BonusType.class).name("bonus").nodePath(List.of())
@@ -47,7 +47,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
      */
     public interface BonusType {
 
-        TypeSerializer<BonusType> TYPE_CONVERTER = new SerializerSelector<>(TypeToken.get(BonusType.class))
+        TypeSerializer<BonusType> TYPE_SERIALIZER = new SerializerSelector<>(TypeToken.get(BonusType.class))
                 .keyLocation("formula")
                 .add(BinomialBonus.KEY, BinomialBonus.class)
                 .add(UniformBonus.KEY, UniformBonus.class)
@@ -68,8 +68,8 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
 
         public static final @NotNull String KEY = "minecraft:binomial_with_bonus_count";
 
-        public static final @NotNull TypeSerializer<BinomialBonus> CONVERTER =
-                converter(BinomialBonus.class,
+        public static final @NotNull TypeSerializer<BinomialBonus> SERIALIZER =
+                serializer(BinomialBonus.class,
                         field(int.class).name("levelBonus").nodePath("parameters", "extra"),
                         field(float.class).name("probability").nodePath("parameters", "probability")
                 );
@@ -95,8 +95,8 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
 
         public static final @NotNull String KEY = "minecraft:uniform_bonus_count";
 
-        public static final @NotNull TypeSerializer<UniformBonus> CONVERTER =
-                converter(UniformBonus.class,
+        public static final @NotNull TypeSerializer<UniformBonus> SERIALIZER =
+                serializer(UniformBonus.class,
                         field(int.class).name("multiplier").nodePath("parameters", "bonusMultiplier")
                 );
 
@@ -115,8 +115,8 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
 
         public static final @NotNull String KEY = "minecraft:ore_drops";
 
-        public static final @NotNull TypeSerializer<FortuneDrops> CONVERTER =
-                converter(FortuneDrops.class);
+        public static final @NotNull TypeSerializer<FortuneDrops> SERIALIZER =
+                serializer(FortuneDrops.class);
 
         @Override
         public int calculateNewValue(Random random, int count, int enchantmentLevel) {

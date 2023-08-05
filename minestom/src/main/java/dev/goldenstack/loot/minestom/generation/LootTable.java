@@ -11,9 +11,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 
 /**
@@ -31,8 +31,8 @@ public record LootTable(@NotNull LootContextKeyGroup contextKeyGroup,
      */
     public static final @NotNull LootTable EMPTY = new LootTable(LootContextKeyGroup.EMPTY, List.of(), List.of());
 
-    public static final @NotNull TypeSerializer<LootTable> CONVERTER =
-            converter(LootTable.class,
+    public static final @NotNull TypeSerializer<LootTable> SERIALIZER =
+            serializer(LootTable.class,
                     field(LootContextKeyGroup.class).name("contextKeyGroup").nodePath("type"),
                     field(LootPool.class).name("pools").as(list()).fallback(List::of),
                     field(LootModifier.class).name("modifiers").nodePath("functions").as(list()).fallback(List::of)

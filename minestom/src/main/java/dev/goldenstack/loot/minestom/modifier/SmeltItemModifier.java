@@ -12,9 +12,9 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Smelts items provided to it, removing them if they couldn't be smelted.
@@ -25,10 +25,10 @@ public record SmeltItemModifier(@NotNull List<LootCondition> conditions) impleme
     public static final @NotNull String KEY = "minecraft:furnace_smelt";
 
     /**
-     * A standard map-based converter for item smelting modifiers.
+     * A standard map-based serializer for item smelting modifiers.
      */
-    public static final @NotNull TypeSerializer<SmeltItemModifier> CONVERTER =
-            converter(SmeltItemModifier.class,
+    public static final @NotNull TypeSerializer<SmeltItemModifier> SERIALIZER =
+            serializer(SmeltItemModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of)
             );
 

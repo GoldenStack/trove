@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
-import static dev.goldenstack.loot.converter.generator.FieldTypes.list;
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.tag;
+import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Adds items from the tag ({@link #itemTag()}. Invalid identifiers will be ignored.
@@ -38,10 +38,10 @@ public record TagEntry(@NotNull Tag itemTag, boolean expand,
     public static final @NotNull String KEY = "minecraft:tag";
 
     /**
-     * A standard map-based converter for tag entries.
+     * A standard map-based serializer for tag entries.
      */
-    public static final @NotNull TypeSerializer<TagEntry> CONVERTER =
-            converter(TagEntry.class,
+    public static final @NotNull TypeSerializer<TagEntry> SERIALIZER =
+            serializer(TagEntry.class,
                     field(Tag.class).name("itemTag").nodePath("name").as(tag(Tag.BasicType.ITEMS)),
                     field(boolean.class).name("expand"),
                     field(long.class).name("weight").fallback(1L),

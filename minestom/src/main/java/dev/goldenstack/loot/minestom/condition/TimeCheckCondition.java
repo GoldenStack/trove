@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import static dev.goldenstack.loot.converter.generator.Converters.converter;
-import static dev.goldenstack.loot.converter.generator.Converters.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.field;
+import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Assures that the world's time is within a certain range, obeying a certain period.
@@ -21,10 +21,10 @@ public record TimeCheckCondition(@NotNull LootNumberRange range, @Nullable Long 
     public static final @NotNull String KEY = "minecraft:time_check";
 
     /**
-     * A standard map-based converter for time check conditions.
+     * A standard map-based serializer for time check conditions.
      */
-    public static final @NotNull TypeSerializer<TimeCheckCondition> CONVERTER =
-            converter(TimeCheckCondition.class,
+    public static final @NotNull TypeSerializer<TimeCheckCondition> SERIALIZER =
+            serializer(TimeCheckCondition.class,
                     field(LootNumberRange.class).name("range").nodePath("value"),
                     field(Long.class).optional().name("period")
             );
