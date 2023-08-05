@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
@@ -11,6 +10,7 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
     /**
      * A standard map-based converter for dynamic entries.
      */
-    public static final @NotNull TypedLootConverter<DynamicEntry> CONVERTER =
+    public static final @NotNull TypeSerializer<DynamicEntry> CONVERTER =
             converter(DynamicEntry.class,
                     field(NamespaceID.class).name("dynamicChoiceId").nodePath("name"),
                     field(long.class).name("weight").fallback(1L),

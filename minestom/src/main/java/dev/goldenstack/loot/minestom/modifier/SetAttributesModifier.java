@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootNumber;
@@ -12,6 +11,7 @@ import net.minestom.server.item.attribute.AttributeSlot;
 import net.minestom.server.item.attribute.ItemAttribute;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
     /**
      * A standard map-based converter for set attribute modifiers.
      */
-    public static final @NotNull TypedLootConverter<SetAttributesModifier> CONVERTER =
+    public static final @NotNull TypeSerializer<SetAttributesModifier> CONVERTER =
             converter(SetAttributesModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(AttributeDirective.class).name("attributes").nodePath("modifiers").as(list())
@@ -74,7 +74,7 @@ public record SetAttributesModifier(@NotNull List<LootCondition> conditions,
                                      @NotNull AttributeOperation operation, @NotNull LootNumber amount,
                                      @Nullable UUID id, @NotNull List<AttributeSlot> slots) {
 
-        public static final @NotNull TypedLootConverter<AttributeDirective> CONVERTER =
+        public static final @NotNull TypeSerializer<AttributeDirective> CONVERTER =
                 converter(AttributeDirective.class,
                         field(String.class).name("name"),
                         field(Attribute.class).name("attribute"),

@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.util;
 
-import dev.goldenstack.loot.converter.TypedLootConverter;
+import dev.goldenstack.loot.converter.generator.Converters;
 import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.minestom.generation.LootPool;
 import dev.goldenstack.loot.minestom.generation.LootTable;
@@ -32,6 +32,7 @@ import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
 import java.io.StringReader;
 import java.util.Locale;
+import java.util.function.Function;
 
 /**
  * Utility for the creation of various types of Minestom-related fields.
@@ -55,7 +56,7 @@ public class MinestomTypes {
             .register(NBTCheck.class, NBTCheck.CONVERTER)
             .register(ItemCheck.class, ItemCheck.CONVERTER)
             .register(EnchantmentCheck.class, EnchantmentCheck.CONVERTER)
-            .register(BonusCountModifier.BonusType.class, BonusCountModifier.BonusType.TYPE_CONVERTER)
+            .registerExact(BonusCountModifier.BonusType.class, BonusCountModifier.BonusType.TYPE_CONVERTER)
             .register(CopyNbtModifier.Operation.class, CopyNbtModifier.Operation.CONVERTER)
             .register(SetStewEffectModifier.StewEffect.class, SetStewEffectModifier.StewEffect.CONVERTER)
             .register(SetAttributesModifier.AttributeDirective.class, SetAttributesModifier.AttributeDirective.CONVERTER)
@@ -65,7 +66,7 @@ public class MinestomTypes {
             .register(AttributeOperation.class, FieldTypes.enumerated(AttributeOperation.class, operation -> operation.name().toLowerCase(Locale.ROOT)))
             .register(CopyNameModifier.RelevantKey.class, FieldTypes.enumerated(CopyNameModifier.RelevantKey.class, CopyNameModifier.RelevantKey::getName))
             .register(CopyNbtModifier.Operator.class, FieldTypes.enumerated(CopyNbtModifier.Operator.class, CopyNbtModifier.Operator::id))
-            .register(NBT.class, TypedLootConverter.join(
+            .register(NBT.class, FieldTypes.join(
                     (input, result) -> result.set(input.toSNBT()),
                     input -> {
                         var snbt = input.require(String.class);
@@ -82,11 +83,11 @@ public class MinestomTypes {
             .build();
 
 
-    public static @NotNull TypedLootConverter<Tag> tag(@NotNull Tag.BasicType tagType) {
-        return FieldTypes.proxied(String.class, Tag.class,
+    public static @NotNull Function<Converters.Field<Tag>, Converters.Field<Tag>> tag(@NotNull Tag.BasicType tagType) {
+        return field -> field.serializer(FieldTypes.proxied(String.class, Tag.class,
                 str -> MinecraftServer.getTagManager().getTag(tagType, str),
                 tag -> tag.getName().asString()
-        );
+        ));
     }
 
 

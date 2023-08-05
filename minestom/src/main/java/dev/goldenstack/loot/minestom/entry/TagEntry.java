@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
@@ -10,6 +9,7 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ public record TagEntry(@NotNull Tag itemTag, boolean expand,
     /**
      * A standard map-based converter for tag entries.
      */
-    public static final @NotNull TypedLootConverter<TagEntry> CONVERTER =
+    public static final @NotNull TypeSerializer<TagEntry> CONVERTER =
             converter(TagEntry.class,
                     field(Tag.class).name("itemTag").nodePath("name").as(tag(Tag.BasicType.ITEMS)),
                     field(boolean.class).name("expand"),

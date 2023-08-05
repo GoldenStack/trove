@@ -2,7 +2,6 @@ package dev.goldenstack.loot.converter.generator;
 
 import dev.goldenstack.loot.converter.LootDeserializer;
 import dev.goldenstack.loot.converter.LootSerializer;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import io.leangen.geantyref.GenericTypeReflector;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static dev.goldenstack.loot.converter.generator.FieldTypes.get;
 
 /**
  * Manages the creation of reflective loot converters.
@@ -32,7 +34,7 @@ public class Converters {
      * @return a new typed converter for the provided type
      * @param <V> the type of object that will be converted
      */
-    public static <V> @NotNull TypedLootConverter<V> converter(@NotNull Class<V> type, Converters.@NotNull Field<?>... fields) {
+    public static <V> @NotNull TypeSerializer<V> converter(@NotNull Class<V> type, Converters.@NotNull Field<?>... fields) {
         return ConvertersImpl.converter(type, List.of(fields));
     }
 
@@ -44,19 +46,9 @@ public class Converters {
      * @return a new typed converter for the provided type
      * @param <V> the type of object that will be converted
      */
-    public static <V> @NotNull TypedLootConverter<V> converter(@NotNull Class<V> type, @NotNull Constructor<V> constructor,
-                                                               @NotNull List<Converters.Field<?>> fields) {
+    public static <V> @NotNull TypeSerializer<V> converter(@NotNull Class<V> type, @NotNull Constructor<V> constructor,
+                                                           @NotNull List<Converters.Field<?>> fields) {
         return ConvertersImpl.converter(type, constructor, fields);
-    }
-
-    /**
-     * Creates a new field that wraps the provided converter and its type.
-     * @param converter the converter to use
-     * @return a new field of the provided converter and its type
-     * @param <V> the type that the field represents
-     */
-    public static <V> @NotNull Field<V> field(@NotNull TypedLootConverter<V> converter) {
-        return new Field<>(converter, null, null, null);
     }
 
     /**
@@ -66,10 +58,7 @@ public class Converters {
      * @param <V> the type that the field represents
      */
     public static <V> @NotNull Field<V> field(@NotNull TypeToken<V> type) {
-        return field(TypedLootConverter.join(type, TypedLootConverter.join(
-                (input, result) -> result.set(input),
-                input -> FieldTypes.require(input, type)
-        )));
+        return new Field<>().type(type).as(get());
     }
 
     /**
@@ -86,19 +75,11 @@ public class Converters {
      * Stores the necessary information about a field that is required to convert it on some arbitrary object.
      * @param <V> the actual type of this field
      */
-    public static class Field<V> {
+    public record Field<V>(@UnknownNullability TypeToken<V> type, @UnknownNullability TypeSerializer<V> serializer, @Nullable Supplier<V> defaultValue,
+                           @UnknownNullability String localName, @UnknownNullability List<Object> nodePath) {
 
-        final @NotNull TypedLootConverter<V> converter;
-        final @Nullable Supplier<V> defaultValue;
-        final @UnknownNullability String localName;
-        final @UnknownNullability List<Object> nodePath;
-
-        private Field(@NotNull TypedLootConverter<V> converter, @Nullable Supplier<V> defaultValue,
-                      @UnknownNullability String localName, @UnknownNullability List<Object> nodePath) {
-            this.converter = converter;
-            this.defaultValue = defaultValue;
-            this.localName = localName;
-            this.nodePath = nodePath;
+        private Field() {
+            this(null, null, null, null, null);
         }
 
         /**
@@ -116,7 +97,7 @@ public class Converters {
          * @return a new field with the updated information
          */
         public @NotNull Field<V> localName(@NotNull String name) {
-            return new Field<>(converter, defaultValue, name, nodePath);
+            return new Field<>(type, serializer, defaultValue, name, nodePath);
         }
 
         /**
@@ -125,7 +106,7 @@ public class Converters {
          * @return a new field with the updated information
          */
         public @NotNull Field<V> nodePath(@NotNull List<@NotNull Object> path) {
-            return new Field<>(converter, defaultValue, localName, List.copyOf(path));
+            return new Field<>(type, serializer, defaultValue, localName, List.copyOf(path));
         }
 
         /**
@@ -138,21 +119,32 @@ public class Converters {
         }
 
         /**
-         * Makes this field use the provided converter.
-         * @param converter the new converter to use
+         * Sets the type of this field, preserving the name and path.
+         * @param type the new type
          * @return a new field with the updated information
+         * @param <N> the new type
          */
-        public <N> @NotNull Field<N> as(@NotNull TypedLootConverter<N> converter) {
-            return new Field<>(converter, null, localName, nodePath);
+        public <N> @NotNull Field<N> type(@NotNull TypeToken<N> type) {
+            return new Field<>(type, null, null, localName, nodePath);
         }
 
         /**
-         * Makes this field use the converter generated by the provided generator.
-         * @param converterGenerator the function to create a converter from this field's type
+         * Sets the type serializer that this field will use.
+         * @param serializer this field's new type serializer
          * @return a new field with the updated information
          */
-        public <N> @NotNull Field<N> as(@NotNull Function<TypedLootConverter<V>, TypedLootConverter<N>> converterGenerator) {
-            return as(converterGenerator.apply(converter));
+        public @NotNull Field<V> serializer(@NotNull TypeSerializer<V> serializer) {
+            return new Field<>(type, serializer, defaultValue, localName, nodePath);
+        }
+
+        /**
+         * Applies the provided modifier to this field, returning the result.
+         * @param modifier the operator that modifies this field
+         * @return a new field with the updated information
+         * @param <N> the new type of this field
+         */
+        public <N> @NotNull Field<N> as(@NotNull Function<Field<V>, Field<N>> modifier) {
+            return modifier.apply(this);
         }
 
         /**
@@ -162,7 +154,7 @@ public class Converters {
          * @return a new field with the updated information
          */
         public @NotNull Field<V> fallback(@NotNull Supplier<V> defaultValue) {
-            return new Field<>(converter, defaultValue, localName, nodePath);
+            return new Field<>(type, serializer, defaultValue, localName, nodePath);
         }
 
         /**
@@ -206,11 +198,11 @@ public class Converters {
 
 class ConvertersImpl {
 
-    static <V> TypedLootConverter<V> converter(@NotNull Class<V> type, @NotNull List<Converters.Field<?>> fields) {
+    static <V> TypeSerializer<V> converter(@NotNull Class<V> type, @NotNull List<Converters.Field<?>> fields) {
         var constructor = getConstructor(type, fields.stream()
-                .map(f -> f.converter)
-                .map(TypedLootConverter::convertedType)
+                .map(Converters.Field::type)
                 .map(TypeToken::getType)
+                .map(Objects::requireNonNull)
                 .map(GenericTypeReflector::erase)
                 .toArray(Class[]::new));
         return converter(type, constructor, fields);
@@ -233,11 +225,13 @@ class ConvertersImpl {
         };
     }
 
-    static <V> TypedLootConverter<V> converter(@NotNull Class<V> type, @NotNull Converters.Constructor<V> constructor,
-                                               @NotNull List<Converters.Field<?>> fields) {
+    static <V> @NotNull TypeSerializer<V> converter(@NotNull Class<V> type, @NotNull Converters.Constructor<V> constructor,
+                                           @NotNull List<Converters.Field<?>> fields) {
         for (var field : fields) {
-            Objects.requireNonNull(field.localName, "Field must have a local name!");
-            Objects.requireNonNull(field.nodePath, "Field must have a node path!");
+            Objects.requireNonNull(field.type(), "Field must have a type!");
+            Objects.requireNonNull(field.serializer(), "Field must have a serializer!");
+            Objects.requireNonNull(field.localName(), "Field must have a local name!");
+            Objects.requireNonNull(field.nodePath(), "Field must have a node path!");
         }
 
         LootDeserializer<V> actualDeserializer = input -> {
@@ -245,7 +239,7 @@ class ConvertersImpl {
 
             for (int i = 0; i < fields.size(); i++) {
                 var field = fields.get(i);
-                objects[i] = deserialize(field, input.node(field.nodePath));
+                objects[i] = deserialize(field, input.node(field.nodePath()));
             }
 
             return constructor.construct(objects, input);
@@ -258,13 +252,13 @@ class ConvertersImpl {
 
             java.lang.reflect.Field actualField;
             try {
-                actualField = type.getDeclaredField(field.localName);
+                actualField = type.getDeclaredField(field.localName());
             } catch (NoSuchFieldException e) {
-                throw new RuntimeException("Unknown field '" + field.localName + "' of class '" + type + "'", e);
+                throw new RuntimeException("Unknown field '" + field.localName() + "' of class '" + type + "'", e);
             }
 
-            if (!actualField.getGenericType().equals(field.converter.convertedType().getType())) {
-                throw new RuntimeException("Expected field '" + field.localName + "' of class '" + type + "' to be of type '" + field.converter.convertedType().getType() + "', found '" + actualField.getType() + "'");
+            if (!actualField.getGenericType().equals(field.type().getType())) {
+                throw new RuntimeException("Expected field '" + field.localName() + "' of class '" + type + "' to be of type '" + field.type().getType() + "', found '" + actualField.getType() + "'");
             }
 
             if (!actualField.trySetAccessible()) {
@@ -282,30 +276,30 @@ class ConvertersImpl {
                 try {
                     fieldValue = actualFields[i].get(input);
                 } catch (IllegalAccessException e) {
-                    throw new SerializationException(result, field.converter.convertedType().getType(), "Could not retrieve value of field '" + actualFields[i].getName() + "' on type '" + type + "'", e);
+                    throw new SerializationException(result, field.type().getType(), "Could not retrieve value of field '" + actualFields[i].getName() + "' on type '" + type + "'", e);
                 }
 
-                serialize(field, fieldValue, result.node(field.nodePath));
+                serialize(field, fieldValue, result.node(field.nodePath()));
             }
         };
 
-        return TypedLootConverter.join(type, TypedLootConverter.join(actualSerializer, actualDeserializer));
+        return FieldTypes.join(actualSerializer, actualDeserializer);
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
     private static <V> @Nullable V deserialize(@NotNull Converters.Field<V> field, @NotNull ConfigurationNode input) throws SerializationException {
-        if (input.isNull() && field.defaultValue != null) {
-            return field.defaultValue.get();
+        if (input.isNull() && field.defaultValue() != null) {
+            return field.defaultValue().get();
         }
-        return field.converter.deserialize(field.converter.convertedType().getType(), input);
+        return field.serializer().deserialize(field.type().getType(), input);
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical
     @SuppressWarnings("unchecked")
     private static <V> void serialize(@NotNull Converters.Field<V> field, @Nullable Object input, @NotNull ConfigurationNode result) throws SerializationException {
         if (input == null) {
-            if (field.defaultValue != null) {
-                input = field.defaultValue.get();
+            if (field.defaultValue() != null) {
+                input = field.defaultValue().get();
             }
 
             // Serialize nothing if the default value is null
@@ -314,7 +308,7 @@ class ConvertersImpl {
             }
         }
         // This cast is safe because we grab the object directly from the field; it's just that Field#get always returns an object.
-        field.converter.serialize(field.converter.convertedType().getType(), (V) input, result);
+        field.serializer().serialize(field.type().getType(), (V) input, result);
     }
 
 }

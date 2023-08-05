@@ -1,10 +1,10 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 
@@ -18,7 +18,7 @@ public record KilledByPlayerCondition() implements LootCondition {
     /**
      * A standard map-based converter for killed-by-player conditions.
      */
-    public static final @NotNull TypedLootConverter<KilledByPlayerCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<KilledByPlayerCondition> CONVERTER =
             converter(KilledByPlayerCondition.class);
 
     @Override

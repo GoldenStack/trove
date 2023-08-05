@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootNumber;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public record SetDamageModifier(@NotNull List<LootCondition> conditions,
     /**
      * A standard map-based converter for set damage modifiers.
      */
-    public static final @NotNull TypedLootConverter<SetDamageModifier> CONVERTER =
+    public static final @NotNull TypeSerializer<SetDamageModifier> CONVERTER =
             converter(SetDamageModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(LootNumber.class).name("modifiedDurability").nodePath("damage"),

@@ -1,11 +1,11 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -22,7 +22,7 @@ public record WeatherCheckCondition(@Nullable Boolean raining, @Nullable Boolean
     /**
      * A standard map-based converter for weather check conditions.
      */
-    public static final @NotNull TypedLootConverter<WeatherCheckCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<WeatherCheckCondition> CONVERTER =
             converter(WeatherCheckCondition.class,
                     field(Boolean.class).optional().name("raining"),
                     field(Boolean.class).optional().name("thundering")

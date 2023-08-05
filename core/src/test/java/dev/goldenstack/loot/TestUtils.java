@@ -1,7 +1,7 @@
 package dev.goldenstack.loot;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
+import dev.goldenstack.loot.converter.generator.FieldTypes;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,15 +38,14 @@ public class TestUtils {
     }
 
     public static <V> @NotNull TypeSerializer<V> converter(@Nullable Object serialize, @Nullable V deserialize) {
-        return TypedLootConverter.join(
+        return FieldTypes.join(
                 (input, result) -> result.set(serialize),
                 input -> deserialize
         );
     }
 
-    public static <V> @NotNull TypedLootConverter<V> emptySerializer(@NotNull Class<V> convertedType,
-                                                                     @NotNull Supplier<V> initializer) {
-        return TypedLootConverter.join(convertedType, TypedLootConverter.join((input, result) -> {}, input -> initializer.get()));
+    public static <V> @NotNull TypeSerializer<V> emptySerializer(@NotNull Supplier<V> initializer) {
+        return FieldTypes.join((input, result) -> {}, input -> initializer.get());
     }
 
 }

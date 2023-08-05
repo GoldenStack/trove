@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -9,6 +8,7 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.StackingRule;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public record SmeltItemModifier(@NotNull List<LootCondition> conditions) impleme
     /**
      * A standard map-based converter for item smelting modifiers.
      */
-    public static final @NotNull TypedLootConverter<SmeltItemModifier> CONVERTER =
+    public static final @NotNull TypeSerializer<SmeltItemModifier> CONVERTER =
             converter(SmeltItemModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of)
             );

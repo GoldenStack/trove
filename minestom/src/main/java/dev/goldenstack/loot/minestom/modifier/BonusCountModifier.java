@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.converter.generator.LootConversionManager;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
@@ -10,6 +9,7 @@ import io.leangen.geantyref.TypeToken;
 import net.minestom.server.item.Enchantment;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 import java.util.Random;
@@ -34,7 +34,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
     /**
      * A standard map-based converter for bonus count modifiers.
      */
-    public static final @NotNull TypedLootConverter<BonusCountModifier> CONVERTER =
+    public static final @NotNull TypeSerializer<BonusCountModifier> CONVERTER =
             converter(BonusCountModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(Enchantment.class).name("addedEnchantment").nodePath("enchantment"),
@@ -47,11 +47,11 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
      */
     public interface BonusType {
 
-        TypedLootConverter<BonusType> TYPE_CONVERTER = new LootConversionManager<>(TypeToken.get(BonusType.class))
+        TypeSerializer<BonusType> TYPE_CONVERTER = new LootConversionManager<>(TypeToken.get(BonusType.class))
                 .keyLocation("formula")
-                .add(BinomialBonus.KEY, BinomialBonus.CONVERTER)
-                .add(UniformBonus.KEY, UniformBonus.CONVERTER)
-                .add(FortuneDrops.KEY, FortuneDrops.CONVERTER)
+                .add(BinomialBonus.KEY, BinomialBonus.class)
+                .add(UniformBonus.KEY, UniformBonus.class)
+                .add(FortuneDrops.KEY, FortuneDrops.class)
                 .build();
 
         int calculateNewValue(Random random, int count, int enchantmentLevel);
@@ -68,7 +68,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
 
         public static final @NotNull String KEY = "minecraft:binomial_with_bonus_count";
 
-        public static final @NotNull TypedLootConverter<BinomialBonus> CONVERTER =
+        public static final @NotNull TypeSerializer<BinomialBonus> CONVERTER =
                 converter(BinomialBonus.class,
                         field(int.class).name("levelBonus").nodePath("parameters", "extra"),
                         field(float.class).name("probability").nodePath("parameters", "probability")
@@ -95,7 +95,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
 
         public static final @NotNull String KEY = "minecraft:uniform_bonus_count";
 
-        public static final @NotNull TypedLootConverter<UniformBonus> CONVERTER =
+        public static final @NotNull TypeSerializer<UniformBonus> CONVERTER =
                 converter(UniformBonus.class,
                         field(int.class).name("multiplier").nodePath("parameters", "bonusMultiplier")
                 );
@@ -115,7 +115,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
 
         public static final @NotNull String KEY = "minecraft:ore_drops";
 
-        public static final @NotNull TypedLootConverter<FortuneDrops> CONVERTER =
+        public static final @NotNull TypeSerializer<FortuneDrops> CONVERTER =
                 converter(FortuneDrops.class);
 
         @Override

@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.nbt.LootNBT;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.minestom.util.nbt.NBTPath;
@@ -14,6 +13,7 @@ import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTList;
 import org.jglrxavpok.hephaistos.nbt.NBTType;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
     /**
      * A standard map-based converter for copy NBT modifiers.
      */
-    public static final @NotNull TypedLootConverter<CopyNbtModifier> CONVERTER =
+    public static final @NotNull TypeSerializer<CopyNbtModifier> CONVERTER =
             converter(CopyNbtModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(LootNBT.class).name("source"),
@@ -52,7 +52,7 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
      */
     public record Operation(@NotNull NBTPath source, @NotNull NBTPath target, @NotNull Operator operator) {
 
-        public static final @NotNull TypedLootConverter<Operation> CONVERTER =
+        public static final @NotNull TypeSerializer<Operation> CONVERTER =
                 converter(Operation.class,
                         field(NBTPath.class).name("source"),
                         field(NBTPath.class).name("target"),

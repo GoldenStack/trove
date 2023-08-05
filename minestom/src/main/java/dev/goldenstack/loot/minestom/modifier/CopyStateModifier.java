@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -11,6 +10,7 @@ import net.minestom.server.tag.Tag;
 import net.minestom.server.tag.TagSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public record CopyStateModifier(@NotNull List<LootCondition> conditions, @NotNul
     /**
      * A standard map-based converter for copy state modifiers.
      */
-    public static final @NotNull TypedLootConverter<CopyStateModifier> CONVERTER =
+    public static final @NotNull TypeSerializer<CopyStateModifier> CONVERTER =
             converter(CopyStateModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(Block.class).name("blockType").nodePath("block"),

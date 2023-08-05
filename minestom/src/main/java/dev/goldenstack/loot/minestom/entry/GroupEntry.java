@@ -1,10 +1,10 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ public record GroupEntry(@NotNull List<LootEntry> children, @NotNull List<LootCo
     /**
      * A standard map-based converter for group entries.
      */
-    public static final @NotNull TypedLootConverter<GroupEntry> CONVERTER =
+    public static final @NotNull TypeSerializer<GroupEntry> CONVERTER =
             converter(GroupEntry.class,
                     field(LootEntry.class).name("children").as(list()),
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of)

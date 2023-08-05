@@ -1,10 +1,10 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 
@@ -19,7 +19,7 @@ public record SurvivesExplosionCondition() implements LootCondition {
     /**
      * A standard map-based converter for explosion survival conditions.
      */
-    public static final @NotNull TypedLootConverter<SurvivesExplosionCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<SurvivesExplosionCondition> CONVERTER =
             converter(SurvivesExplosionCondition.class);
 
     @Override

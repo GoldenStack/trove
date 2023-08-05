@@ -1,11 +1,11 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -22,7 +22,7 @@ public record NumberConstraintCondition(@NotNull LootNumberRange range, @NotNull
     /**
      * A standard map-based converter for value check conditions.
      */
-    public static final @NotNull TypedLootConverter<NumberConstraintCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<NumberConstraintCondition> CONVERTER =
             converter(NumberConstraintCondition.class,
                     field(LootNumberRange.class).name("range"),
                     field(LootNumber.class).name("value")

@@ -1,10 +1,10 @@
 package dev.goldenstack.loot.minestom.util.check;
 
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.nbt.NBTUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.NBT;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -14,7 +14,7 @@ import static dev.goldenstack.loot.converter.generator.Converters.field;
  */
 public record NBTCheck(@Nullable NBT guarantee) {
 
-    public static final @NotNull TypedLootConverter<NBTCheck> CONVERTER =
+    public static final @NotNull TypeSerializer<NBTCheck> CONVERTER =
             converter(NBTCheck.class,
                     field(NBT.class).name("guarantee").nodePath("nbt").optional()
             );

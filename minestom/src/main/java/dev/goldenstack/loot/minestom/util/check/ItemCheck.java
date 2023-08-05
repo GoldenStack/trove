@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.util.check;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.item.ItemStack;
@@ -10,6 +9,7 @@ import net.minestom.server.item.metadata.EnchantedBookMeta;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
@@ -48,7 +48,7 @@ public record ItemCheck(@NotNull NBTCheck nbtCheck,
     /**
      * The general converter for item checks.
      */
-    public static final @NotNull TypedLootConverter<ItemCheck> CONVERTER =
+    public static final @NotNull TypeSerializer<ItemCheck> CONVERTER =
             converter(ItemCheck.class,
                     field(NBTCheck.class).fallback(new NBTCheck(null)).name("nbtCheck").nodePath("nbt"),
                     field(LootNumberRange.class).fallback(new LootNumberRange(null, null)).name("count"),

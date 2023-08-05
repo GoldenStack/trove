@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -11,6 +10,7 @@ import net.minestom.server.item.Material;
 import net.minestom.server.item.metadata.EnchantedBookMeta;
 import net.minestom.server.registry.Registry;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public record RandomlyEnchantModifier(@NotNull List<LootCondition> conditions, @
     /**
      * A standard map-based converter for randomly enchant modifiers.
      */
-    public static final @NotNull TypedLootConverter<RandomlyEnchantModifier> CONVERTER =
+    public static final @NotNull TypeSerializer<RandomlyEnchantModifier> CONVERTER =
             converter(RandomlyEnchantModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(Enchantment.class).name("validEnchantments").nodePath("enchantments").as(list()).fallback(List::of)

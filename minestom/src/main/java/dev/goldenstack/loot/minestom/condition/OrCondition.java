@@ -1,9 +1,9 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public record OrCondition(@NotNull List<LootCondition> conditions) implements Lo
     /**
      * A standard map-based converter for OR operator conditions.
      */
-    public static final @NotNull TypedLootConverter<OrCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<OrCondition> CONVERTER =
             converter(OrCondition.class,
                     field(LootCondition.class).name("conditions").nodePath("terms").as(list()).fallback(List::of)
             );

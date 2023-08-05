@@ -1,6 +1,6 @@
 package dev.goldenstack.loot.minestom.util.nbt;
 
-import dev.goldenstack.loot.converter.TypedLootConverter;
+import dev.goldenstack.loot.converter.generator.FieldTypes;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -349,7 +349,7 @@ record NBTPathImpl(@NotNull List<Selector> selectors) implements NBTPath {
     static final @NotNull IntSet VALID_INTEGER_CHARACTERS = IntSet.of('-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
     static final @NotNull IntSet INVALID_UNQUOTED_CHARACTERS = IntSet.of(-1, '.', '\'', '\"', '{', '}', '[', ']');
 
-    static final @NotNull TypeSerializer<NBTPath> CONVERTER = TypedLootConverter.join(
+    static final @NotNull TypeSerializer<NBTPath> CONVERTER = FieldTypes.join(
             (input, result) -> result.set(input.toString()), input -> {
                 var path = input.getString();
                 if (path == null) {

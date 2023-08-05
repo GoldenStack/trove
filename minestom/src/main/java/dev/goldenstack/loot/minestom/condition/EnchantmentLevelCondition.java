@@ -1,11 +1,11 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.item.Enchantment;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public record EnchantmentLevelCondition(@NotNull Enchantment addedEnchantment,
     /**
      * A standard map-based converter for enchantment level conditions.
      */
-    public static final @NotNull TypedLootConverter<EnchantmentLevelCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<EnchantmentLevelCondition> CONVERTER =
             converter(EnchantmentLevelCondition.class,
                 field(Enchantment.class).name("addedEnchantment").nodePath("enchantment"),
                 field(Double.class).name("chances").as(list())

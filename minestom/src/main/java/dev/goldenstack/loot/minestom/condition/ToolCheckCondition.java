@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.check.ItemCheck;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -21,7 +21,7 @@ public record ToolCheckCondition(@NotNull ItemCheck toolCheck) implements LootCo
     /**
      * A standard map-based converter for tool check conditions.
      */
-    public static final @NotNull TypedLootConverter<ToolCheckCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<ToolCheckCondition> CONVERTER =
             converter(ToolCheckCondition.class,
                     field(ItemCheck.class).name("toolCheck").nodePath("predicate").fallback(ItemCheck.EMPTY)
             );

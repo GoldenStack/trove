@@ -1,9 +1,9 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -20,7 +20,7 @@ public record RandomChanceCondition(double chance) implements LootCondition {
     /**
      * A standard map-based converter for random chance conditions.
      */
-    public static final @NotNull TypedLootConverter<RandomChanceCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<RandomChanceCondition> CONVERTER =
             converter(RandomChanceCondition.class,
                     field(double.class).name("chance")
             );

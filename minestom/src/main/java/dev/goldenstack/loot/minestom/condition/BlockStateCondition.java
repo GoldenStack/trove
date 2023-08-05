@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.check.BlockStateCheck;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -23,7 +23,7 @@ public record BlockStateCondition(@NotNull NamespaceID blockKey, @NotNull BlockS
     /**
      * A standard map-based converter for block state conditions.
      */
-    public static final @NotNull TypedLootConverter<BlockStateCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<BlockStateCondition> CONVERTER =
             converter(BlockStateCondition.class,
                     field(NamespaceID.class).name("blockKey").nodePath("block"),
                     field(BlockStateCheck.class).name("check").nodePath("properties")

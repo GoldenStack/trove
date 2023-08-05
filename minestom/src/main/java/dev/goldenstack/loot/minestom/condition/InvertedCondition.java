@@ -1,9 +1,9 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -19,7 +19,7 @@ public record InvertedCondition(@NotNull LootCondition original) implements Loot
     /**
      * A standard map-based converter for inverted conditions.
      */
-    public static final @NotNull TypedLootConverter<InvertedCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<InvertedCondition> CONVERTER =
             converter(InvertedCondition.class,
                     field(LootCondition.class).name("original").nodePath("term")
             );

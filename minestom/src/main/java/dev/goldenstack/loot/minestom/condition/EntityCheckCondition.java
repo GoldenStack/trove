@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.RelevantEntity;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -24,7 +24,7 @@ public record EntityCheckCondition(@NotNull RelevantEntity chosenEntity,
     /**
      * A standard map-based converter entity check conditions.
      */
-    public static final @NotNull TypedLootConverter<EntityCheckCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<EntityCheckCondition> CONVERTER =
             converter(EntityCheckCondition.class,
                     field(RelevantEntity.class).name("chosenEntity").nodePath("entity"),
                     field(VanillaInterface.EntityPredicate.class).name("entityChecker").nodePath("predicate")

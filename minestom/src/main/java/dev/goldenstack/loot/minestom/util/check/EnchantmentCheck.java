@@ -1,11 +1,11 @@
 package dev.goldenstack.loot.minestom.util.check;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import net.minestom.server.item.Enchantment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.Map;
 
@@ -23,7 +23,7 @@ public record EnchantmentCheck(@Nullable Enchantment enchantmentType, @NotNull L
     /**
      * A standard map-based serializer for enchantment checks.
      */
-    public static final @NotNull TypedLootConverter<EnchantmentCheck> CONVERTER =
+    public static final @NotNull TypeSerializer<EnchantmentCheck> CONVERTER =
             converter(EnchantmentCheck.class,
                     field(Enchantment.class).name("enchantmentType").nodePath("enchantment").optional(),
                     field(LootNumberRange.class).name("levels").optional()

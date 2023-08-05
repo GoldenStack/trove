@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.generation;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.generation.LootGenerator;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
@@ -11,6 +10,7 @@ import dev.goldenstack.loot.structure.LootEntry;
 import dev.goldenstack.loot.structure.LootModifier;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public record LootPool(@NotNull LootNumber rolls,
                        @NotNull List<LootCondition> conditions,
                        @NotNull List<LootModifier> modifiers) implements LootGenerator {
 
-    public static final @NotNull TypedLootConverter<LootPool> CONVERTER =
+    public static final @NotNull TypeSerializer<LootPool> CONVERTER =
             converter(LootPool.class,
                     field(LootNumber.class).name("rolls"),
                     field(LootNumber.class).name("bonusRolls").nodePath("bonus_rolls").fallback(new ConstantNumber(0)),

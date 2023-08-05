@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -10,6 +9,7 @@ import net.minestom.server.entity.Entity;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.StackingRule;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public record ApplyLootingModifier(@NotNull List<LootCondition> conditions,
     /**
      * A standard map-based converter for apply looting modifiers.
      */
-    public static final @NotNull TypedLootConverter<ApplyLootingModifier> CONVERTER =
+    public static final @NotNull TypeSerializer<ApplyLootingModifier> CONVERTER =
             converter(ApplyLootingModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(LootNumber.class).name("lootingMultiplier").nodePath("count"),

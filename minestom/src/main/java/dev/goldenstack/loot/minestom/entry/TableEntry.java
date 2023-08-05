@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.generation.LootGenerator;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
@@ -9,6 +8,7 @@ import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public record TableEntry(@NotNull NamespaceID tableIdentifier,
     /**
      * A standard map-based converter for table entries.
      */
-    public static final @NotNull TypedLootConverter<TableEntry> CONVERTER =
+    public static final @NotNull TypeSerializer<TableEntry> CONVERTER =
             converter(TableEntry.class,
                     field(NamespaceID.class).name("tableIdentifier").nodePath("name"),
                     field(long.class).name("weight").fallback(1L),

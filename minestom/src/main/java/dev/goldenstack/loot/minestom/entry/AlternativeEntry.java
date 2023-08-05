@@ -1,10 +1,10 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootEntry;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public record AlternativeEntry(@NotNull List<LootEntry> children, @NotNull List<
     /**
      * A standard map-based converter for alternative entries.
      */
-    public static final @NotNull TypedLootConverter<AlternativeEntry> CONVERTER =
+    public static final @NotNull TypeSerializer<AlternativeEntry> CONVERTER =
             converter(AlternativeEntry.class,
                     field(LootEntry.class).name("children").as(list()),
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of)

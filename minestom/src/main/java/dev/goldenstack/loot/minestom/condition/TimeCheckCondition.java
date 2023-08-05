@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.util.LootNumberRange;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -23,7 +23,7 @@ public record TimeCheckCondition(@NotNull LootNumberRange range, @Nullable Long 
     /**
      * A standard map-based converter for time check conditions.
      */
-    public static final @NotNull TypedLootConverter<TimeCheckCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<TimeCheckCondition> CONVERTER =
             converter(TimeCheckCondition.class,
                     field(LootNumberRange.class).name("range").nodePath("value"),
                     field(Long.class).optional().name("period")

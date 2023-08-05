@@ -1,12 +1,14 @@
 package dev.goldenstack.loot;
 
 import dev.goldenstack.loot.converter.generator.LootConversionManager;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import org.spongepowered.configurate.BasicConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.ConfigurationOptions;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.Map;
 
@@ -26,13 +28,13 @@ public class LootConversionManagerTest {
         var builder = new LootConversionManager<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
-        builder.add("a", emptySerializer(A.class, A::new));
+        builder.add("a", A.class);
         assertDoesNotThrow(builder::build);
 
-        builder.add("b", emptySerializer(B.class, B::new));
+        builder.add("b", B.class);
         assertDoesNotThrow(builder::build);
 
-        assertThrows(IllegalArgumentException.class, () -> builder.add("x", (TypedLootConverter<? extends A>) (Object) emptySerializer(X.class, X::new)));
+        assertThrows(IllegalArgumentException.class, () -> builder.add("x", (Class<? extends A>) (Object) X.class));
     }
 
     @Test
@@ -40,10 +42,10 @@ public class LootConversionManagerTest {
         var builder = new LootConversionManager<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
-        builder.add("a", emptySerializer(A.class, A::new));
+        builder.add("a", A.class);
         assertDoesNotThrow(builder::build);
 
-        assertThrows(IllegalArgumentException.class, () -> builder.add("a", emptySerializer(B.class, B::new)));
+        assertThrows(IllegalArgumentException.class, () -> builder.add("a", A.class));
     }
 
     @Test
@@ -51,10 +53,10 @@ public class LootConversionManagerTest {
         var builder = new LootConversionManager<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
-        builder.add("a", emptySerializer(A.class, A::new));
+        builder.add("a", A.class);
         assertDoesNotThrow(builder::build);
 
-        assertThrows(IllegalArgumentException.class, () -> builder.add("b", emptySerializer(A.class, A::new)));
+        assertThrows(IllegalArgumentException.class, () -> builder.add("b", A.class));
     }
 
     @Test
@@ -62,16 +64,15 @@ public class LootConversionManagerTest {
         var builder = new LootConversionManager<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
-        builder.add("a", emptySerializer(A.class, A::new));
+        builder.add("a", A.class);
         builder.add(converter("empty", new B()));
 
         var manager = builder.build();
 
-        var node = node();
-        manager.serialize(A.class, new A(), node);
-
-        assertInstanceOf(B.class, handle(manager, "location", "a"));
+        var node = nodeWith(manager).set(A.class, new A());
         assertEquals(node("empty"), node);
+
+        assertDoesNotThrow(() -> nodeWith(manager).set(Map.of("location", "a")).require(B.class));
     }
 
     @Test
@@ -79,20 +80,21 @@ public class LootConversionManagerTest {
         var builder = new LootConversionManager<>(TypeToken.get(A.class))
                 .keyLocation("location");
 
-        builder.add("a", emptySerializer(A.class, A::new));
         builder.add(converter(null, null));
+        builder.add("b", B.class);
 
         var manager = builder.build();
 
-        var node = node();
-        manager.serialize(A.class, new A(), node);
+        var node = nodeWith(manager).set(A.class, new B());
+        assertEquals(node(Map.of("location", "b")), node);
 
-        assertInstanceOf(A.class, handle(manager, "location", "a"));
-        assertEquals(node(Map.of("location", "a")), node);
+        assertDoesNotThrow(() -> nodeWith(manager).set(Map.of("location", "b")).require(B.class));
     }
 
-    private static <O> @Nullable O handle(@NotNull TypedLootConverter<O> deserializer, @NotNull String keyLocation, @NotNull String keyValue) throws ConfigurateException {
-        return deserializer.deserialize(deserializer.convertedType().getType(), node(Map.of(keyLocation, keyValue)));
+    private static @NotNull ConfigurationNode nodeWith(@NotNull TypeSerializer<A> serializer) {
+        return BasicConfigurationNode.root(ConfigurationOptions.defaults().serializers(b ->
+                b.register(B.class, emptySerializer(B::new)).registerExact(A.class, serializer)
+        ));
     }
 
 }

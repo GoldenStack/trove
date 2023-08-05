@@ -1,11 +1,11 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -23,7 +23,7 @@ public record LootingRandomChanceCondition(double chance, double lootingCoeffici
     /**
      * A standard map-based converter for looting random chance conditions.
      */
-    public static final @NotNull TypedLootConverter<LootingRandomChanceCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<LootingRandomChanceCondition> CONVERTER =
             converter(LootingRandomChanceCondition.class,
                     field(double.class).name("chance"),
                     field(double.class).name("lootingCoefficient").nodePath("looting_multiplier")

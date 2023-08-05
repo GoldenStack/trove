@@ -1,9 +1,9 @@
 package dev.goldenstack.loot.minestom.number;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -20,7 +20,7 @@ public record BinomialNumber(@NotNull LootNumber trials, @NotNull LootNumber pro
     /**
      * A standard map-based converter for binomial numbers.
      */
-    public static final @NotNull TypedLootConverter<BinomialNumber> CONVERTER =
+    public static final @NotNull TypeSerializer<BinomialNumber> CONVERTER =
             converter(BinomialNumber.class,
                     field(LootNumber.class).name("trials").nodePath("n"),
                     field(LootNumber.class).name("probability").nodePath("p")

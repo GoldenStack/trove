@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootNumber;
@@ -12,6 +11,7 @@ import net.minestom.server.tag.Tag;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.mutable.MutableNBTCompound;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
     /**
      * A standard map-based converter for set stew effect modifiers.
      */
-    public static final @NotNull TypedLootConverter<SetStewEffectModifier> CONVERTER =
+    public static final @NotNull TypeSerializer<SetStewEffectModifier> CONVERTER =
             converter(SetStewEffectModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(StewEffect.class).name("effects").as(list())
@@ -46,7 +46,7 @@ public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
      * @param duration the number that will provide the duration (measured in seconds)
      */
     public record StewEffect(@NotNull PotionEffect effect, @NotNull LootNumber duration) {
-        public static final @NotNull TypedLootConverter<StewEffect> CONVERTER =
+        public static final @NotNull TypeSerializer<StewEffect> CONVERTER =
                 converter(StewEffect.class,
                         field(PotionEffect.class).name("effect").nodePath("type"),
                         field(LootNumber.class).name("duration")

@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.minestom.nbt;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -24,7 +24,7 @@ public record StorageNBT(@NotNull NamespaceID storageKey) implements LootNBT {
     /**
      * A standard map-based converter for storage NBT providers.
      */
-    public static final @NotNull TypedLootConverter<StorageNBT> CONVERTER =
+    public static final @NotNull TypeSerializer<StorageNBT> CONVERTER =
             converter(StorageNBT.class,
                     field(NamespaceID.class).name("storageKey").nodePath("source")
             );

@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootProcessor;
 import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.minestom.util.nbt.NBTUtils;
@@ -15,6 +14,7 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBT;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ public record SetContentsModifier(@NotNull List<LootCondition> conditions,
     /**
      * A standard map-based converter for set contents modifiers.
      */
-    public static final @NotNull TypedLootConverter<SetContentsModifier> CONVERTER =
+    public static final @NotNull TypeSerializer<SetContentsModifier> CONVERTER =
             converter(SetContentsModifier.class,
                     field(LootCondition.class).name("conditions").as(list()).fallback(List::of),
                     field(LootEntry.class).name("entries").as(list()),

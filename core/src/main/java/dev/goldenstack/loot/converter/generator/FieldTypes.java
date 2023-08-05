@@ -1,6 +1,7 @@
 package dev.goldenstack.loot.converter.generator;
 
-import dev.goldenstack.loot.converter.TypedLootConverter;
+import dev.goldenstack.loot.converter.LootDeserializer;
+import dev.goldenstack.loot.converter.LootSerializer;
 import io.leangen.geantyref.TypeFactory;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +11,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -53,26 +55,30 @@ public class FieldTypes {
     }
 
     /**
-     * When added to a field, turns it into a list of its previous type.
+     * When applied to a field, sets its serializer to simply using #set and #get methods.
      */
-    public static <V> @NotNull Function<TypedLootConverter<V>, TypedLootConverter<List<V>>> list() {
-        return converter -> {
-            var type = list(converter.convertedType());
-            return TypedLootConverter.join(type, TypedLootConverter.join(
-                    (input, result) -> result.set(type),
-                    input -> require(input, type)
-            ));
-        };
+    public static <V> @NotNull Function<Converters.Field<V>, Converters.Field<V>> get() {
+        return field -> field.serializer(join(
+                (input, result) -> result.set(field.type()),
+                input -> require(input, field.type())
+        ));
     }
 
     /**
-     * When added to a field, turns it into a list of its previous type, but treating a value instead of a list as a
+     * When applied to a field, turns it into a list of its previous type.
+     */
+    public static <V> @NotNull Function<Converters.Field<V>, Converters.Field<List<V>>> list() {
+        return field -> field.type(list(field.type())).as(get());
+    }
+
+    /**
+     * When applied to a field, turns it into a list of its previous type, but treating a value instead of a list as a
      * list with one item.
      */
-    public static <V> @NotNull Function<TypedLootConverter<V>, TypedLootConverter<List<V>>> possibleList() {
-        return converter -> {
-            var type = list(converter.convertedType());
-            return TypedLootConverter.join(type, TypedLootConverter.join(
+    public static <V> @NotNull Function<Converters.Field<V>, Converters.Field<List<V>>> possibleList() {
+        return field -> {
+            var type = list(field.type());
+            return field.type(type).serializer(join(
                     (input, result) -> result.set(input.size() == 1 ? input.get(0) : input),
                     input -> require(input, type)
             ));
@@ -90,10 +96,10 @@ public class FieldTypes {
      * @param <P> the original type
      * @param <N> the new type
      */
-    public static <P, N> @NotNull TypedLootConverter<N> proxied(@NotNull Class<P> originalType, @NotNull Class<N> newType,
+    public static <P, N> @NotNull TypeSerializer<N> proxied(@NotNull Class<P> originalType, @NotNull Class<N> newType,
                                                                 @NotNull Function<@NotNull P, @Nullable N> toNew,
                                                                 @NotNull Function<@NotNull N, @Nullable P> fromNew) {
-        return TypedLootConverter.join(newType, TypedLootConverter.join((input, result) -> {
+        return join((input, result) -> {
                 var applied = fromNew.apply(input);
                 if (applied == null) {
                     throw new SerializationException(originalType, "'" + input + "' could not be serialized or has an invalid type");
@@ -107,7 +113,7 @@ public class FieldTypes {
                 }
                 return result;
             }
-        ));
+        );
     }
 
     @SuppressWarnings("unchecked")
@@ -121,5 +127,29 @@ public class FieldTypes {
             throw new SerializationException(input, type.getType(), "Cannot coerce node to expected type");
         }
         return instance;
+    }
+
+    /**
+     * Joins the provided serializer and deserializer into a LootConverter instance.
+     * @param serializer the new converter's serializer
+     * @param deserializer the new converter's deserializer
+     * @return a converter that joins the provided instances
+     * @param <V> the type to convert
+     */
+    public static <V> @NotNull TypeSerializer<V> join(@NotNull LootSerializer<V> serializer, @NotNull LootDeserializer<V> deserializer) {
+        return new TypeSerializer<>() {
+            @Override
+            public void serialize(Type type, @Nullable V obj, ConfigurationNode node) throws SerializationException {
+                if (obj == null) {
+                    throw new SerializationException(node, type, "Cannot serialize null object");
+                }
+                serializer.serialize(obj, node);
+            }
+
+            @Override
+            public V deserialize(Type type, ConfigurationNode node) throws SerializationException {
+                return deserializer.deserialize(node);
+            }
+        };
     }
 }

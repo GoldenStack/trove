@@ -1,11 +1,11 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public record EmptyEntry(long weight, long quality,
     /**
      * A standard map-based converter for empty entries.
      */
-    public static final @NotNull TypedLootConverter<EmptyEntry> CONVERTER =
+    public static final @NotNull TypeSerializer<EmptyEntry> CONVERTER =
             converter(EmptyEntry.class,
                     field(long.class).name("weight").fallback(1L),
                     field(long.class).name("quality").fallback(0L),

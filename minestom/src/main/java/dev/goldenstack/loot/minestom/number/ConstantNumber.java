@@ -1,7 +1,7 @@
 package dev.goldenstack.loot.minestom.number;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
+import dev.goldenstack.loot.converter.generator.FieldTypes;
 import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
@@ -19,7 +19,7 @@ public record ConstantNumber(double value) implements LootNumber {
      * A converter for constant numbers that always serializes to a numerical scalar and deserializes when the input is
      * a singular numerical scalar.
      */
-    public static final @NotNull TypeSerializer<LootNumber> ACCURATE_CONVERTER = TypedLootConverter.join(
+    public static final @NotNull TypeSerializer<LootNumber> ACCURATE_CONVERTER = FieldTypes.join(
             (input, result) -> {
                 if (input instanceof ConstantNumber constant) {
                     result.set(constant.value());
@@ -37,7 +37,7 @@ public record ConstantNumber(double value) implements LootNumber {
     /**
      * A standard map-based converter for constant numbers.
      */
-    public static final @NotNull TypedLootConverter<ConstantNumber> CONVERTER =
+    public static final @NotNull TypeSerializer<ConstantNumber> CONVERTER =
             converter(ConstantNumber.class,
                     field(double.class).name("value")
             );

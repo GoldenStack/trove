@@ -1,11 +1,11 @@
 package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import static dev.goldenstack.loot.converter.generator.Converters.converter;
 import static dev.goldenstack.loot.converter.generator.Converters.field;
@@ -22,7 +22,7 @@ public record LocationCheckCondition(@NotNull VanillaInterface.LocationPredicate
     /**
      * A standard map-based converter for location check conditions.
      */
-    public static final @NotNull TypedLootConverter<LocationCheckCondition> CONVERTER =
+    public static final @NotNull TypeSerializer<LocationCheckCondition> CONVERTER =
             converter(LocationCheckCondition.class,
                     field(VanillaInterface.LocationPredicate.class).name("predicate"),
                     field(double.class).name("xOffset").nodePath("offsetX").fallback(0d),

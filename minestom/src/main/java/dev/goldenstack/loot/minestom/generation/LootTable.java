@@ -1,12 +1,12 @@
 package dev.goldenstack.loot.minestom.generation;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.converter.TypedLootConverter;
 import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.generation.LootGenerator;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
 import dev.goldenstack.loot.structure.LootModifier;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public record LootTable(@NotNull LootContextKeyGroup contextKeyGroup,
      */
     public static final @NotNull LootTable EMPTY = new LootTable(LootContextKeyGroup.EMPTY, List.of(), List.of());
 
-    public static final @NotNull TypedLootConverter<LootTable> CONVERTER =
+    public static final @NotNull TypeSerializer<LootTable> CONVERTER =
             converter(LootTable.class,
                     field(LootContextKeyGroup.class).name("contextKeyGroup").nodePath("type"),
                     field(LootPool.class).name("pools").as(list()).fallback(List::of),
