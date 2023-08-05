@@ -7,7 +7,7 @@
 Trove is a versatile loot table library. Although a lot of the base concepts here are similar to Minecraft's loot table
 system, Trove is much more flexible, permitting the usage of multiple different loot types (e.g. items and experience).
 Plus, it has a convenient API, emphasizes immutable data structures, and supports full serialization and deserialization
-of all types supported by Configurate, including JSON and YAML.
+of all formats supported by Configurate, including JSON and YAML.
 
 The two modules are Core and Minestom. The Core module contains the basic functioning pieces of the library, while
 Minestom contains a nearly full implementation for Minecraft's loot tables for Minestom.
@@ -64,6 +64,11 @@ Each table will be stored via a NamespaceID in the tables object. For example, i
 
 ### Generation
 Actual loot generation is fairly simple - you just need to call `LootTable#generate(LootContext)`.
+
+Importantly, if you want some of the vanilla features that aren't implemented here, you should implement the
+`VanillaInterface` interface and pass it in as a key to your context. A partial implementation of it that doesn't throw
+any exceptions is `FallbackVanillaInterface`. You may also have to implement some type serializers.
+
 Here's an example that uses the `tableRegistry` variable from the last code snippet:
 
 ``` java
