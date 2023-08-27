@@ -1,6 +1,6 @@
 # trove
 
-[![license](https://img.shields.io/github/license/GoldenStack/trove?style=for-the-badge&color=dd2233)](../LICENSE)
+[![license](https://img.shields.io/github/license/GoldenStack/trove?style=for-the-badge&color=dd2233)](LICENSE)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=for-the-badge)](https://github.com/RichardLitt/standard-readme)
 [![javadocs](https://img.shields.io/badge/documentation-javadocs-4d7a97?style=for-the-badge)](https://javadoc.jitpack.io/com/github/GoldenStack/trove/master-SNAPSHOT/javadoc/)
 
@@ -130,4 +130,4 @@ which is currently under the MIT license.
 
 ## License
 
-This project is licensed under the [MIT](../LICENSE) license.
+This project is licensed under the [MIT](LICENSE) license.
