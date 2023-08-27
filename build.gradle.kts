@@ -2,7 +2,7 @@
 subprojects {
 
     group = "dev.goldenstack.loot"
-    version = "1.0"
+    version = "2.0"
 
     apply(plugin = "java-library")
     apply(plugin = "maven-publish")
