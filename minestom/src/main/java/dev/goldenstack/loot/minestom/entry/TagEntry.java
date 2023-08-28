@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
 import net.minestom.server.gamedata.tags.Tag;
@@ -60,32 +59,33 @@ public record TagEntry(@NotNull Tag itemTag, boolean expand,
         if (!LootCondition.all(conditions(), context)) {
             return List.of();
         }
-        if (expand) {
-            List<Choice> choices = new ArrayList<>();
-            for (Object tagItem : generate(context).items()) {
-                choices.add(new Choice() {
-                    @Override
-                    public @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootContext context) {
-                        return TagEntry.this.getWeight(context);
-                    }
-
-                    @Override
-                    public @NotNull LootBatch generate(@NotNull LootContext context) {
-                        return LootBatch.of(tagItem);
-                    }
-                });
-            }
-            return choices;
-        } else {
+        if (!expand) {
             return List.of(this);
         }
+
+        List<Choice> choices = new ArrayList<>();
+        for (Object tagItem : generate(context)) {
+            choices.add(new Choice() {
+                @Override
+                public @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootContext context) {
+                    return TagEntry.this.getWeight(context);
+                }
+
+                @Override
+                public @NotNull List<Object> generate(@NotNull LootContext context) {
+                    return List.of(tagItem);
+                }
+            });
+        }
+        return choices;
     }
 
     @Override
-    public @NotNull LootBatch generate(@NotNull LootContext context) {
-        return LootModifier.applyAll(modifiers(),
-                LootBatch.of(itemTag.getValues().stream().map(Material::fromNamespaceId).filter(Objects::nonNull).map(ItemStack::of).toList()),
-                context
-        );
+    public @NotNull List<Object> generate(@NotNull LootContext context) {
+        var items = itemTag.getValues().stream()
+                .map(Material::fromNamespaceId).filter(Objects::nonNull)
+                .map(ItemStack::of).toList();
+
+        return LootModifier.applyAll(modifiers(), List.copyOf(items), context);
     }
 }

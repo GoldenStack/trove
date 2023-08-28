@@ -1,6 +1,5 @@
 package dev.goldenstack.loot.generation;
 
-import dev.goldenstack.loot.context.LootContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +11,7 @@ import java.util.function.Predicate;
 /**
  * Represents some black box that can process loot.
  */
-public interface LootProcessor {
+public interface LootProcessor extends Consumer<@NotNull Object> {
 
     /**
      * Creates a processor that handles exclusively
@@ -80,31 +79,6 @@ public interface LootProcessor {
 
     }
 
-    /**
-     * Processes the provided object.
-     * @param lootResult the result to process
-     */
-    void process(@NotNull Object lootResult);
-
-    /**
-     * Processes the provided loot batch.
-     * @param lootResults the results to process
-     */
-    default void process(@NotNull LootBatch lootResults) {
-        for (var result : lootResults.items()) {
-            process(result);
-        }
-    }
-
-    /**
-     * Processes the loot created by the provided generator.
-     * @param generator the generator to process
-     * @param context the context to use to generate loot
-     */
-    default void process(@NotNull LootGenerator generator, @NotNull LootContext context) {
-        process(generator.generate(context));
-    }
-
 }
 
 record IndividualProcessor(@NotNull Predicate<Object> canProcess, @NotNull Consumer<Object> processor) {}
@@ -116,14 +90,14 @@ record LootProcessorImpl(@NotNull List<IndividualProcessor> processors) implemen
     }
 
     @Override
-    public void process(@NotNull Object lootResult) {
+    public void accept(@NotNull Object o) {
         for (var processor : processors) {
-            if (processor.canProcess().test(lootResult)) {
-                processor.processor().accept(lootResult);
+            if (processor.canProcess().test(o)) {
+                processor.processor().accept(o);
                 return;
             }
         }
 
-        throw new IllegalArgumentException("Cannot process result '" + lootResult + "'");
+        throw new IllegalArgumentException("Cannot process result '" + o + "'");
     }
 }

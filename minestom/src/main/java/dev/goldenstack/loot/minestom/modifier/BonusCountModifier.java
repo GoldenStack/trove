@@ -131,7 +131,7 @@ public record BonusCountModifier(@NotNull List<LootCondition> conditions,
     }
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
+    public @NotNull Object modifyTyped(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context) || !context.has(LootContextKeys.TOOL)) {
             return input;
         }

@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.generation.LootGenerator;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -54,11 +53,11 @@ public record TableEntry(@NotNull NamespaceID tableIdentifier,
     }
 
     @Override
-    public @NotNull LootBatch generate(@NotNull LootContext context) {
+    public @NotNull List<Object> generate(@NotNull LootContext context) {
         if (!context.has(LootContextKeys.REGISTERED_TABLES)) {
-            return LootBatch.of();
+            return List.of();
         }
         LootGenerator table = context.assure(LootContextKeys.REGISTERED_TABLES).get(tableIdentifier);
-        return table == null ? LootBatch.of() : LootModifier.applyAll(modifiers(), table.generate(context), context);
+        return table != null ? LootModifier.applyAll(modifiers(), table.generate(context), context) : List.of();
     }
 }

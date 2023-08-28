@@ -140,7 +140,7 @@ public record CopyNbtModifier(@NotNull List<LootCondition> conditions, @NotNull 
     }
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
+    public @NotNull Object modifyTyped(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return input;
         }

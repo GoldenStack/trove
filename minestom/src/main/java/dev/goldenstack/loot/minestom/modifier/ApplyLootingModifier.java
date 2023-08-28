@@ -42,7 +42,7 @@ public record ApplyLootingModifier(@NotNull List<LootCondition> conditions,
             );
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
+    public @NotNull Object modifyTyped(@NotNull ItemStack input, @NotNull LootContext context) {
         Entity killer = context.get(LootContextKeys.KILLER_ENTITY);
         if (killer == null || !LootCondition.all(conditions(), context)) {
             return input;

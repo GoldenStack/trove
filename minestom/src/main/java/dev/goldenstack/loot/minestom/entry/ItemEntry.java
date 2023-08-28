@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
 import net.minestom.server.item.ItemStack;
@@ -53,7 +52,7 @@ public record ItemEntry(@NotNull Material itemType,
     }
 
     @Override
-    public @NotNull LootBatch generate(@NotNull LootContext context) {
-        return LootModifier.applyAll(modifiers(), LootBatch.of(ItemStack.of(itemType)), context);
+    public @NotNull List<Object> generate(@NotNull LootContext context) {
+        return LootModifier.applyAll(modifiers(), List.of(ItemStack.of(itemType)), context);
     }
 }

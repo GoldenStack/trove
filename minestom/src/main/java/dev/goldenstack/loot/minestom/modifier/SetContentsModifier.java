@@ -50,7 +50,7 @@ public record SetContentsModifier(@NotNull List<LootCondition> conditions,
     private static final @NotNull Tag<NBTCompound> BLOCK_ENTITY_TAG = Tag.Structure("BlockEntityTag", TagSerializer.COMPOUND);
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
+    public @NotNull Object modifyTyped(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context) || input.isAir()) {
             return input;
         }
@@ -81,7 +81,7 @@ public record SetContentsModifier(@NotNull List<LootCondition> conditions,
         // Actually process everything
         for (var entry : this.entries) {
             for (var choice : entry.requestChoices(context)) {
-                processor.process(choice, context);
+                choice.generate(context).forEach(processor);
             }
         }
 

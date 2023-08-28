@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -56,12 +55,11 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
     }
 
     @Override
-    public @NotNull LootBatch generate(@NotNull LootContext context) {
+    public @NotNull List<Object> generate(@NotNull LootContext context) {
         var block = context.assure(LootContextKeys.BLOCK_ENTITY).block();
         var blockNBT = block.hasNbt() ? block.nbt() : new NBTCompound();
 
         List<ItemStack> dynamicDrops = context.assure(LootContextKeys.VANILLA_INTERFACE).getDynamicDrops(dynamicChoiceId, blockNBT);
-
-        return LootModifier.applyAll(modifiers(), LootBatch.of(dynamicDrops), context);
+        return LootModifier.applyAll(modifiers(), List.copyOf(dynamicDrops), context);
     }
 }

@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.generation;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.generation.LootGenerator;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
@@ -49,9 +48,9 @@ public record LootPool(@NotNull LootNumber rolls,
     }
 
     @Override
-    public @NotNull LootBatch generate(@NotNull LootContext context) {
+    public @NotNull List<Object> generate(@NotNull LootContext context) {
         if (!LootCondition.all(conditions, context)) {
-            return LootBatch.of();
+            return List.of();
         }
 
         long rolls = this.rolls.getLong(context);
@@ -65,11 +64,11 @@ public record LootPool(@NotNull LootNumber rolls,
         for (int i = 0; i < rolls; i++) {
             var generated = LootEntry.pickChoice(entries, context);
             if (generated != null) {
-                items.addAll(generated.generate(context).items());
+                items.addAll(generated.generate(context));
             }
         }
 
-        return LootModifier.applyAll(modifiers(), new LootBatch(items), context);
+        return LootModifier.applyAll(modifiers(), items, context);
     }
 
 }

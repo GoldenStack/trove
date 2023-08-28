@@ -56,7 +56,7 @@ public record SetStewEffectModifier(@NotNull List<LootCondition> conditions,
     private static final @NotNull Tag<List<NBT>> EFFECTS_NBT = Tag.NBT("Effects").list().defaultValue(List::of);
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
+    public @NotNull Object modifyTyped(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return input;
         }

@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +47,7 @@ public record EmptyEntry(long weight, long quality,
     }
 
     @Override
-    public @NotNull LootBatch generate(@NotNull LootContext context) {
-        return LootBatch.EMPTY;
+    public @NotNull List<Object> generate(@NotNull LootContext context) {
+        return List.of();
     }
 }

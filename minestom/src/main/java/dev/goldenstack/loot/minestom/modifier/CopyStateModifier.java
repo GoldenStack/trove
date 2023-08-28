@@ -44,7 +44,7 @@ public record CopyStateModifier(@NotNull List<LootCondition> conditions, @NotNul
     private static final @NotNull Tag<NBTCompound> BLOCK_STATE_TAG = Tag.Structure("BlockStateTag", TagSerializer.COMPOUND).defaultValue(new NBTCompound());
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
+    public @NotNull Object modifyTyped(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context) || !context.has(LootContextKeys.BLOCK_STATE)) {
             return input;
         }

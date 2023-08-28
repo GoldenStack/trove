@@ -7,7 +7,6 @@ import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.StackingRule;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public record SmeltItemModifier(@NotNull List<LootCondition> conditions) impleme
             );
 
     @Override
-    public @Nullable Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
+    public @NotNull Object modifyTyped(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return input;
         }
@@ -44,9 +43,7 @@ public record SmeltItemModifier(@NotNull List<LootCondition> conditions) impleme
         ItemStack smelted = vanilla.smeltItem(input);
 
         // Fail if the item couldn't be smelted or if the new item can't have the same count applied
-        if (smelted == null || !rule.canApply(smelted, input.amount())) {
-            return null;
-        }
+        if (smelted == null || !rule.canApply(smelted, input.amount())) return input;
 
         return rule.apply(smelted, input.amount());
     }

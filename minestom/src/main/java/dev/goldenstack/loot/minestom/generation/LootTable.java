@@ -1,7 +1,6 @@
 package dev.goldenstack.loot.minestom.generation;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.generation.LootBatch;
 import dev.goldenstack.loot.generation.LootGenerator;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
 import dev.goldenstack.loot.structure.LootModifier;
@@ -44,20 +43,15 @@ public record LootTable(@NotNull LootContextKeyGroup contextKeyGroup,
     }
 
     @Override
-    public @NotNull LootBatch generate(@NotNull LootContext context) {
+    public @NotNull List<Object> generate(@NotNull LootContext context) {
         // Make sure that this table's required keys are in the given context
         contextKeyGroup.assureVerified(context);
 
-        if (pools.isEmpty()) {
-            return LootBatch.of();
-        }
-
         List<Object> items = new ArrayList<>();
         for (var pool : pools) {
-            items.addAll(LootModifier.applyAll(modifiers(), pool.generate(context), context).items());
+            items.addAll(LootModifier.applyAll(modifiers(), pool.generate(context), context));
         }
-
-        return LootBatch.of(items);
+        return items;
     }
 
 }

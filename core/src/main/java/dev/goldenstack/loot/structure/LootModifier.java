@@ -1,13 +1,13 @@
 package dev.goldenstack.loot.structure;
 
 import dev.goldenstack.loot.context.LootContext;
-import dev.goldenstack.loot.generation.LootBatch;
 import io.leangen.geantyref.GenericTypeReflector;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A function that allows loot to pass through it, potentially making modifications.
@@ -21,21 +21,24 @@ public interface LootModifier {
      * @param context the context object, to use if required
      * @return the modified form of the input
      */
-    @NotNull LootBatch modify(@NotNull LootBatch input, @NotNull LootContext context);
+    @NotNull Object modify(@NotNull Object input, @NotNull LootContext context);
 
     /**
      * A function that only modifies a specific type, calling the individual modifier
-     * {@link #modify(Object, LootContext)} for each valid instance in each provided batch.
+     * {@link #modifyTyped(Object, LootContext)} for each valid instance in each provided batch.
      * @param <T> the type to filter
      */
     interface Filtered<T> extends LootModifier {
 
         /**
-         * Calls {@link #modify(Object, LootContext)} for each input that is a subtype of {@link #filteredType()}.
+         * Returns {@link #modifyTyped(Object, LootContext)} if the input that is a subtype of {@link #filteredType()}.
          */
+        @SuppressWarnings("unchecked")
         @Override
-        default @NotNull LootBatch modify(@NotNull LootBatch input, @NotNull LootContext context) {
-            return input.<T>modify(filteredType(), object -> modify(object, context));
+        default @NotNull Object modify(@NotNull Object input, @NotNull LootContext context) {
+            // Casting should be safe as we verified the type
+            return GenericTypeReflector.isSuperType(filteredType(), input.getClass()) ?
+                    modifyTyped((T) input, context) : input;
         }
 
         /**
@@ -45,7 +48,7 @@ public interface LootModifier {
          * @return the modified object (of any type), or null if the input object shouldn't be added to the filtered
          *         batch for some reason
          */
-        @Nullable Object modify(@NotNull T input, @NotNull LootContext context);
+        @NotNull Object modifyTyped(@NotNull T input, @NotNull LootContext context);
 
         /**
          * Returns the type that this filtered modifier will modify. This will be used with
@@ -58,21 +61,22 @@ public interface LootModifier {
     }
 
     /**
-     * Applies all of the provided modifiers to the provided input. The order in which they are applied is equal to the
-     * order provided by the iterator of the provided collection of modifiers.
+     * Applies each modifier to each item in the input list.
      * @param modifiers the modifiers to apply
-     * @param input the initial input to pass through the modifiers
-     * @param context the context object, to use if required
-     * @return the item with all modifiers applied
+     * @param input the input list
+     * @param context the context to use
+     * @return the modified list
      */
-    static @NotNull LootBatch applyAll(@NotNull Collection<LootModifier> modifiers, @NotNull LootBatch input, @NotNull LootContext context) {
-        if (modifiers.isEmpty()) {
-            return input;
+    static @NotNull List<Object> applyAll(@NotNull Collection<LootModifier> modifiers, @NotNull List<Object> input, @NotNull LootContext context) {
+        if (modifiers.isEmpty() || input.isEmpty()) return input;
+        List<Object> objects = new ArrayList<>();
+        for (var object : input) {
+            for (var modifier : modifiers) {
+                object = modifier.modify(object, context);
+            }
+            objects.add(object);
         }
-        for (var modifier : modifiers) {
-            input = modifier.modify(input, context);
-        }
-        return input;
+        return objects;
     }
 
 }

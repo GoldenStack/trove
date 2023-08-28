@@ -36,7 +36,7 @@ public record SetPotionModifier(@NotNull List<LootCondition> conditions, @NotNul
     private static final @NotNull Tag<String> POTION_TAG = Tag.String("Potion");
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
+    public @NotNull Object modifyTyped(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!(LootCondition.all(conditions(), context))) {
             return input;
         }

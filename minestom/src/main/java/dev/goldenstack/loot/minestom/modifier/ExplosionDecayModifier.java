@@ -32,7 +32,7 @@ public record ExplosionDecayModifier(@NotNull List<LootCondition> conditions) im
             );
 
     @Override
-    public @NotNull Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
+    public @NotNull Object modifyTyped(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context) || !context.has(LootContextKeys.EXPLOSION_RADIUS)) {
             return input;
         }

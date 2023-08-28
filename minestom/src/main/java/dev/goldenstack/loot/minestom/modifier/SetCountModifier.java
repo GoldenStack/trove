@@ -7,7 +7,6 @@ import dev.goldenstack.loot.structure.LootNumber;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.StackingRule;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
@@ -38,7 +37,7 @@ public record SetCountModifier(@NotNull List<LootCondition> conditions,
             );
 
     @Override
-    public @Nullable Object modify(@NotNull ItemStack input, @NotNull LootContext context) {
+    public @NotNull Object modifyTyped(@NotNull ItemStack input, @NotNull LootContext context) {
         if (!LootCondition.all(conditions(), context)) {
             return input;
         }
@@ -49,7 +48,7 @@ public record SetCountModifier(@NotNull List<LootCondition> conditions,
             // Clamp value if invalid, but exit if it's still invalid
             newCount = Math.max(Math.min(newCount, rule.getMaxSize(input)), 0);
             if (!rule.canApply(input, newCount)) {
-                return null;
+                return input;
             }
         }
         return rule.apply(input, newCount);
