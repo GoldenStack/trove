@@ -10,10 +10,10 @@ import static dev.goldenstack.loot.serialize.generator.Serializers.field;
 import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
- * A constant value that is always returned. When a {@code long} is needed, {@link Math#round(double)} is used.
+ * A constant value that is always returned.
  * @param value the number to return
  */
-public record ConstantNumber(double value) implements LootNumber {
+public record ConstantNumber(@NotNull Number value) implements LootNumber {
 
     /**
      * A serializer for constant numbers that always serializes to a numerical scalar and deserializes when the input is
@@ -24,12 +24,7 @@ public record ConstantNumber(double value) implements LootNumber {
                 if (input instanceof ConstantNumber constant) {
                     result.set(constant.value());
                 }
-            }, input -> {
-                if (input.rawScalar() instanceof Number number) {
-                    return new ConstantNumber(number.doubleValue());
-                }
-                return null;
-            }
+            }, input -> input.rawScalar() instanceof Number number ? new ConstantNumber(number) : null
     );
 
     public static final @NotNull String KEY = "minecraft:constant";
@@ -39,16 +34,16 @@ public record ConstantNumber(double value) implements LootNumber {
      */
     public static final @NotNull TypeSerializer<ConstantNumber> SERIALIZER =
             serializer(ConstantNumber.class,
-                    field(double.class).name("value")
+                    field(Number.class).name("value")
             );
 
     @Override
     public long getLong(@NotNull LootContext context) {
-        return Math.round(value);
+        return value.longValue();
     }
 
     @Override
     public double getDouble(@NotNull LootContext context) {
-        return value;
+        return value.doubleValue();
     }
 }
