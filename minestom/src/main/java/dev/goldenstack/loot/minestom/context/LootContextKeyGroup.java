@@ -103,16 +103,16 @@ public record LootContextKeyGroup(@NotNull String id, @NotNull Set<LootContext.K
          * A LootContextKeyGroup that requires everything. This is not done dynamically, so if you add your own keys
          * you will need to create a new group with the extra ones.
          */
-        GENERIC = builder().id("minecraft:generic").expect(THIS_ENTITY, LAST_DAMAGE_PLAYER, DAMAGE_SOURCE, KILLER_ENTITY, DIRECT_KILLER_ENTITY, ORIGIN, BLOCK_STATE, BLOCK_ENTITY, TOOL, EXPLOSION_RADIUS).build(),
+        GENERIC = builder().id("minecraft:generic").expect(THIS_ENTITY, LAST_DAMAGE_PLAYER, DAMAGE_SOURCE, KILLER_ENTITY, DIRECT_KILLER_ENTITY, ORIGIN, BLOCK_STATE, BLOCK_POSITION, TOOL, EXPLOSION_RADIUS).build(),
 
         /**
          * A LootContextKeyGroup that represents when something happens to a block. It requires the block state (the state
          * of the block when it was broken), a required origin (the location of the block), a required tool (the tool that
          * broke the block or affected it in some way), an optional entity (the entity that caused whatever is happening),
-         * an optional block entity (the entity that the block was), and an optional explosion radius (the radius of the
-         * explosion that caused whatever happened).
+         * an optional block position, and an optional explosion radius (the radius of the explosion that caused
+         * whatever happened).
          */
-        BLOCK = builder().id("minecraft:block").expect(BLOCK_STATE, ORIGIN, TOOL).permit(THIS_ENTITY, BLOCK_ENTITY, EXPLOSION_RADIUS).build();
+        BLOCK = builder().id("minecraft:block").expect(BLOCK_STATE, ORIGIN, TOOL).permit(THIS_ENTITY, BLOCK_POSITION, EXPLOSION_RADIUS).build();
 
     public LootContextKeyGroup {
         expected = Set.copyOf(expected);

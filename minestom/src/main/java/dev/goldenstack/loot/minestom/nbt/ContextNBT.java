@@ -86,18 +86,17 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
 
         @Override
         public @NotNull NBT getNBT(@NotNull LootContext context) {
-            var blockEntity = context.assure(LootContextKeys.BLOCK_ENTITY);
+            var block = context.assure(LootContextKeys.BLOCK_STATE);
+            var pos = context.assure(LootContextKeys.BLOCK_POSITION);
 
-            var pos = blockEntity.position();
-
-            NBTCompound nbt = blockEntity.block().hasNbt() ? blockEntity.block().nbt() : new NBTCompound();
+            NBTCompound nbt = block.hasNbt() ? block.nbt() : new NBTCompound();
 
             nbt = nbt.modify(mut -> {
                 mut.setInt("x", pos.blockX());
                 mut.setInt("y", pos.blockY());
                 mut.setInt("z", pos.blockZ());
 
-                mut.setString("id", blockEntity.block().namespace().asString());
+                mut.setString("id", block.namespace().asString());
             });
 
             return nbt;

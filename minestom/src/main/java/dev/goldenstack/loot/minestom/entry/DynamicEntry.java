@@ -56,7 +56,7 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
 
     @Override
     public @NotNull List<Object> generate(@NotNull LootContext context) {
-        var block = context.assure(LootContextKeys.BLOCK_ENTITY).block();
+        var block = context.assure(LootContextKeys.BLOCK_STATE);
         var blockNBT = block.hasNbt() ? block.nbt() : new NBTCompound();
 
         List<ItemStack> dynamicDrops = context.assure(LootContextKeys.VANILLA_INTERFACE).getDynamicDrops(dynamicChoiceId, blockNBT);

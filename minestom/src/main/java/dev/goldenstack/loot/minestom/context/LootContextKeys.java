@@ -25,18 +25,10 @@ public class LootContextKeys {
     private LootContextKeys() {}
 
     /**
-     * Contains information about a block entity.
-     * @param position the position of the block
-     * @param block the actual block data
+     * Represents the position of the block entity that was used. Since {@link #BLOCK_STATE} supports block NBT, the
+     * only data required here is the block position.
      */
-    public record BlockEntity(@NotNull Point position, @NotNull Block block) {}
-
-    /**
-     * Represents the block entity (block with NBT) that is related to a loot context. However, because Minestom allows
-     * all blocks to possess NBT, the only data that is missing is the position, which is contained within
-     * {@link BlockEntity}.
-     */
-    public static final @NotNull LootContext.Key<BlockEntity> BLOCK_ENTITY = key("minecraft:block_entity", new TypeToken<>(){});
+    public static final @NotNull LootContext.Key<Point> BLOCK_POSITION = key("minecraft:block_entity", new TypeToken<>(){});
 
     /**
      * Represents the block state that is related to a loot context.
