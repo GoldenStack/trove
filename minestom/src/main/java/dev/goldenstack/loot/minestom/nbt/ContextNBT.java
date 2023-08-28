@@ -84,6 +84,7 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
 
     public record BlockEntityTarget() implements NBTTarget {
 
+        @SuppressWarnings("DataFlowIssue")
         @Override
         public @NotNull NBT getNBT(@NotNull LootContext context) {
             var block = context.assure(LootContextKeys.BLOCK_STATE);

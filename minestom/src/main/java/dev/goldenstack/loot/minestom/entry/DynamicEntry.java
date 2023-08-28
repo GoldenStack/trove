@@ -54,6 +54,7 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
         return LootCondition.all(conditions(), context);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Override
     public @NotNull List<Object> generate(@NotNull LootContext context) {
         var block = context.assure(LootContextKeys.BLOCK_STATE);

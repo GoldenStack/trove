@@ -102,7 +102,7 @@ public class NBTUtils {
         StringBuilder string = new StringBuilder("{");
 
         while (true) {
-            // Since this is a compound we should always read to at least the next closing curly brackets. However we
+            // Since this is a compound we should always read to at least the next closing curly brackets. However, we
             // can't count brackets and skip to until we think they should be valid because they could be escaped.
 
             int next;
@@ -166,7 +166,7 @@ public class NBTUtils {
             items.add(ItemStack.AIR);
         }
 
-        // Iterate with a normal loop so we can use the index as a fallback.
+        // Iterate with a normal loop so that we can use the index as a fallback.
         for (int i = 0; i < itemNBT.getSize(); i++) {
             Byte slot = itemNBT.get(i).getByte("Slot");
 

@@ -32,7 +32,7 @@ public record EnchantmentCheck(@Nullable Enchantment enchantmentType, @NotNull L
     /**
      * Checks to see if the provided enchantments are valid according to this check. If {@link #enchantmentType()} is
      * null, at least one of the enchantments in the map must fit the {@link #levels()}. Otherwise, only the enchantment
-     * must. If the enchantment is defined but it is not present in this map, it will be considered as failing, unless
+     * must. If the enchantment is defined, but it is not present in this map, it will be considered as failing, unless
      * if the range has no minimum or maximum.
      * @param context the context that will be fed to {@link #levels()}
      * @param enchantments the enchantment map to test
@@ -48,7 +48,7 @@ public record EnchantmentCheck(@Nullable Enchantment enchantmentType, @NotNull L
                 return true;
             }
         }
-        // If this is true, then the list was empty and so we should always return true anyway.
+        // If this is true at this point, the list was empty so we should always return true anyway.
         return levels().min() == null && levels.max() == null;
     }
 

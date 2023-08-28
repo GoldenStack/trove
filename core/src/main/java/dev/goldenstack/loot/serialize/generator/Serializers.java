@@ -12,6 +12,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Objects;
@@ -83,7 +84,7 @@ public class Serializers {
         }
 
         /**
-         * Updates both names of this field - see {@link #localName(String)} and {@link #nodePath(Object...)} )}.
+         * Updates both names of this field - see {@link #localName(String)} and {@link #nodePath(Object...)}.
          * @param name the new local name and node path to use
          * @return a new field with the updated information
          */
@@ -248,24 +249,7 @@ class SerializersImpl {
         // Store actual fields for the serialization
         java.lang.reflect.Field[] actualFields = new java.lang.reflect.Field[fields.size()];
         for (int i = 0; i < fields.size(); i++) {
-            var field = fields.get(i);
-
-            java.lang.reflect.Field actualField;
-            try {
-                actualField = type.getDeclaredField(field.localName());
-            } catch (NoSuchFieldException e) {
-                throw new RuntimeException("Unknown field '" + field.localName() + "' of class '" + type + "'", e);
-            }
-
-            if (!actualField.getGenericType().equals(field.type().getType())) {
-                throw new RuntimeException("Expected field '" + field.localName() + "' of class '" + type + "' to be of type '" + field.type().getType() + "', found '" + actualField.getType() + "'");
-            }
-
-            if (!actualField.trySetAccessible()) {
-                throw new RuntimeException("Could not make field '" + actualField + "' accessible");
-            }
-
-            actualFields[i] = actualField;
+            actualFields[i] = getField(type, fields.get(i));
         }
 
         LootSerializer<V> actualSerializer = (input, result) -> {
@@ -284,6 +268,24 @@ class SerializersImpl {
         };
 
         return FieldTypes.join(actualSerializer, actualDeserializer);
+    }
+
+    private static @NotNull <V> Field getField(@NotNull Class<V> type, @NotNull Serializers.Field<?> field) {
+        Field actualField;
+        try {
+            actualField = type.getDeclaredField(field.localName());
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException("Unknown field '" + field.localName() + "' of class '" + type + "'", e);
+        }
+
+        if (!actualField.getGenericType().equals(field.type().getType())) {
+            throw new RuntimeException("Expected field '" + field.localName() + "' of class '" + type + "' to be of type '" + field.type().getType() + "', found '" + actualField.getType() + "'");
+        }
+
+        if (!actualField.trySetAccessible()) {
+            throw new RuntimeException("Could not make field '" + actualField + "' accessible");
+        }
+        return actualField;
     }
 
     // Used to store a constant type parameter so that we don't have conflicting type arguments that appear identical

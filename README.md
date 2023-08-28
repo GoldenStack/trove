@@ -38,7 +38,7 @@ dependencies {
     implementation("com.github.GoldenStack.trove:MODULE:TAG")
 }
 ```
-Just replace MODULE with your desired module and TAG with the desired the desired tag, including the commit tag or just
+Just replace MODULE with your desired module and TAG with the desired tag, including the commit tag or just
 "-SNAPSHOT".
 
 ---

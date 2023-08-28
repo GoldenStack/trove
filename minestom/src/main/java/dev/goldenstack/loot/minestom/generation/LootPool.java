@@ -57,7 +57,7 @@ public record LootPool(@NotNull LootNumber rolls,
 
         Double luck = context.get(LootContextKeys.LUCK);
         if (luck != null) {
-            rolls += Math.floor(luck * this.bonusRolls.getDouble(context));
+            rolls += (long) Math.floor(luck * this.bonusRolls.getDouble(context));
         }
 
         List<Object> items = new ArrayList<>();
