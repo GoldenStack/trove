@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
 import static dev.goldenstack.loot.serialize.generator.Serializers.field;
@@ -47,7 +48,5 @@ public record EmptyEntry(long weight, long quality,
     }
 
     @Override
-    public @NotNull List<Object> generate(@NotNull LootContext context) {
-        return List.of();
-    }
+    public void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor) {}
 }

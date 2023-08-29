@@ -5,9 +5,7 @@ import io.leangen.geantyref.GenericTypeReflector;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * A function that allows loot to pass through it, potentially making modifications.
@@ -61,22 +59,17 @@ public interface LootModifier {
     }
 
     /**
-     * Applies each modifier to each item in the input list.
+     * Applies each modifier to the given item.
      * @param modifiers the modifiers to apply
-     * @param input the input list
+     * @param object the object to modify
      * @param context the context to use
-     * @return the modified list
+     * @return the modified object
      */
-    static @NotNull List<Object> applyAll(@NotNull Collection<LootModifier> modifiers, @NotNull List<Object> input, @NotNull LootContext context) {
-        if (modifiers.isEmpty() || input.isEmpty()) return input;
-        List<Object> objects = new ArrayList<>();
-        for (var object : input) {
-            for (var modifier : modifiers) {
-                object = modifier.modify(object, context);
-            }
-            objects.add(object);
+    static @NotNull Object apply(@NotNull Collection<LootModifier> modifiers, @NotNull Object object, @NotNull LootContext context) {
+        for (var modifier : modifiers) {
+            object = modifier.modify(object, context);
         }
-        return objects;
+        return object;
     }
 
 }

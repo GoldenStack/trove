@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
 import static dev.goldenstack.loot.serialize.generator.Serializers.field;
@@ -52,7 +53,7 @@ public record ItemEntry(@NotNull Material itemType,
     }
 
     @Override
-    public @NotNull List<Object> generate(@NotNull LootContext context) {
-        return LootModifier.applyAll(modifiers(), List.of(ItemStack.of(itemType)), context);
+    public void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor) {
+        processor.accept(LootModifier.apply(modifiers(), ItemStack.of(itemType), context));
     }
 }

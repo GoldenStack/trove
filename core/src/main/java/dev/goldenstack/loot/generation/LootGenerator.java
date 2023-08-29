@@ -3,17 +3,20 @@ package dev.goldenstack.loot.generation;
 import dev.goldenstack.loot.context.LootContext;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Something that can generate loot.
  */
-public interface LootGenerator {
+public interface LootGenerator extends BiConsumer<@NotNull LootContext, @NotNull Consumer<@NotNull Object>> {
 
     /**
-     * Generates a (possibly empty) batch of loot items from the provided context.
-     * @param context the context, to use if needed
+     * Generates items from the provided context, giving them to the consumer.
+     * @param context the context to use
+     * @param processor the loot processor
      */
-    @NotNull List<Object> generate(@NotNull LootContext context);
+    @Override
+    void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor);
 
 }

@@ -11,8 +11,8 @@ import dev.goldenstack.loot.structure.LootNumber;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
 import static dev.goldenstack.loot.serialize.generator.Serializers.field;
@@ -48,10 +48,8 @@ public record LootPool(@NotNull LootNumber rolls,
     }
 
     @Override
-    public @NotNull List<Object> generate(@NotNull LootContext context) {
-        if (!LootCondition.all(conditions, context)) {
-            return List.of();
-        }
+    public void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor) {
+        if (!LootCondition.all(conditions, context)) return;
 
         long rolls = this.rolls.getLong(context);
 
@@ -60,15 +58,11 @@ public record LootPool(@NotNull LootNumber rolls,
             rolls += (long) Math.floor(luck * this.bonusRolls.getDouble(context));
         }
 
-        List<Object> items = new ArrayList<>();
         for (int i = 0; i < rolls; i++) {
             var generated = LootEntry.pickChoice(entries, context);
             if (generated != null) {
-                items.addAll(generated.generate(context));
+                generated.accept(context, object -> processor.accept(LootModifier.apply(modifiers(), object, context)));
             }
         }
-
-        return LootModifier.applyAll(modifiers(), items, context);
     }
-
 }

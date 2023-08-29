@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
 import static dev.goldenstack.loot.serialize.generator.Serializers.field;
@@ -53,11 +54,10 @@ public record TableEntry(@NotNull NamespaceID tableIdentifier,
     }
 
     @Override
-    public @NotNull List<Object> generate(@NotNull LootContext context) {
-        if (!context.has(LootContextKeys.REGISTERED_TABLES)) {
-            return List.of();
-        }
+    public void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor) {
+        if (!context.has(LootContextKeys.REGISTERED_TABLES)) return;
         LootGenerator table = context.assure(LootContextKeys.REGISTERED_TABLES).get(tableIdentifier);
-        return table != null ? LootModifier.applyAll(modifiers(), table.generate(context), context) : List.of();
+        if (table == null) return;
+        table.accept(context, object -> processor.accept(LootModifier.apply(modifiers(), object, context)));
     }
 }

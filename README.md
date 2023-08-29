@@ -63,14 +63,14 @@ Each table will be stored via a NamespaceID in the tables object. For example, i
 
 
 ### Generation
-Actual loot generation is fairly simple - you just need to call `LootTable#generate(LootContext)`.
+Actual loot generation is fairly simple - you just need to call `LootTable#generate(LootContext, Consumer<Object>)`.
+The consumer can be a `LootProcessor` if that makes it easier.
 
 Importantly, if you want some of the vanilla features that aren't implemented here, you should implement the
 `VanillaInterface` interface and pass it in as a key to your context. A partial implementation of it that doesn't throw
 any exceptions is `FallbackVanillaInterface`. You may also have to implement some type serializers.
 
 Here's an example that uses the `tableRegistry` variable from the last code snippet:
-
 ``` java
 LootTable table = tableRegistry.getTable(NamespaceID.from("minecraft:blocks/stone"));
 
@@ -81,10 +81,10 @@ LootContext context = LootContext.builder()
         .build();
 
 // Generate the loot
-LootBatch loot = table.generate(context);
+table.generate(context, loot -> ...); // Do something with the loot
 ```
-To process loot, you could simply call `LootBatch#items` and handle the items, but you can also use a `LootProcessor` to
-make this processing easier. For example:
+
+You can also use a `LootProcessor` to make this processing easier. For example:
 ``` java
 var processor = LootProcessor.processClass(ItemStack.class, item -> {
     // Perform some arbitrary action with the item
@@ -92,7 +92,6 @@ var processor = LootProcessor.processClass(ItemStack.class, item -> {
 ```
 
 You can also handle multiple classes at once, or even use a custom predicate:
-
 ``` java
 var processor = LootProcessor.builder()
         .processClass(ItemStack.class, item -> {
@@ -104,15 +103,9 @@ var processor = LootProcessor.builder()
         }).build();
 ```
 
-Then, just handle the `LootBatch` that was generated previously:
-
+Then, you can just provide the processor to the generator:
 ``` java
-processor.process(loot);
-```
-
-You may also provide something that can generate loot, as well as a `LootContext`:
-``` java
-processor.process(table, context);
+table.generate(context, processor);
 ```
 
 ---

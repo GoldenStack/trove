@@ -12,6 +12,7 @@ import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
 import static dev.goldenstack.loot.serialize.generator.Serializers.field;
@@ -56,11 +57,13 @@ public record DynamicEntry(@NotNull NamespaceID dynamicChoiceId, long weight, lo
 
     @SuppressWarnings("DataFlowIssue")
     @Override
-    public @NotNull List<Object> generate(@NotNull LootContext context) {
+    public void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor) {
         var block = context.assure(LootContextKeys.BLOCK_STATE);
         var blockNBT = block.hasNbt() ? block.nbt() : new NBTCompound();
 
         List<ItemStack> dynamicDrops = context.assure(LootContextKeys.VANILLA_INTERFACE).getDynamicDrops(dynamicChoiceId, blockNBT);
-        return LootModifier.applyAll(modifiers(), List.copyOf(dynamicDrops), context);
+        for (var drop : dynamicDrops) {
+            processor.accept(LootModifier.apply(modifiers(), drop, context));
+        }
     }
 }

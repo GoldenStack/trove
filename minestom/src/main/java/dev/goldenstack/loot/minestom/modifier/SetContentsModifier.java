@@ -81,7 +81,7 @@ public record SetContentsModifier(@NotNull List<LootCondition> conditions,
         // Actually process everything
         for (var entry : this.entries) {
             for (var choice : entry.requestChoices(context)) {
-                choice.generate(context).forEach(processor);
+                choice.accept(context, processor);
             }
         }
 

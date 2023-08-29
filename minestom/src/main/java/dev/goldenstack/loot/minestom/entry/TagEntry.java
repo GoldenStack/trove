@@ -13,6 +13,7 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static dev.goldenstack.loot.minestom.util.MinestomTypes.tag;
 import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
@@ -64,28 +65,25 @@ public record TagEntry(@NotNull Tag itemTag, boolean expand,
         }
 
         List<Choice> choices = new ArrayList<>();
-        for (Object tagItem : generate(context)) {
-            choices.add(new Choice() {
-                @Override
-                public @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootContext context) {
-                    return TagEntry.this.getWeight(context);
-                }
+        accept(context, object -> choices.add(new Choice() {
+            @Override
+            public @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootContext context) {
+                return TagEntry.this.getWeight(context);
+            }
 
-                @Override
-                public @NotNull List<Object> generate(@NotNull LootContext context) {
-                    return List.of(tagItem);
-                }
-            });
-        }
+            @Override
+            public void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor) {
+                processor.accept(object);
+            }
+        }));
         return choices;
     }
 
     @Override
-    public @NotNull List<Object> generate(@NotNull LootContext context) {
-        var items = itemTag.getValues().stream()
-                .map(Material::fromNamespaceId).filter(Objects::nonNull)
-                .map(ItemStack::of).toList();
-
-        return LootModifier.applyAll(modifiers(), List.copyOf(items), context);
+    public void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor) {
+        itemTag.getValues().stream()
+                .map(Material::fromNamespaceId).filter(Objects::nonNull).map(ItemStack::of)
+                .map(object -> LootModifier.apply(modifiers(), object, context))
+                .forEach(processor);
     }
 }
