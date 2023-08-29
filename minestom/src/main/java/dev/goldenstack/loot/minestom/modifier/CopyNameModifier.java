@@ -46,7 +46,7 @@ public record CopyNameModifier(@NotNull List<LootCondition> conditions,
         THIS("this", LootContextKeys.THIS_ENTITY),
         KILLER("killer", LootContextKeys.KILLER_ENTITY),
         KILLER_PLAYER("killer_player", LootContextKeys.LAST_DAMAGE_PLAYER),
-        BLOCK_ENTITY("block_entity", LootContextKeys.BLOCK_POSITION);
+        BLOCK_ENTITY("block_entity", LootContextKeys.BLOCK_STATE);
 
         private final String name;
         private final LootContext.Key<?> key;

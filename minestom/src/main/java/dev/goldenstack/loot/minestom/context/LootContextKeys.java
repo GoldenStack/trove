@@ -25,12 +25,6 @@ public class LootContextKeys {
     private LootContextKeys() {}
 
     /**
-     * Represents the position of the block entity that was used. Since {@link #BLOCK_STATE} supports block NBT, the
-     * only data required here is the block position.
-     */
-    public static final @NotNull LootContext.Key<Point> BLOCK_POSITION = key("minecraft:block_entity", new TypeToken<>(){});
-
-    /**
      * Represents the block state that is related to a loot context.
      */
     public static final @NotNull LootContext.Key<Block> BLOCK_STATE = key("minecraft:block_state", new TypeToken<>(){});

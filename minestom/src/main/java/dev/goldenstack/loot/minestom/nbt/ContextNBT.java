@@ -88,7 +88,7 @@ public record ContextNBT(@NotNull NBTTarget target) implements LootNBT {
         @Override
         public @NotNull NBT getNBT(@NotNull LootContext context) {
             var block = context.assure(LootContextKeys.BLOCK_STATE);
-            var pos = context.assure(LootContextKeys.BLOCK_POSITION);
+            var pos = context.assure(LootContextKeys.ORIGIN);
 
             NBTCompound nbt = block.hasNbt() ? block.nbt() : new NBTCompound();
 
