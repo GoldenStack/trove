@@ -43,15 +43,13 @@ public record LootTable(@NotNull LootContextKeyGroup contextKeyGroup,
     }
 
     @Override
-    public @NotNull List<Object> generate(@NotNull LootContext context) {
+    public void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor) {
         // Make sure that this table's required keys are in the given context
         contextKeyGroup.assureVerified(context);
 
-        List<Object> items = new ArrayList<>();
         for (var pool : pools) {
-            items.addAll(LootModifier.applyAll(modifiers(), pool.generate(context), context));
+            pool.accept(context, object -> LootModifier.apply(modifiers(), object, context));
         }
-        return items;
     }
 
 }

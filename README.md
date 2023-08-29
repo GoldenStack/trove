@@ -9,8 +9,8 @@ system, Trove is much more flexible, permitting the usage of multiple different 
 Plus, it has a convenient API, emphasizes immutable data structures, and supports full serialization and deserialization
 of all formats supported by Configurate, including JSON and YAML.
 
-The two modules are Core and Minestom. The Core module contains the basic functioning pieces of the library, while
-Minestom contains a nearly full implementation for Minecraft's loot tables for Minestom.
+The two modules are `core` and `minestom`. The `core` module contains the basic functioning pieces of the library, while
+`minestom` contains a nearly full implementation for Minecraft's loot tables for Minestom.
 
 ---
 
