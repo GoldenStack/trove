@@ -2,6 +2,7 @@ package dev.goldenstack.loot.minestom.nbt;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
+import dev.goldenstack.loot.minestom.vanilla.VanillaInterface;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBT;
@@ -13,7 +14,7 @@ import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * Returns the NBT compound contained in the
- * {@link dev.goldenstack.loot.minestom.VanillaInterface#getCommandStorageValue(NamespaceID) data storage} under the key
+ * {@link VanillaInterface#getCommandStorageValue(NamespaceID) data storage} under the key
  * {@link #storageKey()}.
  * @param storageKey the key to get the associated value of in the data storage
  */

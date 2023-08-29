@@ -2,7 +2,6 @@ package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.minestom.nbt.LootNBT;
-import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.minestom.util.nbt.NBTPath;
 import dev.goldenstack.loot.minestom.util.nbt.NBTReference;
 import dev.goldenstack.loot.minestom.util.nbt.NBTUtils;

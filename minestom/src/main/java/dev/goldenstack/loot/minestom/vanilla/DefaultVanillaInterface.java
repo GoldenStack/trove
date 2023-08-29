@@ -1,6 +1,5 @@
-package dev.goldenstack.loot.minestom.util;
+package dev.goldenstack.loot.minestom.vanilla;
 
-import dev.goldenstack.loot.minestom.VanillaInterface;
 import dev.goldenstack.loot.minestom.util.nbt.NBTUtils;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
@@ -19,7 +18,7 @@ import java.util.Random;
 /**
  * A vanilla interface implementation that provides sensible defaults for each method.
  */
-public interface FallbackVanillaInterface extends VanillaInterface {
+public interface DefaultVanillaInterface extends VanillaInterface {
 
     @Override
     default boolean isRaining(@NotNull Instance instance) {

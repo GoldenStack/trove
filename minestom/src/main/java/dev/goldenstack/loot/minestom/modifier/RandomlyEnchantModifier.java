@@ -2,7 +2,7 @@ package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
-import dev.goldenstack.loot.minestom.util.ItemStackModifier;
+import dev.goldenstack.loot.minestom.vanilla.VanillaInterface;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.item.Enchantment;
 import net.minestom.server.item.ItemStack;
@@ -23,7 +23,7 @@ import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 /**
  * Randomly adds one enchantment, of a random valid level, to each provided item. If {@link #validEnchantments()} is
  * empty, a random enchantment that {@link Registry.EnchantmentEntry#isDiscoverable() is discoverable} and that can also
- * be applied to the provided item (via {@link dev.goldenstack.loot.minestom.VanillaInterface#canApplyEnchantment(ItemStack, Enchantment)})
+ * be applied to the provided item (via {@link VanillaInterface#canApplyEnchantment(ItemStack, Enchantment)})
  * is picked. The added enchantment has a random valid level.
  * @param conditions the conditions required for use
  * @param validEnchantments the list of possible enchantments to add

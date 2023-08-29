@@ -2,6 +2,7 @@ package dev.goldenstack.loot.minestom.condition;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
+import dev.goldenstack.loot.minestom.vanilla.VanillaInterface;
 import dev.goldenstack.loot.structure.LootCondition;
 import net.minestom.server.entity.Entity;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +13,7 @@ import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
 
 /**
  * A condition that returns true based on {@link #chance()}, and scales {@link #lootingCoefficient()} based on the
- * entity's level of looting according to {@link dev.goldenstack.loot.minestom.VanillaInterface#getLooting(Entity)}.
+ * entity's level of looting according to {@link VanillaInterface#getLooting(Entity)}.
  * @param chance the probability of this condition returning true
  * @param lootingCoefficient the scale of the looting value (is simply multiplied by it)
  */

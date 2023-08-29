@@ -1,4 +1,4 @@
-package dev.goldenstack.loot.minestom;
+package dev.goldenstack.loot.minestom.vanilla;
 
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;

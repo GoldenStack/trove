@@ -11,8 +11,9 @@ import dev.goldenstack.loot.minestom.nbt.StorageNBT;
 import dev.goldenstack.loot.minestom.number.BinomialNumber;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.minestom.number.UniformNumber;
-import dev.goldenstack.loot.minestom.util.FallbackVanillaInterface;
+import dev.goldenstack.loot.minestom.vanilla.DefaultVanillaInterface;
 import dev.goldenstack.loot.minestom.util.MinestomTypes;
+import dev.goldenstack.loot.minestom.vanilla.VanillaInterface;
 import dev.goldenstack.loot.serialize.generator.FieldTypes;
 import dev.goldenstack.loot.serialize.generator.SerializerSelector;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -144,7 +145,7 @@ public class TroveMinestom {
     /**
      * The default vanilla interface implementation for {@link dev.goldenstack.loot.minestom.context.LootContextKeys#VANILLA_INTERFACE}.
      */
-    public static final @NotNull VanillaInterface DEFAULT_INTERFACE = new FallbackVanillaInterface() {};
+    public static final @NotNull VanillaInterface DEFAULT_INTERFACE = new DefaultVanillaInterface() {};
 
     /**
      * Parses every JSON file in the provided directory, or one of its subdirectories, into loot tables, returning the

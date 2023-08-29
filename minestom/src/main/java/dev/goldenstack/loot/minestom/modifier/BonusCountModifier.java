@@ -2,7 +2,6 @@ package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
-import dev.goldenstack.loot.minestom.util.ItemStackModifier;
 import dev.goldenstack.loot.serialize.generator.SerializerSelector;
 import dev.goldenstack.loot.structure.LootCondition;
 import io.leangen.geantyref.TypeToken;

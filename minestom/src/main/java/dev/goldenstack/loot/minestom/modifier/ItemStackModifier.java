@@ -1,4 +1,4 @@
-package dev.goldenstack.loot.minestom.util;
+package dev.goldenstack.loot.minestom.modifier;
 
 import dev.goldenstack.loot.structure.LootModifier;
 import net.minestom.server.item.ItemStack;

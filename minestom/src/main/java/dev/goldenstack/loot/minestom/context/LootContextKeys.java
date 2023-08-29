@@ -2,7 +2,7 @@ package dev.goldenstack.loot.minestom.context;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.generation.LootGenerator;
-import dev.goldenstack.loot.minestom.VanillaInterface;
+import dev.goldenstack.loot.minestom.vanilla.VanillaInterface;
 import dev.goldenstack.loot.structure.LootCondition;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.coordinate.Point;
