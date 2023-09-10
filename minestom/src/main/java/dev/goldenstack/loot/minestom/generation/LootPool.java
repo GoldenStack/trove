@@ -2,6 +2,7 @@ package dev.goldenstack.loot.minestom.generation;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.generation.LootGenerator;
+import dev.goldenstack.loot.generation.LootProcessor;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.minestom.number.ConstantNumber;
 import dev.goldenstack.loot.structure.LootCondition;
@@ -12,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
 import static dev.goldenstack.loot.serialize.generator.Serializers.field;
@@ -48,7 +48,7 @@ public record LootPool(@NotNull LootNumber rolls,
     }
 
     @Override
-    public void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor) {
+    public void accept(@NotNull LootContext context, @NotNull LootProcessor processor) {
         if (!LootCondition.all(conditions, context)) return;
 
         long rolls = this.rolls.getLong(context);
@@ -61,7 +61,7 @@ public record LootPool(@NotNull LootNumber rolls,
         for (int i = 0; i < rolls; i++) {
             var generated = LootEntry.pickChoice(entries, context);
             if (generated != null) {
-                generated.accept(context, object -> processor.accept(LootModifier.apply(modifiers(), object, context)));
+                generated.accept(context, (c, object) -> processor.accept(c, LootModifier.apply(modifiers(), object, c)));
             }
         }
     }

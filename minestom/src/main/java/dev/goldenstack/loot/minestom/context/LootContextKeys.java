@@ -11,6 +11,7 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.inventory.Inventory;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.Contract;
@@ -101,6 +102,11 @@ public class LootContextKeys {
      * Represents a map of all registered loot conditions.
      */
     public static final @NotNull LootContext.Key<Map<NamespaceID, LootCondition>> REGISTERED_CONDITIONS = key("minecraft:registered_loot_conditions", new TypeToken<>(){});
+
+    /**
+     * Represents the inventory for this context, such as the inventory having loot generated for it.
+     */
+    public static final @NotNull LootContext.Key<Inventory> INVENTORY = key("minecraft:inventory", new TypeToken<>(){});
 
     @Contract("_, _ -> new")
     private static <T> LootContext.@NotNull Key<T> key(@NotNull String key, @NotNull TypeToken<T> typeToken) {

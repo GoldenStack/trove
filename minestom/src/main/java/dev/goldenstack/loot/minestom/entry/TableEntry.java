@@ -2,6 +2,7 @@ package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.generation.LootGenerator;
+import dev.goldenstack.loot.generation.LootProcessor;
 import dev.goldenstack.loot.minestom.context.LootContextKeys;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
@@ -10,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
 import static dev.goldenstack.loot.serialize.generator.Serializers.field;
@@ -54,10 +54,10 @@ public record TableEntry(@NotNull NamespaceID tableIdentifier,
     }
 
     @Override
-    public void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor) {
+    public void accept(@NotNull LootContext context, @NotNull LootProcessor processor) {
         if (!context.has(LootContextKeys.REGISTERED_TABLES)) return;
         LootGenerator table = context.assure(LootContextKeys.REGISTERED_TABLES).get(tableIdentifier);
         if (table == null) return;
-        table.accept(context, object -> processor.accept(LootModifier.apply(modifiers(), object, context)));
+        table.accept(context, (c, object) -> processor.accept(c, LootModifier.apply(modifiers(), object, c)));
     }
 }

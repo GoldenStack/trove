@@ -57,7 +57,7 @@ public record SetContentsModifier(@NotNull List<LootCondition> conditions,
         List<ItemStack> items = new ArrayList<>();
 
         // Create loot processor
-        var processor = LootProcessor.processClass(ItemStack.class, item -> {
+        var processor = LootProcessor.typed(ItemStack.class, (c, item) -> {
             var rule = StackingRule.get();
 
             var maxSize = rule.getMaxSize(item);

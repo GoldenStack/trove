@@ -1,6 +1,7 @@
 package dev.goldenstack.loot.minestom.entry;
 
 import dev.goldenstack.loot.context.LootContext;
+import dev.goldenstack.loot.generation.LootProcessor;
 import dev.goldenstack.loot.structure.LootCondition;
 import dev.goldenstack.loot.structure.LootModifier;
 import net.minestom.server.item.ItemStack;
@@ -9,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
 import static dev.goldenstack.loot.serialize.generator.Serializers.field;
@@ -53,7 +53,7 @@ public record ItemEntry(@NotNull Material itemType,
     }
 
     @Override
-    public void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor) {
-        processor.accept(LootModifier.apply(modifiers(), ItemStack.of(itemType), context));
+    public void accept(@NotNull LootContext context, @NotNull LootProcessor processor) {
+        processor.accept(context, LootModifier.apply(modifiers(), ItemStack.of(itemType), context));
     }
 }

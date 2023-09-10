@@ -1,103 +1,94 @@
 package dev.goldenstack.loot.generation;
 
-import org.jetbrains.annotations.Contract;
+import dev.goldenstack.loot.context.LootContext;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 
 /**
  * Represents some black box that can process loot.
  */
-public interface LootProcessor extends Consumer<@NotNull Object> {
+public interface LootProcessor extends BiConsumer<@NotNull LootContext, @NotNull Object> {
 
     /**
-     * Creates a processor that handles exclusively
-     * @param type the type to handle
-     * @param consumer the processor for instances of the type
-     * @return a loot processor that handles only the provided type
-     * @param <T> the type to process
+     * Processes the given object.
+     * @param context the context
+     * @param object the object that needs to be processed
      */
-    static <T> @NotNull LootProcessor processClass(@NotNull Class<T> type, @NotNull Consumer<T> consumer) {
-        return LootProcessor.builder().processClass(type, consumer).build();
+    @Override
+    void accept(@NotNull LootContext context, @NotNull Object object);
+
+    /**
+     * A loot processor that can indicate when it can process something.
+     */
+    interface Filtered extends LootProcessor {
+
+        /**
+         * Returns whether or not this processor can process the given object.
+         * @param context the context
+         * @param object the object that needs to be processed
+         * @return true if this processor can process the provided object, false if not
+         */
+        boolean canProcess(@NotNull LootContext context, @NotNull Object object);
+
     }
 
     /**
-     * Creates a new builder for multi-type loot processors.
-     * <br>
-     * Note: the returned builder is not thread-safe, concurrent, or synchronized in any way.
-     * @return a new builder
+     * Joins the given filtered processors into a single one.
+     * @param children the filtered processors to join
+     * @return the created processor
      */
-    static @NotNull Builder builder() {
-        return new Builder();
+    static @NotNull Filtered join(@NotNull List<Filtered> children) {
+        return new FilteredImpl((c, o) -> children.stream().anyMatch(a -> a.canProcess(c, o)), (c, o) -> {
+            for (var child : children) {
+                if (child.canProcess(c, o)) {
+                    child.accept(c, o);
+                    return;
+                }
+            }
+
+            throw new IllegalArgumentException("Cannot process object '" + o + "'");
+        });
     }
 
     /**
-     * Generic builder class for multi-type loot processors.
+     * Creates a filtered processor with the given predicate and consumer.
+     * @param predicate the predicate to use
+     * @param consumer the processor consumer
+     * @return the created processor
      */
-    class Builder {
-        private final @NotNull List<IndividualProcessor> processors = new ArrayList<>();
+    static @NotNull Filtered filtered(@NotNull BiPredicate<@NotNull LootContext, @NotNull Object> predicate,
+                                      @NotNull BiConsumer<@NotNull LootContext, @NotNull Object> consumer) {
+        return new FilteredImpl(predicate, consumer);
+    }
 
-        private Builder() {}
-
-        /**
-         * Processes objects with the consumer if they are the of the provided type.
-         * @param type the class to process
-         * @param consumer the processor for instances of the class
-         * @return this, for chaining
-         * @param <T> the class to process
-         */
-        @SuppressWarnings("unchecked")
-        @Contract("_, _ -> this")
-        public <T> @NotNull Builder processClass(@NotNull Class<T> type, @NotNull Consumer<T> consumer) {
-            processors.add(new IndividualProcessor(type::isInstance, o -> consumer.accept((T) o)));
-            return this;
-        }
-
-        /**
-         * Processes objects with the consumer according to the predicate.
-         * @param predicate the predicate that determines whether or not each object is processed
-         * @param consumer the consumer that will be used
-         * @return this, for chaining
-         */
-        @Contract("_, _ -> this")
-        public @NotNull Builder process(@NotNull Predicate<Object> predicate, @NotNull Consumer<Object> consumer) {
-            processors.add(new IndividualProcessor(predicate, consumer));
-            return this;
-        }
-
-        /**
-         * Builds a LootProcessor from this builder.
-         * @return a LootProcessor from this builder
-         */
-        @Contract(" -> new")
-        public @NotNull LootProcessor build() {
-            return new LootProcessorImpl(this.processors);
-        }
-
+    /**
+     * Creates a filtered processor that processes exclusively the provided class.
+     * @param type the class to convert
+     * @param consumer the processor consumer
+     * @return the created processor
+     * @param <T> the converted type
+     */
+    @SuppressWarnings("unchecked")
+    static <T> @NotNull Filtered typed(@NotNull Class<T> type, @NotNull BiConsumer<@NotNull LootContext, @NotNull T> consumer) {
+        return filtered((c, o) -> type.isInstance(o), (c, o) -> consumer.accept(c, (T) o));
     }
 
 }
 
-record IndividualProcessor(@NotNull Predicate<Object> canProcess, @NotNull Consumer<Object> processor) {}
+record FilteredImpl(@NotNull BiPredicate<@NotNull LootContext, @NotNull Object> predicate,
+                    @NotNull BiConsumer<@NotNull LootContext, @NotNull Object> consumer) implements LootProcessor.Filtered {
 
-record LootProcessorImpl(@NotNull List<IndividualProcessor> processors) implements LootProcessor {
-
-    LootProcessorImpl {
-        processors = List.copyOf(processors);
+    @Override
+    public boolean canProcess(@NotNull LootContext context, @NotNull Object object) {
+        return predicate.test(context, object);
     }
 
     @Override
-    public void accept(@NotNull Object o) {
-        for (var processor : processors) {
-            if (processor.canProcess().test(o)) {
-                processor.processor().accept(o);
-                return;
-            }
-        }
-
-        throw new IllegalArgumentException("Cannot process result '" + o + "'");
+    public void accept(@NotNull LootContext context, @NotNull Object object) {
+        if (!canProcess(context, object)) throw new IllegalArgumentException("Object '" + object + "' did not fit the predicate!");
+        consumer.accept(context, object);
     }
 }

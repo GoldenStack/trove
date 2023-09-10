@@ -2,18 +2,17 @@ package dev.goldenstack.loot.minestom.generation;
 
 import dev.goldenstack.loot.context.LootContext;
 import dev.goldenstack.loot.generation.LootGenerator;
+import dev.goldenstack.loot.generation.LootProcessor;
 import dev.goldenstack.loot.minestom.context.LootContextKeyGroup;
 import dev.goldenstack.loot.structure.LootModifier;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import static dev.goldenstack.loot.serialize.generator.FieldTypes.list;
 import static dev.goldenstack.loot.serialize.generator.Serializers.field;
 import static dev.goldenstack.loot.serialize.generator.Serializers.serializer;
-
 
 /**
  * A standard loot table implementation for Minestom.
@@ -43,12 +42,12 @@ public record LootTable(@NotNull LootContextKeyGroup contextKeyGroup,
     }
 
     @Override
-    public void accept(@NotNull LootContext context, @NotNull Consumer<@NotNull Object> processor) {
+    public void accept(@NotNull LootContext context, @NotNull LootProcessor processor) {
         // Make sure that this table's required keys are in the given context
         contextKeyGroup.assureVerified(context);
 
         for (var pool : pools) {
-            pool.accept(context, object -> LootModifier.apply(modifiers(), object, context));
+            pool.accept(context, (c, object) -> processor.accept(c, LootModifier.apply(modifiers(), object, c)));
         }
     }
 
