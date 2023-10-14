@@ -7,7 +7,7 @@ repositories {
 dependencies {
     implementation(project(":core"))
 
-    implementation("com.github.Minestom:Minestom:c5047b8037")
+    implementation("com.github.minestom.minestom:Minestom:2cdb3911b0")
 
     implementation("org.spongepowered:configurate-gson:4.1.2")
 
