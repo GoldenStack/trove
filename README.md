@@ -35,11 +35,19 @@ repositories {
 
 dependencies {
     ...
-    implementation("com.github.GoldenStack.trove:MODULE:TAG")
+    // Minestom and Configurate versions
+    // (you can replace Minestom with Minestom-ce if you want)
+    implementation("com.github.minestom.minestom:Minestom:VERSION")
+    implementation("org.spongepowered:configurate-gson:VERSION")
+    
+    implementation("com.github.GoldenStack.trove:MODULE:VERSION")
 }
 ```
-Just replace MODULE with your desired module and TAG with the desired tag, including the commit tag or just
-"-SNAPSHOT".
+Trove relies on Minestom and Configurate, so make sure to add them.
+
+Just replace `MODULE` with the desired module of Trove, and replace `VERSION` with the desired version or commit hash.
+
+Trove currently uses 
 
 ---
 
