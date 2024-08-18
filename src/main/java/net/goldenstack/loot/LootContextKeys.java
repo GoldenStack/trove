@@ -1,8 +1,12 @@
 package net.goldenstack.loot;
 
 import io.leangen.geantyref.TypeToken;
+import net.minestom.server.coordinate.Point;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
@@ -23,5 +27,19 @@ interface LootContextKeys {
     @NotNull LootContext.Key<ItemStack> TOOL = LootContext.key("minecraft:tool", new TypeToken<>() {});
 
     @NotNull LootContext.Key<Map<NamespaceID, LootCondition>> REGISTERED_CONDITIONS = LootContext.key("minecraft:registered_loot_conditions", new TypeToken<>() {});
+
+    @NotNull LootContext.Key<Boolean> ENCHANTMENT_ACTIVE = LootContext.key("minecraft:enchantment_active", new TypeToken<>() {});
+    
+    @NotNull LootContext.Key<Block> BLOCK_STATE = LootContext.key("minecraft:block_state", new TypeToken<>() {});
+    
+    @NotNull LootContext.Key<DamageType> DAMAGE_SOURCE = LootContext.key("minecraft:damage_source", new TypeToken<>() {});
+
+    @NotNull LootContext.Key<Point> ORIGIN = LootContext.key("minecraft:origin", new TypeToken<>() {});
+
+    @NotNull LootContext.Key<Entity> DIRECT_KILLER_ENTITY = LootContext.key("minecraft:direct_killer_entity", new TypeToken<>() {});
+
+    @NotNull LootContext.Key<Entity> KILLER_ENTITY = LootContext.key("minecraft:killer_entity", new TypeToken<>() {});
+
+    @NotNull LootContext.Key<Entity> THIS_ENTITY = LootContext.key("minecraft:this_entity", new TypeToken<>() {});
 
 }

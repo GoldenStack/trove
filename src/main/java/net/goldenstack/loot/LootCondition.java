@@ -1,7 +1,13 @@
 package net.goldenstack.loot;
 
+import net.goldenstack.loot.util.BlockPredicate;
+import net.goldenstack.loot.util.DamageSourcePredicate;
 import net.goldenstack.loot.util.LootNumberRange;
+import net.minestom.server.coordinate.Point;
+import net.minestom.server.entity.damage.DamageType;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.Weather;
+import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.component.EnchantmentList;
@@ -144,9 +150,36 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
+    record EnchantmentActive(boolean active) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            return context.require(LootContext.ENCHANTMENT_ACTIVE) == active;
+        }
+    }
 
+    record BlockState(@NotNull NamespaceID key, @Nullable BlockPredicate predicate) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            Block block = context.get(LootContext.BLOCK_STATE);
 
+            return block != null && key.equals(block.namespace()) && (predicate == null || predicate.test(block));
+        }
+    }
 
+    record DamageSource(@Nullable DamageSourcePredicate predicate) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            Instance world = context.get(LootContext.WORLD);
+            Point origin = context.get(LootContext.ORIGIN);
+            DamageType damage = context.get(LootContext.DAMAGE_SOURCE);
+
+            if (predicate == null || world == null || origin == null || damage == null) {
+                return false;
+            }
+
+            return predicate.test(world, origin, damage);
+        }
+    }
 
 }
 
