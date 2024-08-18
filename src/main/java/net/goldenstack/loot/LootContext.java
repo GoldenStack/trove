@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * Stores a dynamic amount of information that may be relevant during the generation of loot.
  */
-public sealed interface LootContext permits LootContextImpl {
+public sealed interface LootContext extends LootContextKeys permits LootContextImpl {
 
     /**
      * Creates a loot context from the provided map of key -> object.
