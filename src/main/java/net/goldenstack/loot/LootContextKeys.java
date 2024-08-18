@@ -3,8 +3,11 @@ package net.goldenstack.loot;
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.Random;
 
 interface LootContextKeys {
@@ -17,5 +20,8 @@ interface LootContextKeys {
 
     @NotNull LootContext.Key<Instance> WORLD = LootContext.key("minecraft:world", new TypeToken<>() {});
 
+    @NotNull LootContext.Key<ItemStack> TOOL = LootContext.key("minecraft:tool", new TypeToken<>() {});
+
+    @NotNull LootContext.Key<Map<NamespaceID, LootCondition>> REGISTERED_CONDITIONS = LootContext.key("minecraft:registered_loot_conditions", new TypeToken<>() {});
 
 }
