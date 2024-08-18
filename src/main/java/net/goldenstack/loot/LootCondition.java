@@ -3,6 +3,8 @@ package net.goldenstack.loot;
 import net.goldenstack.loot.util.*;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.EquipmentSlot;
+import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.Weather;
@@ -10,6 +12,7 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.component.EnchantmentList;
+import net.minestom.server.item.enchant.LevelBasedValue;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
@@ -231,6 +234,26 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
             }
 
             return true;
+        }
+    }
+
+    record EnchantmentBasedRandomChance(@NotNull NamespaceID key, float defaultChance, @NotNull LevelBasedValue modifiedChance) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            Entity attacker = context.get(LootContext.ATTACKING_ENTITY);
+
+            int level = 0;
+            if (attacker instanceof LivingEntity living) {
+                for (EquipmentSlot slot : EquipmentSlot.values()) {
+                    EnchantmentList ench = living.getEquipment(slot).get(ItemComponent.ENCHANTMENTS);
+                    if (ench == null) continue;
+
+                    level = Math.max(level, ench.level(DynamicRegistry.Key.of(key)));
+                }
+            }
+
+            float chance = level > 0 ? modifiedChance.calc(level) : defaultChance;
+            return context.require(LootContext.RANDOM).nextFloat() < chance;
         }
     }
 

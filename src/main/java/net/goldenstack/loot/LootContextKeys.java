@@ -37,9 +37,9 @@ interface LootContextKeys {
 
     @NotNull LootContext.Key<Point> ORIGIN = LootContext.key("minecraft:origin", new TypeToken<>() {});
 
-    @NotNull LootContext.Key<Entity> DIRECT_KILLER_ENTITY = LootContext.key("minecraft:direct_killer_entity", new TypeToken<>() {});
+    @NotNull LootContext.Key<Entity> DIRECT_ATTACKING_ENTITY = LootContext.key("minecraft:direct_attacking_entity", new TypeToken<>() {});
 
-    @NotNull LootContext.Key<Entity> KILLER_ENTITY = LootContext.key("minecraft:killer_entity", new TypeToken<>() {});
+    @NotNull LootContext.Key<Entity> ATTACKING_ENTITY = LootContext.key("minecraft:attacking_entity", new TypeToken<>() {});
 
     @NotNull LootContext.Key<Entity> THIS_ENTITY = LootContext.key("minecraft:this_entity", new TypeToken<>() {});
 
