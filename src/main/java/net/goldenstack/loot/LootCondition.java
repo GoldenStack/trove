@@ -3,18 +3,20 @@ package net.goldenstack.loot;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.function.Predicate;
 
 /**
  * A predicate over a loot context, returning whether or not a given context passes some arbitrary condition.
  */
-public interface LootCondition {
+public interface LootCondition extends Predicate<@NotNull LootContext> {
 
     /**
      * Returns whether or not the provided loot context passes this condition's predicate.
      * @param context the context object, to use if required
      * @return true if the provided loot context is valid according to this condition
      */
-    boolean verify(@NotNull LootContext context);
+    @Override
+    boolean test(@NotNull LootContext context);
 
     /**
      * Checks to see if at least one condition in the provided collection verifies the context. After one condition
@@ -30,7 +32,7 @@ public interface LootCondition {
             return false;
         }
         for (var condition : conditions) {
-            if (condition.verify(context)) {
+            if (condition.test(context)) {
                 return true;
             }
         }
@@ -51,7 +53,7 @@ public interface LootCondition {
             return true;
         }
         for (var condition : conditions) {
-            if (!condition.verify(context)) {
+            if (!condition.test(context)) {
                 return false;
             }
         }
@@ -82,7 +84,7 @@ public interface LootCondition {
         int passed = 0;
         int possiblePassed = conditions.size();
         for (var condition : conditions) {
-            if (condition.verify(context)) {
+            if (condition.test(context)) {
                 passed++;
             }
             possiblePassed--;
