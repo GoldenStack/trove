@@ -27,7 +27,7 @@ interface LootContextKeys {
 
     @NotNull LootContext.Key<ItemStack> TOOL = LootContext.key("minecraft:tool", new TypeToken<>() {});
 
-    @NotNull LootContext.Key<Function<NamespaceID, LootCondition>> REGISTERED_CONDITIONS = LootContext.key("minecraft:registered_loot_conditions", new TypeToken<>() {});
+    @NotNull LootContext.Key<Function<NamespaceID, LootPredicate>> REGISTERED_PREDICATES = LootContext.key("minecraft:registered_loot_predicates", new TypeToken<>() {});
 
     @NotNull LootContext.Key<Boolean> ENCHANTMENT_ACTIVE = LootContext.key("minecraft:enchantment_active", new TypeToken<>() {});
     

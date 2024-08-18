@@ -23,26 +23,26 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 /**
- * A predicate over a loot context, returning whether or not a given context passes some arbitrary condition.
+ * A predicate over a loot context, returning whether or not a given context passes some arbitrary predicate.
  */
-public interface LootCondition extends Predicate<@NotNull LootContext> {
+public interface LootPredicate extends Predicate<@NotNull LootContext> {
 
     /**
-     * Returns whether or not the provided loot context passes this condition's predicate.
+     * Returns whether or not the provided loot context passes this predicate.
      * @param context the context object, to use if required
-     * @return true if the provided loot context is valid according to this condition
+     * @return true if the provided loot context is valid according to this predicate
      */
     @Override
     boolean test(@NotNull LootContext context);
 
-    record All(@NotNull List<LootCondition> conditions) implements LootCondition {
+    record All(@NotNull List<LootPredicate> predicates) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
-            if (conditions.isEmpty()) {
+            if (predicates.isEmpty()) {
                 return true;
             }
-            for (var condition : conditions) {
-                if (!condition.test(context)) {
+            for (var predicate : predicates) {
+                if (!predicate.test(context)) {
                     return false;
                 }
             }
@@ -50,14 +50,14 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record Any(@NotNull List<LootCondition> conditions) implements LootCondition {
+    record Any(@NotNull List<LootPredicate> predicates) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
-            if (conditions.isEmpty()) {
+            if (predicates.isEmpty()) {
                 return false;
             }
-            for (var condition : conditions) {
-                if (condition.test(context)) {
+            for (var predicate : predicates) {
+                if (predicate.test(context)) {
                     return true;
                 }
             }
@@ -65,14 +65,14 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record Inverted(@NotNull LootCondition child) implements LootCondition {
+    record Inverted(@NotNull LootPredicate child) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             return !child.test(context);
         }
     }
 
-    record SurvivesExplosion() implements LootCondition {
+    record SurvivesExplosion() implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             Float radius = context.get(LootContext.EXPLOSION_RADIUS);
@@ -80,21 +80,21 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record KilledByPlayer() implements LootCondition {
+    record KilledByPlayer() implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             return context.has(LootContext.LAST_DAMAGE_PLAYER);
         }
     }
 
-    record RandomChance(@NotNull LootNumber number) implements LootCondition {
+    record RandomChance(@NotNull LootNumber number) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             return context.require(LootContext.RANDOM).nextDouble() < number.getDouble(context);
         }
     }
 
-    record WeatherCheck(@Nullable Boolean raining, @Nullable Boolean thundering) implements LootCondition {
+    record WeatherCheck(@Nullable Boolean raining, @Nullable Boolean thundering) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             Weather weather = context.require(LootContext.WORLD).getWeather();
@@ -104,14 +104,14 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record RangeCheck(@NotNull LootNumber source, @NotNull LootNumberRange range) implements LootCondition {
+    record RangeCheck(@NotNull LootNumber source, @NotNull LootNumberRange range) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             return range.check(context, source.getLong(context));
         }
     }
 
-    record TimeCheck(@Nullable Long period, @NotNull LootNumberRange range) implements LootCondition {
+    record TimeCheck(@Nullable Long period, @NotNull LootNumberRange range) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             long time = context.require(LootContext.WORLD).getTime();
@@ -124,7 +124,7 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record EnchantmentBonus(@NotNull NamespaceID enchantment, @NotNull List<Float> chances) implements LootCondition {
+    record EnchantmentBonus(@NotNull NamespaceID enchantment, @NotNull List<Float> chances) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             ItemStack tool = context.get(LootContext.TOOL);
@@ -144,23 +144,23 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record Reference(@NotNull NamespaceID key) implements LootCondition {
+    record Reference(@NotNull NamespaceID key) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
-            LootCondition condition = context.require(LootContext.REGISTERED_CONDITIONS).apply(key);
+            LootPredicate predicate = context.require(LootContext.REGISTERED_PREDICATES).apply(key);
 
-            return condition != null && condition.test(context);
+            return predicate != null && predicate.test(context);
         }
     }
 
-    record EnchantmentActive(boolean active) implements LootCondition {
+    record EnchantmentActive(boolean active) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             return context.require(LootContext.ENCHANTMENT_ACTIVE) == active;
         }
     }
 
-    record BlockState(@NotNull NamespaceID key, @Nullable BlockPredicate predicate) implements LootCondition {
+    record BlockState(@NotNull NamespaceID key, @Nullable BlockPredicate predicate) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             Block block = context.get(LootContext.BLOCK_STATE);
@@ -169,7 +169,7 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record DamageSource(@Nullable DamageSourcePredicate predicate) implements LootCondition {
+    record DamageSource(@Nullable DamageSourcePredicate predicate) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             Instance world = context.get(LootContext.WORLD);
@@ -184,7 +184,7 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record EntityProperties(@Nullable EntityPredicate predicate, @NotNull RelevantEntity relevantEntity) implements LootCondition {
+    record EntityProperties(@Nullable EntityPredicate predicate, @NotNull RelevantEntity relevantEntity) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             Entity entity = context.get(relevantEntity.key());
@@ -194,7 +194,7 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record Location(@Nullable LocationPredicate predicate, @NotNull Point offset) implements LootCondition {
+    record Location(@Nullable LocationPredicate predicate, @NotNull Point offset) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             Point origin = context.get(LootContext.ORIGIN);
@@ -206,7 +206,7 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record Tool(@Nullable ItemPredicate predicate) implements LootCondition {
+    record Tool(@Nullable ItemPredicate predicate) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             ItemStack tool = context.get(LootContext.TOOL);
@@ -218,7 +218,7 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record Scores(@NotNull Map<String, LootNumberRange> scores, @NotNull RelevantEntity relevantEntity) implements LootCondition {
+    record Scores(@NotNull Map<String, LootNumberRange> scores, @NotNull RelevantEntity relevantEntity) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             Entity entity = context.get(relevantEntity.key());
@@ -237,7 +237,7 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record EnchantmentBasedRandomChance(@NotNull NamespaceID key, float defaultChance, @NotNull LevelBasedValue modifiedChance) implements LootCondition {
+    record EnchantmentBasedRandomChance(@NotNull NamespaceID key, float defaultChance, @NotNull LevelBasedValue modifiedChance) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             Entity attacker = context.get(LootContext.ATTACKING_ENTITY);
