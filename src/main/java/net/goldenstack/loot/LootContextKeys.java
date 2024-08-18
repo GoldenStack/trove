@@ -1,6 +1,7 @@
 package net.goldenstack.loot;
 
 import io.leangen.geantyref.TypeToken;
+import net.goldenstack.loot.util.VanillaInterface;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
@@ -11,8 +12,8 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
 import java.util.Random;
+import java.util.function.Function;
 
 interface LootContextKeys {
 
@@ -26,7 +27,7 @@ interface LootContextKeys {
 
     @NotNull LootContext.Key<ItemStack> TOOL = LootContext.key("minecraft:tool", new TypeToken<>() {});
 
-    @NotNull LootContext.Key<Map<NamespaceID, LootCondition>> REGISTERED_CONDITIONS = LootContext.key("minecraft:registered_loot_conditions", new TypeToken<>() {});
+    @NotNull LootContext.Key<Function<NamespaceID, LootCondition>> REGISTERED_CONDITIONS = LootContext.key("minecraft:registered_loot_conditions", new TypeToken<>() {});
 
     @NotNull LootContext.Key<Boolean> ENCHANTMENT_ACTIVE = LootContext.key("minecraft:enchantment_active", new TypeToken<>() {});
     
@@ -41,5 +42,7 @@ interface LootContextKeys {
     @NotNull LootContext.Key<Entity> KILLER_ENTITY = LootContext.key("minecraft:killer_entity", new TypeToken<>() {});
 
     @NotNull LootContext.Key<Entity> THIS_ENTITY = LootContext.key("minecraft:this_entity", new TypeToken<>() {});
+
+    @NotNull LootContext.Key<VanillaInterface> VANILLA_INTERFACE = LootContext.key("trove:vanilla_interface", new TypeToken<>() {});
 
 }

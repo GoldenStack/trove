@@ -1,9 +1,8 @@
 package net.goldenstack.loot;
 
-import net.goldenstack.loot.util.BlockPredicate;
-import net.goldenstack.loot.util.DamageSourcePredicate;
-import net.goldenstack.loot.util.LootNumberRange;
+import net.goldenstack.loot.util.*;
 import net.minestom.server.coordinate.Point;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.Weather;
@@ -17,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 /**
@@ -144,7 +144,7 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
     record Reference(@NotNull NamespaceID key) implements LootCondition {
         @Override
         public boolean test(@NotNull LootContext context) {
-            LootCondition condition = context.require(LootContext.REGISTERED_CONDITIONS).get(key);
+            LootCondition condition = context.require(LootContext.REGISTERED_CONDITIONS).apply(key);
 
             return condition != null && condition.test(context);
         }
@@ -178,6 +178,59 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
             }
 
             return predicate.test(world, origin, damage);
+        }
+    }
+
+    record EntityProperties(@Nullable EntityPredicate predicate, @NotNull RelevantEntity relevantEntity) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            Entity entity = context.get(relevantEntity.key());
+            Point origin = context.get(LootContext.ORIGIN);
+
+            return predicate == null || predicate.test(context.require(LootContext.WORLD), origin, entity);
+        }
+    }
+
+    record Location(@Nullable LocationPredicate predicate, @NotNull Point offset) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            Point origin = context.get(LootContext.ORIGIN);
+
+            if (origin == null) return false;
+            if (predicate == null) return true;
+
+            return predicate.test(context.require(LootContext.WORLD), origin.add(offset));
+        }
+    }
+
+    record Tool(@Nullable ItemPredicate predicate) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            ItemStack tool = context.get(LootContext.TOOL);
+
+            if (tool == null) return false;
+            if (predicate == null) return true;
+
+            return predicate.test(tool);
+        }
+    }
+
+    record Scores(@NotNull Map<String, LootNumberRange> scores, @NotNull RelevantEntity relevantEntity) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            Entity entity = context.get(relevantEntity.key());
+            if (entity == null) return false;
+
+            VanillaInterface vanilla = context.require(LootContext.VANILLA_INTERFACE);
+
+            for (var entry : scores.entrySet()) {
+                Integer score = vanilla.getScore(entity, entry.getKey());
+                if (score == null || !entry.getValue().check(context, score)) {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 
