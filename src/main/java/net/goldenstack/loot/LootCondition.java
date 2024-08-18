@@ -1,8 +1,9 @@
 package net.goldenstack.loot;
 
+import net.minestom.server.instance.Weather;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -70,6 +71,25 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
             return context.has(LootContext.LAST_DAMAGE_PLAYER);
         }
     }
+
+    record RandomChance(@NotNull LootNumber number) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            return context.require(LootContext.RANDOM).nextDouble() < number.getDouble(context);
+        }
+    }
+
+    record WeatherCheck(@Nullable Boolean raining, @Nullable Boolean thundering) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            Weather weather = context.require(LootContext.WORLD).getWeather();
+
+            return (raining == null || raining == weather.isRaining()) &&
+                    (thundering == null || thundering == weather.thunderLevel() > 0);
+        }
+    }
+
+
 
 }
 

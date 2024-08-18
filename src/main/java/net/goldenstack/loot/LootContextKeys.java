@@ -2,6 +2,7 @@ package net.goldenstack.loot;
 
 import io.leangen.geantyref.TypeToken;
 import net.minestom.server.entity.Player;
+import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
@@ -13,6 +14,8 @@ interface LootContextKeys {
     @NotNull LootContext.Key<Float> EXPLOSION_RADIUS = LootContext.key("minecraft:explosion_radius", new TypeToken<>() {});
     
     @NotNull LootContext.Key<Player> LAST_DAMAGE_PLAYER = LootContext.key("minecraft:last_damage_player", new TypeToken<>() {});
+
+    @NotNull LootContext.Key<Instance> WORLD = LootContext.key("minecraft:world", new TypeToken<>() {});
 
 
 }
