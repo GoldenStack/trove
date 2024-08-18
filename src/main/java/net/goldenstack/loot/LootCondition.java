@@ -3,6 +3,7 @@ package net.goldenstack.loot;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -18,84 +19,56 @@ public interface LootCondition extends Predicate<@NotNull LootContext> {
     @Override
     boolean test(@NotNull LootContext context);
 
-    /**
-     * Checks to see if at least one condition in the provided collection verifies the context. After one condition
-     * verifies it, the others are skipped (as the result is already known), so do not rely on any specific number of
-     * these conditions being called.<br>
-     * If the provided list is empty, the result is always false.
-     * @param conditions the collection of conditions to check
-     * @param context the context, to feed to the conditions when they are being tested
-     * @return true if at least one condition in the provided collection verifies the provided context
-     */
-    static boolean any(@NotNull Collection<LootCondition> conditions, @NotNull LootContext context) {
-        if (conditions.isEmpty()) {
-            return false;
-        }
-        for (var condition : conditions) {
-            if (condition.test(context)) {
+    record All(@NotNull List<LootCondition> conditions) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            if (conditions.isEmpty()) {
                 return true;
             }
-        }
-        return false;
-    }
-
-    /**
-     * Checks to see if every condition in the provided collection verifies the context. After one condition doesn't
-     * verify it, the others are skipped (as the result is already known), so do not rely on any specific number of
-     * these conditions being called.<br>
-     * If the provided list is empty, the result is always true.
-     * @param conditions the collection of conditions to check
-     * @param context the context, to feed to the conditions when they are being tested
-     * @return true if every condition in the provided collection verifies the provided context
-     */
-    static boolean all(@NotNull Collection<LootCondition> conditions, @NotNull LootContext context) {
-        if (conditions.isEmpty()) {
+            for (var condition : conditions) {
+                if (!condition.test(context)) {
+                    return false;
+                }
+            }
             return true;
         }
-        for (var condition : conditions) {
-            if (!condition.test(context)) {
+    }
+
+    record Any(@NotNull List<LootCondition> conditions) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            if (conditions.isEmpty()) {
                 return false;
             }
-        }
-        return true;
-    }
-
-    /**
-     * Checks to see if at least {@code required} conditions in the provided collection return true. At any point, if at
-     * least the required number of conditions have returned true, or it is impossible for there to be enough conditions
-     * that return true to have at least the required number, false is returned.<br>
-     * Do not rely on any specific number of these conditions being called.
-     * @param conditions the collection of conditions to check
-     * @param required the minimum number of conditions in the provided collection that must verify the context
-     * @param context the context, to feed to the conditions when they are being tested
-     * @return true if at least {@code required} conditions in the provided collection verify the context
-     */
-    static boolean some(@NotNull Collection<LootCondition> conditions, int required, @NotNull LootContext context) {
-        if (required <= 0) {
-            return true;
-        } else if (required > conditions.size()) {
+            for (var condition : conditions) {
+                if (condition.test(context)) {
+                    return true;
+                }
+            }
             return false;
-        } else if (required == 1) {
-            return any(conditions, context);
-        } else if (required == conditions.size()) {
-            return all(conditions, context);
         }
+    }
 
-        int passed = 0;
-        int possiblePassed = conditions.size();
-        for (var condition : conditions) {
-            if (condition.test(context)) {
-                passed++;
-            }
-            possiblePassed--;
-
-            if (passed + possiblePassed < required) {
-                return false;
-            } else if (passed >= required) {
-                return true;
-            }
+    record Inverted(@NotNull LootCondition child) implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            return !child.test(context);
         }
-        return true; // Theoretically unreachable line
+    }
+
+    record SurvivesExplosion() implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            Float radius = context.get(LootContext.EXPLOSION_RADIUS);
+            return radius == null || context.require(LootContext.RANDOM).nextFloat() <= (1 / radius);
+        }
+    }
+
+    record KilledByPlayer() implements LootCondition {
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            return context.has(LootContext.LAST_DAMAGE_PLAYER);
+        }
     }
 
 }
