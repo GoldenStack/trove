@@ -35,18 +35,25 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
     @Override
     boolean test(@NotNull LootContext context);
 
+    /**
+     * Returns whether or not every given predicate verifies the provided context.
+     */
+    static boolean all(@NotNull List<LootPredicate> predicates, @NotNull LootContext context) {
+        if (predicates.isEmpty()) {
+            return true;
+        }
+        for (var predicate : predicates) {
+            if (!predicate.test(context)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     record All(@NotNull List<LootPredicate> predicates) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
-            if (predicates.isEmpty()) {
-                return true;
-            }
-            for (var predicate : predicates) {
-                if (!predicate.test(context)) {
-                    return false;
-                }
-            }
-            return true;
+            return all(predicates, context);
         }
     }
 
