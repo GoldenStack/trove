@@ -136,14 +136,7 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         public boolean test(@NotNull LootContext context) {
             ItemStack tool = context.get(LootContext.TOOL);
 
-            int level = 0;
-
-            if (tool != null) {
-                EnchantmentList enchantments = tool.get(ItemComponent.ENCHANTMENTS);
-                if (enchantments != null) {
-                    level = enchantments.enchantments().getOrDefault(DynamicRegistry.Key.of(enchantment), 0);
-                }
-            }
+            int level = ItemUtils.level(tool, enchantment);
 
             float chance = chances.get(Math.min(this.chances.size() - 1, level));
 

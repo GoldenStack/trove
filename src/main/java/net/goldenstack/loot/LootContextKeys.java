@@ -2,6 +2,7 @@ package net.goldenstack.loot;
 
 import io.leangen.geantyref.TypeToken;
 import net.goldenstack.loot.util.VanillaInterface;
+import net.kyori.adventure.nbt.BinaryTag;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
@@ -27,8 +28,6 @@ interface LootContextKeys {
 
     @NotNull LootContext.Key<ItemStack> TOOL = LootContext.key("minecraft:tool", new TypeToken<>() {});
 
-    @NotNull LootContext.Key<Function<NamespaceID, LootPredicate>> REGISTERED_PREDICATES = LootContext.key("minecraft:registered_loot_predicates", new TypeToken<>() {});
-
     @NotNull LootContext.Key<Boolean> ENCHANTMENT_ACTIVE = LootContext.key("minecraft:enchantment_active", new TypeToken<>() {});
     
     @NotNull LootContext.Key<Block> BLOCK_STATE = LootContext.key("minecraft:block_state", new TypeToken<>() {});
@@ -44,5 +43,11 @@ interface LootContextKeys {
     @NotNull LootContext.Key<Entity> THIS_ENTITY = LootContext.key("minecraft:this_entity", new TypeToken<>() {});
 
     @NotNull LootContext.Key<VanillaInterface> VANILLA_INTERFACE = LootContext.key("trove:vanilla_interface", new TypeToken<>() {});
+
+    @NotNull LootContext.Key<Function<NamespaceID, LootPredicate>> REGISTERED_PREDICATES = LootContext.key("minecraft:registered_loot_predicates", new TypeToken<>() {});
+
+    @NotNull LootContext.Key<Function<NamespaceID, LootFunction>> REGISTERED_FUNCTIONS = LootContext.key("minecraft:registered_loot_functions", new TypeToken<>() {});
+
+    @NotNull LootContext.Key<Function<NamespaceID, BinaryTag>> COMMAND_STORAGE = LootContext.key("minecraft:command_storage", new TypeToken<>() {});
 
 }
