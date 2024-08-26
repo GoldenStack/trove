@@ -1,4 +1,4 @@
-package net.goldenstack.loot.util;
+package net.goldenstack.loot.util.predicate;
 
 import net.minestom.server.item.ItemStack;
 import org.jetbrains.annotations.NotNull;

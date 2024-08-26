@@ -1,8 +1,14 @@
 package net.goldenstack.loot;
 
 
-import net.goldenstack.loot.util.ItemPredicate;
 import net.goldenstack.loot.util.ItemUtils;
+import net.goldenstack.loot.util.nbt.NBTPath;
+import net.goldenstack.loot.util.nbt.NBTReference;
+import net.goldenstack.loot.util.nbt.NBTUtils;
+import net.goldenstack.loot.util.predicate.ItemPredicate;
+import net.kyori.adventure.nbt.BinaryTag;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.ListBinaryTag;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.ServerFlag;
 import net.minestom.server.component.DataComponent;
@@ -18,6 +24,7 @@ import net.minestom.server.tag.Tag;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -265,5 +272,75 @@ public interface LootFunction {
             return input.with(ItemComponent.OMINOUS_BOTTLE_AMPLIFIER, amplifier);
         }
     }
+
+    record CopyNBT(@NotNull List<LootPredicate> predicates, @NotNull LootNBT source, @NotNull List<Operation> operations) implements LootFunction {
+        public record Operation(@NotNull NBTPath source, @NotNull NBTPath target, @NotNull Operator operator) {
+            public void execute(@NotNull NBTReference nbt, @NotNull BinaryTag sourceTag) {
+                List<BinaryTag> nbts = new ArrayList<>();
+                source.get(sourceTag).forEach(ref -> nbts.add(ref.get()));
+
+                if (nbts.isEmpty()) return;
+                operator.merge(nbt, target, nbts);
+            }
+        }
+
+        public enum Operator {
+            REPLACE() {
+                @Override
+                public void merge(@NotNull NBTReference nbt, @NotNull NBTPath target, @NotNull List<BinaryTag> source) {
+                    target.set(nbt, source.getLast());
+                }
+            },
+            Append() {
+                @Override
+                public void merge(@NotNull NBTReference nbt, @NotNull NBTPath target, @NotNull List<BinaryTag> source) {
+                    List<NBTReference> nbts = target.getWithDefaults(nbt, ListBinaryTag::empty);
+
+                    for (var ref : nbts) {
+                        source.forEach(ref::listAdd);
+                    }
+                }
+            },
+            Merge() {
+                @Override
+                public void merge(@NotNull NBTReference nbt, @NotNull NBTPath target, @NotNull List<BinaryTag> source) {
+                    List<NBTReference> nbts = target.getWithDefaults(nbt, CompoundBinaryTag::empty);
+
+                    for (var ref : nbts) {
+                        if (ref.get() instanceof CompoundBinaryTag compound) {
+                            for (var nbt2 : source) {
+                                if (nbt2 instanceof CompoundBinaryTag compound2) {
+                                    ref.set(NBTUtils.merge(compound, compound2));
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            public abstract void merge(@NotNull NBTReference nbt, @NotNull NBTPath target, @NotNull List<BinaryTag> source);
+        }
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            BinaryTag sourceNBT = source.getNBT(context);
+            if (sourceNBT == null) return input;
+
+            NBTReference targetNBT = NBTReference.of(input.get(ItemComponent.CUSTOM_DATA, CustomData.EMPTY).nbt());
+
+            for (Operation operation : operations) {
+                operation.execute(targetNBT, sourceNBT);
+            }
+
+            if (targetNBT.get() instanceof CompoundBinaryTag compound) {
+                return input.with(ItemComponent.CUSTOM_DATA, new CustomData(compound));
+            } else {
+                return input;
+            }
+        }
+    }
+
 
 }

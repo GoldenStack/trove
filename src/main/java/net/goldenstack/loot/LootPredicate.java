@@ -1,6 +1,10 @@
 package net.goldenstack.loot;
 
-import net.goldenstack.loot.util.*;
+import net.goldenstack.loot.util.ItemUtils;
+import net.goldenstack.loot.util.LootNumberRange;
+import net.goldenstack.loot.util.RelevantEntity;
+import net.goldenstack.loot.util.VanillaInterface;
+import net.goldenstack.loot.util.predicate.*;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EquipmentSlot;
