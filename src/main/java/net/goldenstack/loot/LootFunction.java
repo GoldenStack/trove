@@ -2,6 +2,7 @@ package net.goldenstack.loot;
 
 
 import net.goldenstack.loot.util.ItemUtils;
+import net.goldenstack.loot.util.LootNumberRange;
 import net.goldenstack.loot.util.nbt.NBTPath;
 import net.goldenstack.loot.util.nbt.NBTReference;
 import net.goldenstack.loot.util.nbt.NBTUtils;
@@ -267,6 +268,8 @@ public interface LootFunction {
     record OminousBottleAmplifier(@NotNull List<LootPredicate> predicates, @NotNull LootNumber amplifier) implements LootFunction {
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
             int amplifier = (int) Math.max(0, Math.min(this.amplifier.getLong(context), 4));
 
             return input.with(ItemComponent.OMINOUS_BOTTLE_AMPLIFIER, amplifier);
@@ -341,6 +344,32 @@ public interface LootFunction {
             }
         }
     }
+
+    record LimitCount(@NotNull List<LootPredicate> predicates, @NotNull LootNumberRange range) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+            return input.withAmount(i -> (int) range.limit(context, i));
+        }
+    }
+
+    record SetCount(@NotNull List<LootPredicate> predicates, @NotNull LootNumber count, boolean add) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+            return input.withAmount(amount -> (this.add ? amount : 0) + (int) this.count.getLong(context));
+        }
+    }
+
+    record SetMaterial(@NotNull List<LootPredicate> predicates, @NotNull Material material) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            return input.builder().material(material).build();
+        }
+    }
+
 
 
 }
