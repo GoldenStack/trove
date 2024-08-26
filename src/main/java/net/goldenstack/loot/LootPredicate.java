@@ -1,21 +1,17 @@
 package net.goldenstack.loot;
 
-import net.goldenstack.loot.util.ItemUtils;
+import net.goldenstack.loot.util.EnchantmentUtils;
 import net.goldenstack.loot.util.LootNumberRange;
 import net.goldenstack.loot.util.RelevantEntity;
 import net.goldenstack.loot.util.VanillaInterface;
 import net.goldenstack.loot.util.predicate.*;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.EquipmentSlot;
-import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.Weather;
 import net.minestom.server.instance.block.Block;
-import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.item.component.EnchantmentList;
 import net.minestom.server.item.enchant.LevelBasedValue;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.utils.NamespaceID;
@@ -140,7 +136,7 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         public boolean test(@NotNull LootContext context) {
             ItemStack tool = context.get(LootContext.TOOL);
 
-            int level = ItemUtils.level(tool, enchantment);
+            int level = EnchantmentUtils.level(tool, enchantment);
 
             float chance = chances.get(Math.min(this.chances.size() - 1, level));
 
@@ -246,15 +242,7 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         public boolean test(@NotNull LootContext context) {
             Entity attacker = context.get(LootContext.ATTACKING_ENTITY);
 
-            int level = 0;
-            if (attacker instanceof LivingEntity living) {
-                for (EquipmentSlot slot : EquipmentSlot.values()) {
-                    EnchantmentList ench = living.getEquipment(slot).get(ItemComponent.ENCHANTMENTS);
-                    if (ench == null) continue;
-
-                    level = Math.max(level, ench.level(DynamicRegistry.Key.of(key)));
-                }
-            }
+            int level = EnchantmentUtils.level(attacker, DynamicRegistry.Key.of(key));
 
             float chance = level > 0 ? modifiedChance.calc(level) : defaultChance;
             return context.require(LootContext.RANDOM).nextFloat() < chance;

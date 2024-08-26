@@ -1,8 +1,9 @@
 package net.goldenstack.loot;
 
 
-import net.goldenstack.loot.util.ItemUtils;
+import net.goldenstack.loot.util.EnchantmentUtils;
 import net.goldenstack.loot.util.LootNumberRange;
+import net.goldenstack.loot.util.RelevantTarget;
 import net.goldenstack.loot.util.nbt.NBTPath;
 import net.goldenstack.loot.util.nbt.NBTReference;
 import net.goldenstack.loot.util.nbt.NBTUtils;
@@ -21,9 +22,11 @@ import net.minestom.server.item.Material;
 import net.minestom.server.item.component.*;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.potion.PotionType;
+import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.tag.Tag;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -155,39 +158,16 @@ public interface LootFunction {
             ItemStack tool = context.get(LootContext.TOOL);
             if (tool == null) return input;
 
-            int level = ItemUtils.level(tool, enchantment);
+            int level = EnchantmentUtils.level(tool, enchantment);
             int newCount = formula.calculate(context.require(LootContext.RANDOM), input.amount(), level);
 
             return input.withAmount(newCount);
         }
     }
 
-    record CopyName(@NotNull List<LootPredicate> predicates, @NotNull Target target) implements LootFunction {
+    record CopyName(@NotNull List<LootPredicate> predicates, @NotNull RelevantTarget target) implements LootFunction {
 
         private static final @NotNull Tag<Component> BLOCK_CUSTOM_NAME = Tag.Component("CustomName");
-
-        public enum Target {
-            THIS("this", LootContext.THIS_ENTITY),
-            ATTACKING_ENTITY("attacking_entity", LootContext.ATTACKING_ENTITY),
-            LAST_DAMAGE_PLAYER("last_damage_player", LootContext.LAST_DAMAGE_PLAYER),
-            BLOCK_ENTITY("block_entity", LootContext.BLOCK_STATE);
-
-            private final @NotNull String id;
-            private final @NotNull LootContext.Key<?> key;
-
-            Target(@NotNull String id, @NotNull LootContext.Key<?> key) {
-                this.id = id;
-                this.key = key;
-            }
-
-            public @NotNull String id() {
-                return id;
-            }
-
-            public @NotNull LootContext.Key<?> key() {
-                return key;
-            }
-        }
 
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
@@ -370,6 +350,108 @@ public interface LootFunction {
         }
     }
 
+    record SetLootTable(@NotNull List<LootPredicate> predicates, @NotNull NamespaceID key, long seed) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+            if (input.isAir()) return input;
 
+            return input.with(ItemComponent.CONTAINER_LOOT, new SeededContainerLoot(key.asString(), seed));
+        }
+    }
+
+    record CopyComponents(@NotNull List<LootPredicate> predicates, @NotNull RelevantTarget source,
+                          @Nullable List<ItemComponent> include, @Nullable List<ItemComponent> exclude) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            throw new UnsupportedOperationException("Minestom currently does not support data components on blocks.");
+        }
+    }
+
+    record CopyState(@NotNull List<LootPredicate> predicates, @Nullable Block block, @NotNull List<String> properties) implements LootFunction {
+
+        public CopyState {
+            if (block != null) {
+                List<String> props = new ArrayList<>(properties);
+                props.removeIf(name -> !block.properties().containsKey(name));
+                properties = List.copyOf(props);
+            }
+        }
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            Block block = context.get(LootContext.BLOCK_STATE);
+            if (block == null) return input;
+
+            ItemBlockState irritableBowelSyndrome = input.get(ItemComponent.BLOCK_STATE, ItemBlockState.EMPTY);
+            for (var prop : properties) {
+                @Nullable String value = block.getProperty(prop);
+                if (value == null) continue;
+
+                irritableBowelSyndrome = irritableBowelSyndrome.with(prop, value);
+            }
+
+            return input.with(ItemComponent.BLOCK_STATE, irritableBowelSyndrome);
+        }
+    }
+
+    record MoreByLevel(@NotNull List<LootPredicate> predicates, @NotNull NamespaceID enchantment,
+                       @NotNull LootNumber count, @Nullable Integer limit) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            Entity attacker = context.get(LootContext.ATTACKING_ENTITY);
+            int level = EnchantmentUtils.level(attacker, DynamicRegistry.Key.of(enchantment));
+
+            if (level == 0) return input;
+
+            int newAmount = input.amount() + level * (int) count.getLong(context);
+
+            return input.withAmount(limit != null ? Math.min(limit, newAmount) : newAmount);
+        }
+    }
+
+    record SetNBT(@NotNull List<LootPredicate> predicates, @NotNull CompoundBinaryTag nbt) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            return input.with(ItemComponent.CUSTOM_DATA, new CustomData(nbt));
+        }
+    }
+
+    record SetCustomModelData(@NotNull List<LootPredicate> predicates, @NotNull LootNumber data) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            return input.with(ItemComponent.CUSTOM_MODEL_DATA, (int) data.getLong(context));
+        }
+    }
+    
+    record SetDamage(@NotNull List<LootPredicate> predicates, @NotNull LootNumber damage, boolean add) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            int maxDamage = input.get(ItemComponent.MAX_DAMAGE, -1);
+            if (maxDamage == -1) return input;
+
+            double damage = input.get(ItemComponent.DAMAGE, 0) / (double) maxDamage;
+
+            double currentDura = add ? 1 - damage : 0;
+            double newDura = Math.max(0, Math.min(1, currentDura + this.damage.getDouble(context)));
+
+            double newDamage = 1 - newDura;
+
+            return input.with(ItemComponent.DAMAGE, (int) Math.floor(newDamage * maxDamage));
+        }
+
+    }
 
 }
