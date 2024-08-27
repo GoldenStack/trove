@@ -12,6 +12,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.Weather;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.item.enchant.LevelBasedValue;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.utils.NamespaceID;
@@ -131,7 +132,7 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record EnchantmentBonus(@NotNull NamespaceID enchantment, @NotNull List<Float> chances) implements LootPredicate {
+    record EnchantmentBonus(@NotNull DynamicRegistry.Key<Enchantment> enchantment, @NotNull List<Float> chances) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             ItemStack tool = context.get(LootContext.TOOL);
@@ -237,12 +238,12 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record EnchantmentBasedRandomChance(@NotNull NamespaceID key, float defaultChance, @NotNull LevelBasedValue modifiedChance) implements LootPredicate {
+    record EnchantmentBasedRandomChance(@NotNull DynamicRegistry.Key<Enchantment> enchantment, float defaultChance, @NotNull LevelBasedValue modifiedChance) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
             Entity attacker = context.get(LootContext.ATTACKING_ENTITY);
 
-            int level = EnchantmentUtils.level(attacker, DynamicRegistry.Key.of(key));
+            int level = EnchantmentUtils.level(attacker, enchantment);
 
             float chance = level > 0 ? modifiedChance.calc(level) : defaultChance;
             return context.require(LootContext.RANDOM).nextFloat() < chance;

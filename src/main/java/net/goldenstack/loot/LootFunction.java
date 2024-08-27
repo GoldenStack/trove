@@ -118,7 +118,7 @@ public interface LootFunction {
         }
     }
 
-    record Bonus(@NotNull List<LootPredicate> predicates, @NotNull NamespaceID enchantment, @NotNull Formula formula) implements LootFunction {
+    record Bonus(@NotNull List<LootPredicate> predicates, @NotNull DynamicRegistry.Key<Enchantment> enchantment, @NotNull Formula formula) implements LootFunction {
 
         public sealed interface Formula {
 
@@ -401,14 +401,14 @@ public interface LootFunction {
         }
     }
 
-    record MoreByLevel(@NotNull List<LootPredicate> predicates, @NotNull NamespaceID enchantment,
+    record MoreByLevel(@NotNull List<LootPredicate> predicates, @NotNull DynamicRegistry.Key<Enchantment> enchantment,
                        @NotNull LootNumber count, @Nullable Integer limit) implements LootFunction {
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
             Entity attacker = context.get(LootContext.ATTACKING_ENTITY);
-            int level = EnchantmentUtils.level(attacker, DynamicRegistry.Key.of(enchantment));
+            int level = EnchantmentUtils.level(attacker, enchantment);
 
             if (level == 0) return input;
 
@@ -455,7 +455,7 @@ public interface LootFunction {
         }
     }
 
-    record SetEnchantments(@NotNull List<LootPredicate> predicates, @NotNull Map<NamespaceID, LootNumber> enchantments, boolean add) implements LootFunction {
+    record SetEnchantments(@NotNull List<LootPredicate> predicates, @NotNull Map<DynamicRegistry.Key<Enchantment>, LootNumber> enchantments, boolean add) implements LootFunction {
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
@@ -472,9 +472,9 @@ public interface LootFunction {
                 this.enchantments.forEach((enchantment, number) -> {
                     int count = number.getInt(context);
                     if (add) {
-                        count += map.get(DynamicRegistry.Key.of(enchantment));
+                        count += map.get(enchantment);
                     }
-                    map.put(DynamicRegistry.Key.of(enchantment), count);
+                    map.put(enchantment, count);
                 });
             });
         }

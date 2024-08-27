@@ -10,7 +10,6 @@ import net.minestom.server.item.Material;
 import net.minestom.server.item.component.EnchantmentList;
 import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.registry.DynamicRegistry;
-import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,13 +21,13 @@ public class EnchantmentUtils {
 
     private EnchantmentUtils() {}
 
-    public static int level(@Nullable ItemStack item, @NotNull NamespaceID key) {
+    public static int level(@Nullable ItemStack item, @NotNull DynamicRegistry.Key<Enchantment> key) {
         if (item == null) return 0;
 
         EnchantmentList enchantments = item.get(ItemComponent.ENCHANTMENTS);
         if (enchantments == null) return 0;
 
-        return enchantments.enchantments().getOrDefault(DynamicRegistry.Key.of(key), 0);
+        return enchantments.enchantments().getOrDefault(key, 0);
     }
 
     public static int level(@Nullable Entity entity, @NotNull DynamicRegistry.Key<Enchantment> key) {
