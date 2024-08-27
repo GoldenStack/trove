@@ -1,11 +1,13 @@
 package net.goldenstack.loot;
 
+import net.goldenstack.loot.util.Template;
 import net.goldenstack.loot.util.VanillaInterface;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.utils.NamespaceID;
+import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -16,6 +18,8 @@ import java.util.List;
  * An entry in a loot table that can generate a list of {@link Choice choices} that each have their own loot and weight.
  */
 public interface LootEntry {
+
+    @NotNull BinaryTagSerializer<LootEntry> SERIALIZER = Template.template(() -> null);
 
     /**
      * Generates any number of possible choices to choose from when generating loot.
@@ -42,7 +46,7 @@ public interface LootEntry {
         
         /**
          * A choice that uses the standard method of generating weight - adding the {@link #weight()} to the {@link #quality()}
-         * where the quality is multiplied by the provided context's luck ({@link LootContextKeys#LUCK}).
+         * where the quality is multiplied by the provided context's luck ({@link LootContext#LUCK}).
          */
         interface Standard extends Choice {
 
@@ -54,7 +58,7 @@ public interface LootEntry {
 
             /**
              * The quality of the choice. When calculating the final weight, this number is multiplied by the context's luck
-             * value, which is stored at the key {@link LootContextKeys#LUCK}.
+             * value, which is stored at the key {@link LootContext#LUCK}.
              * @return the quality of the choice
              */
             @Range(from = 0L, to = Long.MAX_VALUE) long quality();

@@ -1,6 +1,8 @@
 package net.goldenstack.loot;
 
+import net.goldenstack.loot.util.Template;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +22,17 @@ public record LootPool(@NotNull LootNumber rolls,
                        @NotNull List<LootEntry> entries,
                        @NotNull List<LootPredicate> predicates,
                        @NotNull List<LootFunction> functions) implements LootGenerator {
+
+    @SuppressWarnings("UnstableApiUsage")
+    public static final @NotNull BinaryTagSerializer<LootPool> SERIALIZER = Template.template(
+            "rolls", LootNumber.SERIALIZER, LootPool::rolls,
+            "bonus_rolls", LootNumber.SERIALIZER, LootPool::bonusRolls,
+            "entries", LootEntry.SERIALIZER.list(), LootPool::entries,
+            "conditions", LootPredicate.SERIALIZER.list(), LootPool::predicates,
+            "functions", LootFunction.SERIALIZER.list(), LootPool::functions,
+            LootPool::new
+    );
+
     @Override
     public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
         if (!(LootPredicate.all(predicates, context))) return List.of();

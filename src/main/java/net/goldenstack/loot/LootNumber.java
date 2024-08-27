@@ -1,5 +1,6 @@
 package net.goldenstack.loot;
 
+import net.goldenstack.loot.util.Template;
 import net.goldenstack.loot.util.nbt.NBTPath;
 import net.goldenstack.loot.util.nbt.NBTReference;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
@@ -7,6 +8,7 @@ import net.kyori.adventure.nbt.IntBinaryTag;
 import net.kyori.adventure.nbt.NumberBinaryTag;
 import net.minestom.server.item.enchant.LevelBasedValue;
 import net.minestom.server.utils.NamespaceID;
+import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.Random;
  * Generates numbers based on provided loot contexts.
  */
 public interface LootNumber {
+
+    @NotNull BinaryTagSerializer<LootNumber> SERIALIZER = Template.template(() -> null);
 
     /**
      * Generates an integer depending on the information in the provided context.<br>

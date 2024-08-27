@@ -27,6 +27,7 @@ import net.minestom.server.potion.PotionType;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.tag.Tag;
 import net.minestom.server.utils.NamespaceID;
+import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,6 +41,8 @@ import java.util.stream.Stream;
  * A function that allows loot to pass through it, potentially making modifications.
  */
 public interface LootFunction {
+
+    @NotNull BinaryTagSerializer<LootFunction> SERIALIZER = Template.template(() -> null);
 
     /**
      * Performs any mutations on the provided object and returns the result.

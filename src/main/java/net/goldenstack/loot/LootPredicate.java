@@ -1,9 +1,6 @@
 package net.goldenstack.loot;
 
-import net.goldenstack.loot.util.EnchantmentUtils;
-import net.goldenstack.loot.util.LootNumberRange;
-import net.goldenstack.loot.util.RelevantEntity;
-import net.goldenstack.loot.util.VanillaInterface;
+import net.goldenstack.loot.util.*;
 import net.goldenstack.loot.util.predicate.*;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
@@ -16,6 +13,7 @@ import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.item.enchant.LevelBasedValue;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.utils.NamespaceID;
+import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,6 +25,8 @@ import java.util.function.Predicate;
  * A predicate over a loot context, returning whether or not a given context passes some arbitrary predicate.
  */
 public interface LootPredicate extends Predicate<@NotNull LootContext> {
+
+    @NotNull BinaryTagSerializer<LootPredicate> SERIALIZER = Template.template(() -> null);
 
     /**
      * Returns whether or not the provided loot context passes this predicate.

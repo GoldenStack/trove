@@ -1,6 +1,7 @@
 package net.goldenstack.loot;
 
 import net.goldenstack.loot.util.RelevantEntity;
+import net.goldenstack.loot.util.Template;
 import net.goldenstack.loot.util.VanillaInterface;
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
@@ -9,6 +10,7 @@ import net.kyori.adventure.nbt.StringBinaryTag;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.utils.NamespaceID;
+import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +20,8 @@ import java.util.Map;
  * Returns NBT data from the provided context.
  */
 public interface LootNBT {
+
+    @NotNull BinaryTagSerializer<LootNBT> SERIALIZER = Template.template(() -> null);
 
     /**
      * Generates some NBT based on the provided context.
