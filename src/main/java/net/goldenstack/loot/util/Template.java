@@ -54,7 +54,7 @@ public class Template {
             }
 
             @SuppressWarnings("unchecked")
-            private static <N extends T> BinaryTag handle(@NotNull Entry<N> entry, Context context, T value) {
+            private <N extends T> BinaryTag handle(@NotNull Entry<N> entry, Context context, T value) {
                 return entry.serializer().write(context, (N) value);
             }
 
