@@ -2,7 +2,7 @@ package net.goldenstack.loot;
 
 import io.leangen.geantyref.TypeToken;
 import net.goldenstack.loot.util.VanillaInterface;
-import net.kyori.adventure.nbt.BinaryTag;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
@@ -41,8 +41,9 @@ public sealed interface LootContext permits LootContextImpl {
     @NotNull LootContext.Key<Function<NamespaceID, LootTable>> REGISTERED_TABLES = LootContext.key("minecraft:registered_loot_tables", new TypeToken<>() {});
     @NotNull LootContext.Key<Function<NamespaceID, LootPredicate>> REGISTERED_PREDICATES = LootContext.key("minecraft:registered_loot_predicates", new TypeToken<>() {});
     @NotNull LootContext.Key<Function<NamespaceID, LootFunction>> REGISTERED_FUNCTIONS = LootContext.key("minecraft:registered_loot_functions", new TypeToken<>() {});
-    @NotNull LootContext.Key<Function<NamespaceID, BinaryTag>> COMMAND_STORAGE = LootContext.key("minecraft:command_storage", new TypeToken<>() {});
+    @NotNull LootContext.Key<Function<NamespaceID, CompoundBinaryTag>> COMMAND_STORAGE = LootContext.key("minecraft:command_storage", new TypeToken<>() {});
     @NotNull LootContext.Key<Double> LUCK = LootContext.key("minecraft:luck", new TypeToken<>() {});
+    @NotNull LootContext.Key<Integer> ENCHANTMENT_LEVEL = LootContext.key("minecraft:enchantment_level", new TypeToken<>() {});
 
     /**
      * Creates a loot context from the provided map of key -> object.

@@ -1,7 +1,15 @@
 package net.goldenstack.loot;
 
+import net.goldenstack.loot.util.nbt.NBTPath;
+import net.goldenstack.loot.util.nbt.NBTReference;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.IntBinaryTag;
+import net.kyori.adventure.nbt.NumberBinaryTag;
+import net.minestom.server.item.enchant.LevelBasedValue;
+import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -68,6 +76,57 @@ public interface LootNumber {
         @Override
         public double getDouble(@NotNull LootContext context) {
             return getInt(context);
+        }
+    }
+
+    record EnchantmentLevel(@NotNull LevelBasedValue value) implements LootNumber {
+        @Override
+        public int getInt(@NotNull LootContext context) {
+            return (int) Math.round(getDouble(context));
+        }
+
+        @Override
+        public double getDouble(@NotNull LootContext context) {
+            return value.calc(context.require(LootContext.ENCHANTMENT_LEVEL));
+        }
+    }
+    
+    record Score(@NotNull LootScore target, @NotNull String objective, double scale) implements LootNumber {
+        @Override
+        public int getInt(@NotNull LootContext context) {
+            return (int) Math.round(getDouble(context));
+        }
+
+        @Override
+        public double getDouble(@NotNull LootContext context) {
+            var score = target.apply(context).apply(objective);
+
+            return score != null ? score * scale : 0;
+        }
+    }
+
+    record CommandStorage(@NotNull NamespaceID id, @NotNull NBTPath path) implements LootNumber {
+        @Override
+        public int getInt(@NotNull LootContext context) {
+            return get(context).intValue();
+        }
+
+        @Override
+        public double getDouble(@NotNull LootContext context) {
+            return get(context).doubleValue();
+        }
+
+        private NumberBinaryTag get(@NotNull LootContext context) {
+            CompoundBinaryTag compound = context.require(LootContext.COMMAND_STORAGE).apply(id);
+
+            List<NBTReference> refs = path.get(compound);
+            if (refs.size() != 1) return IntBinaryTag.intBinaryTag(0);
+
+            if (refs.getFirst().get() instanceof NumberBinaryTag number) {
+                return number;
+            } else {
+                return IntBinaryTag.intBinaryTag(0);
+            }
         }
     }
 
