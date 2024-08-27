@@ -50,4 +50,6 @@ interface LootContextKeys {
 
     @NotNull LootContext.Key<Function<NamespaceID, BinaryTag>> COMMAND_STORAGE = LootContext.key("minecraft:command_storage", new TypeToken<>() {});
 
+    @NotNull LootContext.Key<Double> LUCK = LootContext.key("minecraft:luck", new TypeToken<>() {});
+
 }
