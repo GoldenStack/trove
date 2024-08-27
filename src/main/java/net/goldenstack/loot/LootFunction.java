@@ -30,10 +30,7 @@ import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -51,14 +48,40 @@ public interface LootFunction {
      * @return the modified form of the input
      */
     @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context);
+    
+    /**
+     * Applies each function to the given item consecutively.
+     * @param functions the functions to apply
+     * @param item the item to modify
+     * @param context the context to use
+     * @return the modified item
+     */
+    static @NotNull ItemStack apply(@NotNull Collection<LootFunction> functions, @NotNull ItemStack item, @NotNull LootContext context) {
+        for (LootFunction function : functions) {
+            item = function.apply(item, context);
+        }
+        return item;
+    }
+
+    /**
+     * Applies each function to each of the given items consecutively.
+     * @param functions the functions to apply
+     * @param items the items to modify
+     * @param context the context to use
+     * @return the modified items
+     */
+    static @NotNull List<ItemStack> apply(@NotNull Collection<LootFunction> functions, @NotNull List<ItemStack> items, @NotNull LootContext context) {
+        List<ItemStack> newItems = new ArrayList<>(items.size());
+        for (ItemStack item : items) {
+            newItems.add(LootFunction.apply(functions, item, context));
+        }
+        return newItems;
+    }
 
     record All(@NotNull List<LootFunction> functions) implements LootFunction {
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
-            for (var function : functions) {
-                input = function.apply(input, context);
-            }
-            return input;
+            return LootFunction.apply(functions, input, context);
         }
     }
 

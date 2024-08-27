@@ -44,6 +44,8 @@ interface LootContextKeys {
 
     @NotNull LootContext.Key<VanillaInterface> VANILLA_INTERFACE = LootContext.key("trove:vanilla_interface", new TypeToken<>() {});
 
+    @NotNull LootContext.Key<Function<NamespaceID, LootTable>> REGISTERED_TABLES = LootContext.key("minecraft:registered_loot_tables", new TypeToken<>() {});
+
     @NotNull LootContext.Key<Function<NamespaceID, LootPredicate>> REGISTERED_PREDICATES = LootContext.key("minecraft:registered_loot_predicates", new TypeToken<>() {});
 
     @NotNull LootContext.Key<Function<NamespaceID, LootFunction>> REGISTERED_FUNCTIONS = LootContext.key("minecraft:registered_loot_functions", new TypeToken<>() {});

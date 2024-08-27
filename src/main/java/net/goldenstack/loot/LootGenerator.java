@@ -10,4 +10,8 @@ import java.util.function.Function;
  * Something that can generate loot.
  */
 public interface LootGenerator extends Function<@NotNull LootContext, @NotNull List<ItemStack>> {
+
+    @Override
+    @NotNull List<ItemStack> apply(@NotNull LootContext context);
+
 }
