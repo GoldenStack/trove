@@ -1,6 +1,5 @@
 package net.goldenstack.loot;
 
-import io.leangen.geantyref.TypeToken;
 import net.goldenstack.loot.util.VanillaInterface;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.minestom.server.coordinate.Point;
@@ -25,25 +24,25 @@ import java.util.function.Function;
  */
 public sealed interface LootContext permits LootContextImpl {
 
-    @NotNull LootContext.Key<Random> RANDOM = LootContext.key("minecraft:random", new TypeToken<>() {});
-    @NotNull LootContext.Key<Float> EXPLOSION_RADIUS = LootContext.key("minecraft:explosion_radius", new TypeToken<>() {});
-    @NotNull LootContext.Key<Player> LAST_DAMAGE_PLAYER = LootContext.key("minecraft:last_damage_player", new TypeToken<>() {});
-    @NotNull LootContext.Key<Instance> WORLD = LootContext.key("minecraft:world", new TypeToken<>() {});
-    @NotNull LootContext.Key<ItemStack> TOOL = LootContext.key("minecraft:tool", new TypeToken<>() {});
-    @NotNull LootContext.Key<Boolean> ENCHANTMENT_ACTIVE = LootContext.key("minecraft:enchantment_active", new TypeToken<>() {});
-    @NotNull LootContext.Key<Block> BLOCK_STATE = LootContext.key("minecraft:block_state", new TypeToken<>() {});
-    @NotNull LootContext.Key<DamageType> DAMAGE_SOURCE = LootContext.key("minecraft:damage_source", new TypeToken<>() {});
-    @NotNull LootContext.Key<Point> ORIGIN = LootContext.key("minecraft:origin", new TypeToken<>() {});
-    @NotNull LootContext.Key<Entity> DIRECT_ATTACKING_ENTITY = LootContext.key("minecraft:direct_attacking_entity", new TypeToken<>() {});
-    @NotNull LootContext.Key<Entity> ATTACKING_ENTITY = LootContext.key("minecraft:attacking_entity", new TypeToken<>() {});
-    @NotNull LootContext.Key<Entity> THIS_ENTITY = LootContext.key("minecraft:this_entity", new TypeToken<>() {});
-    @NotNull LootContext.Key<VanillaInterface> VANILLA_INTERFACE = LootContext.key("trove:vanilla_interface", new TypeToken<>() {});
-    @NotNull LootContext.Key<Function<NamespaceID, LootTable>> REGISTERED_TABLES = LootContext.key("minecraft:registered_loot_tables", new TypeToken<>() {});
-    @NotNull LootContext.Key<Function<NamespaceID, LootPredicate>> REGISTERED_PREDICATES = LootContext.key("minecraft:registered_loot_predicates", new TypeToken<>() {});
-    @NotNull LootContext.Key<Function<NamespaceID, LootFunction>> REGISTERED_FUNCTIONS = LootContext.key("minecraft:registered_loot_functions", new TypeToken<>() {});
-    @NotNull LootContext.Key<Function<NamespaceID, CompoundBinaryTag>> COMMAND_STORAGE = LootContext.key("minecraft:command_storage", new TypeToken<>() {});
-    @NotNull LootContext.Key<Double> LUCK = LootContext.key("minecraft:luck", new TypeToken<>() {});
-    @NotNull LootContext.Key<Integer> ENCHANTMENT_LEVEL = LootContext.key("minecraft:enchantment_level", new TypeToken<>() {});
+    @NotNull LootContext.Key<Random> RANDOM = LootContext.key("minecraft:random");
+    @NotNull LootContext.Key<Float> EXPLOSION_RADIUS = LootContext.key("minecraft:explosion_radius");
+    @NotNull LootContext.Key<Player> LAST_DAMAGE_PLAYER = LootContext.key("minecraft:last_damage_player");
+    @NotNull LootContext.Key<Instance> WORLD = LootContext.key("minecraft:world");
+    @NotNull LootContext.Key<ItemStack> TOOL = LootContext.key("minecraft:tool");
+    @NotNull LootContext.Key<Boolean> ENCHANTMENT_ACTIVE = LootContext.key("minecraft:enchantment_active");
+    @NotNull LootContext.Key<Block> BLOCK_STATE = LootContext.key("minecraft:block_state");
+    @NotNull LootContext.Key<DamageType> DAMAGE_SOURCE = LootContext.key("minecraft:damage_source");
+    @NotNull LootContext.Key<Point> ORIGIN = LootContext.key("minecraft:origin");
+    @NotNull LootContext.Key<Entity> DIRECT_ATTACKING_ENTITY = LootContext.key("minecraft:direct_attacking_entity");
+    @NotNull LootContext.Key<Entity> ATTACKING_ENTITY = LootContext.key("minecraft:attacking_entity");
+    @NotNull LootContext.Key<Entity> THIS_ENTITY = LootContext.key("minecraft:this_entity");
+    @NotNull LootContext.Key<VanillaInterface> VANILLA_INTERFACE = LootContext.key("trove:vanilla_interface");
+    @NotNull LootContext.Key<Function<NamespaceID, LootTable>> REGISTERED_TABLES = LootContext.key("minecraft:registered_loot_tables");
+    @NotNull LootContext.Key<Function<NamespaceID, LootPredicate>> REGISTERED_PREDICATES = LootContext.key("minecraft:registered_loot_predicates");
+    @NotNull LootContext.Key<Function<NamespaceID, LootFunction>> REGISTERED_FUNCTIONS = LootContext.key("minecraft:registered_loot_functions");
+    @NotNull LootContext.Key<Function<NamespaceID, CompoundBinaryTag>> COMMAND_STORAGE = LootContext.key("minecraft:command_storage");
+    @NotNull LootContext.Key<Double> LUCK = LootContext.key("minecraft:luck");
+    @NotNull LootContext.Key<Integer> ENCHANTMENT_LEVEL = LootContext.key("minecraft:enchantment_level");
 
     /**
      * Creates a loot context from the provided map of key -> object.
@@ -55,19 +54,18 @@ public sealed interface LootContext permits LootContextImpl {
     }
 
     /**
-     * Creates a key from the provided key and type.
+     * Creates a key from the provided key.
      */
-    static <T> LootContext.@NotNull Key<T> key(@NotNull String key, @NotNull TypeToken<T> type) {
-        return new LootContext.Key<>(key, type);
+    static <T> LootContext.@NotNull Key<T> key(@NotNull String key) {
+        return new LootContext.Key<>(key);
     }
 
     /**
      * Represents a key that stores information in a loot context.
      * @param id the string id of the key
-     * @param type the concrete type of the key
      * @param <T> the type parameter of the key
      */
-    record Key<T>(@NotNull String id, @NotNull TypeToken<T> type) {}
+    record Key<T>(@NotNull String id) {}
 
     /**
      * Returns whether or not this context has the provided key.
@@ -142,6 +140,6 @@ record LootContextImpl(@NotNull Map<String, Object> data) implements LootContext
             return get;
         }
 
-        throw new NoSuchElementException("No value for key '" + key + "' with type '" + key.type().getType() + "'");
+        throw new NoSuchElementException("No value for key '" + key + "'");
     }
 }
