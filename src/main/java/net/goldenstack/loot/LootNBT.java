@@ -1,6 +1,7 @@
 package net.goldenstack.loot;
 
 import net.goldenstack.loot.util.RelevantEntity;
+import net.goldenstack.loot.util.Serial;
 import net.goldenstack.loot.util.Template;
 import net.goldenstack.loot.util.VanillaInterface;
 import net.kyori.adventure.nbt.BinaryTag;
@@ -19,9 +20,16 @@ import java.util.Map;
 /**
  * Returns NBT data from the provided context.
  */
+@SuppressWarnings("UnstableApiUsage")
 public interface LootNBT {
 
-    @NotNull BinaryTagSerializer<LootNBT> SERIALIZER = Template.template(() -> null);
+    @NotNull BinaryTagSerializer<LootNBT> SERIALIZER = Template.compoundSplit(
+            BinaryTagSerializer.STRING.map(Context.Target::fromString, Context.Target::toString).map(Context::new, Context::target),
+            Template.registry("type",
+                    Template.entry("context", Context.class, Context.SERIALIZER),
+                    Template.entry("storage", CommandStorage.class, CommandStorage.SERIALIZER)
+            )
+    );
 
     /**
      * Generates some NBT based on the provided context.
@@ -30,18 +38,41 @@ public interface LootNBT {
      */
     @Nullable BinaryTag getNBT(@NotNull LootContext context);
 
-    record CommandStorage(@NotNull NamespaceID key) implements LootNBT {
+    record CommandStorage(@NotNull NamespaceID source) implements LootNBT {
+
+        public static final @NotNull BinaryTagSerializer<CommandStorage> SERIALIZER = Template.template(
+                "source", Serial.KEY, CommandStorage::source,
+                CommandStorage::new
+        );
+
         @Override
         public @Nullable BinaryTag getNBT(@NotNull LootContext context) {
-            return context.require(LootContext.COMMAND_STORAGE).apply(key);
+            return context.require(LootContext.COMMAND_STORAGE).apply(source);
         }
     }
 
     record Context(@NotNull Target target) implements LootNBT {
+
+        public static final @NotNull BinaryTagSerializer<Context> SERIALIZER = Template.template(
+                "target", BinaryTagSerializer.STRING.map(Context.Target::fromString, Context.Target::toString), Context::target,
+                Context::new
+        );
+
         public sealed interface Target {
             @Nullable BinaryTag getNBT(@NotNull LootContext context);
 
+            static @NotNull Target fromString(@NotNull String input) {
+                if (input.equals("block_entity")) return new BlockEntity();
+
+                for (var target : RelevantEntity.values()) {
+                    if (target.id().equals(input)) return new Entity(target);
+                }
+
+                throw new IllegalArgumentException("Expected block_entity or a valid entity target name");
+            }
+
             record BlockEntity() implements Target {
+                @SuppressWarnings("DataFlowIssue")
                 @Override
                 public @NotNull BinaryTag getNBT(@NotNull LootContext context) {
                     Block block = context.require(LootContext.BLOCK_STATE);
@@ -56,6 +87,11 @@ public interface LootNBT {
                             "id", StringBinaryTag.stringBinaryTag(block.namespace().asString())
                     ));
                 }
+
+                @Override
+                public String toString() {
+                    return "block_entity";
+                }
             }
 
             record Entity(@NotNull RelevantEntity target) implements Target {
@@ -65,6 +101,11 @@ public interface LootNBT {
                     VanillaInterface vanilla = context.require(LootContext.VANILLA_INTERFACE);
 
                     return vanilla.serializeEntity(entity);
+                }
+
+                @Override
+                public String toString() {
+                    return target.id();
                 }
             }
         }

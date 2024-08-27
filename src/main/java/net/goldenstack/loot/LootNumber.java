@@ -1,5 +1,6 @@
 package net.goldenstack.loot;
 
+import net.goldenstack.loot.util.Serial;
 import net.goldenstack.loot.util.Template;
 import net.goldenstack.loot.util.nbt.NBTPath;
 import net.goldenstack.loot.util.nbt.NBTReference;
@@ -17,9 +18,20 @@ import java.util.Random;
 /**
  * Generates numbers based on provided loot contexts.
  */
+@SuppressWarnings("UnstableApiUsage")
 public interface LootNumber {
 
-    @NotNull BinaryTagSerializer<LootNumber> SERIALIZER = Template.template(() -> null);
+    @NotNull BinaryTagSerializer<LootNumber> SERIALIZER = Template.compoundSplit(
+            Serial.DOUBLE.map(Constant::new, Constant::value),
+            Template.registry("type",
+                    Template.entry("constant", Constant.class, Constant.SERIALIZER),
+                    Template.entry("uniform", Uniform.class, Uniform.SERIALIZER),
+                    Template.entry("binomial", Binomial.class, Binomial.SERIALIZER),
+                    Template.entry("score", Score.class, Score.SERIALIZER),
+                    Template.entry("storage", CommandStorage.class, CommandStorage.SERIALIZER),
+                    Template.entry("enchantment_level", EnchantmentLevel.class, EnchantmentLevel.SERIALIZER)
+            )
+    );
 
     /**
      * Generates an integer depending on the information in the provided context.<br>
@@ -37,7 +49,13 @@ public interface LootNumber {
      */
     double getDouble(@NotNull LootContext context);
 
-    record Constant(@NotNull Number value) implements LootNumber {
+    record Constant(@NotNull Double value) implements LootNumber {
+
+        public static final @NotNull BinaryTagSerializer<Constant> SERIALIZER = Template.template(
+                "value", Serial.DOUBLE, Constant::value,
+                Constant::new
+        );
+
         @Override
         public int getInt(@NotNull LootContext context) {
             return value.intValue();
@@ -45,11 +63,18 @@ public interface LootNumber {
 
         @Override
         public double getDouble(@NotNull LootContext context) {
-            return value.doubleValue();
+            return value;
         }
     }
 
     record Uniform(@NotNull LootNumber min, @NotNull LootNumber max) implements LootNumber {
+
+        public static final @NotNull BinaryTagSerializer<Uniform> SERIALIZER = Template.template(
+                "min", LootNumber.SERIALIZER, Uniform::min,
+                "max", LootNumber.SERIALIZER, Uniform::max,
+                Uniform::new
+        );
+
         @Override
         public int getInt(@NotNull LootContext context) {
             return context.require(LootContext.RANDOM).nextInt(min().getInt(context), max().getInt(context) + 1);
@@ -62,6 +87,13 @@ public interface LootNumber {
     }
 
     record Binomial(@NotNull LootNumber trials, @NotNull LootNumber probability) implements LootNumber {
+
+        public static final @NotNull BinaryTagSerializer<Binomial> SERIALIZER = Template.template(
+                "n", LootNumber.SERIALIZER, Binomial::trials,
+                "p", LootNumber.SERIALIZER, Binomial::probability,
+                Binomial::new
+        );
+
         @Override
         public int getInt(@NotNull LootContext context) {
             int trials = trials().getInt(context);
@@ -84,6 +116,12 @@ public interface LootNumber {
     }
 
     record EnchantmentLevel(@NotNull LevelBasedValue value) implements LootNumber {
+
+        public static final @NotNull BinaryTagSerializer<EnchantmentLevel> SERIALIZER = Template.template(
+                "amount", LevelBasedValue.NBT_TYPE, EnchantmentLevel::value,
+                EnchantmentLevel::new
+        );
+
         @Override
         public int getInt(@NotNull LootContext context) {
             return (int) Math.round(getDouble(context));
@@ -96,6 +134,14 @@ public interface LootNumber {
     }
     
     record Score(@NotNull LootScore target, @NotNull String objective, double scale) implements LootNumber {
+
+        public static final @NotNull BinaryTagSerializer<Score> SERIALIZER = Template.template(
+                "target", LootScore.SERIALIZER, Score::target,
+                "score", BinaryTagSerializer.STRING, Score::objective,
+                "scale", Serial.DOUBLE, Score::scale,
+                Score::new
+        );
+
         @Override
         public int getInt(@NotNull LootContext context) {
             return (int) Math.round(getDouble(context));
@@ -109,7 +155,14 @@ public interface LootNumber {
         }
     }
 
-    record CommandStorage(@NotNull NamespaceID id, @NotNull NBTPath path) implements LootNumber {
+    record CommandStorage(@NotNull NamespaceID storage, @NotNull NBTPath path) implements LootNumber {
+
+        public static final @NotNull BinaryTagSerializer<CommandStorage> SERIALIZER = Template.template(
+                "storage", Serial.KEY, CommandStorage::storage,
+                "path", NBTPath.SERIALIZER, CommandStorage::path,
+                CommandStorage::new
+        );
+
         @Override
         public int getInt(@NotNull LootContext context) {
             return get(context).intValue();
@@ -121,7 +174,7 @@ public interface LootNumber {
         }
 
         private NumberBinaryTag get(@NotNull LootContext context) {
-            CompoundBinaryTag compound = context.require(LootContext.COMMAND_STORAGE).apply(id);
+            CompoundBinaryTag compound = context.require(LootContext.COMMAND_STORAGE).apply(storage);
 
             List<NBTReference> refs = path.get(compound);
             if (refs.size() != 1) return IntBinaryTag.intBinaryTag(0);

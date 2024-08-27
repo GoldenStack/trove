@@ -1,6 +1,7 @@
 package net.goldenstack.loot.util;
 
 import net.goldenstack.loot.LootContext;
+import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 
 public enum RelevantTarget {
@@ -8,6 +9,9 @@ public enum RelevantTarget {
     ATTACKING_ENTITY("attacking_entity", LootContext.ATTACKING_ENTITY),
     LAST_DAMAGE_PLAYER("last_damage_player", LootContext.LAST_DAMAGE_PLAYER),
     BLOCK_ENTITY("block_entity", LootContext.BLOCK_STATE);
+
+    @SuppressWarnings("UnstableApiUsage")
+    public static final BinaryTagSerializer<RelevantTarget> SERIALIZER = Template.constant(RelevantTarget::id, RelevantTarget.values());
 
     private final @NotNull String id;
     private final @NotNull LootContext.Key<?> key;
