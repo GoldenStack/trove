@@ -17,6 +17,7 @@ import java.util.List;
 /**
  * An entry in a loot table that can generate a list of {@link Choice choices} that each have their own loot and weight.
  */
+@SuppressWarnings("UnstableApiUsage")
 public interface LootEntry {
 
     @NotNull BinaryTagSerializer<LootEntry> SERIALIZER = Template.todo("entry");

@@ -37,7 +37,7 @@ public record LootPool(@NotNull LootNumber rolls,
     public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
         if (!(LootPredicate.all(predicates, context))) return List.of();
 
-        int rolls = this.rolls.getInt(context);;
+        int rolls = this.rolls.getInt(context);
 
         Double luck = context.get(LootContext.LUCK);
         if (luck != null) {

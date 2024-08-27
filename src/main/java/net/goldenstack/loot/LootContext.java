@@ -65,6 +65,7 @@ public sealed interface LootContext permits LootContextImpl {
      * @param id the string id of the key
      * @param <T> the type parameter of the key
      */
+    @SuppressWarnings("unused")
     record Key<T>(@NotNull String id) {}
 
     /**

@@ -40,6 +40,7 @@ import java.util.stream.Stream;
 /**
  * A function that allows loot to pass through it, potentially making modifications.
  */
+@SuppressWarnings("UnstableApiUsage")
 public interface LootFunction {
 
     @NotNull BinaryTagSerializer<LootFunction> SERIALIZER = Template.todo("function");
