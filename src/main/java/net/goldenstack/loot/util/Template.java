@@ -2,14 +2,71 @@ package net.goldenstack.loot.util;
 
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.StringBinaryTag;
 import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
 public class Template {
+
+    public static <T> @NotNull BinaryTagSerializer<T> compoundSplit(@NotNull BinaryTagSerializer<? extends T> inline, @NotNull BinaryTagSerializer<T> compound) {
+        return new BinaryTagSerializer<>() {
+            @Override
+            public @NotNull BinaryTag write(@NotNull Context context, @NotNull T value) {
+                return compound.write(context, value);
+            }
+
+            @Override
+            public @NotNull T read(@NotNull Context context, @NotNull BinaryTag tag) {
+                return (tag instanceof CompoundBinaryTag ? compound : inline).read(context, tag);
+            }
+        };
+    }
+
+    @SafeVarargs
+    public static <T> @NotNull BinaryTagSerializer<T> constant(@NotNull Function<T, String> name, @NotNull T @NotNull ... entries) {
+        Map<String, T> named = Arrays.stream(entries).collect(Collectors.toMap(name, Function.identity()));
+
+        return BinaryTagSerializer.STRING.map(named::get, name);
+    }
+
+    public record Entry<T>(@NotNull String key, @NotNull Class<T> type, @NotNull BinaryTagSerializer<T> serializer) {}
+
+    public static <T> @NotNull Entry<T> entry(@NotNull String key, @NotNull Class<T> type, @NotNull BinaryTagSerializer<T> serializer) {
+        return new Entry<>(key, type, serializer);
+    }
+
+    @SafeVarargs
+    public static <T> @NotNull BinaryTagSerializer<T> registry(@NotNull String key, @NotNull Entry<? extends T> @NotNull ... entries) {
+        Map<String, Entry<? extends T>> named = Arrays.stream(entries).collect(Collectors.toMap(Entry::key, Function.identity()));
+        Map<Class<? extends T>, Entry<? extends T>> typed = Arrays.stream(entries).collect(Collectors.toMap(Entry::type, Function.identity()));
+
+        return new BinaryTagSerializer<>() {
+            @Override
+            public @NotNull BinaryTag write(@NotNull Context context, @NotNull T value) {
+                return handle(typed.get(value.getClass()), context, value);
+            }
+
+            @SuppressWarnings("unchecked")
+            private static <N extends T> BinaryTag handle(@NotNull Entry<N> entry, Context context, T value) {
+                return entry.serializer().write(context, (N) value);
+            }
+
+            @Override
+            public @NotNull T read(@NotNull Context context, @NotNull BinaryTag raw) {
+                if (!(raw instanceof CompoundBinaryTag tag)) throw new IllegalArgumentException("Expected a compound tag");
+                if (!(tag.get(key) instanceof StringBinaryTag string)) throw new IllegalArgumentException("Expected a string at key '" + key + "'");
+
+                return named.get(string.value()).serializer().read(context, tag);
+            }
+        };
+    }
 
     @FunctionalInterface
     public interface F1<P1, R> {
@@ -189,6 +246,5 @@ public class Template {
             }
         };
     }
-
 
 }
