@@ -24,9 +24,10 @@ import java.util.function.Predicate;
 /**
  * A predicate over a loot context, returning whether or not a given context passes some arbitrary predicate.
  */
+@SuppressWarnings("UnstableApiUsage")
 public interface LootPredicate extends Predicate<@NotNull LootContext> {
 
-    @NotNull BinaryTagSerializer<LootPredicate> SERIALIZER = Template.template(() -> null);
+    @NotNull BinaryTagSerializer<LootPredicate> SERIALIZER = Template.todo("predicate");
 
     /**
      * Returns whether or not the provided loot context passes this predicate.

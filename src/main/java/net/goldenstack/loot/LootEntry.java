@@ -19,7 +19,7 @@ import java.util.List;
  */
 public interface LootEntry {
 
-    @NotNull BinaryTagSerializer<LootEntry> SERIALIZER = Template.template(() -> null);
+    @NotNull BinaryTagSerializer<LootEntry> SERIALIZER = Template.todo("entry");
 
     /**
      * Generates any number of possible choices to choose from when generating loot.

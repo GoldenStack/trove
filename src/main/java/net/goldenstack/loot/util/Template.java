@@ -15,6 +15,20 @@ import java.util.stream.Collectors;
 @SuppressWarnings("UnstableApiUsage")
 public class Template {
 
+    public static <T> @NotNull BinaryTagSerializer<T> todo(@NotNull String message) {
+        return new BinaryTagSerializer<>() {
+            @Override
+            public @NotNull BinaryTag write(@NotNull Context context, @NotNull T value) {
+                throw new UnsupportedOperationException("TODO: " + message);
+            }
+
+            @Override
+            public @NotNull T read(@NotNull Context context, @NotNull BinaryTag tag) {
+                throw new UnsupportedOperationException("TODO: " + message);
+            }
+        };
+    }
+
     public static <T> @NotNull BinaryTagSerializer<T> compoundSplit(@NotNull BinaryTagSerializer<? extends T> inline, @NotNull BinaryTagSerializer<T> compound) {
         return new BinaryTagSerializer<>() {
             @Override

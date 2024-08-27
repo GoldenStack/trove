@@ -42,7 +42,7 @@ import java.util.stream.Stream;
  */
 public interface LootFunction {
 
-    @NotNull BinaryTagSerializer<LootFunction> SERIALIZER = Template.template(() -> null);
+    @NotNull BinaryTagSerializer<LootFunction> SERIALIZER = Template.todo("function");
 
     /**
      * Performs any mutations on the provided object and returns the result.
