@@ -1,9 +1,7 @@
 package net.goldenstack.loot;
 
 
-import net.goldenstack.loot.util.EnchantmentUtils;
-import net.goldenstack.loot.util.LootNumberRange;
-import net.goldenstack.loot.util.RelevantTarget;
+import net.goldenstack.loot.util.*;
 import net.goldenstack.loot.util.nbt.NBTPath;
 import net.goldenstack.loot.util.nbt.NBTReference;
 import net.goldenstack.loot.util.nbt.NBTUtils;
@@ -15,11 +13,15 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.ServerFlag;
 import net.minestom.server.component.DataComponent;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.Player;
+import net.minestom.server.entity.PlayerSkin;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.item.book.FilteredText;
 import net.minestom.server.item.component.*;
+import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.potion.PotionType;
 import net.minestom.server.registry.DynamicRegistry;
@@ -451,7 +453,77 @@ public interface LootFunction {
 
             return input.with(ItemComponent.DAMAGE, (int) Math.floor(newDamage * maxDamage));
         }
-
     }
 
+    record SetEnchantments(@NotNull List<LootPredicate> predicates, @NotNull Map<NamespaceID, LootNumber> enchantments, boolean add) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            if (input.material().equals(Material.BOOK)) {
+                input = input.builder()
+                        .material(Material.ENCHANTED_BOOK)
+                        .set(ItemComponent.STORED_ENCHANTMENTS, input.get(ItemComponent.ENCHANTMENTS, EnchantmentList.EMPTY))
+                        .remove(ItemComponent.ENCHANTMENTS)
+                        .build();
+            }
+
+            return EnchantmentUtils.modifyItem(input, map -> {
+                this.enchantments.forEach((enchantment, number) -> {
+                    int count = (int) number.getLong(context);
+                    if (add) {
+                        count += map.get(DynamicRegistry.Key.of(enchantment));
+                    }
+                    map.put(DynamicRegistry.Key.of(enchantment), count);
+                });
+            });
+        }
+    }
+
+    record EnchantWithLevels(@NotNull List<LootPredicate> predicates, @NotNull LootNumber levels, @Nullable List<DynamicRegistry.Key<Enchantment>> enchantments) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            VanillaInterface vanilla = context.require(LootContext.VANILLA_INTERFACE);
+
+            return vanilla.enchantItem(context.require(LootContext.RANDOM), input, (int) levels.getLong(context), enchantments);
+        }
+    }
+    
+    record SetBookCover(@NotNull List<LootPredicate> predicates, @Nullable FilteredText<String> title,
+                        @Nullable String author, @Nullable Integer generation) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            WrittenBookContent content = input.get(ItemComponent.WRITTEN_BOOK_CONTENT, WrittenBookContent.EMPTY);
+
+            WrittenBookContent updated = new WrittenBookContent(
+                    content.pages(),
+                    title != null ? title : content.title(),
+                    author != null ? author : content.author(),
+                    generation != null ? generation : content.generation(),
+                    content.resolved()
+            );
+
+            return input.with(ItemComponent.WRITTEN_BOOK_CONTENT, updated);
+        }
+    }
+
+    record FillPlayerHead(@NotNull List<LootPredicate> predicates, @NotNull RelevantEntity target) implements LootFunction {
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            if (!input.material().equals(Material.PLAYER_HEAD)) return input;
+
+            if (!(context.get(target.key()) instanceof Player player)) return input;
+
+            PlayerSkin skin = player.getSkin();
+            if (skin == null) return input;
+
+            return input.with(ItemComponent.PROFILE, new HeadProfile(skin));
+        }
+    }
 }

@@ -1,16 +1,22 @@
 package net.goldenstack.loot.util;
 
+import net.minestom.server.component.DataComponent;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EquipmentSlot;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
 import net.minestom.server.item.component.EnchantmentList;
 import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class EnchantmentUtils {
 
@@ -37,6 +43,17 @@ public class EnchantmentUtils {
         }
 
         return level;
+    }
+
+    public static @NotNull ItemStack modifyItem(@NotNull ItemStack item, @NotNull Consumer<Map<DynamicRegistry.Key<Enchantment>, Integer>> enchantments) {
+        DataComponent<EnchantmentList> type = item.material().equals(Material.ENCHANTED_BOOK) ? ItemComponent.STORED_ENCHANTMENTS : ItemComponent.ENCHANTMENTS;
+
+        EnchantmentList component = item.get(type, EnchantmentList.EMPTY);
+
+        var map = new HashMap<>(component.enchantments());
+        enchantments.accept(map);
+
+        return item.with(type, new EnchantmentList(map, component.showInTooltip()));
     }
 
 }
