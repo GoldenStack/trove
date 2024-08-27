@@ -26,7 +26,7 @@ public record LootPool(@NotNull LootNumber rolls,
 
         int rolls = this.rolls.getInt(context);;
 
-        Double luck = context.get(LootContextKeys.LUCK);
+        Double luck = context.get(LootContext.LUCK);
         if (luck != null) {
             rolls += (int) Math.floor(luck * this.bonusRolls.getDouble(context));
         }

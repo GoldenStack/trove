@@ -40,8 +40,8 @@ public interface LootNBT {
             record BlockEntity() implements Target {
                 @Override
                 public @NotNull BinaryTag getNBT(@NotNull LootContext context) {
-                    Block block = context.require(LootContextKeys.BLOCK_STATE);
-                    Point pos = context.require(LootContextKeys.ORIGIN);
+                    Block block = context.require(LootContext.BLOCK_STATE);
+                    Point pos = context.require(LootContext.ORIGIN);
 
                     CompoundBinaryTag nbt = block.hasNbt() ? block.nbt() : CompoundBinaryTag.empty();
 
