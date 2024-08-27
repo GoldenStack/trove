@@ -114,7 +114,7 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
     record RangeCheck(@NotNull LootNumber source, @NotNull LootNumberRange range) implements LootPredicate {
         @Override
         public boolean test(@NotNull LootContext context) {
-            return range.check(context, source.getLong(context));
+            return range.check(context, source.getInt(context));
         }
     }
 

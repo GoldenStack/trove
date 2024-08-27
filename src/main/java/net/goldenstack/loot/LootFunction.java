@@ -235,7 +235,7 @@ public interface LootFunction {
 
             AddedEffect effect = effects.get(context.require(LootContext.RANDOM).nextInt(effects.size()));
 
-            long duration = effect.duration().getLong(context);
+            long duration = effect.duration().getInt(context);
             if (!effect.effect().registry().isInstantaneous()) {
                 duration *= ServerFlag.SERVER_TICKS_PER_SECOND;
             }
@@ -252,7 +252,7 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            int amplifier = (int) Math.max(0, Math.min(this.amplifier.getLong(context), 4));
+            int amplifier = Math.max(0, Math.min(this.amplifier.getInt(context), 4));
 
             return input.with(ItemComponent.OMINOUS_BOTTLE_AMPLIFIER, amplifier);
         }
@@ -339,7 +339,7 @@ public interface LootFunction {
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
-            return input.withAmount(amount -> (this.add ? amount : 0) + (int) this.count.getLong(context));
+            return input.withAmount(amount -> (this.add ? amount : 0) + this.count.getInt(context));
         }
     }
 
@@ -412,7 +412,7 @@ public interface LootFunction {
 
             if (level == 0) return input;
 
-            int newAmount = input.amount() + level * (int) count.getLong(context);
+            int newAmount = input.amount() + level * count.getInt(context);
 
             return input.withAmount(limit != null ? Math.min(limit, newAmount) : newAmount);
         }
@@ -432,7 +432,7 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            return input.with(ItemComponent.CUSTOM_MODEL_DATA, (int) data.getLong(context));
+            return input.with(ItemComponent.CUSTOM_MODEL_DATA, data.getInt(context));
         }
     }
     
@@ -470,7 +470,7 @@ public interface LootFunction {
 
             return EnchantmentUtils.modifyItem(input, map -> {
                 this.enchantments.forEach((enchantment, number) -> {
-                    int count = (int) number.getLong(context);
+                    int count = number.getInt(context);
                     if (add) {
                         count += map.get(DynamicRegistry.Key.of(enchantment));
                     }
@@ -487,7 +487,7 @@ public interface LootFunction {
 
             VanillaInterface vanilla = context.require(LootContext.VANILLA_INTERFACE);
 
-            return vanilla.enchantItem(context.require(LootContext.RANDOM), input, (int) levels.getLong(context), enchantments);
+            return vanilla.enchantItem(context.require(LootContext.RANDOM), input, levels.getInt(context), enchantments);
         }
     }
     

@@ -22,10 +22,10 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
      */
     public long limit(@NotNull LootContext context, long number) {
         if (this.min != null) {
-            number = Math.max(this.min.getLong(context), number);
+            number = Math.max(this.min.getInt(context), number);
         }
         if (this.max != null) {
-            number = Math.min(this.max.getLong(context), number);
+            number = Math.min(this.max.getInt(context), number);
         }
         return number;
     }
@@ -56,8 +56,8 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
      * @return true if the provided number fits within {@link #min()} and {@link #max()}, and false otherwise
      */
     public boolean check(@NotNull LootContext context, long number) {
-        return (this.min == null || this.min.getLong(context) <= number) &&
-                (this.max == null || this.max.getLong(context) >= number);
+        return (this.min == null || this.min.getInt(context) <= number) &&
+                (this.max == null || this.max.getInt(context) >= number);
     }
 
     /**
