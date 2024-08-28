@@ -3,6 +3,7 @@ package net.goldenstack.loot.util;
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.StringBinaryTag;
+import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,6 +54,7 @@ public class Template {
     public record Entry<T>(@NotNull String key, @NotNull Class<T> type, @NotNull BinaryTagSerializer<T> serializer) {}
 
     public static <T> @NotNull Entry<T> entry(@NotNull String key, @NotNull Class<T> type, @NotNull BinaryTagSerializer<T> serializer) {
+        key = NamespaceID.from(key).asString();
         return new Entry<>(key, type, serializer);
     }
 
@@ -77,7 +79,10 @@ public class Template {
                 if (!(raw instanceof CompoundBinaryTag tag)) throw new IllegalArgumentException("Expected a compound tag");
                 if (!(tag.get(key) instanceof StringBinaryTag string)) throw new IllegalArgumentException("Expected a string at key '" + key + "'");
 
-                return named.get(string.value()).serializer().read(context, tag);
+                Entry<? extends T> entry = named.get(string.value());
+                if (entry == null) throw new IllegalArgumentException("Invalid named key '" + string.value() + "'");
+
+                return entry.serializer().read(context, tag);
             }
         };
     }
@@ -105,6 +110,11 @@ public class Template {
     @FunctionalInterface
     public interface F5<P1, P2, P3, P4, P5, R> {
         R apply(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
+    }
+
+    @FunctionalInterface
+    public interface F6<P1, P2, P3, P4, P5, P6, R> {
+        R apply(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
     }
 
     public static <R> BinaryTagSerializer<R> template(Supplier<R> supplier) {
@@ -256,6 +266,43 @@ public class Template {
                         s3.read(context, tag.get(p3)),
                         s4.read(context, tag.get(p4)),
                         s5.read(context, tag.get(p5))
+                );
+            }
+        };
+    }
+
+    public static <P1, P2, P3, P4, P5, P6, R> BinaryTagSerializer<R> template(
+            @NotNull String p1, @NotNull BinaryTagSerializer<P1> s1, @NotNull Function<R, P1> g1,
+            @NotNull String p2, @NotNull BinaryTagSerializer<P2> s2, @NotNull Function<R, P2> g2,
+            @NotNull String p3, @NotNull BinaryTagSerializer<P3> s3, @NotNull Function<R, P3> g3,
+            @NotNull String p4, @NotNull BinaryTagSerializer<P4> s4, @NotNull Function<R, P4> g4,
+            @NotNull String p5, @NotNull BinaryTagSerializer<P5> s5, @NotNull Function<R, P5> g5,
+            @NotNull String p6, @NotNull BinaryTagSerializer<P6> s6, @NotNull Function<R, P6> g6,
+            @NotNull F6<P1, P2, P3, P4, P5, P6, R> constructor) {
+        return new BinaryTagSerializer<>() {
+            @Override
+            public @NotNull BinaryTag write(@NotNull Context context, @NotNull R value) {
+                return CompoundBinaryTag.builder()
+                        .put(p1, s1.write(context, g1.apply(value)))
+                        .put(p2, s2.write(context, g2.apply(value)))
+                        .put(p3, s3.write(context, g3.apply(value)))
+                        .put(p4, s4.write(context, g4.apply(value)))
+                        .put(p5, s5.write(context, g5.apply(value)))
+                        .put(p6, s6.write(context, g6.apply(value)))
+                        .build();
+            }
+
+            @Override
+            public @NotNull R read(@NotNull Context context, @NotNull BinaryTag raw) {
+                if (!(raw instanceof CompoundBinaryTag tag)) throw new IllegalArgumentException("Expected a compound tag");
+
+                return constructor.apply(
+                        s1.read(context, tag.get(p1)),
+                        s2.read(context, tag.get(p2)),
+                        s3.read(context, tag.get(p3)),
+                        s4.read(context, tag.get(p4)),
+                        s5.read(context, tag.get(p5)),
+                        s6.read(context, tag.get(p6))
                 );
             }
         };

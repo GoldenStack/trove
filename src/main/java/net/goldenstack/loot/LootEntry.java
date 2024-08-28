@@ -1,5 +1,6 @@
 package net.goldenstack.loot;
 
+import net.goldenstack.loot.util.Serial;
 import net.goldenstack.loot.util.Template;
 import net.goldenstack.loot.util.VanillaInterface;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
@@ -20,7 +21,16 @@ import java.util.List;
 @SuppressWarnings("UnstableApiUsage")
 public interface LootEntry {
 
-    @NotNull BinaryTagSerializer<LootEntry> SERIALIZER = Template.todo("entry");
+    @NotNull BinaryTagSerializer<LootEntry> SERIALIZER = Template.registry("type",
+            Template.entry("empty", Empty.class, Empty.SERIALIZER),
+            Template.entry("item", Item.class, Item.SERIALIZER),
+            Template.entry("loot_table", Table.class, Table.SERIALIZER),
+            Template.entry("dynamic", Dynamic.class, Dynamic.SERIALIZER),
+            Template.entry("tag", Tag.class, Tag.SERIALIZER),
+            Template.entry("alternatives", Alternative.class, Alternative.SERIALIZER),
+            Template.entry("sequence", Sequence.class, Sequence.SERIALIZER),
+            Template.entry("group", Group.class, Group.SERIALIZER)
+    );
 
     /**
      * Generates any number of possible choices to choose from when generating loot.
@@ -95,6 +105,13 @@ public interface LootEntry {
     }
     
     record Alternative(@NotNull List<LootPredicate> predicates, @NotNull List<LootEntry> children) implements LootEntry {
+
+        public static final @NotNull BinaryTagSerializer<Alternative> SERIALIZER = Template.template(
+                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Alternative::predicates,
+                "children", Serial.lazy(() -> LootEntry.SERIALIZER).list().optional(List.of()), Alternative::children,
+                Alternative::new
+        );
+
         @Override
         public @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return List.of();
@@ -110,6 +127,13 @@ public interface LootEntry {
     }
 
     record Sequence(@NotNull List<LootPredicate> predicates, @NotNull List<LootEntry> children) implements LootEntry {
+
+        public static final @NotNull BinaryTagSerializer<Sequence> SERIALIZER = Template.template(
+                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Sequence::predicates,
+                "children", Serial.lazy(() -> LootEntry.SERIALIZER).list().optional(List.of()), Sequence::children,
+                Sequence::new
+        );
+
         @Override
         public @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return List.of();
@@ -127,6 +151,13 @@ public interface LootEntry {
     }
     
     record Group(@NotNull List<LootPredicate> predicates, @NotNull List<LootEntry> children) implements LootEntry {
+
+        public static final @NotNull BinaryTagSerializer<Group> SERIALIZER = Template.template(
+                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Group::predicates,
+                "children", Serial.lazy(() -> LootEntry.SERIALIZER).list().optional(List.of()), Group::children,
+                Group::new
+        );
+
         @Override
         public @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return List.of();
@@ -142,6 +173,15 @@ public interface LootEntry {
     record Item(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
                 long weight, long quality, @NotNull Material material) implements Choice.Single {
 
+        public static final @NotNull BinaryTagSerializer<Item> SERIALIZER = Template.template(
+                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Item::predicates,
+                "functions", LootFunction.SERIALIZER.list().optional(List.of()), Item::functions,
+                "weight", Serial.LONG.optional(1L), Item::weight,
+                "quality", Serial.LONG.optional(0L), Item::quality,
+                "name", Material.NBT_TYPE, Item::material,
+                Item::new
+        );
+
         @Override
         public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
             return List.of(LootFunction.apply(functions, ItemStack.of(material), context));
@@ -150,6 +190,15 @@ public interface LootEntry {
 
     record Dynamic(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
                 long weight, long quality, @NotNull NamespaceID choiceID) implements Choice.Single {
+
+        public static final @NotNull BinaryTagSerializer<Dynamic> SERIALIZER = Template.template(
+                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Dynamic::predicates,
+                "functions", LootFunction.SERIALIZER.list().optional(List.of()), Dynamic::functions,
+                "weight", Serial.LONG.optional(1L), Dynamic::weight,
+                "quality", Serial.LONG.optional(0L), Dynamic::quality,
+                "name", Serial.KEY, Dynamic::choiceID,
+                Dynamic::new
+        );
 
         @SuppressWarnings("DataFlowIssue")
         @Override
@@ -167,6 +216,14 @@ public interface LootEntry {
     record Empty(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
                 long weight, long quality) implements Choice.Single {
 
+        public static final @NotNull BinaryTagSerializer<Empty> SERIALIZER = Template.template(
+                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Empty::predicates,
+                "functions", LootFunction.SERIALIZER.list().optional(List.of()), Empty::functions,
+                "weight", Serial.LONG.optional(1L), Empty::weight,
+                "quality", Serial.LONG.optional(0L), Empty::quality,
+                Empty::new
+        );
+
         @Override
         public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
             return List.of();
@@ -175,6 +232,16 @@ public interface LootEntry {
 
     record Table(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
                  long weight, long quality, @NotNull NamespaceID tableID) implements Choice.Single {
+
+        public static final @NotNull BinaryTagSerializer<Table> SERIALIZER = Template.template(
+                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Table::predicates,
+                "functions", LootFunction.SERIALIZER.list().optional(List.of()), Table::functions,
+                "weight", Serial.LONG.optional(1L), Table::weight,
+                "quality", Serial.LONG.optional(0L), Table::quality,
+                "value", Serial.KEY, Table::tableID,
+                Table::new
+        );
+
         @Override
         public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
             var tables = context.get(LootContext.REGISTERED_TABLES);
@@ -189,6 +256,16 @@ public interface LootEntry {
 
     record Tag(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
                long weight, long quality, @NotNull net.minestom.server.gamedata.tags.Tag tag, boolean expand) implements Choice.Single {
+
+        public static final @NotNull BinaryTagSerializer<Tag> SERIALIZER = Template.template(
+                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Tag::predicates,
+                "functions", LootFunction.SERIALIZER.list().optional(List.of()), Tag::functions,
+                "weight", Serial.LONG.optional(1L), Tag::weight,
+                "quality", Serial.LONG.optional(0L), Tag::quality,
+                "name", Serial.tag(net.minestom.server.gamedata.tags.Tag.BasicType.ITEMS), Tag::tag,
+                "expand", BinaryTagSerializer.BOOLEAN, Tag::expand,
+                Tag::new
+        );
 
         @Override
         public @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
