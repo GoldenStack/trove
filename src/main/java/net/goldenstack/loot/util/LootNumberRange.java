@@ -2,6 +2,7 @@ package net.goldenstack.loot.util;
 
 import net.goldenstack.loot.LootContext;
 import net.goldenstack.loot.LootNumber;
+import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,6 +12,17 @@ import org.jetbrains.annotations.Nullable;
  * @param max the optional maximum value
  */
 public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max) {
+
+    @SuppressWarnings({"DataFlowIssue", "UnstableApiUsage"})
+    public static final @NotNull BinaryTagSerializer<LootNumberRange> SERIALIZER = Template.compoundSplit(
+            Serial.DOUBLE.map(d -> new LootNumberRange(new LootNumber.Constant(d), new LootNumber.Constant(d)), null)
+                    .optional(new LootNumberRange(null, null)),
+            Template.template(
+                    "min", LootNumber.SERIALIZER.optional(), LootNumberRange::min,
+                    "max", LootNumber.SERIALIZER.optional(), LootNumberRange::max,
+                    LootNumberRange::new
+            ).optional(new LootNumberRange(null, null))
+    );
 
     /**
      * Limits the provided value to between the minimum and maximum.<br>

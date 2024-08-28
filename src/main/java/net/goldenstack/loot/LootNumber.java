@@ -70,8 +70,8 @@ public interface LootNumber {
     record Uniform(@NotNull LootNumber min, @NotNull LootNumber max) implements LootNumber {
 
         public static final @NotNull BinaryTagSerializer<Uniform> SERIALIZER = Template.template(
-                "min", LootNumber.SERIALIZER, Uniform::min,
-                "max", LootNumber.SERIALIZER, Uniform::max,
+                "min", Serial.lazy(() -> LootNumber.SERIALIZER), Uniform::min,
+                "max", Serial.lazy(() -> LootNumber.SERIALIZER), Uniform::max,
                 Uniform::new
         );
 
@@ -89,8 +89,8 @@ public interface LootNumber {
     record Binomial(@NotNull LootNumber trials, @NotNull LootNumber probability) implements LootNumber {
 
         public static final @NotNull BinaryTagSerializer<Binomial> SERIALIZER = Template.template(
-                "n", LootNumber.SERIALIZER, Binomial::trials,
-                "p", LootNumber.SERIALIZER, Binomial::probability,
+                "n", Serial.lazy(() -> LootNumber.SERIALIZER), Binomial::trials,
+                "p", Serial.lazy(() -> LootNumber.SERIALIZER), Binomial::probability,
                 Binomial::new
         );
 

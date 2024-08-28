@@ -2,7 +2,9 @@ package net.goldenstack.loot;
 
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.TagStringIOExt;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.utils.NamespaceID;
+import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -24,6 +26,7 @@ public class Trove {
      * @param directory the directory to parse
      * @return the registry instance that contains parsing information
      */
+    @SuppressWarnings("UnstableApiUsage")
     public static @NotNull Map<NamespaceID, LootTable> readTables(@NotNull Path directory) {
         Map<NamespaceID, LootTable> tables = new HashMap<>();
 
@@ -53,7 +56,7 @@ public class Trove {
 
             tables.put(
                     NamespaceID.from(keyPath),
-                    LootTable.SERIALIZER.read(tag)
+                    LootTable.SERIALIZER.read(new BinaryTagSerializer.ContextWithRegistries(MinecraftServer.process()), tag)
             );
         }
 
