@@ -21,7 +21,7 @@ jobs:
           distribution: 'temurin'
       - name: Test output
         run: |
-          echo "TEST: || ${{ secrets.TEST }} ||"
+          echo "${{ secrets.TEST }}" | wc
       - name: Set outputs
         id: vars
         run: |
