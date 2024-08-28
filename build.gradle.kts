@@ -1,6 +1,8 @@
 plugins {
     id("java-library")
     id("maven-publish")
+    id("signing")
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
 group = "net.goldenstack.loot"
@@ -44,4 +46,22 @@ configure<PublishingExtension> {
             from(components["java"])
         }
     }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+
+            if (System.getenv("SONATYPE_USERNAME") != null) {
+                username.set(System.getenv("SONATYPE_USERNAME"))
+                password.set(System.getenv("SONATYPE_PASSWORD"))
+            }
+        }
+    }
+}
+
+signing {
+    sign(publishing.publications["mavenJava"])
 }
