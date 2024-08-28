@@ -57,6 +57,10 @@ nexusPublishing {
             if (System.getenv("SONATYPE_USERNAME") != null) {
                 username.set(System.getenv("SONATYPE_USERNAME"))
                 password.set(System.getenv("SONATYPE_PASSWORD"))
+
+                print("---\n".repeat(50))
+                print(System.getenv("SONATYPE_USERNAME").length)
+                print(System.getenv("SONATYPE_PASSWORD").length)
             }
         }
     }
