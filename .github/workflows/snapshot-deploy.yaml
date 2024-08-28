@@ -19,6 +19,9 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+      - name: Test output
+        run: |
+          echo "TEST: || ${{ secrets.TEST }} ||"
       - name: Set outputs
         id: vars
         run: |
