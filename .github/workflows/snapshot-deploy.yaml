@@ -19,7 +19,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-      - name: Test output
+      - name: Test output # dude
         run: |
           echo "${{ secrets.TEST }}" | wc
       - name: Set outputs
