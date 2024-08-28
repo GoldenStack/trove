@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "net.goldenstack.loot"
-version = "2.1"
+version = "3.0"
 
 repositories {
     mavenCentral()
