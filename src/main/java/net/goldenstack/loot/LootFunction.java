@@ -214,25 +214,74 @@ public interface LootFunction {
 
     record ApplyBonus(@NotNull List<LootPredicate> predicates, @NotNull DynamicRegistry.Key<Enchantment> enchantment, @NotNull Formula formula) implements LootFunction {
 
-        public static final @NotNull BinaryTagSerializer<ApplyBonus> SERIALIZER = Template.template(
-                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), ApplyBonus::predicates,
-                "enchantment", Serial.key(), ApplyBonus::enchantment,
-                "formula", Template.todo("formula"), ApplyBonus::formula,
-                ApplyBonus::new
-        );
+        private static final @NotNull BinaryTagSerializer<List<LootPredicate>> PREDICATES = Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of());
+        private static final @NotNull BinaryTagSerializer<DynamicRegistry.Key<Enchantment>> KEY = Serial.key();
+
+        public static final @NotNull BinaryTagSerializer<ApplyBonus> SERIALIZER = new BinaryTagSerializer<>() {
+            @Override
+            public @NotNull BinaryTag write(@NotNull Context context, @NotNull ApplyBonus value) {
+                CompoundBinaryTag.Builder nbt = CompoundBinaryTag.builder();
+                nbt.put("conditions", PREDICATES.write(context, value.predicates()));
+                nbt.put("enchantment", KEY.write(context, value.enchantment()));
+
+                return (switch (value.formula()) {
+                    case Formula.UniformBonusCount uniform -> nbt
+                            .put("formula", StringBinaryTag.stringBinaryTag("minecraft:uniform_bonus_count"))
+                            .put("parameters", Formula.UniformBonusCount.SERIALIZER.write(context, uniform));
+                    case Formula.OreDrops drops -> nbt
+                            .put("formula", StringBinaryTag.stringBinaryTag("minecraft:ore_drops"))
+                            .put("parameters", Formula.OreDrops.SERIALIZER.write(context, drops));
+                    case Formula.BinomialWithBonusCount binomial -> nbt
+                            .put("formula", StringBinaryTag.stringBinaryTag("minecraft:binomial_with_bonus_count"))
+                            .put("parameters", Formula.BinomialWithBonusCount.SERIALIZER.write(context, binomial));
+                }).build();
+            }
+
+            @SuppressWarnings("DataFlowIssue")
+            @Override
+            public @NotNull ApplyBonus read(@NotNull Context context, @NotNull BinaryTag raw) {
+                if (!(raw instanceof CompoundBinaryTag tag)) throw new IllegalArgumentException("Expected a compound tag");
+
+                List<LootPredicate> predicates = PREDICATES.read(context, tag.get("conditions"));
+                DynamicRegistry.Key<Enchantment> enchantment = KEY.read(context, tag.get("enchantments"));
+
+                String type = BinaryTagSerializer.STRING.read(context, tag.get("formula"));
+                BinaryTag parameters = tag.get("parameters");
+
+                Formula formula = switch (type) {
+                    case "minecraft:uniform_bonus_count" -> Formula.UniformBonusCount.SERIALIZER.read(context, parameters);
+                    case "minecraft:ore_drops" -> Formula.OreDrops.SERIALIZER.read(context, parameters);
+                    case "minecraft:binomial_with_bonus_count" -> Formula.BinomialWithBonusCount.SERIALIZER.read(context, parameters);
+                    default -> throw new IllegalArgumentException("Invalid formula '" + type + "'");
+                };
+
+                return new ApplyBonus(predicates, enchantment, formula);
+            }
+        };
 
         public sealed interface Formula {
 
             int calculate(@NotNull Random random, int count, int level);
 
-            record Uniform(int multiplier) implements Formula {
+            record UniformBonusCount(int bonusMultiplier) implements Formula {
+
+                public static final @NotNull BinaryTagSerializer<UniformBonusCount> SERIALIZER = Template.template(
+                        "bonusMultiplier", BinaryTagSerializer.INT, UniformBonusCount::bonusMultiplier,
+                        UniformBonusCount::new
+                );
+
                 @Override
                 public int calculate(@NotNull Random random, int count, int level) {
-                    return count + random.nextInt(multiplier * level + 1);
+                    return count + random.nextInt(bonusMultiplier * level + 1);
                 }
             }
 
-            record Ore() implements Formula {
+            record OreDrops() implements Formula {
+
+                public static final @NotNull BinaryTagSerializer<OreDrops> SERIALIZER = Template.template(
+                    OreDrops::new
+                );
+
                 @Override
                 public int calculate(@NotNull Random random, int count, int level) {
                     if (level <= 0) return count;
@@ -241,10 +290,17 @@ public interface LootFunction {
                 }
             }
 
-            record Binomial(float probability, int minTrials) implements Formula {
+            record BinomialWithBonusCount(float probability, int extra) implements Formula {
+
+                public static final @NotNull BinaryTagSerializer<BinomialWithBonusCount> SERIALIZER = Template.template(
+                        "probability", BinaryTagSerializer.FLOAT, BinomialWithBonusCount::probability,
+                        "extra", BinaryTagSerializer.INT, BinomialWithBonusCount::extra,
+                        BinomialWithBonusCount::new
+                );
+
                 @Override
                 public int calculate(@NotNull Random random, int count, int level) {
-                    for (int i = 0; i < minTrials + level; i++) {
+                    for (int i = 0; i < extra + level; i++) {
                         if (random.nextFloat() < probability) {
                             count++;
                         }
