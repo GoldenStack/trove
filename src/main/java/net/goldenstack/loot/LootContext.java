@@ -1,7 +1,6 @@
 package net.goldenstack.loot;
 
 import net.goldenstack.loot.util.VanillaInterface;
-import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.Player;
@@ -9,7 +8,6 @@ import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Random;
-import java.util.function.Function;
 
 /**
  * Stores a dynamic amount of information that may be relevant during the generation of loot.
@@ -36,21 +33,17 @@ public sealed interface LootContext permits LootContextImpl {
     @NotNull LootContext.Key<Entity> DIRECT_ATTACKING_ENTITY = LootContext.key("minecraft:direct_attacking_entity");
     @NotNull LootContext.Key<Entity> ATTACKING_ENTITY = LootContext.key("minecraft:attacking_entity");
     @NotNull LootContext.Key<Entity> THIS_ENTITY = LootContext.key("minecraft:this_entity");
-    @NotNull LootContext.Key<VanillaInterface> VANILLA_INTERFACE = LootContext.key("trove:vanilla_interface");
-    @NotNull LootContext.Key<Function<NamespaceID, LootTable>> REGISTERED_TABLES = LootContext.key("minecraft:registered_loot_tables");
-    @NotNull LootContext.Key<Function<NamespaceID, LootPredicate>> REGISTERED_PREDICATES = LootContext.key("minecraft:registered_loot_predicates");
-    @NotNull LootContext.Key<Function<NamespaceID, LootFunction>> REGISTERED_FUNCTIONS = LootContext.key("minecraft:registered_loot_functions");
-    @NotNull LootContext.Key<Function<NamespaceID, CompoundBinaryTag>> COMMAND_STORAGE = LootContext.key("minecraft:command_storage");
     @NotNull LootContext.Key<Double> LUCK = LootContext.key("minecraft:luck");
     @NotNull LootContext.Key<Integer> ENCHANTMENT_LEVEL = LootContext.key("minecraft:enchantment_level");
 
     /**
-     * Creates a loot context from the provided map of key -> object.
+     * Creates a loot context from the provided map of key -> object and vanilla interface.
+     * @param vanilla this context's interface with vanilla features
      * @param data the values of the context
      * @return the new context instance
      */
-    static @NotNull LootContext from(@NotNull Map<Key<?>, Object> data) {
-        return LootContextImpl.from(data);
+    static @NotNull LootContext from(@NotNull VanillaInterface vanilla, @NotNull Map<Key<?>, Object> data) {
+        return LootContextImpl.from(vanilla, data);
     }
 
     /**
@@ -100,21 +93,27 @@ public sealed interface LootContext permits LootContextImpl {
      */
     <T> @NotNull T require(@NotNull Key<T> key);
 
+    /**
+     * Returns this context's vanilla interface. This is not part of normal Minecraft loot contexts, but it's required
+     * here for integration with other potential Minestom features.
+     */
+    @NotNull VanillaInterface vanilla();
+
 }
 
-record LootContextImpl(@NotNull Map<String, Object> data) implements LootContext {
+record LootContextImpl(@NotNull VanillaInterface vanilla, @NotNull Map<String, Object> data) implements LootContext {
 
     LootContextImpl {
         data = Map.copyOf(data);
     }
 
-    static @NotNull LootContext from(@NotNull Map<Key<?>, Object> data) {
+    static @NotNull LootContext from(@NotNull VanillaInterface vanilla, @NotNull Map<Key<?>, Object> data) {
         Map<String, Object> mapped = new HashMap<>();
         for (Map.Entry<Key<?>, Object> entry : data.entrySet()) {
             mapped.put(entry.getKey().id(), entry.getValue());
         }
 
-        return new LootContextImpl(mapped);
+        return new LootContextImpl(vanilla, mapped);
     }
 
     @Override

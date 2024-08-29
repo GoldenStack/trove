@@ -206,7 +206,7 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            LootFunction function = context.require(LootContext.REGISTERED_FUNCTIONS).apply(name);
+            LootFunction function = context.vanilla().getRegisteredFunction(name);
 
             return function != null ? function.apply(input, context) : input;
         }
@@ -734,9 +734,7 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            VanillaInterface vanilla = context.require(LootContext.VANILLA_INTERFACE);
-
-            return vanilla.enchantItem(context.require(LootContext.RANDOM), input, levels.getInt(context), options);
+            return context.vanilla().enchantItem(context.require(LootContext.RANDOM), input, levels.getInt(context), options);
         }
     }
     
@@ -840,7 +838,7 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            ItemStack smelted = context.require(LootContext.VANILLA_INTERFACE).smelt(input);
+            ItemStack smelted = context.vanilla().smelt(input);
 
             return smelted != null ? smelted.withAmount(input.amount()) : input;
         }

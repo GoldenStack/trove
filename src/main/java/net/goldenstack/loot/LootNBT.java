@@ -3,7 +3,6 @@ package net.goldenstack.loot;
 import net.goldenstack.loot.util.RelevantEntity;
 import net.goldenstack.loot.util.Serial;
 import net.goldenstack.loot.util.Template;
-import net.goldenstack.loot.util.VanillaInterface;
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.IntBinaryTag;
@@ -47,7 +46,7 @@ public interface LootNBT {
 
         @Override
         public @Nullable BinaryTag getNBT(@NotNull LootContext context) {
-            return context.require(LootContext.COMMAND_STORAGE).apply(source);
+            return context.vanilla().getCommandStorage(source);
         }
     }
 
@@ -98,9 +97,8 @@ public interface LootNBT {
                 @Override
                 public @NotNull BinaryTag getNBT(@NotNull LootContext context) {
                     var entity = context.require(target.key());
-                    VanillaInterface vanilla = context.require(LootContext.VANILLA_INTERFACE);
 
-                    return vanilla.serializeEntity(entity);
+                    return context.vanilla().serializeEntity(entity);
                 }
 
                 @Override

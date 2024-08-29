@@ -174,9 +174,9 @@ public interface LootNumber {
         }
 
         private NumberBinaryTag get(@NotNull LootContext context) {
-            CompoundBinaryTag compound = context.require(LootContext.COMMAND_STORAGE).apply(storage);
+            CompoundBinaryTag compound = context.vanilla().getCommandStorage(storage);
 
-            List<NBTReference> refs = path.get(compound);
+            List<NBTReference> refs = path.get(compound != null ? compound : CompoundBinaryTag.empty());
             if (refs.size() != 1) return IntBinaryTag.intBinaryTag(0);
 
             if (refs.getFirst().get() instanceof NumberBinaryTag number) {

@@ -249,10 +249,7 @@ public interface LootEntry {
 
         @Override
         public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
-            var tables = context.get(LootContext.REGISTERED_TABLES);
-            if (tables == null) return List.of();
-
-            net.goldenstack.loot.LootTable table = tables.apply(value);
+            var table = context.vanilla().getRegisteredTable(value);
             if (table == null) return List.of();
 
             return LootFunction.apply(functions, table.apply(context), context);

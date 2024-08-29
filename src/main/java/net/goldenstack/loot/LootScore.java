@@ -34,7 +34,7 @@ public interface LootScore extends Function<@NotNull LootContext, Function<@NotN
 
         @Override
         public @NotNull Function<@NotNull String, @Nullable Integer> apply(@NotNull LootContext context) {
-            return objective -> context.require(LootContext.VANILLA_INTERFACE).getScore(context.require(name.key()), objective);
+            return objective -> context.vanilla().getScore(context.require(name.key()), objective);
         }
     }
 
@@ -47,7 +47,7 @@ public interface LootScore extends Function<@NotNull LootContext, Function<@NotN
 
         @Override
         public @NotNull Function<@NotNull String, @Nullable Integer> apply(@NotNull LootContext context) {
-            return objective -> context.require(LootContext.VANILLA_INTERFACE).getScore(name, objective);
+            return objective -> context.vanilla().getScore(name, objective);
         }
     }
 
