@@ -9,6 +9,7 @@ import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -99,6 +100,21 @@ public class Serial {
                 }
 
                 return map;
+            }
+        };
+    }
+
+    public static <T> @NotNull BinaryTagSerializer<List<T>> coerceList(@NotNull BinaryTagSerializer<T> serializer) {
+        BinaryTagSerializer<List<T>> list = serializer.list();
+        return new BinaryTagSerializer<>() {
+            @Override
+            public @NotNull BinaryTag write(@NotNull Context context, @NotNull List<T> value) {
+                return value.size() == 1 ? serializer.write(value.getFirst()) : list.write(context, value);
+            }
+
+            @Override
+            public @NotNull List<T> read(@NotNull Context context, @NotNull BinaryTag tag) {
+                return tag instanceof ListBinaryTag ? list.read(context, tag) : List.of(serializer.read(context, tag));
             }
         };
     }

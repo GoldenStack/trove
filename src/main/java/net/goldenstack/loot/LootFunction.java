@@ -10,9 +10,10 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerFlag;
 import net.minestom.server.component.DataComponent;
-import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.Player;
-import net.minestom.server.entity.PlayerSkin;
+import net.minestom.server.entity.*;
+import net.minestom.server.entity.attribute.Attribute;
+import net.minestom.server.entity.attribute.AttributeModifier;
+import net.minestom.server.entity.attribute.AttributeOperation;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
@@ -70,7 +71,11 @@ public interface LootFunction {
                     Template.entry("set_book_cover", SetBookCover.class, SetBookCover.SERIALIZER),
                     Template.entry("fill_player_head", FillPlayerHead.class, FillPlayerHead.SERIALIZER),
                     Template.entry("enchant_randomly", EnchantRandomly.class, EnchantRandomly.SERIALIZER),
-                    Template.entry("furnace_smelt", FurnaceSmelt.class, FurnaceSmelt.SERIALIZER)
+                    Template.entry("furnace_smelt", FurnaceSmelt.class, FurnaceSmelt.SERIALIZER),
+                    Template.entry("exploration_map", ExplorationMap.class, ExplorationMap.SERIALIZER),
+                    Template.entry("set_name", SetName.class, SetName.SERIALIZER),
+                    Template.entry("set_instrument", SetInstrument.class, SetInstrument.SERIALIZER),
+                    Template.entry("set_attributes", SetAttributes.class, SetAttributes.SERIALIZER)
             )
     );
 
@@ -897,6 +902,146 @@ public interface LootFunction {
             ItemStack smelted = context.vanilla().smelt(input);
 
             return smelted != null ? smelted.withAmount(input.amount()) : input;
+        }
+    }
+
+    record ExplorationMap(@NotNull List<LootPredicate> predicates) implements LootFunction {
+
+        public static final @NotNull BinaryTagSerializer<ExplorationMap> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), ExplorationMap::predicates,
+                ExplorationMap::new
+        );
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            throw new UnsupportedOperationException("TODO: Implement ExplorationMap functionality and serialization");
+        }
+    }
+
+    record SetName(@NotNull List<LootPredicate> predicates, @Nullable Component name,
+                   @Nullable RelevantEntity entity, @NotNull Target target) implements LootFunction {
+
+        public static final @NotNull BinaryTagSerializer<SetName> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetName::predicates,
+                "name", BinaryTagSerializer.NBT_COMPONENT.optional(), SetName::name,
+                "entity", RelevantEntity.SERIALIZER.optional(), SetName::entity,
+                "target", Target.SERIALIZER.optional(Target.CUSTOM_NAME), SetName::target,
+                SetName::new
+        );
+        
+        public enum Target {
+            ITEM_NAME("item_name", ItemComponent.ITEM_NAME),
+            CUSTOM_NAME("custom_name", ItemComponent.CUSTOM_NAME);
+
+            public static final @NotNull BinaryTagSerializer<Target> SERIALIZER = Template.constant(Target::id, Target.values());
+
+            private final String id;
+            private final DataComponent<Component> component;
+            
+            Target(String id, DataComponent<Component> component) {
+                this.id = id;
+                this.component = component;
+            }
+
+            public String id() {
+                return id;
+            }
+
+            public DataComponent<Component> component() {
+                return component;
+            }
+        }
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            if (name == null) return input;
+
+            Component component = this.name;
+            // TODO: https://minecraft.wiki/w/Raw_JSON_text_format#Component_resolution
+            //       This is not used in vanilla so it's fine for now.
+
+            return input.with(target.component(), component);
+        }
+    }
+
+    record SetInstrument(@NotNull List<LootPredicate> predicates) implements LootFunction {
+
+        public static final @NotNull BinaryTagSerializer<SetInstrument> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetInstrument::predicates,
+                SetInstrument::new
+        );
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            throw new UnsupportedOperationException("TODO: Implement SetInstrument functionality and serialization");
+        }
+    }
+    
+    record SetAttributes(@NotNull List<LootPredicate> predicates, @NotNull List<AttributeDirective> modifiers, boolean replace) implements LootFunction {
+
+        public static final @NotNull BinaryTagSerializer<SetAttributes> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetAttributes::predicates,
+                "modifiers", AttributeDirective.SERIALIZER.list(), SetAttributes::modifiers,
+                "replace", BinaryTagSerializer.BOOLEAN.optional(true), SetAttributes::replace,
+                SetAttributes::new
+        );
+
+        public record AttributeDirective(@NotNull NamespaceID id, @NotNull Attribute attribute, @NotNull AttributeOperation operation,
+                                         @NotNull LootNumber amount, @NotNull List<EquipmentSlot> slots) {
+
+            public static final @NotNull BinaryTagSerializer<EquipmentSlot> CUSTOM_SLOT = Template.constant(
+                    slot -> slot.name().toLowerCase(Locale.ROOT).replace("_", ""), EquipmentSlot.values()
+            );
+
+            public static final @NotNull BinaryTagSerializer<AttributeDirective> SERIALIZER = Template.template(
+                    "id", Serial.KEY, AttributeDirective::id,
+                    "attribute", Attribute.NBT_TYPE, AttributeDirective::attribute,
+                    "operation", AttributeOperation.NBT_TYPE, AttributeDirective::operation,
+                    "amount", LootNumber.SERIALIZER, AttributeDirective::amount,
+                    "slot", Serial.coerceList(CUSTOM_SLOT), AttributeDirective::slots,
+                    AttributeDirective::new
+            );
+
+        }
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            var component = input.get(ItemComponent.ATTRIBUTE_MODIFIERS, AttributeList.EMPTY);
+
+            List<AttributeList.Modifier> list = replace ? new ArrayList<>() : new ArrayList<>(component.modifiers());
+
+            for (var modifier : modifiers) {
+                if (modifier.slots().isEmpty()) continue;
+
+                AttributeModifier mod = new AttributeModifier(
+                        modifier.id(),
+                        modifier.amount().getDouble(context),
+                        modifier.operation()
+                );
+
+                EquipmentSlot slot = modifier.slots().get(context.require(LootContext.RANDOM).nextInt(modifier.slots().size()));
+
+                EquipmentSlotGroup group = switch (slot) {
+                    case MAIN_HAND -> EquipmentSlotGroup.MAIN_HAND;
+                    case OFF_HAND -> EquipmentSlotGroup.OFF_HAND;
+                    case BOOTS -> EquipmentSlotGroup.FEET;
+                    case LEGGINGS -> EquipmentSlotGroup.LEGS;
+                    case CHESTPLATE -> EquipmentSlotGroup.CHEST;
+                    case HELMET -> EquipmentSlotGroup.HEAD;
+                };
+
+                list.add(new AttributeList.Modifier(modifier.attribute(), mod, group));
+            }
+
+            return input.with(ItemComponent.ATTRIBUTE_MODIFIERS, new AttributeList(list, component.showInTooltip()));
         }
     }
 
