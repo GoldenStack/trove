@@ -1,6 +1,5 @@
 package net.goldenstack.loot;
 
-
 import net.goldenstack.loot.util.*;
 import net.goldenstack.loot.util.nbt.NBTPath;
 import net.goldenstack.loot.util.nbt.NBTReference;
@@ -8,6 +7,7 @@ import net.goldenstack.loot.util.nbt.NBTUtils;
 import net.goldenstack.loot.util.predicate.ItemPredicate;
 import net.kyori.adventure.nbt.*;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerFlag;
 import net.minestom.server.component.DataComponent;
 import net.minestom.server.entity.Entity;
@@ -23,6 +23,7 @@ import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.potion.PotionType;
 import net.minestom.server.registry.DynamicRegistry;
+import net.minestom.server.registry.Registries;
 import net.minestom.server.tag.Tag;
 import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.utils.nbt.BinaryTagSerializer;
@@ -68,7 +69,9 @@ public interface LootFunction {
                     Template.entry("set_enchantments", SetEnchantments.class, SetEnchantments.SERIALIZER),
                     Template.entry("enchant_with_levels", EnchantWithLevels.class, EnchantWithLevels.SERIALIZER),
                     Template.entry("set_book_cover", SetBookCover.class, SetBookCover.SERIALIZER),
-                    Template.entry("fill_player_head", FillPlayerHead.class, FillPlayerHead.SERIALIZER)
+                    Template.entry("fill_player_head", FillPlayerHead.class, FillPlayerHead.SERIALIZER),
+                    Template.entry("enchant_randomly", EnchantRandomly.class, EnchantRandomly.SERIALIZER),
+                    Template.entry("furnace_smelt", FurnaceSmelt.class, FurnaceSmelt.SERIALIZER)
             )
     );
 
@@ -709,14 +712,6 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            if (input.material().equals(Material.BOOK)) {
-                input = input.builder()
-                        .material(Material.ENCHANTED_BOOK)
-                        .set(ItemComponent.STORED_ENCHANTMENTS, input.get(ItemComponent.ENCHANTMENTS, EnchantmentList.EMPTY))
-                        .remove(ItemComponent.ENCHANTMENTS)
-                        .build();
-            }
-
             return EnchantmentUtils.modifyItem(input, map -> {
                 this.enchantments.forEach((enchantment, number) -> {
                     int count = number.getInt(context);
@@ -734,7 +729,7 @@ public interface LootFunction {
         public static final @NotNull BinaryTagSerializer<EnchantWithLevels> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), EnchantWithLevels::predicates,
                 "levels", LootNumber.SERIALIZER, EnchantWithLevels::levels,
-                "options", Template.todo("enchantwithlevels list"), EnchantWithLevels::options,
+                "options", EnchantmentUtils.TAG_LIST, EnchantWithLevels::options,
                 EnchantWithLevels::new
         );
 
@@ -799,4 +794,59 @@ public interface LootFunction {
             return input.with(ItemComponent.PROFILE, new HeadProfile(skin));
         }
     }
+
+    record EnchantRandomly(@NotNull List<LootPredicate> predicates, @Nullable List<DynamicRegistry.Key<Enchantment>> options, boolean onlyCompatible) implements LootFunction {
+
+        public static final @NotNull BinaryTagSerializer<EnchantRandomly> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), EnchantRandomly::predicates,
+                "options", BinaryTagSerializer.registryKey(Registries::enchantment).list().optional(), EnchantRandomly::options,
+                "only_compatible", BinaryTagSerializer.BOOLEAN.optional(true), EnchantRandomly::onlyCompatible,
+                EnchantRandomly::new
+        );
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            var reg = MinecraftServer.getEnchantmentRegistry();
+
+            List<DynamicRegistry.Key<Enchantment>> values = new ArrayList<>();
+
+            if (options == null) {
+                reg.values().forEach(value -> values.add(reg.getKey(value)));
+            } else {
+                values.addAll(options);
+            }
+
+            if (onlyCompatible && !input.material().equals(Material.BOOK)) {
+                values.removeIf(ench -> !reg.get(ench).supportedItems().contains(input.material()));
+            }
+
+            if (values.isEmpty()) return input;
+
+            Random rng = context.require(LootContext.RANDOM);
+
+            DynamicRegistry.Key<Enchantment> chosen = values.get(rng.nextInt(values.size()));
+
+            int level = rng.nextInt(reg.get(chosen).maxLevel() + 1);
+
+            return EnchantmentUtils.modifyItem(input, map -> map.put(chosen, level));
+        }
+    }
+
+    record FurnaceSmelt(@NotNull List<LootPredicate> predicates) implements LootFunction {
+
+        public static final @NotNull BinaryTagSerializer<FurnaceSmelt> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), FurnaceSmelt::predicates,
+                FurnaceSmelt::new
+        );
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            ItemStack smelted = context.require(LootContext.VANILLA_INTERFACE).smelt(input);
+
+            return smelted != null ? smelted.withAmount(input.amount()) : input;
+        }
+    }
+
 }

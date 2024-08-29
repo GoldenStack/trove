@@ -25,4 +25,6 @@ public interface VanillaInterface {
 
     @NotNull List<ItemStack> getDynamicDrops(@NotNull NamespaceID choiceID, @NotNull CompoundBinaryTag blockNBT);
 
+    @Nullable ItemStack smelt(@NotNull ItemStack input);
+
 }
