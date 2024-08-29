@@ -8,6 +8,7 @@ import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -46,7 +47,11 @@ public class Template {
 
     @SafeVarargs
     public static <T> @NotNull BinaryTagSerializer<T> constant(@NotNull Function<T, String> name, @NotNull T @NotNull ... entries) {
-        Map<String, T> named = Arrays.stream(entries).collect(Collectors.toMap(name, Function.identity()));
+        return constant(name, Arrays.asList(entries));
+    }
+
+    public static <T> @NotNull BinaryTagSerializer<T> constant(@NotNull Function<T, String> name, @NotNull Collection<T> entries) {
+        Map<String, T> named = entries.stream().collect(Collectors.toMap(name, Function.identity()));
 
         return BinaryTagSerializer.STRING.map(named::get, name);
     }

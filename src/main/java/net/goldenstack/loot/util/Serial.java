@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -70,26 +71,31 @@ public class Serial {
     }
 
     public static <V> @NotNull BinaryTagSerializer<Map<String, V>> map(@NotNull BinaryTagSerializer<V> serializer) {
+        return map(Function.identity(), Function.identity(), serializer);
+    }
+
+    public static <K, V> @NotNull BinaryTagSerializer<Map<K, V>> map(@NotNull Function<String, K> to, @NotNull Function<K, String> from,
+                                                                     @NotNull BinaryTagSerializer<V> serializer) {
         return new BinaryTagSerializer<>() {
             @Override
-            public @NotNull BinaryTag write(@NotNull Context context, @NotNull Map<String, V> value) {
+            public @NotNull BinaryTag write(@NotNull Context context, @NotNull Map<K, V> value) {
                 CompoundBinaryTag.Builder builder = CompoundBinaryTag.builder();
 
                 for (var entry : value.entrySet()) {
-                    builder.put(entry.getKey(), serializer.write(context, entry.getValue()));
+                    builder.put(from.apply(entry.getKey()), serializer.write(context, entry.getValue()));
                 }
 
                 return builder.build();
             }
 
             @Override
-            public @NotNull Map<String, V> read(@NotNull Context context, @NotNull BinaryTag raw) {
+            public @NotNull Map<K, V> read(@NotNull Context context, @NotNull BinaryTag raw) {
                 if (!(raw instanceof CompoundBinaryTag tag)) throw new IllegalArgumentException("Expected a compound tag");
 
-                Map<String, V> map = new HashMap<>();
+                Map<K, V> map = new HashMap<>();
 
                 for (var entry : tag) {
-                    map.put(entry.getKey(), serializer.read(context, entry.getValue()));
+                    map.put(to.apply(entry.getKey()), serializer.read(context, entry.getValue()));
                 }
 
                 return map;
