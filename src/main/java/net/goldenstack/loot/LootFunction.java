@@ -611,16 +611,16 @@ public interface LootFunction {
         public static final @NotNull BinaryTagSerializer<CopyComponents> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), CopyComponents::predicates,
                 "source", RelevantTarget.SERIALIZER, CopyComponents::source,
-                "include", Template.<DataComponent<?>>todo("data components").list().optional(), CopyComponents::include,
-                "exclude", Template.<DataComponent<?>>todo("data components").list().optional(), CopyComponents::exclude,
+                "include", Serial.KEY.<DataComponent<?>>map(ItemComponent::fromNamespaceId, DataComponent::namespace).list().optional(), CopyComponents::include,
+                "exclude", Serial.KEY.<DataComponent<?>>map(ItemComponent::fromNamespaceId, DataComponent::namespace).list().optional(), CopyComponents::exclude,
                 CopyComponents::new
         );
 
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
-
-            throw new UnsupportedOperationException("Minestom currently does not support data components on blocks.");
+            
+            throw new UnsupportedOperationException("TODO: Implement Tag<DataComponentMap> for blocks.");
         }
     }
 
