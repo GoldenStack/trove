@@ -28,7 +28,7 @@ public interface LootNumber {
                     Template.entry("uniform", Uniform.class, Uniform.SERIALIZER),
                     Template.entry("binomial", Binomial.class, Binomial.SERIALIZER),
                     Template.entry("score", Score.class, Score.SERIALIZER),
-                    Template.entry("storage", CommandStorage.class, CommandStorage.SERIALIZER),
+                    Template.entry("storage", Storage.class, Storage.SERIALIZER),
                     Template.entry("enchantment_level", EnchantmentLevel.class, EnchantmentLevel.SERIALIZER)
             )
     );
@@ -115,10 +115,10 @@ public interface LootNumber {
         }
     }
 
-    record EnchantmentLevel(@NotNull LevelBasedValue value) implements LootNumber {
+    record EnchantmentLevel(@NotNull LevelBasedValue amount) implements LootNumber {
 
         public static final @NotNull BinaryTagSerializer<EnchantmentLevel> SERIALIZER = Template.template(
-                "amount", LevelBasedValue.NBT_TYPE, EnchantmentLevel::value,
+                "amount", LevelBasedValue.NBT_TYPE, EnchantmentLevel::amount,
                 EnchantmentLevel::new
         );
 
@@ -129,7 +129,7 @@ public interface LootNumber {
 
         @Override
         public double getDouble(@NotNull LootContext context) {
-            return value.calc(context.require(LootContext.ENCHANTMENT_LEVEL));
+            return amount.calc(context.require(LootContext.ENCHANTMENT_LEVEL));
         }
     }
     
@@ -155,12 +155,12 @@ public interface LootNumber {
         }
     }
 
-    record CommandStorage(@NotNull NamespaceID storage, @NotNull NBTPath path) implements LootNumber {
+    record Storage(@NotNull NamespaceID storage, @NotNull NBTPath path) implements LootNumber {
 
-        public static final @NotNull BinaryTagSerializer<CommandStorage> SERIALIZER = Template.template(
-                "storage", Serial.KEY, CommandStorage::storage,
-                "path", NBTPath.SERIALIZER, CommandStorage::path,
-                CommandStorage::new
+        public static final @NotNull BinaryTagSerializer<Storage> SERIALIZER = Template.template(
+                "storage", Serial.KEY, Storage::storage,
+                "path", NBTPath.SERIALIZER, Storage::path,
+                Storage::new
         );
 
         @Override

@@ -24,10 +24,10 @@ public interface LootEntry {
     @NotNull BinaryTagSerializer<LootEntry> SERIALIZER = Template.registry("type",
             Template.entry("empty", Empty.class, Empty.SERIALIZER),
             Template.entry("item", Item.class, Item.SERIALIZER),
-            Template.entry("loot_table", Table.class, Table.SERIALIZER),
+            Template.entry("loot_table", LootTable.class, LootTable.SERIALIZER),
             Template.entry("dynamic", Dynamic.class, Dynamic.SERIALIZER),
             Template.entry("tag", Tag.class, Tag.SERIALIZER),
-            Template.entry("alternatives", Alternative.class, Alternative.SERIALIZER),
+            Template.entry("alternatives", Alternatives.class, Alternatives.SERIALIZER),
             Template.entry("sequence", Sequence.class, Sequence.SERIALIZER),
             Template.entry("group", Group.class, Group.SERIALIZER)
     );
@@ -104,12 +104,12 @@ public interface LootEntry {
 
     }
     
-    record Alternative(@NotNull List<LootPredicate> predicates, @NotNull List<LootEntry> children) implements LootEntry {
+    record Alternatives(@NotNull List<LootPredicate> predicates, @NotNull List<LootEntry> children) implements LootEntry {
 
-        public static final @NotNull BinaryTagSerializer<Alternative> SERIALIZER = Template.template(
-                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Alternative::predicates,
-                "children", Serial.lazy(() -> LootEntry.SERIALIZER).list().optional(List.of()), Alternative::children,
-                Alternative::new
+        public static final @NotNull BinaryTagSerializer<Alternatives> SERIALIZER = Template.template(
+                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Alternatives::predicates,
+                "children", Serial.lazy(() -> LootEntry.SERIALIZER).list().optional(List.of()), Alternatives::children,
+                Alternatives::new
         );
 
         @Override
@@ -171,32 +171,32 @@ public interface LootEntry {
     }
 
     record Item(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
-                long weight, long quality, @NotNull Material material) implements Choice.Single {
+                long weight, long quality, @NotNull Material name) implements Choice.Single {
 
         public static final @NotNull BinaryTagSerializer<Item> SERIALIZER = Template.template(
                 "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Item::predicates,
                 "functions", LootFunction.SERIALIZER.list().optional(List.of()), Item::functions,
                 "weight", Serial.LONG.optional(1L), Item::weight,
                 "quality", Serial.LONG.optional(0L), Item::quality,
-                "name", Material.NBT_TYPE, Item::material,
+                "name", Material.NBT_TYPE, Item::name,
                 Item::new
         );
 
         @Override
         public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
-            return List.of(LootFunction.apply(functions, ItemStack.of(material), context));
+            return List.of(LootFunction.apply(functions, ItemStack.of(name), context));
         }
     }
 
     record Dynamic(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
-                long weight, long quality, @NotNull NamespaceID choiceID) implements Choice.Single {
+                long weight, long quality, @NotNull NamespaceID name) implements Choice.Single {
 
         public static final @NotNull BinaryTagSerializer<Dynamic> SERIALIZER = Template.template(
                 "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Dynamic::predicates,
                 "functions", LootFunction.SERIALIZER.list().optional(List.of()), Dynamic::functions,
                 "weight", Serial.LONG.optional(1L), Dynamic::weight,
                 "quality", Serial.LONG.optional(0L), Dynamic::quality,
-                "name", Serial.KEY, Dynamic::choiceID,
+                "name", Serial.KEY, Dynamic::name,
                 Dynamic::new
         );
 
@@ -209,7 +209,7 @@ public interface LootEntry {
             CompoundBinaryTag nbt = block.hasNbt() ? block.nbt() : CompoundBinaryTag.empty();
 
             VanillaInterface vanilla = context.require(LootContext.VANILLA_INTERFACE);
-            return vanilla.getDynamicDrops(choiceID, nbt);
+            return vanilla.getDynamicDrops(name, nbt);
         }
     }
 
@@ -230,16 +230,16 @@ public interface LootEntry {
         }
     }
 
-    record Table(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
-                 long weight, long quality, @NotNull NamespaceID tableID) implements Choice.Single {
+    record LootTable(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
+                     long weight, long quality, @NotNull NamespaceID value) implements Choice.Single {
 
-        public static final @NotNull BinaryTagSerializer<Table> SERIALIZER = Template.template(
-                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Table::predicates,
-                "functions", LootFunction.SERIALIZER.list().optional(List.of()), Table::functions,
-                "weight", Serial.LONG.optional(1L), Table::weight,
-                "quality", Serial.LONG.optional(0L), Table::quality,
-                "value", Serial.KEY, Table::tableID,
-                Table::new
+        public static final @NotNull BinaryTagSerializer<LootTable> SERIALIZER = Template.template(
+                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), LootTable::predicates,
+                "functions", LootFunction.SERIALIZER.list().optional(List.of()), LootTable::functions,
+                "weight", Serial.LONG.optional(1L), LootTable::weight,
+                "quality", Serial.LONG.optional(0L), LootTable::quality,
+                "value", Serial.KEY, LootTable::value,
+                LootTable::new
         );
 
         @Override
@@ -247,7 +247,7 @@ public interface LootEntry {
             var tables = context.get(LootContext.REGISTERED_TABLES);
             if (tables == null) return List.of();
 
-            LootTable table = tables.apply(tableID);
+            net.goldenstack.loot.LootTable table = tables.apply(value);
             if (table == null) return List.of();
 
             return LootFunction.apply(functions, table.apply(context), context);
@@ -255,14 +255,14 @@ public interface LootEntry {
     }
 
     record Tag(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
-               long weight, long quality, @NotNull net.minestom.server.gamedata.tags.Tag tag, boolean expand) implements Choice.Single {
+               long weight, long quality, @NotNull net.minestom.server.gamedata.tags.Tag name, boolean expand) implements Choice.Single {
 
         public static final @NotNull BinaryTagSerializer<Tag> SERIALIZER = Template.template(
                 "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Tag::predicates,
                 "functions", LootFunction.SERIALIZER.list().optional(List.of()), Tag::functions,
                 "weight", Serial.LONG.optional(1L), Tag::weight,
                 "quality", Serial.LONG.optional(0L), Tag::quality,
-                "name", Serial.tag(net.minestom.server.gamedata.tags.Tag.BasicType.ITEMS), Tag::tag,
+                "name", Serial.tag(net.minestom.server.gamedata.tags.Tag.BasicType.ITEMS), Tag::name,
                 "expand", BinaryTagSerializer.BOOLEAN, Tag::expand,
                 Tag::new
         );
@@ -276,7 +276,7 @@ public interface LootEntry {
             }
 
             List<Choice> choices = new ArrayList<>();
-            for (var key : tag.getValues()) {
+            for (var key : name.getValues()) {
                 Material material = Material.fromNamespaceId(key);
                 if (material == null) continue;
                 choices.add(new Choice() {
@@ -298,7 +298,7 @@ public interface LootEntry {
         @Override
         public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
             List<ItemStack> items = new ArrayList<>();
-            for (var key : tag.getValues()) {
+            for (var key : name.getValues()) {
                 Material material = Material.fromNamespaceId(key);
                 if (material == null) continue;
 

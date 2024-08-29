@@ -28,24 +28,24 @@ import java.util.function.Predicate;
 public interface LootPredicate extends Predicate<@NotNull LootContext> {
 
     @NotNull BinaryTagSerializer<LootPredicate> SERIALIZER = Template.registry("condition",
-            Template.entry("all_of", All.class, All.SERIALIZER),
-            Template.entry("any_of", Any.class, Any.SERIALIZER),
-            Template.entry("block_state_property", BlockState.class, BlockState.SERIALIZER),
-            Template.entry("damage_source_properties", DamageSource.class, DamageSource.SERIALIZER),
-            Template.entry("enchantment_active_check", EnchantmentActive.class, EnchantmentActive.SERIALIZER),
+            Template.entry("all_of", AllOf.class, AllOf.SERIALIZER),
+            Template.entry("any_of", AnyOf.class, AnyOf.SERIALIZER),
+            Template.entry("block_state_property", BlockStateProperty.class, BlockStateProperty.SERIALIZER),
+            Template.entry("damage_source_properties", DamageSourceProperties.class, DamageSourceProperties.SERIALIZER),
+            Template.entry("enchantment_active_check", EnchantmentActiveCheck.class, EnchantmentActiveCheck.SERIALIZER),
             Template.entry("entity_properties", EntityProperties.class, EntityProperties.SERIALIZER),
-            Template.entry("entity_scores", Scores.class, Scores.SERIALIZER),
+            Template.entry("entity_scores", EntityScores.class, EntityScores.SERIALIZER),
             Template.entry("inverted", Inverted.class, Inverted.SERIALIZER),
             Template.entry("killed_by_player", KilledByPlayer.class, KilledByPlayer.SERIALIZER),
-            Template.entry("location_check", Location.class, Location.SERIALIZER),
-            Template.entry("match_tool", Tool.class, Tool.SERIALIZER),
+            Template.entry("location_check", LocationCheck.class, LocationCheck.SERIALIZER),
+            Template.entry("match_tool", MatchTool.class, MatchTool.SERIALIZER),
             Template.entry("random_chance", RandomChance.class, RandomChance.SERIALIZER),
-            Template.entry("random_chance_with_enchanted_bonus", EnchantmentBasedRandomChance.class, EnchantmentBasedRandomChance.SERIALIZER),
+            Template.entry("random_chance_with_enchanted_bonus", RandomChanceWithEnchantedBonus.class, RandomChanceWithEnchantedBonus.SERIALIZER),
             Template.entry("reference", Reference.class, Reference.SERIALIZER),
             Template.entry("survives_explosion", SurvivesExplosion.class, SurvivesExplosion.SERIALIZER),
             Template.entry("table_bonus", TableBonus.class, TableBonus.SERIALIZER),
             Template.entry("time_check", TimeCheck.class, TimeCheck.SERIALIZER),
-            Template.entry("value_check", RangeCheck.class, RangeCheck.SERIALIZER),
+            Template.entry("value_check", ValueCheck.class, ValueCheck.SERIALIZER),
             Template.entry("weather_check", WeatherCheck.class, WeatherCheck.SERIALIZER)
     );
 
@@ -72,32 +72,32 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         return true;
     }
 
-    record All(@NotNull List<LootPredicate> predicates) implements LootPredicate {
+    record AllOf(@NotNull List<LootPredicate> terms) implements LootPredicate {
 
-        public static final @NotNull BinaryTagSerializer<All> SERIALIZER = Template.template(
-                "terms", Serial.lazy(() -> LootPredicate.SERIALIZER).list(), All::predicates,
-                All::new
+        public static final @NotNull BinaryTagSerializer<AllOf> SERIALIZER = Template.template(
+                "terms", Serial.lazy(() -> LootPredicate.SERIALIZER).list(), AllOf::terms,
+                AllOf::new
         );
 
         @Override
         public boolean test(@NotNull LootContext context) {
-            return all(predicates, context);
+            return all(terms, context);
         }
     }
 
-    record Any(@NotNull List<LootPredicate> predicates) implements LootPredicate {
+    record AnyOf(@NotNull List<LootPredicate> terms) implements LootPredicate {
 
-        public static final @NotNull BinaryTagSerializer<Any> SERIALIZER = Template.template(
-                "terms", Serial.lazy(() -> LootPredicate.SERIALIZER).list(), Any::predicates,
-                Any::new
+        public static final @NotNull BinaryTagSerializer<AnyOf> SERIALIZER = Template.template(
+                "terms", Serial.lazy(() -> LootPredicate.SERIALIZER).list(), AnyOf::terms,
+                AnyOf::new
         );
 
         @Override
         public boolean test(@NotNull LootContext context) {
-            if (predicates.isEmpty()) {
+            if (terms.isEmpty()) {
                 return false;
             }
-            for (var predicate : predicates) {
+            for (var predicate : terms) {
                 if (predicate.test(context)) {
                     return true;
                 }
@@ -106,16 +106,16 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record Inverted(@NotNull LootPredicate child) implements LootPredicate {
+    record Inverted(@NotNull LootPredicate term) implements LootPredicate {
 
         public static final @NotNull BinaryTagSerializer<Inverted> SERIALIZER = Template.template(
-                "term", Serial.lazy(() -> LootPredicate.SERIALIZER), Inverted::child,
+                "term", Serial.lazy(() -> LootPredicate.SERIALIZER), Inverted::term,
                 Inverted::new
         );
 
         @Override
         public boolean test(@NotNull LootContext context) {
-            return !child.test(context);
+            return !term.test(context);
         }
     }
 
@@ -140,16 +140,16 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record RandomChance(@NotNull LootNumber number) implements LootPredicate {
+    record RandomChance(@NotNull LootNumber chance) implements LootPredicate {
 
         public static final @NotNull BinaryTagSerializer<RandomChance> SERIALIZER = Template.template(
-                "chance", LootNumber.SERIALIZER, RandomChance::number,
+                "chance", LootNumber.SERIALIZER, RandomChance::chance,
                 RandomChance::new
         );
 
         @Override
         public boolean test(@NotNull LootContext context) {
-            return context.require(LootContext.RANDOM).nextDouble() < number.getDouble(context);
+            return context.require(LootContext.RANDOM).nextDouble() < chance.getDouble(context);
         }
     }
 
@@ -170,25 +170,25 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record RangeCheck(@NotNull LootNumber source, @NotNull LootNumberRange range) implements LootPredicate {
+    record ValueCheck(@NotNull LootNumber value, @NotNull LootNumberRange range) implements LootPredicate {
 
-        public static final @NotNull BinaryTagSerializer<RangeCheck> SERIALIZER = Template.template(
-                "value", LootNumber.SERIALIZER, RangeCheck::source,
-                "range", LootNumberRange.SERIALIZER, RangeCheck::range,
-                RangeCheck::new
+        public static final @NotNull BinaryTagSerializer<ValueCheck> SERIALIZER = Template.template(
+                "value", LootNumber.SERIALIZER, ValueCheck::value,
+                "range", LootNumberRange.SERIALIZER, ValueCheck::range,
+                ValueCheck::new
         );
 
         @Override
         public boolean test(@NotNull LootContext context) {
-            return range.check(context, source.getInt(context));
+            return range.check(context, value.getInt(context));
         }
     }
 
-    record TimeCheck(@Nullable Long period, @NotNull LootNumberRange range) implements LootPredicate {
+    record TimeCheck(@Nullable Long period, @NotNull LootNumberRange value) implements LootPredicate {
 
         public static final @NotNull BinaryTagSerializer<TimeCheck> SERIALIZER = Template.template(
                 "period", Serial.LONG.optional(), TimeCheck::period,
-                "value", LootNumberRange.SERIALIZER, TimeCheck::range,
+                "value", LootNumberRange.SERIALIZER, TimeCheck::value,
                 TimeCheck::new
         );
 
@@ -200,7 +200,7 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
                 time %= period;
             }
 
-            return range.check(context, time);
+            return value.check(context, time);
         }
     }
 
@@ -224,26 +224,26 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record Reference(@NotNull NamespaceID key) implements LootPredicate {
+    record Reference(@NotNull NamespaceID name) implements LootPredicate {
 
         public static final @NotNull BinaryTagSerializer<Reference> SERIALIZER = Template.template(
-                "name", Serial.KEY, Reference::key,
+                "name", Serial.KEY, Reference::name,
                 Reference::new
         );
 
         @Override
         public boolean test(@NotNull LootContext context) {
-            LootPredicate predicate = context.require(LootContext.REGISTERED_PREDICATES).apply(key);
+            LootPredicate predicate = context.require(LootContext.REGISTERED_PREDICATES).apply(name);
 
             return predicate != null && predicate.test(context);
         }
     }
 
-    record EnchantmentActive(boolean active) implements LootPredicate {
+    record EnchantmentActiveCheck(boolean active) implements LootPredicate {
 
-        public static final @NotNull BinaryTagSerializer<EnchantmentActive> SERIALIZER = Template.template(
-                "active", BinaryTagSerializer.BOOLEAN, EnchantmentActive::active,
-                EnchantmentActive::new
+        public static final @NotNull BinaryTagSerializer<EnchantmentActiveCheck> SERIALIZER = Template.template(
+                "active", BinaryTagSerializer.BOOLEAN, EnchantmentActiveCheck::active,
+                EnchantmentActiveCheck::new
         );
 
         @Override
@@ -252,27 +252,27 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record BlockState(@NotNull NamespaceID key, @Nullable BlockPredicate predicate) implements LootPredicate {
+    record BlockStateProperty(@NotNull NamespaceID block, @Nullable BlockPredicate predicate) implements LootPredicate {
 
-        public static final @NotNull BinaryTagSerializer<BlockState> SERIALIZER = Template.template(
-                "block", Serial.KEY, BlockState::key,
-                "properties", BlockPredicate.SERIALIZER.optional(), BlockState::predicate,
-                BlockState::new
+        public static final @NotNull BinaryTagSerializer<BlockStateProperty> SERIALIZER = Template.template(
+                "block", Serial.KEY, BlockStateProperty::block,
+                "properties", BlockPredicate.SERIALIZER.optional(), BlockStateProperty::predicate,
+                BlockStateProperty::new
         );
 
         @Override
         public boolean test(@NotNull LootContext context) {
             Block block = context.get(LootContext.BLOCK_STATE);
 
-            return block != null && key.equals(block.namespace()) && (predicate == null || predicate.test(block));
+            return block != null && this.block.equals(block.namespace()) && (predicate == null || predicate.test(block));
         }
     }
 
-    record DamageSource(@Nullable DamageSourcePredicate predicate) implements LootPredicate {
+    record DamageSourceProperties(@Nullable DamageSourcePredicate predicate) implements LootPredicate {
 
-        public static final @NotNull BinaryTagSerializer<DamageSource> SERIALIZER = Template.template(
-                "predicate",Serial.lazy(DamageSourcePredicate.SERIALIZER::get).optional(), DamageSource::predicate,
-                DamageSource::new
+        public static final @NotNull BinaryTagSerializer<DamageSourceProperties> SERIALIZER = Template.template(
+                "predicate",Serial.lazy(DamageSourcePredicate.SERIALIZER::get).optional(), DamageSourceProperties::predicate,
+                DamageSourceProperties::new
         );
 
         @Override
@@ -289,31 +289,31 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record EntityProperties(@Nullable EntityPredicate predicate, @NotNull RelevantEntity relevantEntity) implements LootPredicate {
+    record EntityProperties(@Nullable EntityPredicate predicate, @NotNull RelevantEntity entity) implements LootPredicate {
 
         public static final @NotNull BinaryTagSerializer<EntityProperties> SERIALIZER = Template.template(
                 "predicate", Serial.lazy(EntityPredicate.SERIALIZER::get), EntityProperties::predicate,
-                "entity", RelevantEntity.SERIALIZER, EntityProperties::relevantEntity,
+                "entity", RelevantEntity.SERIALIZER, EntityProperties::entity,
                 EntityProperties::new
         );
 
         @Override
         public boolean test(@NotNull LootContext context) {
-            Entity entity = context.get(relevantEntity.key());
+            Entity entity = context.get(this.entity.key());
             Point origin = context.get(LootContext.ORIGIN);
 
             return predicate == null || predicate.test(context.require(LootContext.WORLD), origin, entity);
         }
     }
 
-    record Location(@Nullable LocationPredicate predicate, double offsetX, double offsetY, double offsetZ) implements LootPredicate {
+    record LocationCheck(@Nullable LocationPredicate predicate, double offsetX, double offsetY, double offsetZ) implements LootPredicate {
 
-        public static final @NotNull BinaryTagSerializer<Location> SERIALIZER = Template.template(
-                "predicate", Serial.lazy(LocationPredicate.SERIALIZER::get), Location::predicate,
-                "offsetX", Serial.DOUBLE.optional(0D), Location::offsetX,
-                "offsetY", Serial.DOUBLE.optional(0D), Location::offsetY,
-                "offsetZ", Serial.DOUBLE.optional(0D), Location::offsetZ,
-                Location::new
+        public static final @NotNull BinaryTagSerializer<LocationCheck> SERIALIZER = Template.template(
+                "predicate", Serial.lazy(LocationPredicate.SERIALIZER::get), LocationCheck::predicate,
+                "offsetX", Serial.DOUBLE.optional(0D), LocationCheck::offsetX,
+                "offsetY", Serial.DOUBLE.optional(0D), LocationCheck::offsetY,
+                "offsetZ", Serial.DOUBLE.optional(0D), LocationCheck::offsetZ,
+                LocationCheck::new
         );
 
         @Override
@@ -327,11 +327,11 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record Tool(@Nullable ItemPredicate predicate) implements LootPredicate {
+    record MatchTool(@Nullable ItemPredicate predicate) implements LootPredicate {
 
-        public static final @NotNull BinaryTagSerializer<Tool> SERIALIZER = Template.template(
-                "predicate", Serial.lazy(ItemPredicate.SERIALIZER::get), Tool::predicate,
-                Tool::new
+        public static final @NotNull BinaryTagSerializer<MatchTool> SERIALIZER = Template.template(
+                "predicate", Serial.lazy(ItemPredicate.SERIALIZER::get), MatchTool::predicate,
+                MatchTool::new
         );
 
         @Override
@@ -345,17 +345,17 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record Scores(@NotNull Map<String, LootNumberRange> scores, @NotNull RelevantEntity relevantEntity) implements LootPredicate {
+    record EntityScores(@NotNull Map<String, LootNumberRange> scores, @NotNull RelevantEntity entity) implements LootPredicate {
 
-        public static final @NotNull BinaryTagSerializer<Scores> SERIALIZER = Template.template(
-                "scores", Serial.map(LootNumberRange.SERIALIZER), Scores::scores,
-                "entity", RelevantEntity.SERIALIZER, Scores::relevantEntity,
-                Scores::new
+        public static final @NotNull BinaryTagSerializer<EntityScores> SERIALIZER = Template.template(
+                "scores", Serial.map(LootNumberRange.SERIALIZER), EntityScores::scores,
+                "entity", RelevantEntity.SERIALIZER, EntityScores::entity,
+                EntityScores::new
         );
 
         @Override
         public boolean test(@NotNull LootContext context) {
-            Entity entity = context.get(relevantEntity.key());
+            Entity entity = context.get(this.entity.key());
             if (entity == null) return false;
 
             VanillaInterface vanilla = context.require(LootContext.VANILLA_INTERFACE);
@@ -371,13 +371,13 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record EnchantmentBasedRandomChance(@NotNull DynamicRegistry.Key<Enchantment> enchantment, float defaultChance, @NotNull LevelBasedValue modifiedChance) implements LootPredicate {
+    record RandomChanceWithEnchantedBonus(@NotNull DynamicRegistry.Key<Enchantment> enchantment, float unenchantedChance, @NotNull LevelBasedValue enchantedChance) implements LootPredicate {
 
-        public static final @NotNull BinaryTagSerializer<EnchantmentBasedRandomChance> SERIALIZER = Template.template(
-                "enchantment", Serial.key(), EnchantmentBasedRandomChance::enchantment,
-                "unenchanted_chance", BinaryTagSerializer.FLOAT, EnchantmentBasedRandomChance::defaultChance,
-                "enchanted_chance", LevelBasedValue.NBT_TYPE, EnchantmentBasedRandomChance::modifiedChance,
-                EnchantmentBasedRandomChance::new
+        public static final @NotNull BinaryTagSerializer<RandomChanceWithEnchantedBonus> SERIALIZER = Template.template(
+                "enchantment", Serial.key(), RandomChanceWithEnchantedBonus::enchantment,
+                "unenchanted_chance", BinaryTagSerializer.FLOAT, RandomChanceWithEnchantedBonus::unenchantedChance,
+                "enchanted_chance", LevelBasedValue.NBT_TYPE, RandomChanceWithEnchantedBonus::enchantedChance,
+                RandomChanceWithEnchantedBonus::new
         );
 
         @Override
@@ -386,7 +386,7 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
 
             int level = EnchantmentUtils.level(attacker, enchantment);
 
-            float chance = level > 0 ? modifiedChance.calc(level) : defaultChance;
+            float chance = level > 0 ? enchantedChance.calc(level) : unenchantedChance;
             return context.require(LootContext.RANDOM).nextFloat() < chance;
         }
     }

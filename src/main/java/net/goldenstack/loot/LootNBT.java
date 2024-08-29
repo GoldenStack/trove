@@ -27,7 +27,7 @@ public interface LootNBT {
             BinaryTagSerializer.STRING.map(Context.Target::fromString, Context.Target::toString).map(Context::new, Context::target),
             Template.registry("type",
                     Template.entry("context", Context.class, Context.SERIALIZER),
-                    Template.entry("storage", CommandStorage.class, CommandStorage.SERIALIZER)
+                    Template.entry("storage", Storage.class, Storage.SERIALIZER)
             )
     );
 
@@ -38,11 +38,11 @@ public interface LootNBT {
      */
     @Nullable BinaryTag getNBT(@NotNull LootContext context);
 
-    record CommandStorage(@NotNull NamespaceID source) implements LootNBT {
+    record Storage(@NotNull NamespaceID source) implements LootNBT {
 
-        public static final @NotNull BinaryTagSerializer<CommandStorage> SERIALIZER = Template.template(
-                "source", Serial.KEY, CommandStorage::source,
-                CommandStorage::new
+        public static final @NotNull BinaryTagSerializer<Storage> SERIALIZER = Template.template(
+                "source", Serial.KEY, Storage::source,
+                Storage::new
         );
 
         @Override

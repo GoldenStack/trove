@@ -15,7 +15,7 @@ import java.util.function.Function;
 public interface LootScore extends Function<@NotNull LootContext, Function<@NotNull String, @Nullable Integer>> {
 
     @NotNull BinaryTagSerializer<LootScore> SERIALIZER = Template.compoundSplit(
-            RelevantEntity.SERIALIZER.map(Context::new, Context::entity),
+            RelevantEntity.SERIALIZER.map(Context::new, Context::name),
             Template.registry("type",
                     Template.entry("fixed", Fixed.class, Fixed.SERIALIZER),
                     Template.entry("context", Context.class, Context.SERIALIZER)
@@ -25,16 +25,16 @@ public interface LootScore extends Function<@NotNull LootContext, Function<@NotN
     @Override
     @NotNull Function<@NotNull String, @Nullable Integer> apply(@NotNull LootContext context);
 
-    record Context(@NotNull RelevantEntity entity) implements LootScore {
+    record Context(@NotNull RelevantEntity name) implements LootScore {
 
         public static final @NotNull BinaryTagSerializer<Context> SERIALIZER = Template.template(
-                "name", RelevantEntity.SERIALIZER, Context::entity,
+                "name", RelevantEntity.SERIALIZER, Context::name,
                 Context::new
         );
 
         @Override
         public @NotNull Function<@NotNull String, @Nullable Integer> apply(@NotNull LootContext context) {
-            return objective -> context.require(LootContext.VANILLA_INTERFACE).getScore(context.require(entity.key()), objective);
+            return objective -> context.require(LootContext.VANILLA_INTERFACE).getScore(context.require(name.key()), objective);
         }
     }
 

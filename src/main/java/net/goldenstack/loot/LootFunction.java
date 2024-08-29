@@ -42,27 +42,27 @@ import java.util.stream.Collectors;
 public interface LootFunction {
 
     @NotNull BinaryTagSerializer<LootFunction> SERIALIZER = Template.compoundSplit(
-            Serial.lazy(() -> LootFunction.SERIALIZER).list().map(All::new, All::functions),
+            Serial.lazy(() -> LootFunction.SERIALIZER).list().map(Sequence::new, Sequence::functions),
             Template.registry("function",
-                    Template.entry("sequence", All.class, All.SERIALIZER),
+                    Template.entry("sequence", Sequence.class, Sequence.SERIALIZER),
                     Template.entry("filtered", Filtered.class, Filtered.SERIALIZER),
                     Template.entry("set_potion", SetPotion.class, SetPotion.SERIALIZER),
                     Template.entry("explosion_decay", ExplosionDecay.class, ExplosionDecay.SERIALIZER),
                     Template.entry("reference", Reference.class, Reference.SERIALIZER),
-                    Template.entry("apply_bonus", Bonus.class, Bonus.SERIALIZER),
+                    Template.entry("apply_bonus", ApplyBonus.class, ApplyBonus.SERIALIZER),
                     Template.entry("copy_name", CopyName.class, CopyName.SERIALIZER),
                     Template.entry("toggle_tooltips", ToggleTooltips.class, ToggleTooltips.SERIALIZER),
-                    Template.entry("set_stew_effect", StewEffect.class, StewEffect.SERIALIZER),
-                    Template.entry("set_ominous_bottle_amplifier", OminousBottleAmplifier.class, OminousBottleAmplifier.SERIALIZER),
-                    Template.entry("copy_custom_data", CopyNBT.class, CopyNBT.SERIALIZER),
+                    Template.entry("set_stew_effect", SetStewEffect.class, SetStewEffect.SERIALIZER),
+                    Template.entry("set_ominous_bottle_amplifier", SetOminousBottleAmplifier.class, SetOminousBottleAmplifier.SERIALIZER),
+                    Template.entry("copy_custom_data", CopyCustomData.class, CopyCustomData.SERIALIZER),
                     Template.entry("limit_count", LimitCount.class, LimitCount.SERIALIZER),
                     Template.entry("set_count", SetCount.class, SetCount.SERIALIZER),
-                    Template.entry("set_item", SetMaterial.class, SetMaterial.SERIALIZER),
+                    Template.entry("set_item", SetItem.class, SetItem.SERIALIZER),
                     Template.entry("set_loot_table", SetLootTable.class, SetLootTable.SERIALIZER),
                     Template.entry("copy_components", CopyComponents.class, CopyComponents.SERIALIZER),
                     Template.entry("copy_state", CopyState.class, CopyState.SERIALIZER),
-                    Template.entry("enchanted_count_increase", MoreByLevel.class, MoreByLevel.SERIALIZER),
-                    Template.entry("set_custom_data", SetNBT.class, SetNBT.SERIALIZER),
+                    Template.entry("enchanted_count_increase", EnchantedCountIncrease.class, EnchantedCountIncrease.SERIALIZER),
+                    Template.entry("set_custom_data", SetCustomData.class, SetCustomData.SERIALIZER),
                     Template.entry("set_custom_model_data", SetCustomModelData.class, SetCustomModelData.SERIALIZER),
                     Template.entry("set_damage", SetDamage.class, SetDamage.SERIALIZER),
                     Template.entry("set_enchantments", SetEnchantments.class, SetEnchantments.SERIALIZER),
@@ -109,11 +109,11 @@ public interface LootFunction {
         return newItems;
     }
 
-    record All(@NotNull List<LootFunction> functions) implements LootFunction {
+    record Sequence(@NotNull List<LootFunction> functions) implements LootFunction {
 
-        public static final @NotNull BinaryTagSerializer<All> SERIALIZER = Template.template(
-                "functions", Serial.lazy(() -> LootFunction.SERIALIZER).list(), All::functions,
-                All::new
+        public static final @NotNull BinaryTagSerializer<Sequence> SERIALIZER = Template.template(
+                "functions", Serial.lazy(() -> LootFunction.SERIALIZER).list(), Sequence::functions,
+                Sequence::new
         );
 
         @Override
@@ -122,27 +122,27 @@ public interface LootFunction {
         }
     }
 
-    record Filtered(@NotNull List<LootPredicate> predicates, @NotNull ItemPredicate predicate, @NotNull LootFunction function) implements LootFunction {
+    record Filtered(@NotNull List<LootPredicate> predicates, @NotNull ItemPredicate predicate, @NotNull LootFunction modifier) implements LootFunction {
 
         public static final @NotNull BinaryTagSerializer<Filtered> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), Filtered::predicates,
                 "item_filter", Serial.lazy(ItemPredicate.SERIALIZER::get), Filtered::predicate,
-                "modifier", Serial.lazy(() -> LootFunction.SERIALIZER), Filtered::function,
+                "modifier", Serial.lazy(() -> LootFunction.SERIALIZER), Filtered::modifier,
                 Filtered::new
         );
 
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             return LootPredicate.all(predicates, context) && predicate.test(input) ?
-                    function.apply(input, context) : input;
+                    modifier.apply(input, context) : input;
         }
     }
 
-    record SetPotion(@NotNull List<LootPredicate> predicates, @NotNull NamespaceID potion) implements LootFunction {
+    record SetPotion(@NotNull List<LootPredicate> predicates, @NotNull NamespaceID id) implements LootFunction {
 
         public static final @NotNull BinaryTagSerializer<SetPotion> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetPotion::predicates,
-                "id", Serial.KEY, SetPotion::potion,
+                "id", Serial.KEY, SetPotion::id,
                 SetPotion::new
         );
 
@@ -150,12 +150,12 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            if (potion.asString().equals("minecraft:empty")) {
+            if (id.asString().equals("minecraft:empty")) {
                 return input.without(ItemComponent.POTION_CONTENTS);
             }
 
             PotionContents existing = input.get(ItemComponent.POTION_CONTENTS, PotionContents.EMPTY);
-            PotionContents updated = new PotionContents(PotionType.fromNamespaceId(potion), existing.customColor(), existing.customEffects());
+            PotionContents updated = new PotionContents(PotionType.fromNamespaceId(id), existing.customColor(), existing.customEffects());
 
             return input.with(ItemComponent.POTION_CONTENTS, updated);
         }
@@ -192,11 +192,11 @@ public interface LootFunction {
         }
     }
 
-    record Reference(@NotNull List<LootPredicate> predicates, @NotNull NamespaceID key) implements LootFunction {
+    record Reference(@NotNull List<LootPredicate> predicates, @NotNull NamespaceID name) implements LootFunction {
 
         public static final @NotNull BinaryTagSerializer<Reference> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), Reference::predicates,
-                "name", Serial.KEY, Reference::key,
+                "name", Serial.KEY, Reference::name,
                 Reference::new
         );
 
@@ -204,19 +204,19 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            LootFunction function = context.require(LootContext.REGISTERED_FUNCTIONS).apply(key);
+            LootFunction function = context.require(LootContext.REGISTERED_FUNCTIONS).apply(name);
 
             return function != null ? function.apply(input, context) : input;
         }
     }
 
-    record Bonus(@NotNull List<LootPredicate> predicates, @NotNull DynamicRegistry.Key<Enchantment> enchantment, @NotNull Formula formula) implements LootFunction {
+    record ApplyBonus(@NotNull List<LootPredicate> predicates, @NotNull DynamicRegistry.Key<Enchantment> enchantment, @NotNull Formula formula) implements LootFunction {
 
-        public static final @NotNull BinaryTagSerializer<Bonus> SERIALIZER = Template.template(
-                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), Bonus::predicates,
-                "enchantment", Serial.key(), Bonus::enchantment,
-                "formula", Template.todo("formula"), Bonus::formula,
-                Bonus::new
+        public static final @NotNull BinaryTagSerializer<ApplyBonus> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), ApplyBonus::predicates,
+                "enchantment", Serial.key(), ApplyBonus::enchantment,
+                "formula", Template.todo("formula"), ApplyBonus::formula,
+                ApplyBonus::new
         );
 
         public sealed interface Formula {
@@ -266,11 +266,11 @@ public interface LootFunction {
         }
     }
 
-    record CopyName(@NotNull List<LootPredicate> predicates, @NotNull RelevantTarget target) implements LootFunction {
+    record CopyName(@NotNull List<LootPredicate> predicates, @NotNull RelevantTarget source) implements LootFunction {
 
         public static final @NotNull BinaryTagSerializer<CopyName> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), CopyName::predicates,
-                "source", RelevantTarget.SERIALIZER, CopyName::target,
+                "source", RelevantTarget.SERIALIZER, CopyName::source,
                 CopyName::new
         );
 
@@ -280,7 +280,7 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            Object key = context.get(target.key());
+            Object key = context.get(source.key());
 
             Component customName;
             if (key instanceof Entity entity && entity.getCustomName() != null) {
@@ -295,7 +295,7 @@ public interface LootFunction {
         }
     }
 
-    record ToggleTooltips(@NotNull List<LootPredicate> predicates, @NotNull Map<ComponentToggler<?>, Boolean> toggles) implements LootFunction {
+    record ToggleTooltips(@NotNull List<LootPredicate> predicates, @NotNull Map<ComponentToggler<?>, Boolean> source) implements LootFunction {
 
         public static final @NotNull BinaryTagSerializer<ToggleTooltips> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), ToggleTooltips::predicates,
@@ -303,7 +303,7 @@ public interface LootFunction {
                         ComponentToggler.TOGGLERS.stream().collect(Collectors.toMap(t -> t.data().name(), Function.identity()))::get,
                         t -> t.data().name(),
                         BinaryTagSerializer.BOOLEAN
-                ), ToggleTooltips::toggles,
+                ), ToggleTooltips::source,
                 ToggleTooltips::new
         );
 
@@ -333,7 +333,7 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            for (var toggle : toggles.entrySet()) {
+            for (var toggle : source.entrySet()) {
                 input = toggle.getKey().apply(input, toggle.getValue());
             }
 
@@ -341,12 +341,12 @@ public interface LootFunction {
         }
     }
 
-    record StewEffect(@NotNull List<LootPredicate> predicates, @NotNull List<AddedEffect> effects) implements LootFunction {
+    record SetStewEffect(@NotNull List<LootPredicate> predicates, @NotNull List<AddedEffect> effects) implements LootFunction {
 
-        public static final @NotNull BinaryTagSerializer<StewEffect> SERIALIZER = Template.template(
-                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), StewEffect::predicates,
-                "effects", AddedEffect.SERIALIZER.list(), StewEffect::effects,
-                StewEffect::new
+        public static final @NotNull BinaryTagSerializer<SetStewEffect> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetStewEffect::predicates,
+                "effects", AddedEffect.SERIALIZER.list(), SetStewEffect::effects,
+                SetStewEffect::new
         );
 
         public record AddedEffect(@NotNull PotionEffect effect, @NotNull LootNumber duration) {
@@ -379,12 +379,12 @@ public interface LootFunction {
         }
     }
 
-    record OminousBottleAmplifier(@NotNull List<LootPredicate> predicates, @NotNull LootNumber amplifier) implements LootFunction {
+    record SetOminousBottleAmplifier(@NotNull List<LootPredicate> predicates, @NotNull LootNumber amplifier) implements LootFunction {
 
-        public static final @NotNull BinaryTagSerializer<OminousBottleAmplifier> SERIALIZER = Template.template(
-                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), OminousBottleAmplifier::predicates,
-                "amplifier", LootNumber.SERIALIZER, OminousBottleAmplifier::amplifier,
-                OminousBottleAmplifier::new
+        public static final @NotNull BinaryTagSerializer<SetOminousBottleAmplifier> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetOminousBottleAmplifier::predicates,
+                "amplifier", LootNumber.SERIALIZER, SetOminousBottleAmplifier::amplifier,
+                SetOminousBottleAmplifier::new
         );
 
         @Override
@@ -397,21 +397,21 @@ public interface LootFunction {
         }
     }
 
-    record CopyNBT(@NotNull List<LootPredicate> predicates, @NotNull LootNBT source, @NotNull List<Operation> operations) implements LootFunction {
+    record CopyCustomData(@NotNull List<LootPredicate> predicates, @NotNull LootNBT source, @NotNull List<Operation> ops) implements LootFunction {
 
-        public static final @NotNull BinaryTagSerializer<CopyNBT> SERIALIZER = Template.template(
-                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), CopyNBT::predicates,
-                "source", LootNBT.SERIALIZER, CopyNBT::source,
-                "ops", Operation.SERIALIZER.list(), CopyNBT::operations,
-                CopyNBT::new
+        public static final @NotNull BinaryTagSerializer<CopyCustomData> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), CopyCustomData::predicates,
+                "source", LootNBT.SERIALIZER, CopyCustomData::source,
+                "ops", Operation.SERIALIZER.list(), CopyCustomData::ops,
+                CopyCustomData::new
         );
 
-        public record Operation(@NotNull NBTPath source, @NotNull NBTPath target, @NotNull Operator operator) {
+        public record Operation(@NotNull NBTPath source, @NotNull NBTPath target, @NotNull Operator op) {
 
             public static final @NotNull BinaryTagSerializer<Operation> SERIALIZER = Template.template(
                     "source", NBTPath.SERIALIZER, Operation::source,
                     "target", NBTPath.SERIALIZER, Operation::target,
-                    "op", Operator.SERIALIZER, Operation::operator,
+                    "op", Operator.SERIALIZER, Operation::op,
                     Operation::new
             );
 
@@ -420,7 +420,7 @@ public interface LootFunction {
                 source.get(sourceTag).forEach(ref -> nbts.add(ref.get()));
 
                 if (nbts.isEmpty()) return;
-                operator.merge(nbt, target, nbts);
+                op.merge(nbt, target, nbts);
             }
         }
 
@@ -472,7 +472,7 @@ public interface LootFunction {
 
             NBTReference targetNBT = NBTReference.of(input.get(ItemComponent.CUSTOM_DATA, CustomData.EMPTY).nbt());
 
-            for (Operation operation : operations) {
+            for (Operation operation : ops) {
                 operation.execute(targetNBT, sourceNBT);
             }
 
@@ -484,18 +484,18 @@ public interface LootFunction {
         }
     }
 
-    record LimitCount(@NotNull List<LootPredicate> predicates, @NotNull LootNumberRange range) implements LootFunction {
+    record LimitCount(@NotNull List<LootPredicate> predicates, @NotNull LootNumberRange limit) implements LootFunction {
 
         public static final @NotNull BinaryTagSerializer<LimitCount> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), LimitCount::predicates,
-                "limit", LootNumberRange.SERIALIZER, LimitCount::range,
+                "limit", LootNumberRange.SERIALIZER, LimitCount::limit,
                 LimitCount::new
         );
 
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
-            return input.withAmount(i -> (int) range.limit(context, i));
+            return input.withAmount(i -> (int) limit.limit(context, i));
         }
     }
 
@@ -515,27 +515,27 @@ public interface LootFunction {
         }
     }
 
-    record SetMaterial(@NotNull List<LootPredicate> predicates, @NotNull Material material) implements LootFunction {
+    record SetItem(@NotNull List<LootPredicate> predicates, @NotNull Material item) implements LootFunction {
 
-        public static final @NotNull BinaryTagSerializer<SetMaterial> SERIALIZER = Template.template(
-                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetMaterial::predicates,
-                "item", Material.NBT_TYPE, SetMaterial::material,
-                SetMaterial::new
+        public static final @NotNull BinaryTagSerializer<SetItem> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetItem::predicates,
+                "item", Material.NBT_TYPE, SetItem::item,
+                SetItem::new
         );
 
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            return input.builder().material(material).build();
+            return input.builder().material(item).build();
         }
     }
 
-    record SetLootTable(@NotNull List<LootPredicate> predicates, @NotNull NamespaceID key, long seed) implements LootFunction {
+    record SetLootTable(@NotNull List<LootPredicate> predicates, @NotNull NamespaceID name, long seed) implements LootFunction {
 
         public static final @NotNull BinaryTagSerializer<SetLootTable> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetLootTable::predicates,
-                "name", Serial.KEY, SetLootTable::key,
+                "name", Serial.KEY, SetLootTable::name,
                 "seed", Serial.LONG.optional(0L), SetLootTable::seed,
                 SetLootTable::new
         );
@@ -545,7 +545,7 @@ public interface LootFunction {
             if (!LootPredicate.all(predicates, context)) return input;
             if (input.isAir()) return input;
 
-            return input.with(ItemComponent.CONTAINER_LOOT, new SeededContainerLoot(key.asString(), seed));
+            return input.with(ItemComponent.CONTAINER_LOOT, new SeededContainerLoot(name.asString(), seed));
         }
     }
 
@@ -605,15 +605,15 @@ public interface LootFunction {
         }
     }
 
-    record MoreByLevel(@NotNull List<LootPredicate> predicates, @NotNull DynamicRegistry.Key<Enchantment> enchantment,
-                       @NotNull LootNumber count, @Nullable Integer limit) implements LootFunction {
+    record EnchantedCountIncrease(@NotNull List<LootPredicate> predicates, @NotNull DynamicRegistry.Key<Enchantment> enchantment,
+                                  @NotNull LootNumber count, @Nullable Integer limit) implements LootFunction {
 
-        public static final @NotNull BinaryTagSerializer<MoreByLevel> SERIALIZER = Template.template(
-                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), MoreByLevel::predicates,
-                "enchantment", Serial.key(), MoreByLevel::enchantment,
-                "count", LootNumber.SERIALIZER, MoreByLevel::count,
-                "limit", BinaryTagSerializer.INT.optional(), MoreByLevel::limit,
-                MoreByLevel::new
+        public static final @NotNull BinaryTagSerializer<EnchantedCountIncrease> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), EnchantedCountIncrease::predicates,
+                "enchantment", Serial.key(), EnchantedCountIncrease::enchantment,
+                "count", LootNumber.SERIALIZER, EnchantedCountIncrease::count,
+                "limit", BinaryTagSerializer.INT.optional(), EnchantedCountIncrease::limit,
+                EnchantedCountIncrease::new
         );
 
         @Override
@@ -631,33 +631,33 @@ public interface LootFunction {
         }
     }
 
-    record SetNBT(@NotNull List<LootPredicate> predicates, @NotNull CompoundBinaryTag nbt) implements LootFunction {
+    record SetCustomData(@NotNull List<LootPredicate> predicates, @NotNull CompoundBinaryTag tag) implements LootFunction {
 
-        public static final @NotNull BinaryTagSerializer<SetNBT> SERIALIZER = Template.template(
-                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetNBT::predicates,
+        public static final @NotNull BinaryTagSerializer<SetCustomData> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetCustomData::predicates,
                 "tag", BinaryTagSerializer.STRING.map(s -> {
                     try {
                         return TagStringIO.get().asCompound(s);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                }, TagStringIOExt::writeTag), SetNBT::nbt,
-                SetNBT::new
+                }, TagStringIOExt::writeTag), SetCustomData::tag,
+                SetCustomData::new
         );
 
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            return input.with(ItemComponent.CUSTOM_DATA, new CustomData(nbt));
+            return input.with(ItemComponent.CUSTOM_DATA, new CustomData(tag));
         }
     }
 
-    record SetCustomModelData(@NotNull List<LootPredicate> predicates, @NotNull LootNumber data) implements LootFunction {
+    record SetCustomModelData(@NotNull List<LootPredicate> predicates, @NotNull LootNumber value) implements LootFunction {
 
         public static final @NotNull BinaryTagSerializer<SetCustomModelData> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetCustomModelData::predicates,
-                "value", LootNumber.SERIALIZER, SetCustomModelData::data,
+                "value", LootNumber.SERIALIZER, SetCustomModelData::value,
                 SetCustomModelData::new
         );
 
@@ -665,7 +665,7 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            return input.with(ItemComponent.CUSTOM_MODEL_DATA, data.getInt(context));
+            return input.with(ItemComponent.CUSTOM_MODEL_DATA, value.getInt(context));
         }
     }
     
@@ -700,7 +700,7 @@ public interface LootFunction {
 
         public static final @NotNull BinaryTagSerializer<SetEnchantments> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetEnchantments::predicates,
-                "damage", Serial.map(DynamicRegistry.Key::<Enchantment>of, DynamicRegistry.Key::name, LootNumber.SERIALIZER), SetEnchantments::enchantments,
+                "enchantments", Serial.map(DynamicRegistry.Key::<Enchantment>of, DynamicRegistry.Key::name, LootNumber.SERIALIZER), SetEnchantments::enchantments,
                 "add", BinaryTagSerializer.BOOLEAN.optional(false), SetEnchantments::add,
                 SetEnchantments::new
         );
@@ -729,12 +729,12 @@ public interface LootFunction {
         }
     }
 
-    record EnchantWithLevels(@NotNull List<LootPredicate> predicates, @NotNull LootNumber levels, @Nullable List<DynamicRegistry.Key<Enchantment>> enchantments) implements LootFunction {
+    record EnchantWithLevels(@NotNull List<LootPredicate> predicates, @NotNull LootNumber levels, @Nullable List<DynamicRegistry.Key<Enchantment>> options) implements LootFunction {
 
         public static final @NotNull BinaryTagSerializer<EnchantWithLevels> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), EnchantWithLevels::predicates,
                 "levels", LootNumber.SERIALIZER, EnchantWithLevels::levels,
-                "add", Template.todo("enchantwithlevels list"), EnchantWithLevels::enchantments,
+                "options", Template.todo("enchantwithlevels list"), EnchantWithLevels::options,
                 EnchantWithLevels::new
         );
 
@@ -744,7 +744,7 @@ public interface LootFunction {
 
             VanillaInterface vanilla = context.require(LootContext.VANILLA_INTERFACE);
 
-            return vanilla.enchantItem(context.require(LootContext.RANDOM), input, levels.getInt(context), enchantments);
+            return vanilla.enchantItem(context.require(LootContext.RANDOM), input, levels.getInt(context), options);
         }
     }
     
@@ -777,11 +777,11 @@ public interface LootFunction {
         }
     }
 
-    record FillPlayerHead(@NotNull List<LootPredicate> predicates, @NotNull RelevantEntity target) implements LootFunction {
+    record FillPlayerHead(@NotNull List<LootPredicate> predicates, @NotNull RelevantEntity entity) implements LootFunction {
 
         public static final @NotNull BinaryTagSerializer<FillPlayerHead> SERIALIZER = Template.template(
                 "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), FillPlayerHead::predicates,
-                "entity", RelevantEntity.SERIALIZER, FillPlayerHead::target,
+                "entity", RelevantEntity.SERIALIZER, FillPlayerHead::entity,
                 FillPlayerHead::new
         );
 
@@ -791,7 +791,7 @@ public interface LootFunction {
 
             if (!input.material().equals(Material.PLAYER_HEAD)) return input;
 
-            if (!(context.get(target.key()) instanceof Player player)) return input;
+            if (!(context.get(entity.key()) instanceof Player player)) return input;
 
             PlayerSkin skin = player.getSkin();
             if (skin == null) return input;
