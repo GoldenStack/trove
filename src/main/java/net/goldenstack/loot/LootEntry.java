@@ -1,9 +1,8 @@
 package net.goldenstack.loot;
 
+import net.goldenstack.loot.util.ExternalTags;
 import net.goldenstack.loot.util.Serial;
 import net.goldenstack.loot.util.Template;
-import net.goldenstack.loot.util.VanillaInterface;
-import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
@@ -200,16 +199,22 @@ public interface LootEntry {
                 Dynamic::new
         );
 
-        @SuppressWarnings("DataFlowIssue")
         @Override
         public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
             Block block = context.get(LootContext.BLOCK_STATE);
             if (block == null) return List.of();
 
-            CompoundBinaryTag nbt = block.hasNbt() ? block.nbt() : CompoundBinaryTag.empty();
-
-            VanillaInterface vanilla = context.require(LootContext.VANILLA_INTERFACE);
-            return vanilla.getDynamicDrops(name, nbt);
+            return switch (name.asString()) {
+                case "minecraft:sherds" -> {
+                    List<ItemStack> items = new ArrayList<>();
+                    for (Material material : block.getTag(ExternalTags.DECORATED_POT_SHERDS)) {
+                        items.add(ItemStack.of(material));
+                    }
+                    yield items;
+                }
+                case "minecraft:contents" -> block.getTag(ExternalTags.CONTAINER_ITEMS);
+                default -> List.of();
+            };
         }
     }
 

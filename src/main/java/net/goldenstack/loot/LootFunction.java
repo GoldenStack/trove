@@ -24,7 +24,6 @@ import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.potion.PotionType;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.registry.Registries;
-import net.minestom.server.tag.Tag;
 import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
@@ -277,8 +276,6 @@ public interface LootFunction {
                 CopyName::new
         );
 
-        private static final @NotNull Tag<Component> BLOCK_CUSTOM_NAME = Tag.Component("CustomName");
-
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
@@ -288,8 +285,8 @@ public interface LootFunction {
             Component customName;
             if (key instanceof Entity entity && entity.getCustomName() != null) {
                 customName = entity.getCustomName();
-            } else if (key instanceof Block block && block.hasTag(BLOCK_CUSTOM_NAME)) {
-                customName = block.getTag(BLOCK_CUSTOM_NAME);
+            } else if (key instanceof Block block && block.hasTag(ExternalTags.CUSTOM_NAME)) {
+                customName = block.getTag(ExternalTags.CUSTOM_NAME);
             } else {
                 return input;
             }

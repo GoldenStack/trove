@@ -1,12 +1,10 @@
 package net.goldenstack.loot.util;
 
 import net.kyori.adventure.nbt.BinaryTag;
-import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.registry.DynamicRegistry;
-import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,8 +20,6 @@ public interface VanillaInterface {
     @NotNull BinaryTag serializeEntity(@NotNull Entity entity);
 
     @NotNull ItemStack enchantItem(@NotNull Random random, @NotNull ItemStack item, int levels, @Nullable List<DynamicRegistry.Key<Enchantment>> enchantments);
-
-    @NotNull List<ItemStack> getDynamicDrops(@NotNull NamespaceID choiceID, @NotNull CompoundBinaryTag blockNBT);
 
     @Nullable ItemStack smelt(@NotNull ItemStack input);
 
