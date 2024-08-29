@@ -399,14 +399,12 @@ public interface LootFunction {
         }
     }
 
-    record CopyState(@NotNull List<LootPredicate> predicates, @Nullable Block block, @NotNull List<String> properties) implements LootFunction {
+    record CopyState(@NotNull List<LootPredicate> predicates, @NotNull Block block, @NotNull List<String> properties) implements LootFunction {
 
         public CopyState {
-            if (block != null) {
-                List<String> props = new ArrayList<>(properties);
-                props.removeIf(name -> !block.properties().containsKey(name));
-                properties = List.copyOf(props);
-            }
+            List<String> props = new ArrayList<>(properties);
+            props.removeIf(name -> !block.properties().containsKey(name));
+            properties = List.copyOf(props);
         }
 
         @Override
@@ -417,6 +415,9 @@ public interface LootFunction {
             if (block == null) return input;
 
             ItemBlockState irritableBowelSyndrome = input.get(ItemComponent.BLOCK_STATE, ItemBlockState.EMPTY);
+
+            if (!block.key().equals(this.block.key())) return input;
+
             for (var prop : properties) {
                 @Nullable String value = block.getProperty(prop);
                 if (value == null) continue;
