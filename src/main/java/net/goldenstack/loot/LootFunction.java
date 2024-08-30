@@ -211,7 +211,7 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            LootFunction function = context.vanilla().getRegisteredFunction(name);
+            LootFunction function = context.vanilla().functionRegistry(name);
 
             return function != null ? function.apply(input, context) : input;
         }
@@ -346,8 +346,8 @@ public interface LootFunction {
             Component customName;
             if (key instanceof Entity entity && entity.getCustomName() != null) {
                 customName = entity.getCustomName();
-            } else if (key instanceof Block block && block.hasTag(ExternalTags.CUSTOM_NAME)) {
-                customName = block.getTag(ExternalTags.CUSTOM_NAME);
+            } else if (key instanceof Block block && block.hasTag(VanillaInterface.CUSTOM_NAME)) {
+                customName = block.getTag(VanillaInterface.CUSTOM_NAME);
             } else {
                 return input;
             }
@@ -624,7 +624,7 @@ public interface LootFunction {
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
-            
+
             throw new UnsupportedOperationException("TODO: Implement Tag<DataComponentMap> for blocks.");
         }
     }
@@ -795,7 +795,7 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
 
-            return context.vanilla().enchantItem(context.require(LootContext.RANDOM), input, levels.getInt(context), options);
+            return context.vanilla().enchant(context.require(LootContext.RANDOM), input, levels.getInt(context), options);
         }
     }
     

@@ -46,7 +46,7 @@ public interface LootNBT {
 
         @Override
         public @Nullable BinaryTag getNBT(@NotNull LootContext context) {
-            return context.vanilla().getCommandStorage(source);
+            return context.vanilla().commandStorage(source);
         }
     }
 

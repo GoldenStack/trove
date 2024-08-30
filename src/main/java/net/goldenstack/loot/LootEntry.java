@@ -1,8 +1,8 @@
 package net.goldenstack.loot;
 
-import net.goldenstack.loot.util.ExternalTags;
 import net.goldenstack.loot.util.Serial;
 import net.goldenstack.loot.util.Template;
+import net.goldenstack.loot.util.VanillaInterface;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
@@ -207,12 +207,12 @@ public interface LootEntry {
             return switch (name.asString()) {
                 case "minecraft:sherds" -> {
                     List<ItemStack> items = new ArrayList<>();
-                    for (Material material : block.getTag(ExternalTags.DECORATED_POT_SHERDS)) {
+                    for (Material material : block.getTag(VanillaInterface.DECORATED_POT_SHERDS)) {
                         items.add(ItemStack.of(material));
                     }
                     yield items;
                 }
-                case "minecraft:contents" -> block.getTag(ExternalTags.CONTAINER_ITEMS);
+                case "minecraft:contents" -> block.getTag(VanillaInterface.CONTAINER_ITEMS);
                 default -> List.of();
             };
         }
@@ -249,7 +249,7 @@ public interface LootEntry {
 
         @Override
         public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
-            var table = context.vanilla().getRegisteredTable(value);
+            var table = context.vanilla().tableRegistry(value);
             if (table == null) return List.of();
 
             return LootFunction.apply(functions, table.apply(context), context);

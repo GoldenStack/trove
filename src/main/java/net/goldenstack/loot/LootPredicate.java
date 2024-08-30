@@ -233,7 +233,7 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
 
         @Override
         public boolean test(@NotNull LootContext context) {
-            LootPredicate predicate = context.vanilla().getRegisteredPredicate(name);
+            LootPredicate predicate = context.vanilla().predicateRegistry(name);
 
             return predicate != null && predicate.test(context);
         }
@@ -359,7 +359,7 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
             if (entity == null) return false;
 
             for (var entry : scores.entrySet()) {
-                Integer score = context.vanilla().getScore(entity, entry.getKey());
+                Integer score = context.vanilla().score(entity, entry.getKey());
                 if (score == null || !entry.getValue().check(context, score)) {
                     return false;
                 }
