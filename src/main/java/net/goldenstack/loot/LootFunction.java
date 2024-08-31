@@ -75,7 +75,9 @@ public interface LootFunction {
                     Template.entry("exploration_map", ExplorationMap.class, ExplorationMap.SERIALIZER),
                     Template.entry("set_name", SetName.class, SetName.SERIALIZER),
                     Template.entry("set_instrument", SetInstrument.class, SetInstrument.SERIALIZER),
-                    Template.entry("set_attributes", SetAttributes.class, SetAttributes.SERIALIZER)
+                    Template.entry("set_attributes", SetAttributes.class, SetAttributes.SERIALIZER),
+                    Template.entry("set_writable_book_pages", SetWritableBookPages.class, SetWritableBookPages.SERIALIZER),
+                    Template.entry("set_written_book_pages", SetWrittenBookPages.class, SetWrittenBookPages.SERIALIZER)
             )
     );
 
@@ -1042,6 +1044,77 @@ public interface LootFunction {
             }
 
             return input.with(ItemComponent.ATTRIBUTE_MODIFIERS, new AttributeList(list, component.showInTooltip()));
+        }
+    }
+
+    record SetWritableBookPages(@NotNull List<LootPredicate> predicates, @NotNull List<FilteredText<String>> pages, @NotNull ListOperation operation) implements LootFunction {
+
+        private static final @NotNull BinaryTagSerializer<List<LootPredicate>> PREDICATES = Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of());
+        private static final @NotNull BinaryTagSerializer<List<FilteredText<String>>> PAGES = FilteredText.STRING_NBT_TYPE.list();
+
+        public static final @NotNull BinaryTagSerializer<SetWritableBookPages> SERIALIZER = new BinaryTagSerializer<>() {
+            @Override
+            public @NotNull BinaryTag write(@NotNull Context context, @NotNull SetWritableBookPages value) {
+                return ((CompoundBinaryTag) ListOperation.SERIALIZER.write(context, value.operation))
+                        .put("conditions", PREDICATES.write(context, value.predicates))
+                        .put("pages", PAGES.write(context, value.pages));
+            }
+
+            @Override
+            public @NotNull SetWritableBookPages read(@NotNull Context context, @NotNull BinaryTag raw) {
+                if (!(raw instanceof CompoundBinaryTag tag)) throw new IllegalArgumentException("Expected a compound tag");
+
+                return new SetWritableBookPages(
+                        PREDICATES.read(context, tag.get("conditions")),
+                        PAGES.read(context, tag.get("pages")),
+                        ListOperation.SERIALIZER.read(context, tag)
+                );
+            }
+        };
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            WritableBookContent content = input.get(ItemComponent.WRITABLE_BOOK_CONTENT, WritableBookContent.EMPTY);
+
+            return input.with(ItemComponent.WRITABLE_BOOK_CONTENT, new WritableBookContent(operation.apply(pages, content.pages())));
+        }
+    }
+
+    record SetWrittenBookPages(@NotNull List<LootPredicate> predicates, @NotNull List<FilteredText<Component>> pages, @NotNull ListOperation operation) implements LootFunction {
+
+        private static final @NotNull BinaryTagSerializer<List<LootPredicate>> PREDICATES = Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of());
+        private static final @NotNull BinaryTagSerializer<List<FilteredText<Component>>> PAGES = FilteredText.COMPONENT_NBT_TYPE.list();
+
+        public static final @NotNull BinaryTagSerializer<SetWrittenBookPages> SERIALIZER = new BinaryTagSerializer<>() {
+            @Override
+            public @NotNull BinaryTag write(@NotNull Context context, @NotNull SetWrittenBookPages value) {
+                return ((CompoundBinaryTag) ListOperation.SERIALIZER.write(context, value.operation))
+                        .put("conditions", PREDICATES.write(context, value.predicates))
+                        .put("pages", PAGES.write(context, value.pages));
+            }
+
+            @Override
+            public @NotNull SetWrittenBookPages read(@NotNull Context context, @NotNull BinaryTag raw) {
+                if (!(raw instanceof CompoundBinaryTag tag)) throw new IllegalArgumentException("Expected a compound tag");
+
+                return new SetWrittenBookPages(
+                        PREDICATES.read(context, tag.get("conditions")),
+                        PAGES.read(context, tag.get("pages")),
+                        ListOperation.SERIALIZER.read(context, tag)
+                );
+            }
+        };
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            WrittenBookContent content = input.get(ItemComponent.WRITTEN_BOOK_CONTENT, WrittenBookContent.EMPTY);
+            WrittenBookContent updated = new WrittenBookContent(operation.apply(pages, content.pages()), content.title(), content.author(), content.generation(), content.resolved());
+
+            return input.with(ItemComponent.WRITTEN_BOOK_CONTENT, updated);
         }
     }
 
