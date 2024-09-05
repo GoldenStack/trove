@@ -1,12 +1,17 @@
 package net.goldenstack.loot.util;
 
+import net.goldenstack.loot.LootPredicate;
 import net.kyori.adventure.nbt.*;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.gamedata.tags.Tag;
+import net.minestom.server.item.book.FilteredText;
+import net.minestom.server.item.component.FireworkExplosion;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +21,15 @@ import java.util.function.Supplier;
 
 @SuppressWarnings("UnstableApiUsage")
 public class Serial {
+
+    // Cached list/optional components
+    public static final @NotNull BinaryTagSerializer<List<LootPredicate>> PREDICATES = Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of());
+    public static final @NotNull BinaryTagSerializer<List<Component>> COMPONENTS = BinaryTagSerializer.NBT_COMPONENT.list();
+    public static final @NotNull BinaryTagSerializer<List<FilteredText<String>>> STRING_PAGES = FilteredText.STRING_NBT_TYPE.list();
+    public static final @NotNull BinaryTagSerializer<List<FilteredText<Component>>> COMPONENT_PAGES = FilteredText.COMPONENT_NBT_TYPE.list();
+    public static final @NotNull BinaryTagSerializer<@Nullable RelevantEntity> OPTIONAL_ENTITY = RelevantEntity.SERIALIZER.optional();
+    public static final @NotNull BinaryTagSerializer<List<FireworkExplosion>> EXPLOSIONS = FireworkExplosion.NBT_TYPE.list();
+    public static final @NotNull BinaryTagSerializer<@Nullable Integer> OPTIONAL_INT = BinaryTagSerializer.INT.optional();
 
     public static final @NotNull BinaryTagSerializer<Double> DOUBLE = new BinaryTagSerializer<>() {
         @Override

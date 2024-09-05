@@ -7,8 +7,10 @@ import net.goldenstack.loot.util.nbt.NBTUtils;
 import net.goldenstack.loot.util.predicate.ItemPredicate;
 import net.kyori.adventure.nbt.*;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.util.RGBLike;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerFlag;
+import net.minestom.server.color.Color;
 import net.minestom.server.component.DataComponent;
 import net.minestom.server.component.DataComponentMap;
 import net.minestom.server.entity.*;
@@ -79,8 +81,11 @@ public interface LootFunction {
                     Template.entry("set_attributes", SetAttributes.class, SetAttributes.SERIALIZER),
                     Template.entry("set_writable_book_pages", SetWritableBookPages.class, SetWritableBookPages.SERIALIZER),
                     Template.entry("set_written_book_pages", SetWrittenBookPages.class, SetWrittenBookPages.SERIALIZER),
-                    Template.entry("set_banner_pattern", SetBannerPattern.class, SetBannerPattern.SERIALIZER)
-                    
+                    Template.entry("set_banner_pattern", SetBannerPattern.class, SetBannerPattern.SERIALIZER),
+                    Template.entry("set_components", SetComponents.class, SetComponents.SERIALIZER),
+                    Template.entry("set_lore", SetLore.class, SetLore.SERIALIZER),
+                    Template.entry("set_firework_explosion", SetFireworkExplosion.class, SetFireworkExplosion.SERIALIZER),
+                    Template.entry("set_fireworks", SetFireworks.class, SetFireworks.SERIALIZER)
             )
     );
 
@@ -1052,15 +1057,12 @@ public interface LootFunction {
 
     record SetWritableBookPages(@NotNull List<LootPredicate> predicates, @NotNull List<FilteredText<String>> pages, @NotNull ListOperation operation) implements LootFunction {
 
-        private static final @NotNull BinaryTagSerializer<List<LootPredicate>> PREDICATES = Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of());
-        private static final @NotNull BinaryTagSerializer<List<FilteredText<String>>> PAGES = FilteredText.STRING_NBT_TYPE.list();
-
         public static final @NotNull BinaryTagSerializer<SetWritableBookPages> SERIALIZER = new BinaryTagSerializer<>() {
             @Override
             public @NotNull BinaryTag write(@NotNull Context context, @NotNull SetWritableBookPages value) {
                 return ((CompoundBinaryTag) ListOperation.SERIALIZER.write(context, value.operation))
-                        .put("conditions", PREDICATES.write(context, value.predicates))
-                        .put("pages", PAGES.write(context, value.pages));
+                        .put("conditions", Serial.PREDICATES.write(context, value.predicates))
+                        .put("pages", Serial.STRING_PAGES.write(context, value.pages));
             }
 
             @Override
@@ -1068,8 +1070,8 @@ public interface LootFunction {
                 if (!(raw instanceof CompoundBinaryTag tag)) throw new IllegalArgumentException("Expected a compound tag");
 
                 return new SetWritableBookPages(
-                        PREDICATES.read(context, tag.get("conditions")),
-                        PAGES.read(context, tag.get("pages")),
+                        Serial.PREDICATES.read(context, tag.get("conditions")),
+                        Serial.STRING_PAGES.read(context, tag.get("pages")),
                         ListOperation.SERIALIZER.read(context, tag)
                 );
             }
@@ -1087,15 +1089,12 @@ public interface LootFunction {
 
     record SetWrittenBookPages(@NotNull List<LootPredicate> predicates, @NotNull List<FilteredText<Component>> pages, @NotNull ListOperation operation) implements LootFunction {
 
-        private static final @NotNull BinaryTagSerializer<List<LootPredicate>> PREDICATES = Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of());
-        private static final @NotNull BinaryTagSerializer<List<FilteredText<Component>>> PAGES = FilteredText.COMPONENT_NBT_TYPE.list();
-
         public static final @NotNull BinaryTagSerializer<SetWrittenBookPages> SERIALIZER = new BinaryTagSerializer<>() {
             @Override
             public @NotNull BinaryTag write(@NotNull Context context, @NotNull SetWrittenBookPages value) {
                 return ((CompoundBinaryTag) ListOperation.SERIALIZER.write(context, value.operation))
-                        .put("conditions", PREDICATES.write(context, value.predicates))
-                        .put("pages", PAGES.write(context, value.pages));
+                        .put("conditions", Serial.PREDICATES.write(context, value.predicates))
+                        .put("pages", Serial.COMPONENT_PAGES.write(context, value.pages));
             }
 
             @Override
@@ -1103,8 +1102,8 @@ public interface LootFunction {
                 if (!(raw instanceof CompoundBinaryTag tag)) throw new IllegalArgumentException("Expected a compound tag");
 
                 return new SetWrittenBookPages(
-                        PREDICATES.read(context, tag.get("conditions")),
-                        PAGES.read(context, tag.get("pages")),
+                        Serial.PREDICATES.read(context, tag.get("conditions")),
+                        Serial.COMPONENT_PAGES.read(context, tag.get("pages")),
                         ListOperation.SERIALIZER.read(context, tag)
                 );
             }
@@ -1173,6 +1172,147 @@ public interface LootFunction {
             if (changes.has(component)) {
                 builder.set(component, changes.get(component));
             }
+        }
+    }
+
+    record SetLore(@NotNull List<LootPredicate> predicates, @NotNull List<Component> lore,
+                   @NotNull ListOperation operation, @Nullable RelevantEntity entity) implements LootFunction {
+
+        public static final @NotNull BinaryTagSerializer<SetLore> SERIALIZER = new BinaryTagSerializer<>() {
+            @Override
+            public @NotNull BinaryTag write(@NotNull Context context, @NotNull SetLore value) {
+                return ((CompoundBinaryTag) ListOperation.SERIALIZER.write(context, value.operation))
+                        .put("conditions", Serial.PREDICATES.write(context, value.predicates))
+                        .put("lore", Serial.COMPONENTS.write(context, value.lore))
+                        .put("entity", Serial.OPTIONAL_ENTITY.write(context, value.entity));
+            }
+
+            @Override
+            public @NotNull SetLore read(@NotNull Context context, @NotNull BinaryTag raw) {
+                if (!(raw instanceof CompoundBinaryTag tag)) throw new IllegalArgumentException("Expected a compound tag");
+
+                return new SetLore(
+                        Serial.PREDICATES.read(context, tag.get("conditions")),
+                        Serial.COMPONENTS.read(context, tag.get("lore")),
+                        ListOperation.SERIALIZER.read(context, tag),
+                        Serial.OPTIONAL_ENTITY.read(context, tag.get("entity"))
+                );
+            }
+        };
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            List<Component> components = input.get(ItemComponent.LORE, List.of());
+
+            // TODO: https://minecraft.wiki/w/Raw_JSON_text_format#Component_resolution
+            //       This is not used in vanilla so it's fine for now.
+
+            return input.with(ItemComponent.LORE, operation.apply(lore, components));
+        }
+    }
+
+    record SetFireworkExplosion(@NotNull List<LootPredicate> predicates, @Nullable FireworkExplosion.Shape shape,
+                                @Nullable List<RGBLike> colors, @Nullable List<RGBLike> fadeColors,
+                                @Nullable Boolean trail, @Nullable Boolean twinkle) implements LootFunction {
+
+        private static final @NotNull BinaryTagSerializer<List<RGBLike>> COLORS = new BinaryTagSerializer<>() {
+            @Override
+            public @NotNull BinaryTag write(@NotNull Context context, @NotNull List<RGBLike> value) {
+                int[] ints = new int[value.size()];
+                for (int i = 0; i < value.size(); i++) {
+                    ints[i] = Color.fromRGBLike(value.get(i)).asRGB();
+                }
+                return IntArrayBinaryTag.intArrayBinaryTag(ints);
+            }
+
+            @Override
+            public @NotNull List<RGBLike> read(@NotNull Context context, @NotNull BinaryTag raw) {
+                if (!(raw instanceof IntArrayBinaryTag tag))
+                    throw new IllegalArgumentException("Expected an int array");
+
+                List<RGBLike> colors = new ArrayList<>();
+                for (int color : tag) {
+                    colors.add(new Color(color));
+                }
+                return colors;
+            }
+        };
+
+        public static final @NotNull BinaryTagSerializer<SetFireworkExplosion> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetFireworkExplosion::predicates,
+                "shape", BinaryTagSerializer.STRING.map(
+                        s -> FireworkExplosion.Shape.valueOf(s.toUpperCase(Locale.ROOT)),
+                        s -> s.name().toLowerCase(Locale.ROOT)
+                ), SetFireworkExplosion::shape,
+                "colors", COLORS.optional(), SetFireworkExplosion::colors,
+                "fade_colors", COLORS.optional(), SetFireworkExplosion::fadeColors,
+                "trail", BinaryTagSerializer.BOOLEAN.optional(), SetFireworkExplosion::trail,
+                "twinkle", BinaryTagSerializer.BOOLEAN.optional(), SetFireworkExplosion::twinkle,
+                SetFireworkExplosion::new
+        );
+
+        private static final @NotNull FireworkExplosion DEFAULT = new FireworkExplosion(FireworkExplosion.Shape.SMALL_BALL, List.of(), List.of(), false, false);
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            FireworkExplosion firework = input.get(ItemComponent.FIREWORK_EXPLOSION, DEFAULT);
+
+            FireworkExplosion updated = new FireworkExplosion(
+                    this.shape != null ? this.shape : firework.shape(),
+                    this.colors != null ? this.colors : firework.colors(),
+                    this.fadeColors != null ? this.fadeColors : firework.fadeColors(),
+                    this.trail != null ? this.trail : firework.hasTrail(),
+                    this.twinkle != null ? this.twinkle : firework.hasTwinkle()
+            );
+
+            return input.with(ItemComponent.FIREWORK_EXPLOSION, updated);
+        }
+    }
+
+    record SetFireworks(@NotNull List<LootPredicate> predicates, @NotNull ListOperation operation,
+                        @NotNull List<FireworkExplosion> explosions, @Nullable Integer flightDuration) implements LootFunction {
+
+        public static final @NotNull BinaryTagSerializer<SetFireworks> SERIALIZER = new BinaryTagSerializer<>() {
+            @Override
+            public @NotNull BinaryTag write(@NotNull Context context, @NotNull SetFireworks value) {
+                return CompoundBinaryTag.builder()
+                        .put("conditions", Serial.PREDICATES.write(context, value.predicates))
+                        .put("explosions",
+                                ((CompoundBinaryTag) ListOperation.SERIALIZER.write(context, value.operation))
+                                        .put("values", Serial.EXPLOSIONS.write(context, value.explosions)))
+                        .put("flight_duration", Serial.OPTIONAL_INT.write(context, value.flightDuration))
+                        .build();
+            }
+
+            @Override
+            public @NotNull SetFireworks read(@NotNull Context context, @NotNull BinaryTag raw) {
+                if (!(raw instanceof CompoundBinaryTag tag)) throw new IllegalArgumentException("Expected a compound tag");
+
+                return new SetFireworks(
+                        Serial.PREDICATES.read(context, tag.get("conditions")),
+                        ListOperation.SERIALIZER.read(context, tag.get("explosions")),
+                        Serial.EXPLOSIONS.read(context, tag.getCompound("explosions", CompoundBinaryTag.empty()).get("values")),
+                        Serial.OPTIONAL_INT.read(context, tag.get("flight_duration"))
+                );
+            }
+        };
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            FireworkList list = input.get(ItemComponent.FIREWORKS, FireworkList.EMPTY);
+
+            FireworkList updated = new FireworkList(
+                    this.flightDuration != null ? this.flightDuration.byteValue() : list.flightDuration(),
+                    operation.apply(this.explosions, list.explosions())
+            );
+
+            return input.with(ItemComponent.FIREWORKS, updated);
         }
     }
 
