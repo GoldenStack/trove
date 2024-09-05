@@ -10,6 +10,7 @@ import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerFlag;
 import net.minestom.server.component.DataComponent;
+import net.minestom.server.component.DataComponentMap;
 import net.minestom.server.entity.*;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.attribute.AttributeModifier;
@@ -77,7 +78,9 @@ public interface LootFunction {
                     Template.entry("set_instrument", SetInstrument.class, SetInstrument.SERIALIZER),
                     Template.entry("set_attributes", SetAttributes.class, SetAttributes.SERIALIZER),
                     Template.entry("set_writable_book_pages", SetWritableBookPages.class, SetWritableBookPages.SERIALIZER),
-                    Template.entry("set_written_book_pages", SetWrittenBookPages.class, SetWrittenBookPages.SERIALIZER)
+                    Template.entry("set_written_book_pages", SetWrittenBookPages.class, SetWrittenBookPages.SERIALIZER),
+                    Template.entry("set_banner_pattern", SetBannerPattern.class, SetBannerPattern.SERIALIZER)
+                    
             )
     );
 
@@ -1115,6 +1118,61 @@ public interface LootFunction {
             WrittenBookContent updated = new WrittenBookContent(operation.apply(pages, content.pages()), content.title(), content.author(), content.generation(), content.resolved());
 
             return input.with(ItemComponent.WRITTEN_BOOK_CONTENT, updated);
+        }
+    }
+
+    record SetBannerPattern(@NotNull List<LootPredicate> predicates, @NotNull BannerPatterns patterns, boolean append) implements LootFunction {
+
+        public static final @NotNull BinaryTagSerializer<SetBannerPattern> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetBannerPattern::predicates,
+                "patterns", BannerPatterns.NBT_TYPE, SetBannerPattern::patterns,
+                "append", BinaryTagSerializer.BOOLEAN, SetBannerPattern::append,
+                SetBannerPattern::new
+        );
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            if (append) {
+                BannerPatterns patterns = input.get(ItemComponent.BANNER_PATTERNS);
+                if (patterns != null) {
+                    List<BannerPatterns.Layer> layers = new ArrayList<>(patterns.layers());
+                    layers.addAll(this.patterns().layers());
+                    return input.with(ItemComponent.BANNER_PATTERNS, new BannerPatterns(layers));
+                }
+            }
+
+            return input.with(ItemComponent.BANNER_PATTERNS, patterns);
+        }
+    }
+
+    record SetComponents(@NotNull List<LootPredicate> predicates, @NotNull DataComponentMap changes) implements LootFunction {
+
+        public static final @NotNull BinaryTagSerializer<SetComponents> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetComponents::predicates,
+                "components", ItemComponent.PATCH_NBT_TYPE, SetComponents::changes,
+                SetComponents::new
+        );
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            ItemStack.Builder builder = input.builder();
+
+            // This and .constantGeneric are hacks for until there exists a way to apply a patch to an item
+            for (DataComponent<?> component : ItemComponent.values()) {
+                constantGeneric(builder, component, changes);
+            }
+
+            return builder.build();
+        }
+
+        private static <T> void constantGeneric(@NotNull ItemStack.Builder builder, @NotNull DataComponent<T> component, @NotNull DataComponentMap changes) {
+            if (changes.has(component)) {
+                builder.set(component, changes.get(component));
+            }
         }
     }
 
