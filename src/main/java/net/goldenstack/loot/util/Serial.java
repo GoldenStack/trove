@@ -4,7 +4,10 @@ import net.goldenstack.loot.LootPredicate;
 import net.kyori.adventure.nbt.*;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.component.DataComponent;
 import net.minestom.server.gamedata.tags.Tag;
+import net.minestom.server.item.ItemComponent;
+import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.book.FilteredText;
 import net.minestom.server.item.component.FireworkExplosion;
 import net.minestom.server.registry.DynamicRegistry;
@@ -18,11 +21,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("UnstableApiUsage")
 public class Serial {
 
-    // Cached list/optional components
+    // Cached components
+    public static final @NotNull BinaryTagSerializer<NamespaceID> KEY = BinaryTagSerializer.STRING.map(NamespaceID::from, NamespaceID::asString);
     public static final @NotNull BinaryTagSerializer<List<LootPredicate>> PREDICATES = Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of());
     public static final @NotNull BinaryTagSerializer<List<Component>> COMPONENTS = BinaryTagSerializer.NBT_COMPONENT.list();
     public static final @NotNull BinaryTagSerializer<List<FilteredText<String>>> STRING_PAGES = FilteredText.STRING_NBT_TYPE.list();
@@ -30,6 +36,12 @@ public class Serial {
     public static final @NotNull BinaryTagSerializer<@Nullable RelevantEntity> OPTIONAL_ENTITY = RelevantEntity.SERIALIZER.optional();
     public static final @NotNull BinaryTagSerializer<List<FireworkExplosion>> EXPLOSIONS = FireworkExplosion.NBT_TYPE.list();
     public static final @NotNull BinaryTagSerializer<@Nullable Integer> OPTIONAL_INT = BinaryTagSerializer.INT.optional();
+
+    private static final @NotNull Map<NamespaceID, DataComponent<List<ItemStack>>> NAMED_CONTAINERS =
+            Stream.of(ItemComponent.CONTAINER, ItemComponent.BUNDLE_CONTENTS, ItemComponent.CHARGED_PROJECTILES)
+                    .collect(Collectors.toMap(DataComponent::namespace, Function.identity()));
+
+    public static final @NotNull BinaryTagSerializer<DataComponent<List<ItemStack>>> CONTAINER = KEY.map(NAMED_CONTAINERS::get, DataComponent::namespace);
 
     public static final @NotNull BinaryTagSerializer<Double> DOUBLE = new BinaryTagSerializer<>() {
         @Override
@@ -60,8 +72,6 @@ public class Serial {
     public static @NotNull BinaryTagSerializer<Tag> tag(@NotNull Tag.BasicType type) {
         return BinaryTagSerializer.STRING.map(str -> MinecraftServer.getTagManager().getTag(type, str), Tag::name);
     }
-
-    public static final @NotNull BinaryTagSerializer<NamespaceID> KEY = BinaryTagSerializer.STRING.map(NamespaceID::from, NamespaceID::asString);
 
     public static <T> @NotNull BinaryTagSerializer<DynamicRegistry.Key<T>> key() {
         return KEY.map(DynamicRegistry.Key::of, DynamicRegistry.Key::namespace);

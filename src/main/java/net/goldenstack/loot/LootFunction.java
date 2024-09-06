@@ -85,7 +85,9 @@ public interface LootFunction {
                     Template.entry("set_components", SetComponents.class, SetComponents.SERIALIZER),
                     Template.entry("set_lore", SetLore.class, SetLore.SERIALIZER),
                     Template.entry("set_firework_explosion", SetFireworkExplosion.class, SetFireworkExplosion.SERIALIZER),
-                    Template.entry("set_fireworks", SetFireworks.class, SetFireworks.SERIALIZER)
+                    Template.entry("set_fireworks", SetFireworks.class, SetFireworks.SERIALIZER),
+                    Template.entry("modify_contents", ModifyContents.class, ModifyContents.SERIALIZER),
+                    Template.entry("set_contents", SetContents.class, SetContents.SERIALIZER)
             )
     );
 
@@ -1313,6 +1315,58 @@ public interface LootFunction {
             );
 
             return input.with(ItemComponent.FIREWORKS, updated);
+        }
+    }
+    
+    record ModifyContents(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> modifier,
+                          @NotNull DataComponent<List<ItemStack>> component) implements LootFunction {
+
+        public static final @NotNull BinaryTagSerializer<ModifyContents> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), ModifyContents::predicates,
+                "modifier", Serial.lazy(() -> LootFunction.SERIALIZER).list(), ModifyContents::modifier,
+                "component", Serial.CONTAINER, ModifyContents::component,
+                ModifyContents::new
+        );
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            List<ItemStack> items = input.get(component);
+            if (items == null) return input;
+
+            List<ItemStack> updated = new ArrayList<>();
+            for (ItemStack item : items) {
+                updated.add(LootFunction.apply(modifier, item, context));
+            }
+
+            return input.with(component, updated);
+        }
+    }
+
+    record SetContents(@NotNull List<LootPredicate> predicates, @NotNull List<LootEntry> entries,
+                       @NotNull DataComponent<List<ItemStack>> type) implements LootFunction {
+
+        public static final @NotNull BinaryTagSerializer<SetContents> SERIALIZER = Template.template(
+                "conditions", Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of()), SetContents::predicates,
+                "modifier", Serial.lazy(() -> LootEntry.SERIALIZER).list(), SetContents::entries,
+                "type", Serial.CONTAINER, SetContents::type,
+                SetContents::new
+        );
+
+        @Override
+        public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return input;
+
+            List<ItemStack> contents = new ArrayList<>();
+
+            for (LootEntry entry : entries) {
+                for (LootEntry.Choice choice : entry.requestChoices(context)) {
+                    contents.addAll(choice.apply(context));
+                }
+            }
+
+            return input.with(type, contents);
         }
     }
 
