@@ -76,7 +76,12 @@ public class Template {
 
             @SuppressWarnings("unchecked")
             private <N extends T> BinaryTag handle(@NotNull Entry<N> entry, Context context, T value) {
-                return entry.serializer().write(context, (N) value);
+                BinaryTag tag = entry.serializer().write(context, (N) value);
+                if (tag instanceof CompoundBinaryTag compoud) {
+                    return compoud.put(key, StringBinaryTag.stringBinaryTag(entry.key()));
+                } else {
+                    return tag;
+                }
             }
 
             @Override
