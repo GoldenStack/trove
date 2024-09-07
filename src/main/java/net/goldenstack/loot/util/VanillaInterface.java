@@ -21,6 +21,55 @@ import java.util.Random;
 
 public interface VanillaInterface {
 
+    static @NotNull VanillaInterface defaults() {
+        return new VanillaInterface() {
+            @Override
+            public @Nullable Integer score(@NotNull Entity entity, @NotNull String objective) {
+                return null;
+            }
+
+            @Override
+            public @Nullable Integer score(@NotNull String name, @NotNull String objective) {
+                return null;
+            }
+
+            @Override
+            public @NotNull BinaryTag serializeEntity(@NotNull Entity entity) {
+                return CompoundBinaryTag.empty();
+            }
+
+            @Override
+            public @NotNull ItemStack enchant(@NotNull Random random, @NotNull ItemStack item, int levels, @Nullable List<DynamicRegistry.Key<Enchantment>> enchantments) {
+                return item;
+            }
+
+            @Override
+            public @Nullable ItemStack smelt(@NotNull ItemStack input) {
+                return null;
+            }
+
+            @Override
+            public @Nullable LootTable tableRegistry(@NotNull NamespaceID key) {
+                return null;
+            }
+
+            @Override
+            public @Nullable LootPredicate predicateRegistry(@NotNull NamespaceID key) {
+                return null;
+            }
+
+            @Override
+            public @Nullable LootFunction functionRegistry(@NotNull NamespaceID key) {
+                return null;
+            }
+
+            @Override
+            public @Nullable CompoundBinaryTag commandStorage(@NotNull NamespaceID key) {
+                return null;
+            }
+        };
+    }
+
     @NotNull Tag<Component> CUSTOM_NAME = Tag.Component("CustomName");
 
     @NotNull Tag<List<Material>> DECORATED_POT_SHERDS = Tag.String("sherds")
