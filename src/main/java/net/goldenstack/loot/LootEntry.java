@@ -182,7 +182,7 @@ public interface LootEntry {
         );
 
         @Override
-        public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
+        public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
             return List.of(LootFunction.apply(functions, ItemStack.of(name), context));
         }
     }
@@ -200,7 +200,7 @@ public interface LootEntry {
         );
 
         @Override
-        public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
+        public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
             Block block = context.get(LootContext.BLOCK_STATE);
             if (block == null) return List.of();
 
@@ -230,7 +230,7 @@ public interface LootEntry {
         );
 
         @Override
-        public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
+        public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
             return List.of();
         }
     }
@@ -248,11 +248,11 @@ public interface LootEntry {
         );
 
         @Override
-        public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
+        public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
             var table = context.vanilla().tableRegistry(value);
             if (table == null) return List.of();
 
-            return LootFunction.apply(functions, table.apply(context), context);
+            return LootFunction.apply(functions, table.generate(context), context);
         }
     }
 
@@ -288,7 +288,7 @@ public interface LootEntry {
                     }
 
                     @Override
-                    public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
+                    public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
                         return List.of(ItemStack.of(material));
                     }
 
@@ -298,7 +298,7 @@ public interface LootEntry {
         }
 
         @Override
-        public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
+        public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
             List<ItemStack> items = new ArrayList<>();
             for (var key : name.getValues()) {
                 Material material = Material.fromNamespaceId(key);

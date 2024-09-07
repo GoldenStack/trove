@@ -18,6 +18,8 @@ import java.util.List;
  */
 public record LootTable(@NotNull List<LootPool> pools, @NotNull List<LootFunction> functions, @Nullable NamespaceID randomSequence) implements LootGenerator {
 
+    public static final @NotNull LootTable EMPTY = new LootTable(List.of(), List.of(), null);
+
     @SuppressWarnings("UnstableApiUsage")
     public static final @NotNull BinaryTagSerializer<LootTable> SERIALIZER = Template.template(
             "pools", LootPool.SERIALIZER.list(), LootTable::pools,
@@ -27,11 +29,11 @@ public record LootTable(@NotNull List<LootPool> pools, @NotNull List<LootFunctio
     );
 
     @Override
-    public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
+    public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
         List<ItemStack> items = new ArrayList<>();
 
         for (var pool : pools) {
-            for (var item : pool.apply(context)) {
+            for (var item : pool.generate(context)) {
                 items.add(LootFunction.apply(functions, item, context));
             }
         }

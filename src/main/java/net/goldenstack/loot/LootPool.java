@@ -34,7 +34,7 @@ public record LootPool(@NotNull LootNumber rolls,
     );
 
     @Override
-    public @NotNull List<ItemStack> apply(@NotNull LootContext context) {
+    public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
         if (!(LootPredicate.all(predicates, context))) return List.of();
 
         int rolls = this.rolls.getInt(context);
@@ -50,7 +50,7 @@ public record LootPool(@NotNull LootNumber rolls,
             LootEntry.Choice choice = pickChoice(entries, context);
             if (choice == null) continue;
 
-            items.addAll(choice.apply(context));
+            items.addAll(choice.generate(context));
         }
 
         return LootFunction.apply(functions, items, context);

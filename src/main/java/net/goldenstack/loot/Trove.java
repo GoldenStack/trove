@@ -3,8 +3,16 @@ package net.goldenstack.loot;
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.TagStringIOExt;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.coordinate.Point;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.ItemEntity;
+import net.minestom.server.instance.Instance;
+import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.utils.nbt.BinaryTagSerializer;
+import net.minestom.server.utils.time.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -13,6 +21,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -62,5 +71,36 @@ public class Trove {
 
         return tables;
     }
-    
+
+    public static void blockDrop(@NotNull Instance instance, @NotNull ItemStack item, @NotNull Point block) {
+        ThreadLocalRandom rng = ThreadLocalRandom.current();
+
+        Pos spawn = new Pos(
+                block.blockX() + 0.5 + rng.nextDouble(-0.25, 0.25),
+                block.blockY() + 0.5 + rng.nextDouble(-0.25, 0.25) - EntityType.ITEM.height() / 2,
+                block.blockZ() + 0.5 + rng.nextDouble(-0.25, 0.25),
+                rng.nextFloat(360),
+                0
+        );
+
+        drop(instance, item, spawn);
+    }
+
+    public static void drop(@NotNull Instance instance, @NotNull ItemStack item, @NotNull Point position) {
+        ItemEntity entity = new ItemEntity(item);
+
+        ThreadLocalRandom rng = ThreadLocalRandom.current();
+
+        Vec vel = new Vec(
+                rng.nextDouble(-0.1, 0.1),
+                0.2,
+                rng.nextDouble(-0.1, 0.1)
+        ).mul(20);
+
+        entity.setPickupDelay(10, TimeUnit.SERVER_TICK);
+
+        entity.setInstance(instance, position);
+        entity.setVelocity(vel);
+    }
+
 }

@@ -1362,7 +1362,7 @@ public interface LootFunction {
 
             for (LootEntry entry : entries) {
                 for (LootEntry.Choice choice : entry.requestChoices(context)) {
-                    contents.addAll(choice.apply(context));
+                    contents.addAll(choice.generate(context));
                 }
             }
 
