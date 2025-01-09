@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "net.goldenstack.trove"
-version = "3.1"
+version = "3.0"
 
 repositories {
     mavenCentral()
