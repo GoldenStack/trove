@@ -1,53 +1,26 @@
 # trove
 
-[![license](https://img.shields.io/github/license/GoldenStack/trove?style=for-the-badge&color=dd2233)](LICENSE)
-[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=for-the-badge)](https://github.com/RichardLitt/standard-readme)
-[![javadocs](https://img.shields.io/badge/documentation-javadocs-4d7a97?style=for-the-badge)](https://javadoc.jitpack.io/com/github/GoldenStack/trove/master-SNAPSHOT/javadoc/)
-
-Trove is a versatile loot table library. Although a lot of the base concepts here are similar to Minecraft's loot table
-system, Trove is much more flexible, permitting the usage of multiple different loot types (e.g. items and experience).
-Plus, it has a convenient API, emphasizes immutable data structures, and supports full serialization and deserialization
-of all formats supported by Configurate, including JSON and YAML.
-
-The two modules are `core` and `minestom`. The `core` module contains the basic functioning pieces of the library, while
-`minestom` contains a nearly full implementation for Minecraft's loot tables for Minestom.
-
----
-
-## Table of Contents
-- [Install](#install)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+Trove is a loot table library for [Minestom](https://github.com/Minestom/Minestom/). It implements
+[nearly every](#completeness) feature from vanilla Minecraft.
 
 ---
 
 ## Install
 
-To install, simply add the library via [JitPack](https://jitpack.io/#GoldenStack/trove/):
+To install, simply add the library via Maven Central:
 
-Details for how to add this library with other build tools (such as Maven) can be found on the page linked above.
 ``` kts
 repositories {
-    ...
-    maven(url = "https://jitpack.io")
+    mavenCentral()
 }
 
 dependencies {
-    ...
-    // Minestom and Configurate versions
-    // (you can replace Minestom with Minestom-ce if you want)
-    implementation("com.github.minestom.minestom:Minestom:VERSION")
-    implementation("org.spongepowered:configurate-gson:VERSION")
+    implementation 'net.minestom:minestom-snapshots:<version>'
     
-    implementation("com.github.GoldenStack.trove:MODULE:VERSION")
+    implementation 'net.goldenstack.trove:<version>'
 }
 ```
-Trove relies on Minestom and Configurate, so make sure to add them.
-
-Just replace `MODULE` with the desired module of Trove, and replace `VERSION` with the desired version or commit hash.
-
-Trove currently uses 
+Make sure to include Minestom, or else Trove won't work.
 
 ---
 
@@ -55,66 +28,22 @@ Trove currently uses
 
 ###  Setup
 
-This setup currently only explains how to set up the Minestom module.
+Trove is designed to be extremely simple to use.
 
-You can use the TroveMinestom class for a very easy setup. Just provide a folder path, and it will recursively parse
-every JSON file inside it.
-
-``` java
-Path lootTableFolder = ...; // Replace with the path to the folder of loot tables
-
-var tableRegistry = TroveMinestom.readTables(lootTableFolder,
-        () -> GsonConfigurationLoader.builder().defaultOptions(options -> options.serializers(builder -> builder.registerAll(TroveMinestom.DEFAULT_COLLECTION))));
-```
-Each table will be stored via a NamespaceID in the tables object. For example, if the parsed loot table has the path
-"blocks/barrel.json" relative to the loot table folder, its ID will be `minecraft:blocks/barrel`.
-
+To obtain a `Map<NamespaceID, LootTable>`, simply call `Trove.readTables(Path.of("path_to_loot_tables"))`. Trove will
+automatically parse out the loot table hierarchy and include it in the table IDs.
 
 ### Generation
-Actual loot generation is fairly simple - you just need to call `LootTable#generate(LootContext, Consumer<Object>)`.
-The consumer can be a `LootProcessor` if that makes it easier.
+Loot generation is very simple as well. Calling `LootTable#generate(LootContext)` returns a list of items.
 
-Importantly, if you want some of the vanilla features that aren't implemented here, you should implement the
-`VanillaInterface` interface and pass it in as a key to your context. A partial implementation of it that doesn't throw
-any exceptions is `FallbackVanillaInterface`. You may also have to implement some type serializers.
+If you're implementing block drops, just call `LootTable#blockDrop(LootContext, Instance, Point)`. If you're
+implementing entity drops, call `LootTable#drop(LootContext, Instance, Point)`.
 
-Here's an example that uses the `tableRegistry` variable from the last code snippet:
-``` java
-LootTable table = tableRegistry.getTable(NamespaceID.from("minecraft:blocks/stone"));
+---
 
-// You can use the LootContext class to provide important information during generation.
-LootContext context = LootContext.builder()
-        .random(...) // Random instance here
-        .with(..., ...) // Loot context keys and values added with Builder#with
-        .build();
+## Completeness
 
-// Generate the loot
-table.generate(context, loot -> ...); // Do something with the loot
-```
-
-You can also use a `LootProcessor` to make this processing easier. For example:
-``` java
-var processor = LootProcessor.processClass(ItemStack.class, item -> {
-    // Perform some arbitrary action with the item
-});
-```
-
-You can also handle multiple classes at once, or even use a custom predicate:
-``` java
-var processor = LootProcessor.builder()
-        .processClass(ItemStack.class, item -> {
-            // Perform some calculation
-        }).processClass(String.class, string -> {
-            // Perform another calculation
-        }).process(object -> true, object -> {
-            // Perform some calculation with the object
-        }).build();
-```
-
-Then, you can just provide the processor to the generator:
-``` java
-table.generate(context, processor);
-```
+TODO
 
 ---
 
