@@ -1,11 +1,13 @@
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     id("java-library")
     id("maven-publish")
     id("signing")
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+    id("com.vanniktech.maven.publish") version "0.30.0"
 }
 
-group = "net.goldenstack.loot"
+group = "net.goldenstack.trove"
 version = "3.0"
 
 repositories {
@@ -35,55 +37,39 @@ java {
     }
 }
 
-configure<JavaPluginExtension> {
-    withJavadocJar()
-    withSourcesJar()
-}
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-configure<PublishingExtension> {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-        }
-    }
-}
+    signAllPublications()
 
-nexusPublishing {
-    useStaging.set(true)
-    this.packageGroup.set("net.goldenstack")
-
-    repositories.sonatype {
-        nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-        snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-
-        if (System.getenv("SONATYPE_USERNAME") != null) {
-            username.set(System.getenv("SONATYPE_USERNAME"))
-            password.set(System.getenv("SONATYPE_PASSWORD"))
-
-            println("---\n".repeat(10))
-        }
-    }
-}
-
-publishing.publications.create<MavenPublication>("maven") {
-    groupId = "net.goldenstack"
-    artifactId = "trove"
-    version = project.version.toString()
-
-    from(project.components["java"])
+    coordinates("net.goldenstack", "trove", version.toString())
 
     pom {
-        name.set(this@create.artifactId)
+        name.set("trove")
+        description.set("Loot table parser and evaluator for Minestom")
         url.set("https://github.com/goldenstack/trove")
+        licenses {
+            license {
+                name.set("MIT")
+                url.set("https://github.com/goldenstack/trove/blob/master/LICENSE")
+            }
+        }
+        developers {
+            developer {
+                id.set("goldenstack")
+                name.set("GoldenStack")
+                email.set("git@goldenstack.net")
+            }
+        }
+        scm {
+            connection.set("scm:git:git://github.com/goldenstack/trove.git")
+            developerConnection.set("scm:git:git@github.com:goldenstack/trove.git")
+            url.set("https://github.com/goldenstack/trove")
+        }
     }
 }
 
 signing {
-    isRequired = System.getenv("CI") != null
-
-    val privateKey = System.getenv("GPG_PRIVATE_KEY")
-    val keyPassphrase = System.getenv()["GPG_PASSWORD"]
-    useInMemoryPgpKeys(privateKey, keyPassphrase)
-
+    useGpgCmd()
     sign(publishing.publications)
 }
