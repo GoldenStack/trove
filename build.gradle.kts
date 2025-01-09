@@ -59,14 +59,17 @@ nexusPublishing {
                 password.set(System.getenv("SONATYPE_PASSWORD"))
 
                 println("---\n".repeat(10))
-                println(System.getenv("SONATYPE_USERNAME").length)
-                println(System.getenv("SONATYPE_PASSWORD").length)
-                println("---\n".repeat(10))
             }
         }
     }
 }
 
 signing {
-    sign(publishing.publications["mavenJava"])
+    isRequired = System.getenv("CI") != null
+
+    val privateKey = System.getenv("GPG_PRIVATE_KEY")
+    val keyPassphrase = System.getenv()["GPG_PASSWORD"]
+    useInMemoryPgpKeys(privateKey, keyPassphrase)
+
+    sign(publishing.publications)
 }
