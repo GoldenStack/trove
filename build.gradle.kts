@@ -49,18 +49,32 @@ configure<PublishingExtension> {
 }
 
 nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+    useStaging.set(true)
+    this.packageGroup.set("net.goldenstack")
 
-            if (System.getenv("SONATYPE_USERNAME") != null) {
-                username.set(System.getenv("SONATYPE_USERNAME"))
-                password.set(System.getenv("SONATYPE_PASSWORD"))
+    repositories.sonatype {
+        nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+        snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
 
-                println("---\n".repeat(10))
-            }
+        if (System.getenv("SONATYPE_USERNAME") != null) {
+            username.set(System.getenv("SONATYPE_USERNAME"))
+            password.set(System.getenv("SONATYPE_PASSWORD"))
+
+            println("---\n".repeat(10))
         }
+    }
+}
+
+publishing.publications.create<MavenPublication>("maven") {
+    groupId = "net.goldenstack"
+    artifactId = "trove"
+    version = project.version.toString()
+
+    from(project.components["java"])
+
+    pom {
+        name.set(this@create.artifactId)
+        url.set("https://github.com/goldenstack/trove")
     }
 }
 
