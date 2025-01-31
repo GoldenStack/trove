@@ -39,6 +39,10 @@ Loot generation is very simple as well. Calling `LootTable#generate(LootContext)
 If you're implementing block drops, just call `LootTable#blockDrop(LootContext, Instance, Point)`. If you're
 implementing entity drops, call `LootTable#drop(LootContext, Instance, Point)`.
 
+TODO: Improve the docs. For now, this might address some concerns:
+
+https://gist.github.com/RealMangorage/d295f217a988dc0f9a996064e54ce6c8
+
 ---
 
 ## Completeness
