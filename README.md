@@ -17,7 +17,7 @@ repositories {
 dependencies {
     implementation 'net.minestom:minestom-snapshots:<version>'
     
-    implementation 'net.goldenstack.trove:<version>'
+    implementation 'net.goldenstack:trove:<version>'
 }
 ```
 Make sure to include Minestom, or else Trove won't work.
