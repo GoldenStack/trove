@@ -23,6 +23,7 @@ import net.minestom.server.entity.*;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.attribute.AttributeModifier;
 import net.minestom.server.entity.attribute.AttributeOperation;
+import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
@@ -525,7 +526,7 @@ public interface LootFunction {
         public static final @NotNull StructCodec<EnchantWithLevels> CODEC = StructCodec.struct(
                 "conditions", LootPredicate.CODEC.list().optional(List.of()), EnchantWithLevels::predicates,
                 "levels", LootNumber.CODEC, EnchantWithLevels::levels,
-                "options", EnchantmentUtils.TAG_LIST, EnchantWithLevels::options,
+                "options", Template.keyOrTag(Registries::enchantment, Tag.BasicType.ENCHANTMENTS).optional(), EnchantWithLevels::options,
                 EnchantWithLevels::new
         );
 

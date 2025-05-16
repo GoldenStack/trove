@@ -1,10 +1,14 @@
 package net.goldenstack.loot.util;
 
 import net.kyori.adventure.key.Key;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.codec.Codec;
 import net.minestom.server.component.DataComponent;
 import net.minestom.server.component.DataComponents;
+import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.item.ItemStack;
+import net.minestom.server.registry.DynamicRegistry;
+import net.minestom.server.registry.Registries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -22,6 +26,24 @@ public class Template {
                     .collect(Collectors.toMap(DataComponent::key, Function.identity()));
 
     public static final @NotNull Codec<DataComponent<List<ItemStack>>> CONTAINER = Codec.KEY.transform(NAMED_CONTAINERS::get, DataComponent::key);
+
+    public static <T> @NotNull Codec<List<DynamicRegistry.Key<T>>> keyOrTag(@NotNull Registries.Selector<T> selector, @NotNull Tag.BasicType type) {
+        return Codec.RegistryKey(selector).list()
+                .orElse(Codec.STRING.transform(string -> {
+                    if (string.startsWith("#")) {
+                        List<DynamicRegistry.Key<T>> values = new ArrayList<>();
+                        MinecraftServer.getTagManager()
+                                .getTag(type, string.substring(1))
+                                .getValues()
+                                .forEach(value -> values.add(DynamicRegistry.Key.of(value)));
+                        return values;
+                    } else {
+                        return List.of(DynamicRegistry.Key.of(string));
+                    }
+                }, ignored -> {
+                    throw new UnsupportedOperationException();
+                }));
+    }
 
     @SafeVarargs
     public static <T> @NotNull Codec<T> constant(@NotNull Function<T, String> name, @NotNull T @NotNull ... entries) {

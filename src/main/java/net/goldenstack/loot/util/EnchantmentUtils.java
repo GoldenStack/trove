@@ -1,49 +1,26 @@
 package net.goldenstack.loot.util;
 
-import net.minestom.server.MinecraftServer;
-import net.minestom.server.codec.Codec;
 import net.minestom.server.component.DataComponent;
 import net.minestom.server.component.DataComponents;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EquipmentSlot;
 import net.minestom.server.entity.LivingEntity;
-import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.component.EnchantmentList;
 import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.registry.DynamicRegistry;
-import net.minestom.server.registry.Registries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-@SuppressWarnings("UnstableApiUsage")
 public class EnchantmentUtils {
 
     private EnchantmentUtils() {
     }
-
-    public static final @NotNull Codec<List<DynamicRegistry.Key<Enchantment>>> TAG_LIST = Codec.RegistryKey(Registries::enchantment).list()
-            .orElse(Codec.STRING.transform(string -> {
-                if (string.startsWith("#")) {
-                    List<DynamicRegistry.Key<Enchantment>> values = new ArrayList<>();
-                    MinecraftServer.getTagManager()
-                            .getTag(Tag.BasicType.ENCHANTMENTS, string.substring(1))
-                            .getValues()
-                            .forEach(value -> values.add(DynamicRegistry.Key.of(value)));
-                    return values;
-                } else {
-                    return List.of(DynamicRegistry.Key.of(string));
-                }
-            }, ignored -> {
-                throw new UnsupportedOperationException();
-            }));
 
     public static int level(@Nullable ItemStack item, @NotNull DynamicRegistry.Key<Enchantment> key) {
         if (item == null) return 0;
