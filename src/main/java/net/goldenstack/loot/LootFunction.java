@@ -141,58 +141,48 @@ public interface LootFunction {
         return newItems;
     }
 
-    // TODO: Incomplete
     record ApplyBonus(@NotNull List<LootPredicate> predicates, @NotNull DynamicRegistry.Key<Enchantment> enchantment, @NotNull Formula formula) implements LootFunction {
-
-//        private static final @NotNull Codec<List<LootPredicate>> PREDICATES = Serial.lazy(() -> LootPredicate.SERIALIZER).list().optional(List.of());
-//        private static final @NotNull BinaryTagSerializer<DynamicRegistry.Key<Enchantment>> KEY = Serial.key();
-
-        // TODO: Incomplete
-        public static final @NotNull StructCodec<ApplyBonus> CODEC = null;
-
-//        public static final @NotNull BinaryTagSerializer<ApplyBonus> SERIALIZER = new BinaryTagSerializer<>() {
-//            @Override
-//            public @NotNull BinaryTag write(@NotNull Context context, @NotNull ApplyBonus value) {
-//                CompoundBinaryTag.Builder nbt = CompoundBinaryTag.builder();
-//                nbt.put("conditions", PREDICATES.write(context, value.predicates()));
-//                nbt.put("enchantment", KEY.write(context, value.enchantment()));
-//
-//                return (switch (value.formula()) {
-//                    case Formula.UniformBonusCount uniform -> nbt
-//                            .put("formula", StringBinaryTag.stringBinaryTag("minecraft:uniform_bonus_count"))
-//                            .put("parameters", Formula.UniformBonusCount.SERIALIZER.write(context, uniform));
-//                    case Formula.OreDrops drops -> nbt
-//                            .put("formula", StringBinaryTag.stringBinaryTag("minecraft:ore_drops"))
-//                            .put("parameters", Formula.OreDrops.SERIALIZER.write(context, drops));
-//                    case Formula.BinomialWithBonusCount binomial -> nbt
-//                            .put("formula", StringBinaryTag.stringBinaryTag("minecraft:binomial_with_bonus_count"))
-//                            .put("parameters", Formula.BinomialWithBonusCount.SERIALIZER.write(context, binomial));
-//                }).build();
-//            }
-//
-//            @SuppressWarnings("DataFlowIssue")
-//            @Override
-//            public @NotNull ApplyBonus read(@NotNull Context context, @NotNull BinaryTag raw) {
-//                if (!(raw instanceof CompoundBinaryTag tag)) throw new IllegalArgumentException("Expected a compound tag");
-//
-//                List<LootPredicate> predicates = PREDICATES.read(context, tag.get("conditions"));
-//                DynamicRegistry.Key<Enchantment> enchantment = KEY.read(context, tag.get("enchantments"));
-//
-//                String type = Codec.STRING.read(context, tag.get("formula"));
-//                BinaryTag parameters = tag.get("parameters");
-//
-//                Formula formula = switch (type) {
-//                    case "minecraft:uniform_bonus_count" -> Formula.UniformBonusCount.SERIALIZER.read(context, parameters);
-//                    case "minecraft:ore_drops" -> Formula.OreDrops.SERIALIZER.read(context, parameters);
-//                    case "minecraft:binomial_with_bonus_count" -> Formula.BinomialWithBonusCount.SERIALIZER.read(context, parameters);
-//                    default -> throw new IllegalArgumentException("Invalid formula '" + type + "'");
-//                };
-//
-//                return new ApplyBonus(predicates, enchantment, formula);
-//            }
-//        };
+        public static final @NotNull StructCodec<ApplyBonus> CODEC = StructCodec.struct(
+                "conditions", LootPredicate.CODEC.list().optional(List.of()), ApplyBonus::predicates,
+                "enchantment", Codec.RegistryKey(Registries::enchantment), ApplyBonus::enchantment,
+                StructCodec.INLINE, Formula.CODEC, ApplyBonus::formula,
+                ApplyBonus::new
+        );
 
         public sealed interface Formula {
+
+            enum FormulaType {
+                BINOMIAL_WITH_BONUS_COUNT,
+                ORE_DROPS,
+                UNIFORM_BONUS_COUNT,
+            }
+
+            record FormulaWrapper(Formula parameters) {
+                private static <T extends Formula> StructCodec<FormulaWrapper> wrap(@NotNull StructCodec<T> codec) {
+                    return StructCodec.struct(
+                            "parameters", codec.transform(a->a,a->(T)a), FormulaWrapper::parameters,
+                            FormulaWrapper::new
+                    );
+                }
+
+                private static final StructCodec<FormulaWrapper> BINOMIAL_WITH_BONUS_COUNT = wrap(BinomialWithBonusCount.CODEC);
+                private static final StructCodec<FormulaWrapper> ORE_DROPS = wrap(OreDrops.CODEC);
+                private static final StructCodec<FormulaWrapper> UNIFORM_BONUS_COUNT = wrap(UniformBonusCount.CODEC);
+
+                public static @NotNull StructCodec<FormulaWrapper> codec(@NotNull FormulaType type) {
+                    return switch (type) {
+                        case BINOMIAL_WITH_BONUS_COUNT -> BINOMIAL_WITH_BONUS_COUNT;
+                        case ORE_DROPS -> ORE_DROPS;
+                        case UNIFORM_BONUS_COUNT -> UNIFORM_BONUS_COUNT;
+                    };
+                }
+            }
+
+            @NotNull Codec<Formula> CODEC = Codec.Enum(FormulaType.class).unionType("formula", FormulaWrapper::codec, (FormulaWrapper formula) -> switch (formula.parameters()) {
+                case BinomialWithBonusCount ignored -> FormulaType.BINOMIAL_WITH_BONUS_COUNT;
+                case OreDrops ignored -> FormulaType.ORE_DROPS;
+                case UniformBonusCount ignored -> FormulaType.UNIFORM_BONUS_COUNT;
+            }).transform(FormulaWrapper::parameters, FormulaWrapper::new);
 
             int calculate(@NotNull Random random, int count, int level);
 
@@ -220,7 +210,7 @@ public interface LootFunction {
             }
 
             record BinomialWithBonusCount(float probability, int extra) implements Formula {
-                public static final @NotNull StructCodec<BinomialWithBonusCount> CODC = StructCodec.struct(
+                public static final @NotNull StructCodec<BinomialWithBonusCount> CODEC = StructCodec.struct(
                         "probability", Codec.FLOAT, BinomialWithBonusCount::probability,
                         "extra", Codec.INT, BinomialWithBonusCount::extra,
                         BinomialWithBonusCount::new
