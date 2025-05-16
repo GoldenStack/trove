@@ -222,7 +222,7 @@ public interface LootFunction {
                 public int calculate(@NotNull Random random, int count, int level) {
                     if (level <= 0) return count;
 
-                    return count * Math.min(1, random.nextInt(level + 2));
+                    return count * Math.max(1, random.nextInt(level + 2));
                 }
             }
 
