@@ -12,7 +12,9 @@ import net.kyori.adventure.util.RGBLike;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerFlag;
 import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.Result;
 import net.minestom.server.codec.StructCodec;
+import net.minestom.server.codec.Transcoder;
 import net.minestom.server.color.Color;
 import net.minestom.server.component.DataComponent;
 import net.minestom.server.component.DataComponentMap;
@@ -141,7 +143,7 @@ public interface LootFunction {
         return newItems;
     }
 
-    record ApplyBonus(@NotNull List<LootPredicate> predicates, @NotNull DynamicRegistry.Key<Enchantment> enchantment, @NotNull Formula formula) implements LootFunction {
+    record ApplyBonus(@NotNull List<LootPredicate> predicates, @NotNull DynamicRegistry.Key<Enchantment> enchantment, @NotNull Formula.Wrapper formula) implements LootFunction {
         public static final @NotNull StructCodec<ApplyBonus> CODEC = StructCodec.struct(
                 "conditions", LootPredicate.CODEC.list().optional(List.of()), ApplyBonus::predicates,
                 "enchantment", Codec.RegistryKey(Registries::enchantment), ApplyBonus::enchantment,
@@ -157,19 +159,29 @@ public interface LootFunction {
                 UNIFORM_BONUS_COUNT,
             }
 
-            record FormulaWrapper(Formula parameters) {
-                private static <T extends Formula> StructCodec<FormulaWrapper> wrap(@NotNull StructCodec<T> codec) {
+            record Wrapper(Formula parameters) {
+                private static <T extends Formula> StructCodec<Wrapper> wrap(@NotNull StructCodec<T> codec) {
                     return StructCodec.struct(
-                            "parameters", codec.transform(a->a,a->(T)a), FormulaWrapper::parameters,
-                            FormulaWrapper::new
+                            "parameters", codec.transform(a->a,a->(T)a), Wrapper::parameters,
+                            Wrapper::new
                     );
                 }
 
-                private static final StructCodec<FormulaWrapper> BINOMIAL_WITH_BONUS_COUNT = wrap(BinomialWithBonusCount.CODEC);
-                private static final StructCodec<FormulaWrapper> ORE_DROPS = wrap(OreDrops.CODEC);
-                private static final StructCodec<FormulaWrapper> UNIFORM_BONUS_COUNT = wrap(UniformBonusCount.CODEC);
+                private static final StructCodec<Wrapper> BINOMIAL_WITH_BONUS_COUNT = wrap(BinomialWithBonusCount.CODEC);
+                private static final StructCodec<Wrapper> ORE_DROPS = new StructCodec<>() {
+                    @Override
+                    public @NotNull <D> Result<Wrapper> decodeFromMap(@NotNull Transcoder<D> coder, Transcoder.@NotNull MapLike<D> map) {
+                        return new Result.Ok<>(new Wrapper(new OreDrops()));
+                    }
 
-                public static @NotNull StructCodec<FormulaWrapper> codec(@NotNull FormulaType type) {
+                    @Override
+                    public @NotNull <D> Result<D> encodeToMap(@NotNull Transcoder<D> coder, @NotNull Wrapper value, Transcoder.@NotNull MapBuilder<D> map) {
+                        return new Result.Ok<>(map.build());
+                    }
+                };
+                private static final StructCodec<Wrapper> UNIFORM_BONUS_COUNT = wrap(UniformBonusCount.CODEC);
+
+                public static @NotNull StructCodec<Wrapper> codec(@NotNull FormulaType type) {
                     return switch (type) {
                         case BINOMIAL_WITH_BONUS_COUNT -> BINOMIAL_WITH_BONUS_COUNT;
                         case ORE_DROPS -> ORE_DROPS;
@@ -178,11 +190,16 @@ public interface LootFunction {
                 }
             }
 
-            @NotNull Codec<Formula> CODEC = Codec.Enum(FormulaType.class).unionType("formula", FormulaWrapper::codec, (FormulaWrapper formula) -> switch (formula.parameters()) {
+            @NotNull Codec<Wrapper> CODEC = Codec.KEY.transform(key -> switch (key.asString()) {
+                case "minecraft:binomial_with_bonus_count" -> FormulaType.BINOMIAL_WITH_BONUS_COUNT;
+                case "minecraft:ore_drops" -> FormulaType.ORE_DROPS;
+                case "minecraft:uniform_bonus_count" -> FormulaType.UNIFORM_BONUS_COUNT;
+                default -> throw new IllegalArgumentException();
+            }, type -> Key.key(type.toString().toLowerCase())).unionType("formula", Wrapper::codec, (Wrapper formula) -> switch (formula.parameters()) {
                 case BinomialWithBonusCount ignored -> FormulaType.BINOMIAL_WITH_BONUS_COUNT;
                 case OreDrops ignored -> FormulaType.ORE_DROPS;
                 case UniformBonusCount ignored -> FormulaType.UNIFORM_BONUS_COUNT;
-            }).transform(FormulaWrapper::parameters, FormulaWrapper::new);
+            });
 
             int calculate(@NotNull Random random, int count, int level);
 
@@ -236,7 +253,7 @@ public interface LootFunction {
             if (tool == null) return input;
 
             int level = EnchantmentUtils.level(tool, enchantment);
-            int newCount = formula.calculate(context.require(LootContext.RANDOM), input.amount(), level);
+            int newCount = formula.parameters().calculate(context.require(LootContext.RANDOM), input.amount(), level);
 
             return input.withAmount(newCount);
         }
