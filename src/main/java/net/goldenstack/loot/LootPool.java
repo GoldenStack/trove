@@ -25,10 +25,10 @@ public record LootPool(@NotNull LootNumber rolls,
     @SuppressWarnings("UnstableApiUsage")
     public static final @NotNull StructCodec<LootPool> CODEC = StructCodec.struct(
             "rolls", LootNumber.CODEC, LootPool::rolls,
-            "bonus_rolls", LootNumber.CODEC, LootPool::bonusRolls,
+            "bonus_rolls", LootNumber.CODEC.optional(new LootNumber.Constant(0D)), LootPool::bonusRolls,
             "entries", LootEntry.CODEC.list(), LootPool::entries,
-            "conditions", LootPredicate.CODEC.list(), LootPool::predicates,
-            "functions", LootFunction.CODEC.list(), LootPool::functions,
+            "conditions", LootPredicate.CODEC.list().optional(List.of()), LootPool::predicates,
+            "functions", LootFunction.CODEC.list().optional(List.of()), LootPool::functions,
             LootPool::new
     );
 

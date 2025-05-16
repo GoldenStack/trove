@@ -22,8 +22,8 @@ public record LootTable(@NotNull List<LootPool> pools, @NotNull List<LootFunctio
 
     @SuppressWarnings("UnstableApiUsage")
     public static final @NotNull StructCodec<LootTable> CODEC = StructCodec.struct(
-            "pools", LootPool.CODEC.list(), LootTable::pools,
-            "functions", LootFunction.CODEC.list(), LootTable::functions,
+            "pools", LootPool.CODEC.list().optional(List.of()), LootTable::pools,
+            "functions", LootFunction.CODEC.list().optional(List.of()), LootTable::functions,
             "random_sequence", Codec.KEY.optional(), LootTable::randomSequence,
             LootTable::new
     );
