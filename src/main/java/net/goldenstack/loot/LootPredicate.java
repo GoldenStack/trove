@@ -13,6 +13,7 @@ import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.Weather;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.instance.block.predicate.BlockPredicate;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.item.enchant.LevelBasedValue;
