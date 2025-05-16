@@ -1,9 +1,9 @@
 package net.goldenstack.loot;
 
-import net.goldenstack.loot.util.Template;
+import net.kyori.adventure.key.Key;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.utils.NamespaceID;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,15 +16,15 @@ import java.util.List;
  * @param functions the functions applied to each output item of this table
  * @param randomSequence An ID specifying the name of the random sequence that is used to generate loot from this loot table.
  */
-public record LootTable(@NotNull List<LootPool> pools, @NotNull List<LootFunction> functions, @Nullable NamespaceID randomSequence) implements LootGenerator {
+public record LootTable(@NotNull List<LootPool> pools, @NotNull List<LootFunction> functions, @Nullable Key randomSequence) implements LootGenerator {
 
     public static final @NotNull LootTable EMPTY = new LootTable(List.of(), List.of(), null);
 
     @SuppressWarnings("UnstableApiUsage")
-    public static final @NotNull BinaryTagSerializer<LootTable> SERIALIZER = Template.template(
-            "pools", LootPool.SERIALIZER.list(), LootTable::pools,
-            "functions", LootFunction.SERIALIZER.list(), LootTable::functions,
-            "random_sequence", Template.template(() -> null), LootTable::randomSequence,
+    public static final @NotNull StructCodec<LootTable> CODEC = StructCodec.struct(
+            "pools", LootPool.CODEC.list(), LootTable::pools,
+            "functions", LootFunction.CODEC.list(), LootTable::functions,
+            "random_sequence", Codec.KEY.optional(), LootTable::randomSequence,
             LootTable::new
     );
 

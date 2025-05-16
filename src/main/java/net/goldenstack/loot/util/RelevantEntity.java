@@ -1,8 +1,8 @@
 package net.goldenstack.loot.util;
 
 import net.goldenstack.loot.LootContext;
+import net.minestom.server.codec.Codec;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 
 public enum RelevantEntity {
@@ -12,7 +12,7 @@ public enum RelevantEntity {
     LAST_PLAYER_DAMAGE("killer_player", LootContext.LAST_DAMAGE_PLAYER);
 
     @SuppressWarnings("UnstableApiUsage")
-    public static final BinaryTagSerializer<RelevantEntity> SERIALIZER = Template.constant(RelevantEntity::id, RelevantEntity.values());
+    public static final @NotNull Codec<RelevantEntity> CODEC = Codec.Enum(RelevantEntity.class); // Relies on the enum names themselves being accurate
 
     private final @NotNull String id;
     private final @NotNull LootContext.Key<? extends Entity> key;

@@ -1,8 +1,10 @@
 package net.goldenstack.loot;
 
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.TagStringIOExt;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.codec.Transcoder;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
@@ -10,8 +12,7 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.ItemEntity;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.utils.NamespaceID;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
+import net.minestom.server.registry.RegistryTranscoder;
 import net.minestom.server.utils.time.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,8 +37,8 @@ public class Trove {
      * @return the registry instance that contains parsing information
      */
     @SuppressWarnings("UnstableApiUsage")
-    public static @NotNull Map<NamespaceID, LootTable> readTables(@NotNull Path directory) {
-        Map<NamespaceID, LootTable> tables = new HashMap<>();
+    public static @NotNull Map<Key, LootTable> readTables(@NotNull Path directory) {
+        Map<Key, LootTable> tables = new HashMap<>();
 
         final String FILE_SUFFIX = ".json";
 
@@ -48,6 +49,8 @@ public class Trove {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        final Transcoder<BinaryTag> coder = new RegistryTranscoder<>(Transcoder.NBT, MinecraftServer.process());
 
         for (var path : files) {
 
@@ -64,8 +67,8 @@ public class Trove {
             }
 
             tables.put(
-                    NamespaceID.from(keyPath),
-                    LootTable.SERIALIZER.read(new BinaryTagSerializer.ContextWithRegistries(MinecraftServer.process()), tag)
+                    Key.key(keyPath),
+                    LootTable.CODEC.decode(coder, tag).orElseThrow("parsing " + path)
             );
         }
 

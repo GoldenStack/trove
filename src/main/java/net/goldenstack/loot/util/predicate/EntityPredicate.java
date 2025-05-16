@@ -1,19 +1,19 @@
 package net.goldenstack.loot.util.predicate;
 
-import net.goldenstack.loot.util.Template;
+import net.minestom.server.codec.Codec;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
+import net.minestom.server.utils.Unit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.atomic.AtomicReference;
+// TODO: Incomplete
 
+@SuppressWarnings("UnstableApiUsage")
 public interface EntityPredicate {
 
-    @SuppressWarnings("UnstableApiUsage")
-    @NotNull AtomicReference<BinaryTagSerializer<EntityPredicate>> SERIALIZER = new AtomicReference<>(Template.template(() -> (instance, pos, entity) -> false));
+    @NotNull Codec<EntityPredicate> CODEC = Codec.UNIT.transform(a -> (instance, pos, entity) -> false, a -> Unit.INSTANCE);
 
     boolean test(@NotNull Instance instance, @Nullable Point pos, @Nullable Entity entity);
 

@@ -2,7 +2,8 @@ package net.goldenstack.loot.util;
 
 import net.goldenstack.loot.LootContext;
 import net.goldenstack.loot.LootNumber;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,16 +14,17 @@ import org.jetbrains.annotations.Nullable;
  */
 public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max) {
 
-    @SuppressWarnings({"DataFlowIssue", "UnstableApiUsage"})
-    public static final @NotNull BinaryTagSerializer<LootNumberRange> SERIALIZER = Template.compoundSplit(
-            Serial.DOUBLE.map(d -> new LootNumberRange(new LootNumber.Constant(d), new LootNumber.Constant(d)), null)
-                    .optional(new LootNumberRange(null, null)),
-            Template.template(
-                    "min", LootNumber.SERIALIZER.optional(), LootNumberRange::min,
-                    "max", LootNumber.SERIALIZER.optional(), LootNumberRange::max,
+    @SuppressWarnings({"UnstableApiUsage", "NumberEquality"})
+    public static final @NotNull Codec<LootNumberRange> CODEC = Codec.DOUBLE.transform(LootNumber.Constant::new, LootNumber.Constant::value)
+            .transform(n -> new LootNumberRange(n, n), r -> {
+                if (r.min() instanceof LootNumber.Constant(Double min) && r.max() instanceof LootNumber.Constant(Double max) && min == max) {
+                    return (LootNumber.Constant) r.min();
+                } else throw new UnsupportedOperationException("Using struct codec");
+            }).orElse(StructCodec.struct(
+                    "min", LootNumber.CODEC, LootNumberRange::min,
+                    "max", LootNumber.CODEC, LootNumberRange::max,
                     LootNumberRange::new
-            ).optional(new LootNumberRange(null, null))
-    );
+            ));
 
     /**
      * Limits the provided value to between the minimum and maximum.<br>

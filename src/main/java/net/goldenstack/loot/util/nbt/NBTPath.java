@@ -2,7 +2,7 @@ package net.goldenstack.loot.util.nbt;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.kyori.adventure.nbt.*;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
+import net.minestom.server.codec.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public record NBTPath(@NotNull List<Selector> selectors) {
 
     @SuppressWarnings("UnstableApiUsage")
-    public static final @NotNull BinaryTagSerializer<NBTPath> SERIALIZER = Parser.SERIALIZER;
+    public static final @NotNull Codec<NBTPath> CODEC = Parser.CODEC;
 
     /**
      * Selects an arbitrary number of elements from provided NBT.
@@ -302,7 +302,7 @@ class Parser {
     static final @NotNull IntSet VALID_INTEGER_CHARACTERS = IntSet.of('-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
     static final @NotNull IntSet INVALID_UNQUOTED_CHARACTERS = IntSet.of(-1, '.', '\'', '\"', '{', '}', '[', ']');
 
-    static final BinaryTagSerializer<NBTPath> SERIALIZER = BinaryTagSerializer.STRING.map(s -> {
+    static final Codec<NBTPath> CODEC = Codec.STRING.transform(s -> {
         try {
             return readPath(new StringReader(s));
         } catch (IOException e) {

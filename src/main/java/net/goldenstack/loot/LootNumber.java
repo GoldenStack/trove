@@ -1,15 +1,15 @@
 package net.goldenstack.loot;
 
-import net.goldenstack.loot.util.Serial;
-import net.goldenstack.loot.util.Template;
 import net.goldenstack.loot.util.nbt.NBTPath;
 import net.goldenstack.loot.util.nbt.NBTReference;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.IntBinaryTag;
 import net.kyori.adventure.nbt.NumberBinaryTag;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 import net.minestom.server.item.enchant.LevelBasedValue;
-import net.minestom.server.utils.NamespaceID;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
+import net.minestom.server.registry.DynamicRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -20,18 +20,24 @@ import java.util.Random;
  */
 @SuppressWarnings("UnstableApiUsage")
 public interface LootNumber {
+    
+    @NotNull Codec<LootNumber> CODEC = Codec.DOUBLE.<LootNumber>transform(Constant::new, a -> ((Constant) a).value()).orElse(Codec.RegistryTaggedUnion(registries -> {
+        class Holder {
+            static final @NotNull DynamicRegistry<StructCodec<? extends LootNumber>> CODEC = createDefaultRegistry();
+        }
+        return Holder.CODEC;
+    }, LootNumber::codec, "type"));
 
-    @NotNull BinaryTagSerializer<LootNumber> SERIALIZER = Template.compoundSplit(
-            Serial.DOUBLE.map(Constant::new, Constant::value),
-            Template.registry("type",
-                    Template.entry("constant", Constant.class, Constant.SERIALIZER),
-                    Template.entry("uniform", Uniform.class, Uniform.SERIALIZER),
-                    Template.entry("binomial", Binomial.class, Binomial.SERIALIZER),
-                    Template.entry("score", Score.class, Score.SERIALIZER),
-                    Template.entry("storage", Storage.class, Storage.SERIALIZER),
-                    Template.entry("enchantment_level", EnchantmentLevel.class, EnchantmentLevel.SERIALIZER)
-            )
-    );
+    static @NotNull DynamicRegistry<StructCodec<? extends LootNumber>> createDefaultRegistry() {
+        final DynamicRegistry<StructCodec<? extends LootNumber>> registry = DynamicRegistry.create("minecraft:loot_numbers");
+        registry.register("binomial", Binomial.CODEC);
+        registry.register("constant", Constant.CODEC);
+        registry.register("enchantment_level", EnchantmentLevel.CODEC);
+        registry.register("score", Score.CODEC);
+        registry.register("storage", Storage.CODEC);
+        registry.register("uniform", Uniform.CODEC);
+        return registry;
+    }
 
     /**
      * Generates an integer depending on the information in the provided context.<br>
@@ -49,48 +55,15 @@ public interface LootNumber {
      */
     double getDouble(@NotNull LootContext context);
 
-    record Constant(@NotNull Double value) implements LootNumber {
-
-        public static final @NotNull BinaryTagSerializer<Constant> SERIALIZER = Template.template(
-                "value", Serial.DOUBLE, Constant::value,
-                Constant::new
-        );
-
-        @Override
-        public int getInt(@NotNull LootContext context) {
-            return value.intValue();
-        }
-
-        @Override
-        public double getDouble(@NotNull LootContext context) {
-            return value;
-        }
-    }
-
-    record Uniform(@NotNull LootNumber min, @NotNull LootNumber max) implements LootNumber {
-
-        public static final @NotNull BinaryTagSerializer<Uniform> SERIALIZER = Template.template(
-                "min", Serial.lazy(() -> LootNumber.SERIALIZER), Uniform::min,
-                "max", Serial.lazy(() -> LootNumber.SERIALIZER), Uniform::max,
-                Uniform::new
-        );
-
-        @Override
-        public int getInt(@NotNull LootContext context) {
-            return context.require(LootContext.RANDOM).nextInt(min().getInt(context), max().getInt(context) + 1);
-        }
-
-        @Override
-        public double getDouble(@NotNull LootContext context) {
-            return context.require(LootContext.RANDOM).nextDouble(min().getDouble(context), max().getDouble(context));
-        }
-    }
+    /**
+     * @return the codec that can encode this number
+     */
+    @NotNull StructCodec<? extends LootNumber> codec();
 
     record Binomial(@NotNull LootNumber trials, @NotNull LootNumber probability) implements LootNumber {
-
-        public static final @NotNull BinaryTagSerializer<Binomial> SERIALIZER = Template.template(
-                "n", Serial.lazy(() -> LootNumber.SERIALIZER), Binomial::trials,
-                "p", Serial.lazy(() -> LootNumber.SERIALIZER), Binomial::probability,
+        public static final @NotNull StructCodec<Binomial> CODEC = StructCodec.struct(
+                "n", LootNumber.CODEC, Binomial::trials,
+                "p", LootNumber.CODEC, Binomial::probability,
                 Binomial::new
         );
 
@@ -113,12 +86,38 @@ public interface LootNumber {
         public double getDouble(@NotNull LootContext context) {
             return getInt(context);
         }
+
+        @Override
+        public @NotNull StructCodec<? extends LootNumber> codec() {
+            return CODEC;
+        }
+    }
+
+    record Constant(@NotNull Double value) implements LootNumber {
+        public static final @NotNull StructCodec<Constant> CODEC = StructCodec.struct(
+                "value", Codec.DOUBLE, Constant::value,
+                Constant::new
+        );
+
+        @Override
+        public int getInt(@NotNull LootContext context) {
+            return value.intValue();
+        }
+
+        @Override
+        public double getDouble(@NotNull LootContext context) {
+            return value;
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootNumber> codec() {
+            return CODEC;
+        }
     }
 
     record EnchantmentLevel(@NotNull LevelBasedValue amount) implements LootNumber {
-
-        public static final @NotNull BinaryTagSerializer<EnchantmentLevel> SERIALIZER = Template.template(
-                "amount", LevelBasedValue.NBT_TYPE, EnchantmentLevel::amount,
+        public static final @NotNull StructCodec<EnchantmentLevel> CODEC = StructCodec.struct(
+                "amount", LevelBasedValue.CODEC, EnchantmentLevel::amount,
                 EnchantmentLevel::new
         );
 
@@ -131,14 +130,18 @@ public interface LootNumber {
         public double getDouble(@NotNull LootContext context) {
             return amount.calc(context.require(LootContext.ENCHANTMENT_LEVEL));
         }
-    }
-    
-    record Score(@NotNull LootScore target, @NotNull String objective, double scale) implements LootNumber {
 
-        public static final @NotNull BinaryTagSerializer<Score> SERIALIZER = Template.template(
-                "target", LootScore.SERIALIZER, Score::target,
-                "score", BinaryTagSerializer.STRING, Score::objective,
-                "scale", Serial.DOUBLE, Score::scale,
+        @Override
+        public @NotNull StructCodec<? extends LootNumber> codec() {
+            return CODEC;
+        }
+    }
+
+    record Score(@NotNull LootScore target, @NotNull String objective, double scale) implements LootNumber {
+        public static final @NotNull StructCodec<Score> CODEC = StructCodec.struct(
+                "target", LootScore.CODEC, Score::target,
+                "score", Codec.STRING, Score::objective,
+                "scale", Codec.DOUBLE, Score::scale,
                 Score::new
         );
 
@@ -153,13 +156,17 @@ public interface LootNumber {
 
             return score != null ? score * scale : 0;
         }
+
+        @Override
+        public @NotNull StructCodec<? extends LootNumber> codec() {
+            return CODEC;
+        }
     }
 
-    record Storage(@NotNull NamespaceID storage, @NotNull NBTPath path) implements LootNumber {
-
-        public static final @NotNull BinaryTagSerializer<Storage> SERIALIZER = Template.template(
-                "storage", Serial.KEY, Storage::storage,
-                "path", NBTPath.SERIALIZER, Storage::path,
+    record Storage(@NotNull Key storage, @NotNull NBTPath path) implements LootNumber {
+        public static final @NotNull StructCodec<Storage> CODEC = StructCodec.struct(
+                "storage", Codec.KEY, Storage::storage,
+                "path", NBTPath.CODEC, Storage::path,
                 Storage::new
         );
 
@@ -184,6 +191,34 @@ public interface LootNumber {
             } else {
                 return IntBinaryTag.intBinaryTag(0);
             }
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootNumber> codec() {
+            return CODEC;
+        }
+    }
+
+    record Uniform(@NotNull LootNumber min, @NotNull LootNumber max) implements LootNumber {
+        public static final @NotNull StructCodec<Uniform> CODEC = StructCodec.struct(
+                "min", LootNumber.CODEC, Uniform::min,
+                "max", LootNumber.CODEC, Uniform::max,
+                Uniform::new
+        );
+
+        @Override
+        public int getInt(@NotNull LootContext context) {
+            return context.require(LootContext.RANDOM).nextInt(min().getInt(context), max().getInt(context) + 1);
+        }
+
+        @Override
+        public double getDouble(@NotNull LootContext context) {
+            return context.require(LootContext.RANDOM).nextDouble(min().getDouble(context), max().getDouble(context));
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootNumber> codec() {
+            return CODEC;
         }
     }
 

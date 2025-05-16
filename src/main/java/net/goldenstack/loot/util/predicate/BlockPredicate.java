@@ -1,11 +1,8 @@
 package net.goldenstack.loot.util.predicate;
 
-import net.goldenstack.loot.util.Serial;
-import net.goldenstack.loot.util.Template;
-import net.kyori.adventure.nbt.BinaryTag;
-import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 import net.minestom.server.instance.block.Block;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,33 +13,18 @@ import java.util.function.Predicate;
 @SuppressWarnings("UnstableApiUsage")
 public record BlockPredicate(@NotNull Map<String, PropertyPredicate> checks) implements Predicate<@NotNull Block> {
 
-    public static final @NotNull BinaryTagSerializer<BlockPredicate> SERIALIZER = Serial.map(PropertyPredicate.SERIALIZER)
-            .map(BlockPredicate::new, BlockPredicate::checks)
+    public static final @NotNull Codec<BlockPredicate> CODEC = Codec.STRING.mapValue(PropertyPredicate.CODEC)
+            .transform(BlockPredicate::new, BlockPredicate::checks)
             .optional(new BlockPredicate(Map.of()));
 
     public sealed interface PropertyPredicate extends BiPredicate<@NotNull Block, @NotNull String> {
 
-        @NotNull BinaryTagSerializer<PropertyPredicate> SERIALIZER = new BinaryTagSerializer<>() {
-            @Override
-            public @NotNull BinaryTag write(@NotNull Context context, @NotNull PropertyPredicate value) {
-                return switch (value) {
-                    case Literal lit -> Literal.SERIALIZER.write(context, lit);
-                    case Range range -> Range.SERIALIZER.write(context, range);
-                };
-            }
-
-            @Override
-            public @NotNull PropertyPredicate read(@NotNull Context context, @NotNull BinaryTag tag) {
-                return switch (tag) {
-                    case CompoundBinaryTag ignored -> Range.SERIALIZER.read(context, tag);
-                    default -> Literal.SERIALIZER.read(context, tag);
-                };
-            }
-        };
+        @NotNull Codec<PropertyPredicate> CODEC = Literal.CODEC.transform(a->(PropertyPredicate)a,a->(Literal)a)
+                .orElse(Range.CODEC.transform(a->a, a->(Range)a));
 
         record Literal(@NotNull String value) implements PropertyPredicate {
 
-            public static final @NotNull BinaryTagSerializer<Literal> SERIALIZER = BinaryTagSerializer.STRING.map(Literal::new, Literal::value);
+            public static final @NotNull Codec<Literal> CODEC = Codec.STRING.transform(Literal::new, Literal::value);
 
             @Override
             public boolean test(@NotNull Block block, @NotNull String key) {
@@ -52,9 +34,9 @@ public record BlockPredicate(@NotNull Map<String, PropertyPredicate> checks) imp
 
         record Range(@Nullable Long min, @Nullable Long max) implements PropertyPredicate {
 
-            public static final @NotNull BinaryTagSerializer<Range> SERIALIZER = Template.template(
-                    "min", Serial.LONG.optional(), Range::min,
-                    "max", Serial.LONG.optional(), Range::max,
+            public static final @NotNull StructCodec<Range> CODEC = StructCodec.struct(
+                    "min", Codec.LONG.optional(), Range::min,
+                    "max", Codec.LONG.optional(), Range::max,
                     Range::new
             );
 

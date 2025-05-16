@@ -1,16 +1,16 @@
 package net.goldenstack.loot;
 
 import net.goldenstack.loot.util.RelevantEntity;
-import net.goldenstack.loot.util.Serial;
-import net.goldenstack.loot.util.Template;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.IntBinaryTag;
 import net.kyori.adventure.nbt.StringBinaryTag;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.instance.block.Block;
-import net.minestom.server.utils.NamespaceID;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
+import net.minestom.server.registry.DynamicRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,13 +22,22 @@ import java.util.Map;
 @SuppressWarnings("UnstableApiUsage")
 public interface LootNBT {
 
-    @NotNull BinaryTagSerializer<LootNBT> SERIALIZER = Template.compoundSplit(
-            BinaryTagSerializer.STRING.map(Context.Target::fromString, Context.Target::toString).map(Context::new, Context::target),
-            Template.registry("type",
-                    Template.entry("context", Context.class, Context.SERIALIZER),
-                    Template.entry("storage", Storage.class, Storage.SERIALIZER)
-            )
-    );
+    @NotNull Codec<LootNBT> CODEC = Codec.RegistryTaggedUnion(registries -> {
+        class Holder {
+            static final @NotNull DynamicRegistry<StructCodec<? extends LootNBT>> CODEC = createDefaultRegistry();
+        }
+        return Holder.CODEC;
+    }, LootNBT::codec, "type").orElse(Codec.STRING.transform(
+            str -> new Context(Context.Target.fromString(str)),
+            nbt -> ((Context) nbt).target.toString()
+    ));
+
+    static @NotNull DynamicRegistry<StructCodec<? extends LootNBT>> createDefaultRegistry() {
+        final DynamicRegistry<StructCodec<? extends LootNBT>> registry = DynamicRegistry.create("minecraft:loot_nbt");
+        registry.register("context", Context.CODEC);
+        registry.register("storage", Storage.CODEC);
+        return registry;
+    }
 
     /**
      * Generates some NBT based on the provided context.
@@ -37,10 +46,14 @@ public interface LootNBT {
      */
     @Nullable BinaryTag getNBT(@NotNull LootContext context);
 
-    record Storage(@NotNull NamespaceID source) implements LootNBT {
+    /**
+     * @return the codec that can encode this function
+     */
+    @NotNull StructCodec<? extends LootNBT> codec();
 
-        public static final @NotNull BinaryTagSerializer<Storage> SERIALIZER = Template.template(
-                "source", Serial.KEY, Storage::source,
+    record Storage(@NotNull Key source) implements LootNBT {
+        public static final @NotNull StructCodec<Storage> CODEC = StructCodec.struct(
+                "source", Codec.KEY, Storage::source,
                 Storage::new
         );
 
@@ -48,12 +61,16 @@ public interface LootNBT {
         public @Nullable BinaryTag getNBT(@NotNull LootContext context) {
             return context.vanilla().commandStorage(source);
         }
+
+        @Override
+        public @NotNull StructCodec<? extends LootNBT> codec() {
+            return CODEC;
+        }
     }
 
     record Context(@NotNull Target target) implements LootNBT {
-
-        public static final @NotNull BinaryTagSerializer<Context> SERIALIZER = Template.template(
-                "target", BinaryTagSerializer.STRING.map(Context.Target::fromString, Context.Target::toString), Context::target,
+        public static final @NotNull StructCodec<Context> CODEC = StructCodec.struct(
+                "target", Codec.STRING.transform(Context.Target::fromString, Context.Target::toString), Context::target,
                 Context::new
         );
 
@@ -83,7 +100,7 @@ public interface LootNBT {
                             "x", IntBinaryTag.intBinaryTag(pos.blockX()),
                             "y", IntBinaryTag.intBinaryTag(pos.blockY()),
                             "z", IntBinaryTag.intBinaryTag(pos.blockZ()),
-                            "id", StringBinaryTag.stringBinaryTag(block.namespace().asString())
+                            "id", StringBinaryTag.stringBinaryTag(block.key().asString())
                     ));
                 }
 
@@ -111,6 +128,11 @@ public interface LootNBT {
         @Override
         public @Nullable BinaryTag getNBT(@NotNull LootContext context) {
             return target.getNBT(context);
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootNBT> codec() {
+            return CODEC;
         }
     }
 

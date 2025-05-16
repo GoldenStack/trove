@@ -1,8 +1,7 @@
 package net.goldenstack.loot;
 
-import net.goldenstack.loot.util.Template;
+import net.minestom.server.codec.StructCodec;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,12 +23,12 @@ public record LootPool(@NotNull LootNumber rolls,
                        @NotNull List<LootFunction> functions) implements LootGenerator {
 
     @SuppressWarnings("UnstableApiUsage")
-    public static final @NotNull BinaryTagSerializer<LootPool> SERIALIZER = Template.template(
-            "rolls", LootNumber.SERIALIZER, LootPool::rolls,
-            "bonus_rolls", LootNumber.SERIALIZER, LootPool::bonusRolls,
-            "entries", LootEntry.SERIALIZER.list(), LootPool::entries,
-            "conditions", LootPredicate.SERIALIZER.list(), LootPool::predicates,
-            "functions", LootFunction.SERIALIZER.list(), LootPool::functions,
+    public static final @NotNull StructCodec<LootPool> CODEC = StructCodec.struct(
+            "rolls", LootNumber.CODEC, LootPool::rolls,
+            "bonus_rolls", LootNumber.CODEC, LootPool::bonusRolls,
+            "entries", LootEntry.CODEC.list(), LootPool::entries,
+            "conditions", LootPredicate.CODEC.list(), LootPool::predicates,
+            "functions", LootFunction.CODEC.list(), LootPool::functions,
             LootPool::new
     );
 

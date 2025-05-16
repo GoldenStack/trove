@@ -1,7 +1,7 @@
 package net.goldenstack.loot.util;
 
 import net.goldenstack.loot.LootContext;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
+import net.minestom.server.codec.Codec;
 import org.jetbrains.annotations.NotNull;
 
 public enum RelevantTarget {
@@ -11,7 +11,7 @@ public enum RelevantTarget {
     BLOCK_ENTITY("block_entity", LootContext.BLOCK_STATE);
 
     @SuppressWarnings("UnstableApiUsage")
-    public static final BinaryTagSerializer<RelevantTarget> SERIALIZER = Template.constant(RelevantTarget::id, RelevantTarget.values());
+    public static final Codec<RelevantTarget> CODEC = Codec.Enum(RelevantTarget.class); // Relies on the enum names themselves being accurate
 
     private final @NotNull String id;
     private final @NotNull LootContext.Key<?> key;

@@ -1,7 +1,12 @@
 package net.goldenstack.loot;
 
-import net.goldenstack.loot.util.*;
+import net.goldenstack.loot.util.EnchantmentUtils;
+import net.goldenstack.loot.util.LootNumberRange;
+import net.goldenstack.loot.util.RelevantEntity;
 import net.goldenstack.loot.util.predicate.*;
+import net.kyori.adventure.key.Key;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.damage.DamageType;
@@ -12,8 +17,7 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.item.enchant.LevelBasedValue;
 import net.minestom.server.registry.DynamicRegistry;
-import net.minestom.server.utils.NamespaceID;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
+import net.minestom.server.registry.Registries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,27 +31,36 @@ import java.util.function.Predicate;
 @SuppressWarnings("UnstableApiUsage")
 public interface LootPredicate extends Predicate<@NotNull LootContext> {
 
-    @NotNull BinaryTagSerializer<LootPredicate> SERIALIZER = Template.registry("condition",
-            Template.entry("all_of", AllOf.class, AllOf.SERIALIZER),
-            Template.entry("any_of", AnyOf.class, AnyOf.SERIALIZER),
-            Template.entry("block_state_property", BlockStateProperty.class, BlockStateProperty.SERIALIZER),
-            Template.entry("damage_source_properties", DamageSourceProperties.class, DamageSourceProperties.SERIALIZER),
-            Template.entry("enchantment_active_check", EnchantmentActiveCheck.class, EnchantmentActiveCheck.SERIALIZER),
-            Template.entry("entity_properties", EntityProperties.class, EntityProperties.SERIALIZER),
-            Template.entry("entity_scores", EntityScores.class, EntityScores.SERIALIZER),
-            Template.entry("inverted", Inverted.class, Inverted.SERIALIZER),
-            Template.entry("killed_by_player", KilledByPlayer.class, KilledByPlayer.SERIALIZER),
-            Template.entry("location_check", LocationCheck.class, LocationCheck.SERIALIZER),
-            Template.entry("match_tool", MatchTool.class, MatchTool.SERIALIZER),
-            Template.entry("random_chance", RandomChance.class, RandomChance.SERIALIZER),
-            Template.entry("random_chance_with_enchanted_bonus", RandomChanceWithEnchantedBonus.class, RandomChanceWithEnchantedBonus.SERIALIZER),
-            Template.entry("reference", Reference.class, Reference.SERIALIZER),
-            Template.entry("survives_explosion", SurvivesExplosion.class, SurvivesExplosion.SERIALIZER),
-            Template.entry("table_bonus", TableBonus.class, TableBonus.SERIALIZER),
-            Template.entry("time_check", TimeCheck.class, TimeCheck.SERIALIZER),
-            Template.entry("value_check", ValueCheck.class, ValueCheck.SERIALIZER),
-            Template.entry("weather_check", WeatherCheck.class, WeatherCheck.SERIALIZER)
-    );
+    @NotNull StructCodec<LootPredicate> CODEC = Codec.RegistryTaggedUnion(registries -> {
+        class Holder {
+            static final @NotNull DynamicRegistry<StructCodec<? extends LootPredicate>> CODEC = createDefaultRegistry();
+        }
+        return Holder.CODEC;
+    }, LootPredicate::codec, "condition");
+
+    static @NotNull DynamicRegistry<StructCodec<? extends LootPredicate>> createDefaultRegistry() {
+        final DynamicRegistry<StructCodec<? extends LootPredicate>> registry = DynamicRegistry.create("minecraft:loot_predicates");
+        registry.register("all_of", AllOf.CODEC);
+        registry.register("any_of", AnyOf.CODEC);
+        registry.register("block_state_property", BlockStateProperty.CODEC);
+        registry.register("damage_source_properties", DamageSourceProperties.CODEC);
+        registry.register("enchantment_active_check", EnchantmentActiveCheck.CODEC);
+        registry.register("entity_properties", EntityProperties.CODEC);
+        registry.register("entity_scores", EntityScores.CODEC);
+        registry.register("inverted", Inverted.CODEC);
+        registry.register("killed_by_player", KilledByPlayer.CODEC);
+        registry.register("location_check", LocationCheck.CODEC);
+        registry.register("match_tool", MatchTool.CODEC);
+        registry.register("random_chance", RandomChance.CODEC);
+        registry.register("random_chance_with_enchanted_bonus", RandomChanceWithEnchantedBonus.CODEC);
+        registry.register("reference", Reference.CODEC);
+        registry.register("survives_explosion", SurvivesExplosion.CODEC);
+        registry.register("table_bonus", TableBonus.CODEC);
+        registry.register("time_check", TimeCheck.CODEC);
+        registry.register("value_check", ValueCheck.CODEC);
+        registry.register("weather_check", WeatherCheck.CODEC);
+        return registry;
+    }
 
     /**
      * Returns whether or not the provided loot context passes this predicate.
@@ -56,6 +69,11 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
      */
     @Override
     boolean test(@NotNull LootContext context);
+
+    /**
+     * @return the codec that can encode this predicate
+     */
+    @NotNull StructCodec<? extends LootPredicate> codec();
 
     /**
      * Returns whether or not every given predicate verifies the provided context.
@@ -73,9 +91,8 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
     }
 
     record AllOf(@NotNull List<LootPredicate> terms) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<AllOf> SERIALIZER = Template.template(
-                "terms", Serial.lazy(() -> LootPredicate.SERIALIZER).list(), AllOf::terms,
+        public static final @NotNull StructCodec<AllOf> CODEC = StructCodec.struct(
+                "terms", LootPredicate.CODEC.list(), AllOf::terms,
                 AllOf::new
         );
 
@@ -83,12 +100,16 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         public boolean test(@NotNull LootContext context) {
             return all(terms, context);
         }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
     }
 
     record AnyOf(@NotNull List<LootPredicate> terms) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<AnyOf> SERIALIZER = Template.template(
-                "terms", Serial.lazy(() -> LootPredicate.SERIALIZER).list(), AnyOf::terms,
+        public static final @NotNull StructCodec<AnyOf> CODEC = StructCodec.struct(
+                "terms", LootPredicate.CODEC.list(), AnyOf::terms,
                 AnyOf::new
         );
 
@@ -104,159 +125,17 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
             }
             return false;
         }
-    }
-
-    record Inverted(@NotNull LootPredicate term) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<Inverted> SERIALIZER = Template.template(
-                "term", Serial.lazy(() -> LootPredicate.SERIALIZER), Inverted::term,
-                Inverted::new
-        );
 
         @Override
-        public boolean test(@NotNull LootContext context) {
-            return !term.test(context);
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
         }
     }
 
-    record SurvivesExplosion() implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<SurvivesExplosion> SERIALIZER = Template.template(SurvivesExplosion::new);
-
-        @Override
-        public boolean test(@NotNull LootContext context) {
-            Float radius = context.get(LootContext.EXPLOSION_RADIUS);
-            return radius == null || context.require(LootContext.RANDOM).nextFloat() <= (1 / radius);
-        }
-    }
-
-    record KilledByPlayer() implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<KilledByPlayer> SERIALIZER = Template.template(KilledByPlayer::new);
-
-        @Override
-        public boolean test(@NotNull LootContext context) {
-            return context.has(LootContext.LAST_DAMAGE_PLAYER);
-        }
-    }
-
-    record RandomChance(@NotNull LootNumber chance) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<RandomChance> SERIALIZER = Template.template(
-                "chance", LootNumber.SERIALIZER, RandomChance::chance,
-                RandomChance::new
-        );
-
-        @Override
-        public boolean test(@NotNull LootContext context) {
-            return context.require(LootContext.RANDOM).nextDouble() < chance.getDouble(context);
-        }
-    }
-
-    record WeatherCheck(@Nullable Boolean raining, @Nullable Boolean thundering) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<WeatherCheck> SERIALIZER = Template.template(
-                "raining", BinaryTagSerializer.BOOLEAN.optional(), WeatherCheck::raining,
-                "thundering", BinaryTagSerializer.BOOLEAN.optional(), WeatherCheck::thundering,
-                WeatherCheck::new
-        );
-
-        @Override
-        public boolean test(@NotNull LootContext context) {
-            Weather weather = context.require(LootContext.WORLD).getWeather();
-
-            return (raining == null || raining == weather.isRaining()) &&
-                    (thundering == null || thundering == weather.thunderLevel() > 0);
-        }
-    }
-
-    record ValueCheck(@NotNull LootNumber value, @NotNull LootNumberRange range) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<ValueCheck> SERIALIZER = Template.template(
-                "value", LootNumber.SERIALIZER, ValueCheck::value,
-                "range", LootNumberRange.SERIALIZER, ValueCheck::range,
-                ValueCheck::new
-        );
-
-        @Override
-        public boolean test(@NotNull LootContext context) {
-            return range.check(context, value.getInt(context));
-        }
-    }
-
-    record TimeCheck(@Nullable Long period, @NotNull LootNumberRange value) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<TimeCheck> SERIALIZER = Template.template(
-                "period", Serial.LONG.optional(), TimeCheck::period,
-                "value", LootNumberRange.SERIALIZER, TimeCheck::value,
-                TimeCheck::new
-        );
-
-        @Override
-        public boolean test(@NotNull LootContext context) {
-            long time = context.require(LootContext.WORLD).getTime();
-
-            if (period != null) {
-                time %= period;
-            }
-
-            return value.check(context, time);
-        }
-    }
-
-    record TableBonus(@NotNull DynamicRegistry.Key<Enchantment> enchantment, @NotNull List<Float> chances) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<TableBonus> SERIALIZER = Template.template(
-                "enchantment", Serial.key(), TableBonus::enchantment,
-                "chances", BinaryTagSerializer.FLOAT.list(), TableBonus::chances,
-                TableBonus::new
-        );
-
-        @Override
-        public boolean test(@NotNull LootContext context) {
-            ItemStack tool = context.get(LootContext.TOOL);
-
-            int level = EnchantmentUtils.level(tool, enchantment);
-
-            float chance = chances.get(Math.min(this.chances.size() - 1, level));
-
-            return context.require(LootContext.RANDOM).nextFloat() < chance;
-        }
-    }
-
-    record Reference(@NotNull NamespaceID name) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<Reference> SERIALIZER = Template.template(
-                "name", Serial.KEY, Reference::name,
-                Reference::new
-        );
-
-        @Override
-        public boolean test(@NotNull LootContext context) {
-            LootPredicate predicate = context.vanilla().predicateRegistry(name);
-
-            return predicate != null && predicate.test(context);
-        }
-    }
-
-    record EnchantmentActiveCheck(boolean active) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<EnchantmentActiveCheck> SERIALIZER = Template.template(
-                "active", BinaryTagSerializer.BOOLEAN, EnchantmentActiveCheck::active,
-                EnchantmentActiveCheck::new
-        );
-
-        @Override
-        public boolean test(@NotNull LootContext context) {
-            return context.require(LootContext.ENCHANTMENT_ACTIVE) == active;
-        }
-    }
-
-    record BlockStateProperty(@NotNull NamespaceID block, @Nullable BlockPredicate predicate) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<BlockStateProperty> SERIALIZER = Template.template(
-                "block", Serial.KEY, BlockStateProperty::block,
-                "properties", BlockPredicate.SERIALIZER.optional(), BlockStateProperty::predicate,
+    record BlockStateProperty(@NotNull Key block, @Nullable BlockPredicate properties) implements LootPredicate {
+        public static final @NotNull StructCodec<BlockStateProperty> CODEC = StructCodec.struct(
+                "block", Codec.KEY, BlockStateProperty::block,
+                "properties", BlockPredicate.CODEC.optional(), BlockStateProperty::properties,
                 BlockStateProperty::new
         );
 
@@ -264,14 +143,18 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         public boolean test(@NotNull LootContext context) {
             Block block = context.get(LootContext.BLOCK_STATE);
 
-            return block != null && this.block.equals(block.namespace()) && (predicate == null || predicate.test(block));
+            return block != null && this.block.equals(block.key()) && (properties == null || properties.test(block));
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
         }
     }
 
     record DamageSourceProperties(@Nullable DamageSourcePredicate predicate) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<DamageSourceProperties> SERIALIZER = Template.template(
-                "predicate",Serial.lazy(DamageSourcePredicate.SERIALIZER::get).optional(), DamageSourceProperties::predicate,
+        public static final @NotNull StructCodec<DamageSourceProperties> CODEC = StructCodec.struct(
+                "predicate", DamageSourcePredicate.CODEC.optional(), DamageSourceProperties::predicate,
                 DamageSourceProperties::new
         );
 
@@ -287,13 +170,34 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
 
             return predicate.test(world, origin, damage);
         }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
+    }
+
+    record EnchantmentActiveCheck(boolean active) implements LootPredicate {
+        public static final @NotNull StructCodec<EnchantmentActiveCheck> CODEC = StructCodec.struct(
+                "active", Codec.BOOLEAN, EnchantmentActiveCheck::active,
+                EnchantmentActiveCheck::new
+        );
+
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            return context.require(LootContext.ENCHANTMENT_ACTIVE) == active;
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
     }
 
     record EntityProperties(@Nullable EntityPredicate predicate, @NotNull RelevantEntity entity) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<EntityProperties> SERIALIZER = Template.template(
-                "predicate", Serial.lazy(EntityPredicate.SERIALIZER::get), EntityProperties::predicate,
-                "entity", RelevantEntity.SERIALIZER, EntityProperties::entity,
+        public static final @NotNull StructCodec<EntityProperties> CODEC = StructCodec.struct(
+                "predicate", EntityPredicate.CODEC, EntityProperties::predicate,
+                "entity", RelevantEntity.CODEC, EntityProperties::entity,
                 EntityProperties::new
         );
 
@@ -304,52 +208,17 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
 
             return predicate == null || predicate.test(context.require(LootContext.WORLD), origin, entity);
         }
-    }
-
-    record LocationCheck(@Nullable LocationPredicate predicate, double offsetX, double offsetY, double offsetZ) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<LocationCheck> SERIALIZER = Template.template(
-                "predicate", Serial.lazy(LocationPredicate.SERIALIZER::get), LocationCheck::predicate,
-                "offsetX", Serial.DOUBLE.optional(0D), LocationCheck::offsetX,
-                "offsetY", Serial.DOUBLE.optional(0D), LocationCheck::offsetY,
-                "offsetZ", Serial.DOUBLE.optional(0D), LocationCheck::offsetZ,
-                LocationCheck::new
-        );
 
         @Override
-        public boolean test(@NotNull LootContext context) {
-            Point origin = context.get(LootContext.ORIGIN);
-
-            if (origin == null) return false;
-            if (predicate == null) return true;
-
-            return predicate.test(context.require(LootContext.WORLD), origin.add(offsetX, offsetY, offsetZ));
-        }
-    }
-
-    record MatchTool(@Nullable ItemPredicate predicate) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<MatchTool> SERIALIZER = Template.template(
-                "predicate", Serial.lazy(ItemPredicate.SERIALIZER::get), MatchTool::predicate,
-                MatchTool::new
-        );
-
-        @Override
-        public boolean test(@NotNull LootContext context) {
-            ItemStack tool = context.get(LootContext.TOOL);
-
-            if (tool == null) return false;
-            if (predicate == null) return true;
-
-            return predicate.test(tool);
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
         }
     }
 
     record EntityScores(@NotNull Map<String, LootNumberRange> scores, @NotNull RelevantEntity entity) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<EntityScores> SERIALIZER = Template.template(
-                "scores", Serial.map(LootNumberRange.SERIALIZER), EntityScores::scores,
-                "entity", RelevantEntity.SERIALIZER, EntityScores::entity,
+        public static final @NotNull StructCodec<EntityScores> CODEC = StructCodec.struct(
+                "scores", Codec.STRING.mapValue(LootNumberRange.CODEC), EntityScores::scores,
+                "entity", RelevantEntity.CODEC, EntityScores::entity,
                 EntityScores::new
         );
 
@@ -367,14 +236,113 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
 
             return true;
         }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
+    }
+
+    record Inverted(@NotNull LootPredicate term) implements LootPredicate {
+        public static final @NotNull StructCodec<Inverted> CODEC = StructCodec.struct(
+                "term", LootPredicate.CODEC, Inverted::term,
+                Inverted::new
+        );
+
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            return !term.test(context);
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
+    }
+
+    record KilledByPlayer() implements LootPredicate {
+        public static final @NotNull StructCodec<KilledByPlayer> CODEC = StructCodec.struct(KilledByPlayer::new);
+
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            return context.has(LootContext.LAST_DAMAGE_PLAYER);
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
+    }
+
+    record LocationCheck(@Nullable LocationPredicate predicate, double offsetX, double offsetY, double offsetZ) implements LootPredicate {
+        public static final @NotNull StructCodec<LocationCheck> CODEC = StructCodec.struct(
+                "predicate", LocationPredicate.CODEC, LocationCheck::predicate,
+                "offsetX", Codec.DOUBLE.optional(0D), LocationCheck::offsetX,
+                "offsetY", Codec.DOUBLE.optional(0D), LocationCheck::offsetY,
+                "offsetZ", Codec.DOUBLE.optional(0D), LocationCheck::offsetZ,
+                LocationCheck::new
+        );
+
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            Point origin = context.get(LootContext.ORIGIN);
+
+            if (origin == null) return false;
+            if (predicate == null) return true;
+
+            return predicate.test(context.require(LootContext.WORLD), origin.add(offsetX, offsetY, offsetZ));
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
+    }
+
+    record MatchTool(@Nullable ItemPredicate predicate) implements LootPredicate {
+        public static final @NotNull StructCodec<MatchTool> CODEC = StructCodec.struct(
+                "predicate", ItemPredicate.CODEC, MatchTool::predicate,
+                MatchTool::new
+        );
+
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            ItemStack tool = context.get(LootContext.TOOL);
+
+            if (tool == null) return false;
+            if (predicate == null) return true;
+
+            return predicate.test(tool);
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
+    }
+
+    record RandomChance(@NotNull LootNumber chance) implements LootPredicate {
+        public static final @NotNull StructCodec<RandomChance> CODEC = StructCodec.struct(
+                "chance", LootNumber.CODEC, RandomChance::chance,
+                RandomChance::new
+        );
+
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            return context.require(LootContext.RANDOM).nextDouble() < chance.getDouble(context);
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
     }
 
     record RandomChanceWithEnchantedBonus(@NotNull DynamicRegistry.Key<Enchantment> enchantment, float unenchantedChance, @NotNull LevelBasedValue enchantedChance) implements LootPredicate {
-
-        public static final @NotNull BinaryTagSerializer<RandomChanceWithEnchantedBonus> SERIALIZER = Template.template(
-                "enchantment", Serial.key(), RandomChanceWithEnchantedBonus::enchantment,
-                "unenchanted_chance", BinaryTagSerializer.FLOAT, RandomChanceWithEnchantedBonus::unenchantedChance,
-                "enchanted_chance", LevelBasedValue.NBT_TYPE, RandomChanceWithEnchantedBonus::enchantedChance,
+        public static final @NotNull StructCodec<RandomChanceWithEnchantedBonus> CODEC = StructCodec.struct(
+                "enchantment", Codec.RegistryKey(Registries::enchantment), RandomChanceWithEnchantedBonus::enchantment,
+                "unenchanted_chance", Codec.FLOAT, RandomChanceWithEnchantedBonus::unenchantedChance,
+                "enchanted_chance", LevelBasedValue.CODEC, RandomChanceWithEnchantedBonus::enchantedChance,
                 RandomChanceWithEnchantedBonus::new
         );
 
@@ -386,6 +354,132 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
 
             float chance = level > 0 ? enchantedChance.calc(level) : unenchantedChance;
             return context.require(LootContext.RANDOM).nextFloat() < chance;
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
+    }
+
+    record Reference(@NotNull Key name) implements LootPredicate {
+        public static final @NotNull StructCodec<Reference> CODEC = StructCodec.struct(
+                "name", Codec.KEY, Reference::name,
+                Reference::new
+        );
+
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            LootPredicate predicate = context.vanilla().predicateRegistry(name);
+
+            return predicate != null && predicate.test(context);
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
+    }
+
+    record SurvivesExplosion() implements LootPredicate {
+        public static final @NotNull StructCodec<SurvivesExplosion> CODEC = StructCodec.struct(SurvivesExplosion::new);
+
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            Float radius = context.get(LootContext.EXPLOSION_RADIUS);
+            return radius == null || context.require(LootContext.RANDOM).nextFloat() <= (1 / radius);
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
+    }
+
+    record TableBonus(@NotNull DynamicRegistry.Key<Enchantment> enchantment, @NotNull List<Float> chances) implements LootPredicate {
+        public static final @NotNull StructCodec<TableBonus> CODEC = StructCodec.struct(
+                "enchantment", Codec.RegistryKey(Registries::enchantment), TableBonus::enchantment,
+                "chances", Codec.FLOAT.list(), TableBonus::chances,
+                TableBonus::new
+        );
+
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            ItemStack tool = context.get(LootContext.TOOL);
+
+            int level = EnchantmentUtils.level(tool, enchantment);
+
+            float chance = chances.get(Math.min(this.chances.size() - 1, level));
+
+            return context.require(LootContext.RANDOM).nextFloat() < chance;
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
+    }
+
+    record TimeCheck(@Nullable Long period, @NotNull LootNumberRange value) implements LootPredicate {
+        public static final @NotNull StructCodec<TimeCheck> CODEC = StructCodec.struct(
+                "period", Codec.LONG.optional(), TimeCheck::period,
+                "value", LootNumberRange.CODEC, TimeCheck::value,
+                TimeCheck::new
+        );
+
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            long time = context.require(LootContext.WORLD).getTime();
+
+            if (period != null) {
+                time %= period;
+            }
+
+            return value.check(context, time);
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
+    }
+
+    record ValueCheck(@NotNull LootNumber value, @NotNull LootNumberRange range) implements LootPredicate {
+        public static final @NotNull StructCodec<ValueCheck> CODEC = StructCodec.struct(
+                "value", LootNumber.CODEC, ValueCheck::value,
+                "range", LootNumberRange.CODEC, ValueCheck::range,
+                ValueCheck::new
+        );
+
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            return range.check(context, value.getInt(context));
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
+        }
+    }
+
+    record WeatherCheck(@Nullable Boolean raining, @Nullable Boolean thundering) implements LootPredicate {
+        public static final @NotNull StructCodec<WeatherCheck> CODEC = StructCodec.struct(
+                "raining", Codec.BOOLEAN.optional(), WeatherCheck::raining,
+                "thundering", Codec.BOOLEAN.optional(), WeatherCheck::thundering,
+                WeatherCheck::new
+        );
+
+        @Override
+        public boolean test(@NotNull LootContext context) {
+            Weather weather = context.require(LootContext.WORLD).getWeather();
+
+            return (raining == null || raining == weather.isRaining()) &&
+                    (thundering == null || thundering == weather.thunderLevel() > 0);
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootPredicate> codec() {
+            return CODEC;
         }
     }
 

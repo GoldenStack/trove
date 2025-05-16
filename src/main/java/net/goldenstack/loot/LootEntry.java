@@ -1,35 +1,46 @@
 package net.goldenstack.loot;
 
-import net.goldenstack.loot.util.Serial;
-import net.goldenstack.loot.util.Template;
 import net.goldenstack.loot.util.VanillaInterface;
+import net.kyori.adventure.key.Key;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.codec.Codec;
+import net.minestom.server.codec.StructCodec;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.minestom.server.utils.NamespaceID;
-import net.minestom.server.utils.nbt.BinaryTagSerializer;
+import net.minestom.server.registry.DynamicRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * An entry in a loot table that can generate a list of {@link Choice choices} that each have their own loot and weight.
  */
 @SuppressWarnings("UnstableApiUsage")
 public interface LootEntry {
+    
+    @NotNull StructCodec<LootEntry> CODEC = Codec.RegistryTaggedUnion(registries -> {
+        class Holder {
+            static final @NotNull DynamicRegistry<StructCodec<? extends LootEntry>> CODEC = createDefaultRegistry();
+        }
+        return Holder.CODEC;
+    }, LootEntry::codec, "type");
 
-    @NotNull BinaryTagSerializer<LootEntry> SERIALIZER = Template.registry("type",
-            Template.entry("empty", Empty.class, Empty.SERIALIZER),
-            Template.entry("item", Item.class, Item.SERIALIZER),
-            Template.entry("loot_table", LootTable.class, LootTable.SERIALIZER),
-            Template.entry("dynamic", Dynamic.class, Dynamic.SERIALIZER),
-            Template.entry("tag", Tag.class, Tag.SERIALIZER),
-            Template.entry("alternatives", Alternatives.class, Alternatives.SERIALIZER),
-            Template.entry("sequence", Sequence.class, Sequence.SERIALIZER),
-            Template.entry("group", Group.class, Group.SERIALIZER)
-    );
+    static @NotNull DynamicRegistry<StructCodec<? extends LootEntry>> createDefaultRegistry() {
+        final DynamicRegistry<StructCodec<? extends LootEntry>> registry = DynamicRegistry.create("minecraft:loot_entries");
+        registry.register("alternatives", Alternatives.CODEC);
+        registry.register("dynamic", Dynamic.CODEC);
+        registry.register("empty", Empty.CODEC);
+        registry.register("group", Group.CODEC);
+        registry.register("item", Item.CODEC);
+        registry.register("loot_table", LootTable.CODEC);
+        registry.register("sequence", Sequence.CODEC);
+        registry.register("tag", Tag.CODEC);
+        return registry;
+    }
 
     /**
      * Generates any number of possible choices to choose from when generating loot.
@@ -37,6 +48,11 @@ public interface LootEntry {
      * @return a list, with undetermined mutability, containing the options that were generated
      */
     @NotNull List<Choice> requestChoices(@NotNull LootContext context);
+
+    /**
+     * @return the codec that can encode this entry
+     */
+    @NotNull StructCodec<? extends LootEntry> codec();
 
     /**
      * A choice, generated from an entry, that could potentially be chosen.
@@ -104,10 +120,9 @@ public interface LootEntry {
     }
     
     record Alternatives(@NotNull List<LootPredicate> predicates, @NotNull List<LootEntry> children) implements LootEntry {
-
-        public static final @NotNull BinaryTagSerializer<Alternatives> SERIALIZER = Template.template(
-                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Alternatives::predicates,
-                "children", Serial.lazy(() -> LootEntry.SERIALIZER).list().optional(List.of()), Alternatives::children,
+        public static final @NotNull StructCodec<Alternatives> CODEC = StructCodec.struct(
+                "conditions", LootPredicate.CODEC.list().optional(List.of()), Alternatives::predicates,
+                "children", LootEntry.CODEC.list().optional(List.of()), Alternatives::children,
                 Alternatives::new
         );
 
@@ -123,79 +138,21 @@ public interface LootEntry {
             }
             return List.of();
         }
-    }
-
-    record Sequence(@NotNull List<LootPredicate> predicates, @NotNull List<LootEntry> children) implements LootEntry {
-
-        public static final @NotNull BinaryTagSerializer<Sequence> SERIALIZER = Template.template(
-                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Sequence::predicates,
-                "children", Serial.lazy(() -> LootEntry.SERIALIZER).list().optional(List.of()), Sequence::children,
-                Sequence::new
-        );
 
         @Override
-        public @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
-            if (!LootPredicate.all(predicates, context)) return List.of();
-
-            List<Choice> options = new ArrayList<>();
-            for (var entry : this.children()) {
-                var choices = entry.requestChoices(context);
-                if (choices.isEmpty()) {
-                    break;
-                }
-                options.addAll(choices);
-            }
-            return options;
-        }
-    }
-    
-    record Group(@NotNull List<LootPredicate> predicates, @NotNull List<LootEntry> children) implements LootEntry {
-
-        public static final @NotNull BinaryTagSerializer<Group> SERIALIZER = Template.template(
-                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Group::predicates,
-                "children", Serial.lazy(() -> LootEntry.SERIALIZER).list().optional(List.of()), Group::children,
-                Group::new
-        );
-
-        @Override
-        public @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
-            if (!LootPredicate.all(predicates, context)) return List.of();
-
-            List<Choice> choices = new ArrayList<>();
-            for (var entry : this.children()) {
-                choices.addAll(entry.requestChoices(context));
-            }
-            return choices;
-        }
-    }
-
-    record Item(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
-                long weight, long quality, @NotNull Material name) implements Choice.Single {
-
-        public static final @NotNull BinaryTagSerializer<Item> SERIALIZER = Template.template(
-                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Item::predicates,
-                "functions", LootFunction.SERIALIZER.list().optional(List.of()), Item::functions,
-                "weight", Serial.LONG.optional(1L), Item::weight,
-                "quality", Serial.LONG.optional(0L), Item::quality,
-                "name", Material.NBT_TYPE, Item::name,
-                Item::new
-        );
-
-        @Override
-        public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
-            return List.of(LootFunction.apply(functions, ItemStack.of(name), context));
+        public @NotNull StructCodec<? extends LootEntry> codec() {
+            return CODEC;
         }
     }
 
     record Dynamic(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
-                long weight, long quality, @NotNull NamespaceID name) implements Choice.Single {
-
-        public static final @NotNull BinaryTagSerializer<Dynamic> SERIALIZER = Template.template(
-                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Dynamic::predicates,
-                "functions", LootFunction.SERIALIZER.list().optional(List.of()), Dynamic::functions,
-                "weight", Serial.LONG.optional(1L), Dynamic::weight,
-                "quality", Serial.LONG.optional(0L), Dynamic::quality,
-                "name", Serial.KEY, Dynamic::name,
+                   long weight, long quality, @NotNull Key name) implements Choice.Single {
+        public static final @NotNull StructCodec<Dynamic> CODEC = StructCodec.struct(
+                "conditions", LootPredicate.CODEC.list().optional(List.of()), Dynamic::predicates,
+                "functions", LootFunction.CODEC.list().optional(List.of()), Dynamic::functions,
+                "weight", Codec.LONG.optional(1L), Dynamic::weight,
+                "quality", Codec.LONG.optional(0L), Dynamic::quality,
+                "name", Codec.KEY, Dynamic::name,
                 Dynamic::new
         );
 
@@ -216,16 +173,20 @@ public interface LootEntry {
                 default -> List.of();
             };
         }
+
+        @Override
+        public @NotNull StructCodec<? extends LootEntry> codec() {
+            return CODEC;
+        }
     }
 
     record Empty(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
-                long weight, long quality) implements Choice.Single {
-
-        public static final @NotNull BinaryTagSerializer<Empty> SERIALIZER = Template.template(
-                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Empty::predicates,
-                "functions", LootFunction.SERIALIZER.list().optional(List.of()), Empty::functions,
-                "weight", Serial.LONG.optional(1L), Empty::weight,
-                "quality", Serial.LONG.optional(0L), Empty::quality,
+                 long weight, long quality) implements Choice.Single {
+        public static final @NotNull StructCodec<Empty> CODEC = StructCodec.struct(
+                "conditions", LootPredicate.CODEC.list().optional(List.of()), Empty::predicates,
+                "functions", LootFunction.CODEC.list().optional(List.of()), Empty::functions,
+                "weight", Codec.LONG.optional(1L), Empty::weight,
+                "quality", Codec.LONG.optional(0L), Empty::quality,
                 Empty::new
         );
 
@@ -233,17 +194,67 @@ public interface LootEntry {
         public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
             return List.of();
         }
+
+        @Override
+        public @NotNull StructCodec<? extends LootEntry> codec() {
+            return CODEC;
+        }
+    }
+
+    record Group(@NotNull List<LootPredicate> predicates, @NotNull List<LootEntry> children) implements LootEntry {
+        public static final @NotNull StructCodec<Group> CODEC = StructCodec.struct(
+                "conditions", LootPredicate.CODEC.list().optional(List.of()), Group::predicates,
+                "children", LootEntry.CODEC.list().optional(List.of()), Group::children,
+                Group::new
+        );
+
+        @Override
+        public @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return List.of();
+
+            List<Choice> choices = new ArrayList<>();
+            for (var entry : this.children()) {
+                choices.addAll(entry.requestChoices(context));
+            }
+            return choices;
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootEntry> codec() {
+            return CODEC;
+        }
+    }
+
+    record Item(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
+                long weight, long quality, @NotNull Material name) implements Choice.Single {
+        public static final @NotNull StructCodec<Item> CODEC = StructCodec.struct(
+                "conditions", LootPredicate.CODEC.list().optional(List.of()), Item::predicates,
+                "functions", LootFunction.CODEC.list().optional(List.of()), Item::functions,
+                "weight", Codec.LONG.optional(1L), Item::weight,
+                "quality", Codec.LONG.optional(0L), Item::quality,
+                "name", Material.CODEC, Item::name,
+                Item::new
+        );
+
+        @Override
+        public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
+            return List.of(LootFunction.apply(functions, ItemStack.of(name), context));
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootEntry> codec() {
+            return CODEC;
+        }
     }
 
     record LootTable(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
-                     long weight, long quality, @NotNull NamespaceID value) implements Choice.Single {
-
-        public static final @NotNull BinaryTagSerializer<LootTable> SERIALIZER = Template.template(
-                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), LootTable::predicates,
-                "functions", LootFunction.SERIALIZER.list().optional(List.of()), LootTable::functions,
-                "weight", Serial.LONG.optional(1L), LootTable::weight,
-                "quality", Serial.LONG.optional(0L), LootTable::quality,
-                "value", Serial.KEY, LootTable::value,
+                     long weight, long quality, @NotNull Key value) implements Choice.Single {
+        public static final @NotNull StructCodec<LootTable> CODEC = StructCodec.struct(
+                "conditions", LootPredicate.CODEC.list().optional(List.of()), LootTable::predicates,
+                "functions", LootFunction.CODEC.list().optional(List.of()), LootTable::functions,
+                "weight", Codec.LONG.optional(1L), LootTable::weight,
+                "quality", Codec.LONG.optional(0L), LootTable::quality,
+                "value", Codec.KEY, LootTable::value,
                 LootTable::new
         );
 
@@ -254,20 +265,56 @@ public interface LootEntry {
 
             return LootFunction.apply(functions, table.generate(context), context);
         }
+
+        @Override
+        public @NotNull StructCodec<? extends LootEntry> codec() {
+            return CODEC;
+        }
+    }
+
+    record Sequence(@NotNull List<LootPredicate> predicates, @NotNull List<LootEntry> children) implements LootEntry {
+        public static final @NotNull StructCodec<Sequence> CODEC = StructCodec.struct(
+                "conditions", LootPredicate.CODEC.list().optional(List.of()), Sequence::predicates,
+                "children", LootEntry.CODEC.list().optional(List.of()), Sequence::children,
+                Sequence::new
+        );
+
+        @Override
+        public @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
+            if (!LootPredicate.all(predicates, context)) return List.of();
+
+            List<Choice> options = new ArrayList<>();
+            for (var entry : this.children()) {
+                var choices = entry.requestChoices(context);
+                if (choices.isEmpty()) {
+                    break;
+                }
+                options.addAll(choices);
+            }
+            return options;
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootEntry> codec() {
+            return CODEC;
+        }
     }
 
     record Tag(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
-               long weight, long quality, @NotNull net.minestom.server.gamedata.tags.Tag name, boolean expand) implements Choice.Single {
-
-        public static final @NotNull BinaryTagSerializer<Tag> SERIALIZER = Template.template(
-                "conditions", LootPredicate.SERIALIZER.list().optional(List.of()), Tag::predicates,
-                "functions", LootFunction.SERIALIZER.list().optional(List.of()), Tag::functions,
-                "weight", Serial.LONG.optional(1L), Tag::weight,
-                "quality", Serial.LONG.optional(0L), Tag::quality,
-                "name", Serial.tag(net.minestom.server.gamedata.tags.Tag.BasicType.ITEMS), Tag::name,
-                "expand", BinaryTagSerializer.BOOLEAN, Tag::expand,
+               long weight, long quality, @NotNull String name, boolean expand) implements Choice.Single {
+        public static final @NotNull StructCodec<Tag> CODEC = StructCodec.struct(
+                "conditions", LootPredicate.CODEC.list().optional(List.of()), Tag::predicates,
+                "functions", LootFunction.CODEC.list().optional(List.of()), Tag::functions,
+                "weight", Codec.LONG.optional(1L), Tag::weight,
+                "quality", Codec.LONG.optional(0L), Tag::quality,
+                "name", Codec.STRING, Tag::name,
+                "expand", Codec.BOOLEAN, Tag::expand,
                 Tag::new
         );
+
+        private @NotNull Set<Key> getItems() {
+            return MinecraftServer.getTagManager().getTag(net.minestom.server.gamedata.tags.Tag.BasicType.ITEMS, name).getValues();
+        }
 
         @Override
         public @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
@@ -278,8 +325,8 @@ public interface LootEntry {
             }
 
             List<Choice> choices = new ArrayList<>();
-            for (var key : name.getValues()) {
-                Material material = Material.fromNamespaceId(key);
+            for (var key : getItems()) {
+                Material material = Material.fromKey(key);
                 if (material == null) continue;
                 choices.add(new Choice() {
                     @Override
@@ -300,14 +347,19 @@ public interface LootEntry {
         @Override
         public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
             List<ItemStack> items = new ArrayList<>();
-            for (var key : name.getValues()) {
-                Material material = Material.fromNamespaceId(key);
+            for (var key : getItems()) {
+                Material material = Material.fromKey(key);
                 if (material == null) continue;
 
                 items.add(LootFunction.apply(functions, ItemStack.of(material), context));
             }
 
             return items;
+        }
+
+        @Override
+        public @NotNull StructCodec<? extends LootEntry> codec() {
+            return CODEC;
         }
     }
 
