@@ -29,7 +29,7 @@ public interface LootNumber {
     }, LootNumber::codec, "type"));
 
     static @NotNull DynamicRegistry<StructCodec<? extends LootNumber>> createDefaultRegistry() {
-        final DynamicRegistry<StructCodec<? extends LootNumber>> registry = DynamicRegistry.create("minecraft:loot_numbers");
+        final DynamicRegistry<StructCodec<? extends LootNumber>> registry = DynamicRegistry.create(Key.key("loot_numbers"));
         registry.register("binomial", Binomial.CODEC);
         registry.register("constant", Constant.CODEC);
         registry.register("enchantment_level", EnchantmentLevel.CODEC);

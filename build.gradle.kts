@@ -17,7 +17,7 @@ repositories {
 dependencies {
     api("org.jetbrains:annotations:24.0.1")
 
-    val minestom = "net.minestom:minestom-snapshots:1_21_5-69b9a5d844"
+    val minestom = "net.minestom:minestom-snapshots:e94aaed297"
 
     compileOnly(minestom)
 

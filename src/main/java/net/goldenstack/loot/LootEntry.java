@@ -9,12 +9,14 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.registry.DynamicRegistry;
+import net.minestom.server.registry.Registries;
+import net.minestom.server.registry.RegistryKey;
+import net.minestom.server.registry.RegistryTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * An entry in a loot table that can generate a list of {@link Choice choices} that each have their own loot and weight.
@@ -30,7 +32,7 @@ public interface LootEntry {
     }, LootEntry::codec, "type");
 
     static @NotNull DynamicRegistry<StructCodec<? extends LootEntry>> createDefaultRegistry() {
-        final DynamicRegistry<StructCodec<? extends LootEntry>> registry = DynamicRegistry.create("minecraft:loot_entries");
+        final DynamicRegistry<StructCodec<? extends LootEntry>> registry = DynamicRegistry.create(Key.key("loot_entries"));
         registry.register("alternatives", Alternatives.CODEC);
         registry.register("dynamic", Dynamic.CODEC);
         registry.register("empty", Empty.CODEC);
@@ -301,20 +303,16 @@ public interface LootEntry {
     }
 
     record Tag(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
-               long weight, long quality, @NotNull String name, boolean expand) implements Choice.Single {
+               long weight, long quality, @NotNull RegistryTag<Material> name, boolean expand) implements Choice.Single {
         public static final @NotNull StructCodec<Tag> CODEC = StructCodec.struct(
                 "conditions", LootPredicate.CODEC.list().optional(List.of()), Tag::predicates,
                 "functions", LootFunction.CODEC.list().optional(List.of()), Tag::functions,
                 "weight", Codec.LONG.optional(1L), Tag::weight,
                 "quality", Codec.LONG.optional(0L), Tag::quality,
-                "name", Codec.STRING, Tag::name,
+                "name", RegistryTag.codec(Registries::material), Tag::name,
                 "expand", Codec.BOOLEAN, Tag::expand,
                 Tag::new
         );
-
-        private @NotNull Set<Key> getItems() {
-            return MinecraftServer.getTagManager().getTag(net.minestom.server.gamedata.tags.Tag.BasicType.ITEMS, name).getValues();
-        }
 
         @Override
         public @NotNull List<Choice> requestChoices(@NotNull LootContext context) {
@@ -325,9 +323,11 @@ public interface LootEntry {
             }
 
             List<Choice> choices = new ArrayList<>();
-            for (var key : getItems()) {
-                Material material = Material.fromKey(key);
+
+            for (RegistryKey<Material> key : name) {
+                Material material = MinecraftServer.process().material().get(key);
                 if (material == null) continue;
+
                 choices.add(new Choice() {
                     @Override
                     public @Range(from = 1L, to = Long.MAX_VALUE) long getWeight(@NotNull LootContext context) {
@@ -341,14 +341,16 @@ public interface LootEntry {
 
                 });
             }
+
             return choices;
         }
 
         @Override
         public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
             List<ItemStack> items = new ArrayList<>();
-            for (var key : getItems()) {
-                Material material = Material.fromKey(key);
+
+            for (RegistryKey<Material> key : name) {
+                Material material = MinecraftServer.process().material().get(key);
                 if (material == null) continue;
 
                 items.add(LootFunction.apply(functions, ItemStack.of(material), context));

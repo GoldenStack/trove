@@ -3,7 +3,10 @@ package net.goldenstack.loot;
 import net.goldenstack.loot.util.EnchantmentUtils;
 import net.goldenstack.loot.util.LootNumberRange;
 import net.goldenstack.loot.util.RelevantEntity;
-import net.goldenstack.loot.util.predicate.*;
+import net.goldenstack.loot.util.predicate.DamageSourcePredicate;
+import net.goldenstack.loot.util.predicate.EntityPredicate;
+import net.goldenstack.loot.util.predicate.ItemPredicate;
+import net.goldenstack.loot.util.predicate.LocationPredicate;
 import net.kyori.adventure.key.Key;
 import net.minestom.server.codec.Codec;
 import net.minestom.server.codec.StructCodec;
@@ -19,6 +22,7 @@ import net.minestom.server.item.enchant.Enchantment;
 import net.minestom.server.item.enchant.LevelBasedValue;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.registry.Registries;
+import net.minestom.server.registry.RegistryKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +44,7 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
     }, LootPredicate::codec, "condition");
 
     static @NotNull DynamicRegistry<StructCodec<? extends LootPredicate>> createDefaultRegistry() {
-        final DynamicRegistry<StructCodec<? extends LootPredicate>> registry = DynamicRegistry.create("minecraft:loot_predicates");
+        final DynamicRegistry<StructCodec<? extends LootPredicate>> registry = DynamicRegistry.create(Key.key("loot_predicates"));
         registry.register("all_of", AllOf.CODEC);
         registry.register("any_of", AnyOf.CODEC);
         registry.register("block_state_property", BlockStateProperty.CODEC);
@@ -313,7 +317,7 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
             if (tool == null) return false;
             if (predicate == null) return true;
 
-            return predicate.test(tool);
+            return predicate.test(tool, context);
         }
 
         @Override
@@ -339,9 +343,9 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record RandomChanceWithEnchantedBonus(@NotNull DynamicRegistry.Key<Enchantment> enchantment, float unenchantedChance, @NotNull LevelBasedValue enchantedChance) implements LootPredicate {
+    record RandomChanceWithEnchantedBonus(@NotNull RegistryKey<Enchantment> enchantment, float unenchantedChance, @NotNull LevelBasedValue enchantedChance) implements LootPredicate {
         public static final @NotNull StructCodec<RandomChanceWithEnchantedBonus> CODEC = StructCodec.struct(
-                "enchantment", Codec.RegistryKey(Registries::enchantment), RandomChanceWithEnchantedBonus::enchantment,
+                "enchantment", RegistryKey.codec(Registries::enchantment), RandomChanceWithEnchantedBonus::enchantment,
                 "unenchanted_chance", Codec.FLOAT, RandomChanceWithEnchantedBonus::unenchantedChance,
                 "enchanted_chance", LevelBasedValue.CODEC, RandomChanceWithEnchantedBonus::enchantedChance,
                 RandomChanceWithEnchantedBonus::new
@@ -397,9 +401,9 @@ public interface LootPredicate extends Predicate<@NotNull LootContext> {
         }
     }
 
-    record TableBonus(@NotNull DynamicRegistry.Key<Enchantment> enchantment, @NotNull List<Float> chances) implements LootPredicate {
+    record TableBonus(@NotNull RegistryKey<Enchantment> enchantment, @NotNull List<Float> chances) implements LootPredicate {
         public static final @NotNull StructCodec<TableBonus> CODEC = StructCodec.struct(
-                "enchantment", Codec.RegistryKey(Registries::enchantment), TableBonus::enchantment,
+                "enchantment", RegistryKey.codec(Registries::enchantment), TableBonus::enchantment,
                 "chances", Codec.FLOAT.list(), TableBonus::chances,
                 TableBonus::new
         );

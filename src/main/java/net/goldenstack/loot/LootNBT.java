@@ -33,7 +33,7 @@ public interface LootNBT {
     ));
 
     static @NotNull DynamicRegistry<StructCodec<? extends LootNBT>> createDefaultRegistry() {
-        final DynamicRegistry<StructCodec<? extends LootNBT>> registry = DynamicRegistry.create("minecraft:loot_nbt");
+        final DynamicRegistry<StructCodec<? extends LootNBT>> registry = DynamicRegistry.create(Key.key("loot_nbt"));
         registry.register("context", Context.CODEC);
         registry.register("storage", Storage.CODEC);
         return registry;

@@ -1,5 +1,6 @@
 package net.goldenstack.loot.util;
 
+import net.kyori.adventure.key.Key;
 import net.minestom.server.codec.Codec;
 import net.minestom.server.codec.StructCodec;
 import net.minestom.server.registry.DynamicRegistry;
@@ -21,7 +22,7 @@ public sealed interface ListOperation {
     }, ListOperation::codec, "type");
 
     static @NotNull DynamicRegistry<StructCodec<? extends ListOperation>> createDefaultRegistry() {
-        final DynamicRegistry<StructCodec<? extends ListOperation>> registry = DynamicRegistry.create("minecraft:list_operations");
+        final DynamicRegistry<StructCodec<? extends ListOperation>> registry = DynamicRegistry.create(Key.key("list_operations"));
         registry.register("append", Append.CODEC);
         registry.register("insert", Insert.CODEC);
         registry.register("replace_all", ReplaceAll.CODEC);

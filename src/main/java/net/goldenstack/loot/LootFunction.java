@@ -23,17 +23,20 @@ import net.minestom.server.entity.*;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.attribute.AttributeModifier;
 import net.minestom.server.entity.attribute.AttributeOperation;
-import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.book.FilteredText;
 import net.minestom.server.item.component.*;
 import net.minestom.server.item.enchant.Enchantment;
+import net.minestom.server.item.instrument.Instrument;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.potion.PotionType;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.registry.Registries;
+import net.minestom.server.registry.RegistryKey;
+import net.minestom.server.registry.RegistryTag;
+import net.minestom.server.utils.Either;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,7 +61,7 @@ public interface LootFunction {
     }
 
     static @NotNull DynamicRegistry<StructCodec<? extends LootFunction>> createDefaultRegistry() {
-        final DynamicRegistry<StructCodec<? extends LootFunction>> registry = DynamicRegistry.create("minecraft:loot_functions");
+        final DynamicRegistry<StructCodec<? extends LootFunction>> registry = DynamicRegistry.create(Key.key("loot_functions"));
         registry.register("apply_bonus", ApplyBonus.CODEC);
         registry.register("copy_components", CopyComponents.CODEC);
         registry.register("copy_custom_data", CopyCustomData.CODEC);
@@ -144,10 +147,10 @@ public interface LootFunction {
         return newItems;
     }
 
-    record ApplyBonus(@NotNull List<LootPredicate> predicates, @NotNull DynamicRegistry.Key<Enchantment> enchantment, @NotNull Formula.Wrapper formula) implements LootFunction {
+    record ApplyBonus(@NotNull List<LootPredicate> predicates, @NotNull RegistryKey<Enchantment> enchantment, @NotNull Formula.Wrapper formula) implements LootFunction {
         public static final @NotNull StructCodec<ApplyBonus> CODEC = StructCodec.struct(
                 "conditions", LootPredicate.CODEC.list().optional(List.of()), ApplyBonus::predicates,
-                "enchantment", Codec.RegistryKey(Registries::enchantment), ApplyBonus::enchantment,
+                "enchantment", RegistryKey.codec(Registries::enchantment), ApplyBonus::enchantment,
                 StructCodec.INLINE, Formula.CODEC, ApplyBonus::formula,
                 ApplyBonus::new
         );
@@ -451,11 +454,11 @@ public interface LootFunction {
         }
     }
 
-    record EnchantedCountIncrease(@NotNull List<LootPredicate> predicates, @NotNull DynamicRegistry.Key<Enchantment> enchantment,
+    record EnchantedCountIncrease(@NotNull List<LootPredicate> predicates, @NotNull RegistryKey<Enchantment> enchantment,
                                   @NotNull LootNumber count, @Nullable Integer limit) implements LootFunction {
         public static final @NotNull StructCodec<EnchantedCountIncrease> CODEC = StructCodec.struct(
                 "conditions", LootPredicate.CODEC.list().optional(List.of()), EnchantedCountIncrease::predicates,
-                "enchantment", Codec.RegistryKey(Registries::enchantment), EnchantedCountIncrease::enchantment,
+                "enchantment", RegistryKey.codec(Registries::enchantment), EnchantedCountIncrease::enchantment,
                 "count", LootNumber.CODEC, EnchantedCountIncrease::count,
                 "limit", Codec.INT.optional(), EnchantedCountIncrease::limit,
                 EnchantedCountIncrease::new
@@ -481,10 +484,10 @@ public interface LootFunction {
         }
     }
 
-    record EnchantRandomly(@NotNull List<LootPredicate> predicates, @Nullable List<DynamicRegistry.Key<Enchantment>> options, boolean onlyCompatible) implements LootFunction {
+    record EnchantRandomly(@NotNull List<LootPredicate> predicates, @Nullable RegistryTag<Enchantment> options, boolean onlyCompatible) implements LootFunction {
         public static final @NotNull StructCodec<EnchantRandomly> CODEC = StructCodec.struct(
                 "conditions", LootPredicate.CODEC.list().optional(List.of()), EnchantRandomly::predicates,
-                "options", Codec.RegistryKey(Registries::enchantment).list().optional(), EnchantRandomly::options,
+                "options", RegistryTag.codec(Registries::enchantment).optional(), EnchantRandomly::options,
                 "only_compatible", Codec.BOOLEAN.optional(true), EnchantRandomly::onlyCompatible,
                 EnchantRandomly::new
         );
@@ -493,13 +496,8 @@ public interface LootFunction {
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             var reg = MinecraftServer.getEnchantmentRegistry();
 
-            List<DynamicRegistry.Key<Enchantment>> values = new ArrayList<>();
-
-            if (options == null) {
-                reg.values().forEach(value -> values.add(reg.getKey(value)));
-            } else {
-                values.addAll(options);
-            }
+            List<RegistryKey<Enchantment>> values = new ArrayList<>();
+            (options == null ? reg.keys() : options).forEach(values::add);
 
             if (onlyCompatible && !input.material().equals(Material.BOOK)) {
                 values.removeIf(ench -> !reg.get(ench).supportedItems().contains(input.material()));
@@ -509,7 +507,7 @@ public interface LootFunction {
 
             Random rng = context.require(LootContext.RANDOM);
 
-            DynamicRegistry.Key<Enchantment> chosen = values.get(rng.nextInt(values.size()));
+            RegistryKey<Enchantment> chosen = values.get(rng.nextInt(values.size()));
 
             int level = rng.nextInt(reg.get(chosen).maxLevel() + 1);
 
@@ -522,11 +520,11 @@ public interface LootFunction {
         }
     }
 
-    record EnchantWithLevels(@NotNull List<LootPredicate> predicates, @NotNull LootNumber levels, @Nullable List<DynamicRegistry.Key<Enchantment>> options) implements LootFunction {
+    record EnchantWithLevels(@NotNull List<LootPredicate> predicates, @NotNull LootNumber levels, @Nullable RegistryTag<Enchantment> options) implements LootFunction {
         public static final @NotNull StructCodec<EnchantWithLevels> CODEC = StructCodec.struct(
                 "conditions", LootPredicate.CODEC.list().optional(List.of()), EnchantWithLevels::predicates,
                 "levels", LootNumber.CODEC, EnchantWithLevels::levels,
-                "options", Template.keyOrTag(Registries::enchantment, Tag.BasicType.ENCHANTMENTS).optional(), EnchantWithLevels::options,
+                "options", RegistryTag.codec(Registries::enchantment).optional(), EnchantWithLevels::options,
                 EnchantWithLevels::new
         );
 
@@ -635,7 +633,7 @@ public interface LootFunction {
 
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
-            return LootPredicate.all(predicates, context) && predicate.test(input) ?
+            return LootPredicate.all(predicates, context) && predicate.test(input, context) ?
                     modifier.apply(input, context) : input;
         }
 
@@ -1029,10 +1027,10 @@ public interface LootFunction {
         }
     }
 
-    record SetEnchantments(@NotNull List<LootPredicate> predicates, @NotNull Map<DynamicRegistry.Key<Enchantment>, LootNumber> enchantments, boolean add) implements LootFunction {
+    record SetEnchantments(@NotNull List<LootPredicate> predicates, @NotNull Map<RegistryKey<Enchantment>, LootNumber> enchantments, boolean add) implements LootFunction {
         public static final @NotNull StructCodec<SetEnchantments> CODEC = StructCodec.struct(
                 "conditions", LootPredicate.CODEC.list().optional(List.of()), SetEnchantments::predicates,
-                "enchantments", Codec.RegistryKey(Registries::enchantment).mapValue(LootNumber.CODEC), SetEnchantments::enchantments,
+                "enchantments", RegistryKey.codec(Registries::enchantment).mapValue(LootNumber.CODEC), SetEnchantments::enchantments,
                 "add", Codec.BOOLEAN.optional(false), SetEnchantments::add,
                 SetEnchantments::new
         );
@@ -1124,18 +1122,26 @@ public interface LootFunction {
         }
     }
 
-    record SetInstrument(@NotNull List<LootPredicate> predicates) implements LootFunction {
+    record SetInstrument(@NotNull List<LootPredicate> predicates, @NotNull RegistryTag<Instrument> options) implements LootFunction {
         public static final @NotNull StructCodec<SetInstrument> CODEC = StructCodec.struct(
                 "conditions", LootPredicate.CODEC.list().optional(List.of()), SetInstrument::predicates,
+                "options", RegistryTag.codec(Registries::instrument), SetInstrument::options,
                 SetInstrument::new
         );
 
         @Override
         public @NotNull ItemStack apply(@NotNull ItemStack input, @NotNull LootContext context) {
             if (!LootPredicate.all(predicates, context)) return input;
+            if (options.size() == 0) return input;
 
-            // TODO: Incomplete
-            throw new UnsupportedOperationException("TODO: Implement SetInstrument functionality and serialization");
+            int count = context.require(LootContext.RANDOM).nextInt(options.size());
+
+            var it = options.iterator();
+            for (int i = 0; i < count; i++) {
+                it.next();
+            }
+
+            return input.with(DataComponents.INSTRUMENT, new InstrumentComponent(Either.right(it.next())));
         }
 
         @Override

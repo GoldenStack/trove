@@ -1,6 +1,7 @@
 package net.goldenstack.loot;
 
 import net.goldenstack.loot.util.RelevantEntity;
+import net.kyori.adventure.key.Key;
 import net.minestom.server.codec.Codec;
 import net.minestom.server.codec.StructCodec;
 import net.minestom.server.registry.DynamicRegistry;
@@ -23,7 +24,7 @@ public interface LootScore extends Function<@NotNull LootContext, Function<@NotN
     }, LootScore::codec, "type"));
 
     static @NotNull DynamicRegistry<StructCodec<? extends LootScore>> createDefaultRegistry() {
-        final DynamicRegistry<StructCodec<? extends LootScore>> registry = DynamicRegistry.create("minecraft:loot_scores");
+        final DynamicRegistry<StructCodec<? extends LootScore>> registry = DynamicRegistry.create(Key.key("loot_scores"));
         registry.register("context", Context.CODEC);
         registry.register("fixed", Fixed.CODEC);
         return registry;

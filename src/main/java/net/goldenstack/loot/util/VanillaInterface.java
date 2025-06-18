@@ -11,7 +11,7 @@ import net.minestom.server.entity.Entity;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.enchant.Enchantment;
-import net.minestom.server.registry.DynamicRegistry;
+import net.minestom.server.registry.RegistryTag;
 import net.minestom.server.tag.Tag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +39,7 @@ public interface VanillaInterface {
             }
 
             @Override
-            public @NotNull ItemStack enchant(@NotNull Random random, @NotNull ItemStack item, int levels, @Nullable List<DynamicRegistry.Key<Enchantment>> enchantments) {
+            public @NotNull ItemStack enchant(@NotNull Random random, @NotNull ItemStack item, int levels, @Nullable RegistryTag<Enchantment> enchantments) {
                 return item;
             }
 
@@ -85,7 +85,7 @@ public interface VanillaInterface {
 
     @NotNull BinaryTag serializeEntity(@NotNull Entity entity);
 
-    @NotNull ItemStack enchant(@NotNull Random random, @NotNull ItemStack item, int levels, @Nullable List<DynamicRegistry.Key<Enchantment>> enchantments);
+    @NotNull ItemStack enchant(@NotNull Random random, @NotNull ItemStack item, int levels, @Nullable RegistryTag<Enchantment> enchantments);
 
     @Nullable ItemStack smelt(@NotNull ItemStack input);
 
