@@ -21,8 +21,8 @@ public record LootNumberRange(@Nullable LootNumber min, @Nullable LootNumber max
                     return (LootNumber.Constant) r.min();
                 } else throw new UnsupportedOperationException("Using struct codec");
             }).orElse(StructCodec.struct(
-                    "min", LootNumber.CODEC, LootNumberRange::min,
-                    "max", LootNumber.CODEC, LootNumberRange::max,
+                    "min", LootNumber.CODEC.optional(), LootNumberRange::min,
+                    "max", LootNumber.CODEC.optional(), LootNumberRange::max,
                     LootNumberRange::new
             ));
 
