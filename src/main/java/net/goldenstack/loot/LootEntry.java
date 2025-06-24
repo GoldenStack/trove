@@ -12,6 +12,7 @@ import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.registry.Registries;
 import net.minestom.server.registry.RegistryKey;
 import net.minestom.server.registry.RegistryTag;
+import net.minestom.server.utils.Either;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -250,19 +251,23 @@ public interface LootEntry {
     }
 
     record LootTable(@NotNull List<LootPredicate> predicates, @NotNull List<LootFunction> functions,
-                     long weight, long quality, @NotNull Key value) implements Choice.Single {
+                     long weight, long quality, @NotNull Either<Key, net.goldenstack.loot.LootTable> value) implements Choice.Single {
         public static final @NotNull StructCodec<LootTable> CODEC = StructCodec.struct(
                 "conditions", LootPredicate.CODEC.list().optional(List.of()), LootTable::predicates,
                 "functions", LootFunction.CODEC.list().optional(List.of()), LootTable::functions,
                 "weight", Codec.LONG.optional(1L), LootTable::weight,
                 "quality", Codec.LONG.optional(0L), LootTable::quality,
-                "value", Codec.KEY, LootTable::value,
+                "value", Codec.Either(Codec.KEY, net.goldenstack.loot.LootTable.CODEC), LootTable::value,
                 LootTable::new
         );
 
         @Override
         public @NotNull List<ItemStack> generate(@NotNull LootContext context) {
-            var table = context.vanilla().tableRegistry(value);
+            var table = switch (value) {
+                case Either.Left(Key key) -> context.vanilla().tableRegistry(key);
+                case Either.Right(net.goldenstack.loot.LootTable right) -> right;
+            };
+
             if (table == null) return List.of();
 
             return LootFunction.apply(functions, table.generate(context), context);
