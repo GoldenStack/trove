@@ -2,8 +2,8 @@ package net.goldenstack.loot;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.BinaryTag;
-import net.kyori.adventure.nbt.TagStringIOExt;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.adventure.MinestomAdventure;
 import net.minestom.server.codec.Transcoder;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class Trove {
-    
+
     private Trove() {}
     
     /**
@@ -61,7 +61,7 @@ public class Trove {
 
             BinaryTag tag;
             try {
-                tag = TagStringIOExt.readTag(Files.readString(path));
+                tag = MinestomAdventure.tagStringIO().asTag(Files.readString(path));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
